@@ -1,5 +1,14 @@
+*.class
 
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# Mac and IntelliJ
 .DS_Store
 .idea
 *.iml
+
+# Target
 /application/target/
