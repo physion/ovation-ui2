@@ -4,22 +4,21 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.List;
-import javax.swing.JPanel;
 import junit.framework.TestCase;
-import org.joda.time.DateTime;
 import org.junit.*;
 import org.openide.WizardDescriptor;
 import org.openide.util.ChangeSupport;
 import ovation.LogLevel;
 import ovation.Ovation;
-import ovation.Project;
 import ovation.Source;
-import us.physion.ovation.ui.test.TestManager;
 import us.physion.ovation.ui.browser.BrowserTestManager;
-import us.physion.ovation.ui.interfaces.OvationTestCase;
+import us.physion.ovation.ui.test.OvationTestCase;
+import us.physion.ovation.ui.test.TestManager;
+
+import javax.swing.*;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.List;
 
 /**
  *

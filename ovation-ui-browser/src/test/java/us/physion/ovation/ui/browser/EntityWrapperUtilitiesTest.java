@@ -4,28 +4,22 @@
  */
 package us.physion.ovation.ui.browser;
 
-import us.physion.ovation.ui.browser.QueryChildren;
-import us.physion.ovation.ui.browser.EntityWrapperUtilities;
-import java.io.File;
-import java.net.InetAddress;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.*;
-import junit.framework.TestCase;
-import org.apache.log4j.Level;
 import org.junit.*;
-import static org.junit.Assert.*;
-import org.openide.ErrorManager;
 import org.openide.explorer.ExplorerManager;
-import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import ovation.*;
-import ovation.database.DatabaseManager;
-import us.physion.ovation.ui.test.TestManager;
-import us.physion.ovation.ui.interfaces.OvationTestCase;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
+import us.physion.ovation.ui.test.OvationTestCase;
+import us.physion.ovation.ui.test.TestManager;
+
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.*;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  *

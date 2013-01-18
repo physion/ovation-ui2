@@ -26,7 +26,7 @@ import us.physion.ovation.ui.browser.BrowserTestManager;
 import us.physion.ovation.ui.browser.EntityWrapperUtilities;
 import us.physion.ovation.ui.browser.QueryChildren;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
-import us.physion.ovation.ui.interfaces.OvationTestCase;
+import us.physion.ovation.ui.test.OvationTestCase;
 import us.physion.ovation.ui.interfaces.TestEntityWrapper;
 
 /**
