@@ -134,6 +134,12 @@
             <artifactId>ovation-api-module</artifactId>
             <version>1.4</version>
         </dependency>
+
+        <dependency>
+            <groupId>us.physion</groupId>
+            <artifactId>ovation-ui-database-connection-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

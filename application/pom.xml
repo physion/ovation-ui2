@@ -74,6 +74,11 @@
             <artifactId>ovation-ui-browser</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>scrollable-table-tree</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
