@@ -10,7 +10,7 @@
     <groupId>us.physion</groupId>
     <artifactId>ovation-ui-common-interfaces</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>nbm</packaging>
+    <packaging>jar</packaging>
 
     <name>ovation-ui-common-interfaces</name>
 

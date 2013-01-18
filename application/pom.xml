@@ -69,6 +69,11 @@
             <artifactId>ovation-ui-imagej</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-ui-browser</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
