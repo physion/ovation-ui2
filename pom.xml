@@ -72,7 +72,8 @@
         <module>ovation-api-module</module>
         <module>ovation-ui-common-interfaces</module>
         <module>ovation-ui-test</module>
-    </modules>
+    <module>ovation-ui-browser</module>
+  </modules>
 
     <properties>
         <netbeans.version>RELEASE721</netbeans.version>
