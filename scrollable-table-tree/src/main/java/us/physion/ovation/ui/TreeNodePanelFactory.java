@@ -12,9 +12,7 @@ import javax.swing.JTable;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-import ovation.IAuthenticatedDataStoreCoordinator;
 import us.physion.ovation.ui.ScrollableTableTree.TableInTreeCellRenderer;
 
 /**
