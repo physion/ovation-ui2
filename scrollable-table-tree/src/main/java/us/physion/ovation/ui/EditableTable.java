@@ -4,20 +4,14 @@
  */
 package us.physion.ovation.ui;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.util.Arrays;
-import java.util.Vector;
+import ovation.Ovation;
+import us.physion.ovation.ui.interfaces.EventQueueUtilities;
+
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableRowSorter;
-import javax.swing.tree.DefaultTreeModel;
-import ovation.Ovation;
-import us.physion.ovation.interfaces.EventQueueUtilities;
+import java.awt.*;
 
 /**
  *

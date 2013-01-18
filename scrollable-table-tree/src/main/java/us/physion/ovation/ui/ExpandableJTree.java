@@ -4,12 +4,12 @@
  */
 package us.physion.ovation.ui;
 
-import javax.swing.JTree;
+import us.physion.ovation.ui.interfaces.EventQueueUtilities;
+
+import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import us.physion.ovation.interfaces.EventQueueUtilities;
 
 /**
  *
