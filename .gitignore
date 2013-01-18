@@ -12,3 +12,8 @@
 
 # Target
 /*/target/
+
+# Objy
+*.JNL
+*.connection
+*.DB
