@@ -77,7 +77,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
-                    <installerLicenseFile>../licenses/license-BSD.txt</installerLicenseFile>
+                    <installerLicenseFile>../licenses/license-GPL.txt</installerLicenseFile>
                 </configuration>
             </plugin>
             <!-- Permits NbModuleSuite to be run in integration-test phase: -->

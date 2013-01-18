@@ -69,10 +69,10 @@
         <module>application</module>
         <module>ovation-ui-database-connection-provider</module>
         <module>ovation-ui-imagej</module>
-    <module>ovation-api-module</module>
-    <module>ovation-ui-common-interfaces</module>
-    <module>ovation-ui-test</module>
-  </modules>
+        <module>ovation-api-module</module>
+        <module>ovation-ui-common-interfaces</module>
+        <module>ovation-ui-test</module>
+    </modules>
 
     <properties>
         <netbeans.version>RELEASE721</netbeans.version>
