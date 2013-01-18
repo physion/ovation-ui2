@@ -22,7 +22,7 @@ public class BrowserTestManager extends TestManager {
     private static final String CONNECTION_FILE = "data" + File.separator + "browser-test.connection";
 
 
-    BrowserTestManager() {
+    public BrowserTestManager() {
         super(CONNECTION_FILE, LICENSE_INSTITUTION, LICENSE_GROUP, LICENSE_TEXT, FIRST_USER, FIRST_PASSWORD);
     }
 
