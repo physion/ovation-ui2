@@ -38,7 +38,7 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-annotations-common</artifactId>
-            <version>RELEASE721</version>
+            <version>${netbeans.version}</version>
         </dependency>
         
         <dependency>
@@ -60,6 +60,7 @@
                         <publicPackage>ovation.*</publicPackage>
                         <publicPackage>com.objy.db.*</publicPackage>
                         <publicPackage>com.physion.ebuilder.expression.*</publicPackage>
+                        <publicPackage>com.physion.ebuilder.*</publicPackage>
                         <publicPackage>org.apache.log4j.*</publicPackage>
                         <publicPackage>org.jdesktop.swingx.*</publicPackage>
                     </publicPackages>

@@ -10,12 +10,12 @@
     <name>ovation-ui-parent</name>
     <url>http://ovation.io</url>
     <inceptionYear>2010</inceptionYear>
-    
+
     <organization>
         <name>Physion Consulting LLC</name>
         <url>http://www.physionconsulting.com</url>
     </organization>
-    
+
 
     <repositories>
         <!--
@@ -28,7 +28,7 @@
             <name>NetBeans</name>
             <url>http://bits.netbeans.org/maven2/</url>
         </repository>
-        
+
     </repositories>
 
     <build>
@@ -72,9 +72,9 @@
         <module>ovation-api-module</module>
         <module>ovation-ui-common-interfaces</module>
         <module>ovation-ui-test</module>
-    <module>ovation-ui-browser</module>
-    <module>scrollable-table-tree</module>
-  </modules>
+        <module>ovation-ui-browser</module>
+        <module>scrollable-table-tree</module>
+    </modules>
 
     <properties>
         <netbeans.version>RELEASE721</netbeans.version>

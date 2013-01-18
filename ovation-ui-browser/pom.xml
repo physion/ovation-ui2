@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
-    <artifactId>ovation-ui-parent</artifactId>
-    <groupId>us.physion</groupId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
+        <artifactId>ovation-ui-parent</artifactId>
+        <groupId>us.physion</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
     <groupId>us.physion</groupId>
     <artifactId>ovation-ui-browser</artifactId>
@@ -38,46 +39,100 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-annotations-common</artifactId>
-            <version>RELEASE721</version>
+            <version>${netbeans.version}</version>
         </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-api-module</artifactId>
             <version>1.4</version>
         </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-ui-common-interfaces</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-actions</artifactId>
-            <version>RELEASE721</version>
+            <version>${netbeans.version}</version>
             <type>jar</type>
         </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-dialogs</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-awt</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-explorer</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-nodes</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-windows</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-lookup</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>us.physion</groupId>
             <artifactId>ovation-ui-test</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>test</scope>
-            <type>jar</type>
         </dependency>
+
         <dependency>
             <groupId>org.swinglabs</groupId>
             <artifactId>swing-layout</artifactId>
             <version>1.0.3</version>
         </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>scrollable-table-tree</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-settings</artifactId>
-            <version>RELEASE721</version>
+            <version>${netbeans.version}</version>
             <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>us.physion</groupId>
+            <artifactId>ovation-api-module</artifactId>
+            <version>1.4</version>
         </dependency>
     </dependencies>
 
