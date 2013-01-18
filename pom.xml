@@ -73,6 +73,7 @@
         <module>ovation-ui-common-interfaces</module>
         <module>ovation-ui-test</module>
     <module>ovation-ui-browser</module>
+    <module>scrollable-table-tree</module>
   </modules>
 
     <properties>
