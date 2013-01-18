@@ -11,4 +11,4 @@
 *.iml
 
 # Target
-/application/target/
+/*/target/
