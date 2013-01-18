@@ -17,3 +17,6 @@
 *.JNL
 *.connection
 *.DB
+*.ipr
+
+*.iws
