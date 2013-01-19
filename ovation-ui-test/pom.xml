@@ -10,7 +10,7 @@
     <groupId>us.physion</groupId>
     <artifactId>ovation-ui-test</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>nbm</packaging>
 
     <name>ovation-ui-test</name>
 

@@ -73,8 +73,8 @@
         <module>ovation-ui-common-interfaces</module>
         <module>ovation-ui-test</module>
         <module>ovation-ui-browser</module>
-    <module>scrollable-table-tree</module>
-  </modules>
+        <module>scrollable-table-tree</module>
+    </modules>
 
     <properties>
         <netbeans.version>RELEASE721</netbeans.version>
