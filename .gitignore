@@ -11,4 +11,14 @@
 *.iml
 
 # Target
-/application/target/
+/*/target/
+
+# Objy
+*.JNL
+*.connection
+*.DB
+*.ipr
+
+*.iws
+
+*.fdb
