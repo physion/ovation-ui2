@@ -64,6 +64,7 @@
                         <publicPackage>com.physion.ebuilder.*</publicPackage>
                         <publicPackage>org.apache.log4j.*</publicPackage>
                         <publicPackage>org.jdesktop.swingx.*</publicPackage>
+                        <publicPackage>org.joda.time.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
