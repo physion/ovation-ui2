@@ -94,11 +94,6 @@
             <artifactId>ovation-ui-annotation-views</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ovation-ui-image-importer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>

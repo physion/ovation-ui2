@@ -74,6 +74,9 @@
         <module>ovation-ui-test</module>
         <module>ovation-ui-browser</module>
         <module>scrollable-table-tree</module>
+        <module>ovation-ui-data-viewer</module>
+        <module>ovation-ui-annotation-views</module>
+        <module>ovation-ui-image-importer</module>
     </modules>
 
     <properties>
