@@ -3,10 +3,25 @@
         <action>
             <actionName>build</actionName>
             <goals>
-                <goal>compile</goal>
-                <goal>nbm:cluster-apps</goal>
-                <goal>nbm:run-platform</goal>
+                <goal>install</goal>
                 <goal>-DskipTests</goal>
+                
+                
+            </goals>
+        </action>
+        <action>
+            <actionName>rebuild</actionName>
+            <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+                <goal>-DskipTests</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>test</actionName>
+            <goals>
+                <goal>install</goal>
+                <goal>test</goal>
             </goals>
         </action>
     </actions>
