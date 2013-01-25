@@ -7,6 +7,7 @@ package us.physion.ovation.ui.detailviews;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
@@ -23,6 +24,7 @@ import org.openide.util.lookup.ServiceProvider;
 import ovation.IAnnotation;
 import ovation.IAuthenticatedDataStoreCoordinator;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /**
@@ -55,8 +57,7 @@ public final class NotesTopComponent extends TopComponent {
 
             //TODO: we should have some other Interface for things that can update the tags view
             //then we could get rid of the Library dependancy on the Explorer API
-            if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider)
-            {
+            if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider){
                 update();
             }
         }
@@ -65,12 +66,17 @@ public final class NotesTopComponent extends TopComponent {
     protected Lookup.Result<IEntityWrapper> global;
     protected Collection<? extends IEntityWrapper> entities;
     NotesTableModel notesModel;
+    NotesTableRenderer renderer;
     public NotesTopComponent() {
         notesModel = new NotesTableModel();
         initComponents();
         setName(Bundle.CTL_NotesTopComponent());
         setToolTipText(Bundle.HINT_NotesTopComponent());
         notesModel.addTableModelListener(new NotesListener());
+        renderer = new NotesTableRenderer();
+        jTable1.setDefaultRenderer(Object.class, renderer);
+        jTable1.setDefaultEditor(Object.class, renderer);
+        //jList1.setCellRenderer(new NotesListRenderer());
         
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         global.addLookupListener(listener);
@@ -92,7 +98,7 @@ public final class NotesTopComponent extends TopComponent {
         jLabel1 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        jTable1 = new JTable();
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(NotesTopComponent.class, "NotesTopComponent.jLabel1.text")); // NOI18N
@@ -107,11 +113,11 @@ public final class NotesTopComponent extends TopComponent {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 792, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 792, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 639, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -156,8 +162,16 @@ public final class NotesTopComponent extends TopComponent {
         setEntities(entities);
     }
     
-    public void setEntities(Collection<? extends IEntityWrapper> entities)
+    public void setEntities(final Collection<? extends IEntityWrapper> entities)
     {
-        notesModel.setEntities(entities);
+        EventQueueUtilities.runOffEDT(new Runnable(){
+
+            @Override
+            public void run() {
+                renderer.editor = null;
+                notesModel.setEntities(entities);
+            }
+        });
+        
     }
 }

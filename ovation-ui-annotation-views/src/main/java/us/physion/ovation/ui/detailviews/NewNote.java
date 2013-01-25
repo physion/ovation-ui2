@@ -60,7 +60,6 @@ public final class NewNote implements ActionListener {
         if (d.isCancelled())
             return;
         
-        
         Note note = null;
         for (IEntityWrapper ent : entities)
         {
