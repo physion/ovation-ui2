@@ -10,7 +10,7 @@
 
     <groupId>us.physion</groupId>
     <artifactId>ovation-api-module</artifactId>
-    <version>1.4</version>
+    <version>1.4.2</version>
     <packaging>nbm</packaging>
 
     <name>ovation-api-module</name>
