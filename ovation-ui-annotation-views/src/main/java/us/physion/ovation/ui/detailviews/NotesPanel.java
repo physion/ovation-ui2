@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.detailviews;
 
+import java.awt.event.KeyEvent;
 import java.util.Locale;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -21,15 +22,37 @@ public class NotesPanel extends javax.swing.JPanel {
      * Creates new form NotesPanel
      */
     public NotesPanel(NoteValue n) {
+        this();
+        setNoteValue(n);
+
+    }
+    
+    public NotesPanel() {
+        initComponents();
+        jTextArea1.setEditable(false);
+    }
+    
+    public void setNoteValue(NoteValue n)
+    {
         text = n.text;
         timestamp = n.timestamp;
-        initComponents();
+        
         if (timestamp != null) {
             DateTimeFormatter dtf = DateTimeFormat.forStyle("SM").withLocale(Locale.getDefault());
             dateText.setText(n.timestamp.toString(dtf));
         }
         jTextArea1.setText(text);
-        jTextArea1.setEditable(true);
+        jScrollPane1.setSize(jScrollPane1.getPreferredSize());
+    }
+    
+    public void resize()
+    {
+        jScrollPane1.setSize(jScrollPane1.getPreferredSize());
+    }
+    
+    void setEditable(boolean b)
+    {
+       jTextArea1.setEditable(b);
     }
     
     /**
@@ -50,7 +73,9 @@ public class NotesPanel extends javax.swing.JPanel {
         dateText.setText(org.openide.util.NbBundle.getMessage(NotesPanel.class, "NotesPanel.dateText.text")); // NOI18N
 
         jTextArea1.setColumns(20);
+        jTextArea1.setFont(new java.awt.Font("Lucida Grande", 2, 13)); // NOI18N
         jTextArea1.setRows(5);
+        jTextArea1.setBorder(null);
         jTextArea1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 jTextArea1KeyReleased(evt);
@@ -62,24 +87,28 @@ public class NotesPanel extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)
             .add(layout.createSequentialGroup()
                 .add(dateText)
                 .add(0, 0, Short.MAX_VALUE))
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(dateText)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE))
+                .add(dateText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 92, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTextArea1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextArea1KeyReleased
         text = jTextArea1.getText();
+
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER)//enter key
+        {
+            this.firePropertyChange("done.editing", true, false);
+        }
+        
     }//GEN-LAST:event_jTextArea1KeyReleased
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

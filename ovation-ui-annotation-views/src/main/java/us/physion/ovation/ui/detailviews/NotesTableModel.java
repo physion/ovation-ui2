@@ -20,19 +20,6 @@ import us.physion.ovation.ui.detailviews.NoteValue;
  */
 class NotesTableModel extends DefaultTableModel {
 
-    void writeToDatabase(int firstRow, int lastRow) {
-
-        int lim = Math.min(lastRow, notes.size()-1);
-        for (int i = firstRow; i <= lim; i++) {
-            NoteValue v = notes.get(i);
-            if (v.text != null && !v.text.isEmpty())
-            {
-                IAnnotation n = (IAnnotation) dsc.getContext().objectWithURI(v.uri);
-                n.setText(v.text);      
-            }
-        }
-    }
-
     IAuthenticatedDataStoreCoordinator dsc;
     List<NoteValue> notes;
 
@@ -47,6 +34,13 @@ class NotesTableModel extends DefaultTableModel {
 
     public void setEntities(Collection<? extends IEntityWrapper> entities) {
         Set<String> annotationUUIDs = new HashSet();
+        final int oldSize;
+        if (notes != null)
+        {
+            oldSize = notes.size();
+        }else{
+            oldSize = 0;
+        }
         notes = new ArrayList<NoteValue>();
         for (IEntityWrapper ew : entities) {
             if (IAnnotatableEntityBase.class.isAssignableFrom(ew.getType())) {
@@ -60,11 +54,12 @@ class NotesTableModel extends DefaultTableModel {
             }
         }
         Collections.sort(notes);
+        
         EventQueueUtilities.runOnEDT(new Runnable(){
 
             @Override
             public void run() {
-                NotesTableModel.this.fireTableDataChanged();
+                NotesTableModel.this.fireTableStructureChanged();
             }
         });
     }
@@ -129,7 +124,7 @@ class NotesTableModel extends DefaultTableModel {
         }
         return "";
     }
-/*
+
     @Override
     public void setValueAt(final Object val, final int row, final int column) {
         if (row > notes.size()) {
@@ -141,12 +136,6 @@ class NotesTableModel extends DefaultTableModel {
             @Override
             public void run() {
                 NoteValue note = notes.get(row);
-                if (val instanceof NoteValue)
-                {
-                    IAnnotation a = note.getAnnotation(dsc);
-                    a.setText(((NoteValue)val).text);
-                    note.update(dsc);
-                }
                 
                 if (val instanceof String)
                 {
@@ -161,10 +150,17 @@ class NotesTableModel extends DefaultTableModel {
                     a.addProperty("ovation_timestamp", new Timestamp(((DateTime) val).getMillis()));
                     a.addProperty("ovation_timezone", Calendar.getInstance().getTimeZone().getID());
                 }
+                EventQueueUtilities.runOnEDT(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        fireTableCellUpdated(row, column);
+                    }
+                });
             }
         });
     }
-    */
+  
 
     public void addNote(final IAnnotation ann) {
         

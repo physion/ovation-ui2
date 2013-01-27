@@ -8,10 +8,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.util.EventObject;
 import java.util.Locale;
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.CellEditorListener;
 import javax.swing.table.TableCellEditor;
@@ -24,10 +21,15 @@ import org.joda.time.format.DateTimeFormatter;
  *
  * @author jackie
  */
-class NotesTableRenderer implements TableCellRenderer, TableCellEditor {
+class NotesTableRenderer extends AbstractCellEditor implements TableCellRenderer, TableCellEditor {
 
     NotesPanel editor;
-    public NotesTableRenderer() {
+    NotesTableModel m;
+    int row,column;
+    public NotesTableRenderer(NotesTableModel model) {
+        m = model;
+        editor = new NotesPanel();
+        editor.setEditable(true);
     }
 
     @Override
@@ -89,7 +91,22 @@ class NotesTableRenderer implements TableCellRenderer, TableCellEditor {
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         ///this will only be used for String values, which correspond to TextAreas here
-        editor = (NotesPanel)getTableCellRendererComponent( table,  value,  isSelected, true,  row,  column);
+        if (editor == null)
+        {
+            editor = new NotesPanel();
+            editor.setEditable(true);
+            editor.addPropertyChangeListener(new NotesPropertyListener(this));
+        }
+        if (value != null)
+        {
+            editor.setNoteValue((NoteValue)value);
+            int cWidth = table.getTableHeader().getColumnModel().getColumn(column).getWidth();
+            int prefH = editor.getPreferredSize().height;
+            editor.setSize(new Dimension(cWidth, prefH));
+            table.setRowHeight(row, prefH);
+        }
+        this.row = row;
+        this.column = column;
         return editor;
     }
 
@@ -98,37 +115,16 @@ class NotesTableRenderer implements TableCellRenderer, TableCellEditor {
         if (editor == null)
             return "";
         
-        //return editor if datetime also has changed
+        //return datetime if changed
         
         return editor.text;
     }
 
     @Override
-    public boolean isCellEditable(EventObject anEvent) {
-        return true;
-    }
-
-    @Override
-    public boolean shouldSelectCell(EventObject anEvent) {
-        return true;
-    }
-
-    @Override
     public boolean stopCellEditing() {
-        
-        return true;
-    }
-
-    @Override
-    public void cancelCellEditing() {
-    }
-
-    @Override
-    public void addCellEditorListener(CellEditorListener l) {
-        
-    }
-
-    @Override
-    public void removeCellEditorListener(CellEditorListener l) {
+        boolean b = super.stopCellEditing();
+        //if (b)
+        //    m.setValueAt(getCellEditorValue(), row, column);
+        return b;
     }
 }

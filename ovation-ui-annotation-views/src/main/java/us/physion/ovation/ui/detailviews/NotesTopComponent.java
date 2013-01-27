@@ -72,8 +72,7 @@ public final class NotesTopComponent extends TopComponent {
         initComponents();
         setName(Bundle.CTL_NotesTopComponent());
         setToolTipText(Bundle.HINT_NotesTopComponent());
-        notesModel.addTableModelListener(new NotesListener());
-        renderer = new NotesTableRenderer();
+        renderer = new NotesTableRenderer(notesModel);
         jTable1.setDefaultRenderer(Object.class, renderer);
         jTable1.setDefaultEditor(Object.class, renderer);
         //jList1.setCellRenderer(new NotesListRenderer());
