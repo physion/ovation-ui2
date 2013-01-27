@@ -43,6 +43,11 @@ public final class NewNote implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         //Lookup entities
         Collection<? extends IEntityWrapper> entities = Utilities.actionsGlobalContext().lookupAll(IEntityWrapper.class);
+        NotesTopComponent component = Lookup.getDefault().lookup(NotesTopComponent.class);
+        if (entities.isEmpty() && component != null && component.getEntities() != null)
+        {
+            entities = component.getEntities();
+        }
         boolean annotatable = false;
         for (IEntityWrapper ent : entities)
         {
@@ -72,7 +77,6 @@ public final class NewNote implements ActionListener {
                         note = (Note)entity.addNote(d.getNote());
                         note.addProperty("ovation_timestamp",  new Timestamp(new DateTime().getMillis()));
                         note.addProperty("ovation_timezone",  Calendar.getInstance().getTimeZone().getID());
-                        NotesTopComponent component = Lookup.getDefault().lookup(NotesTopComponent.class);
                         if (component != null)
                             component.addNote(note);// add the note to the existing table
                     }

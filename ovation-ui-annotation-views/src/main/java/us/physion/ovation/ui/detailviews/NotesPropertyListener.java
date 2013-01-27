@@ -24,6 +24,11 @@ class NotesPropertyListener implements PropertyChangeListener {
         {
             renderer.stopCellEditing();
         }
+        
+        if (pce.getPropertyName().equals("delete"))
+        {
+            renderer.delete();
+        }
     }
     
 }

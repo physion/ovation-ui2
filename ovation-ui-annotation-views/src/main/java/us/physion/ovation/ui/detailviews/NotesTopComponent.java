@@ -173,4 +173,8 @@ public final class NotesTopComponent extends TopComponent {
         });
         
     }
+
+    Collection<? extends IEntityWrapper> getEntities() {
+        return entities;
+    }
 }

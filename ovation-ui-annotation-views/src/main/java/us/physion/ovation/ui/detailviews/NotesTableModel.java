@@ -56,7 +56,6 @@ class NotesTableModel extends DefaultTableModel {
         Collections.sort(notes);
         
         EventQueueUtilities.runOnEDT(new Runnable(){
-
             @Override
             public void run() {
                 NotesTableModel.this.fireTableStructureChanged();
@@ -150,13 +149,13 @@ class NotesTableModel extends DefaultTableModel {
                     a.addProperty("ovation_timestamp", new Timestamp(((DateTime) val).getMillis()));
                     a.addProperty("ovation_timezone", Calendar.getInstance().getTimeZone().getID());
                 }
-                EventQueueUtilities.runOnEDT(new Runnable() {
+                /*EventQueueUtilities.runOnEDT(new Runnable() {
 
                     @Override
                     public void run() {
                         fireTableCellUpdated(row, column);
                     }
-                });
+                });*/
             }
         });
     }
