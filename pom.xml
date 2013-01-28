@@ -80,7 +80,8 @@
         <module>ovation-ui-data-viewer</module>
         <module>ovation-ui-annotation-views</module>
         <module>ovation-ui-image-importer</module>
-    </modules>
+		<module>ovation-ui-query</module>
+  </modules>
 
     <properties>
         <netbeans.version>RELEASE721</netbeans.version>

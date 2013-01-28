@@ -86,17 +86,17 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ovation-ui-data-viewer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>ovation-ui-annotation-views</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-ui-image-importer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-ui-query</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -111,10 +111,11 @@
 					<installerLicenseFile>../licenses/license-GPL.txt</installerLicenseFile>
 					<installerOsLinux>true</installerOsLinux>
 					<installerOsMacosx>true</installerOsMacosx>
+					<installerOsWindows>true</installerOsWindows>
 					<installerOsSolaris>false</installerOsSolaris>
 					<templateFile>${basedir}/installer/template.xml</templateFile>
 					<userSettings>
-						<nbi.icon.file>${basedir}/installer/ovation_48.png</nbi.icon.file>
+						<nbi.icon.file>${basedir}/installer/ovation_48x48.png</nbi.icon.file>
 					</userSettings>
                 </configuration>
             </plugin>
