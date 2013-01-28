@@ -145,7 +145,7 @@ public class FileMetadata {
     public Map<String, Object> getEpochProperties() {
         return epochProperties;
     }
-    
+
     public List<Map<String, Object>> getDevices() {
         return instruments;
     }
@@ -153,7 +153,7 @@ public class FileMetadata {
     public List<Map<String, Object>> getResponses() {
         return responses;
     }
-    
+
     private void parseRetrieve(MetadataRetrieve retrieve, Hashtable original) {
         instruments = getInstrumentData();
 
@@ -167,33 +167,31 @@ public class FileMetadata {
 
         responses = new ArrayList<Map<String, Object>>();
 
-        for (int j = 0; j < retrieve.getImageCount(); j++) {
+        int count = (Integer) catchNullPointer(retrieve, "getImageCount", null, null);
+        for (int j = 0; j < count; j++) {
             Map<String, Object> responseStruct = new HashMap<String, Object>();
             put("name", "response" + j, responseStruct, true);
             put("properties", getResponseProperties(j), responseStruct, true);
 
-            String ref = (String)get(retrieve, "getImageInstrumentRef", new Class[]{Integer.TYPE}, new Object[]{j});
-            for(Map<String, Object> device : instruments){
-                if (device.get("ID").equals(ref))
-                {
-                    put("device.name", device.get("ID"), responseStruct, true);
-                    put("device.manufacturer", device.get("manufacturer"), responseStruct, true);
+            String ref = (String) catchNullPointer(retrieve, "getImageInstrumentRef", new Class[]{Integer.TYPE}, new Object[]{j});
+            if (ref != null) {
+                for (Map<String, Object> device : instruments) {
+                    if (device.get("ID").equals(ref)) {
+                        put("device.name", device.get("ID"), responseStruct, true);
+                        put("device.manufacturer", device.get("manufacturer"), responseStruct, true);
+                    }
                 }
+
+                put("device.parameters", getDeviceParameters(j), responseStruct, true);
             }
-
-            put("device.parameters", getDeviceParameters(j), responseStruct, true);
-
             try {
                 put("url", getFile().toURI().toURL().toExternalForm(), responseStruct, true);
             } catch (MalformedURLException ex) {
                 throw new OvationException("Unable to get url for image file. " + ex.getMessage());
             }
-            long[] shape = new long[]{retrieve.getPixelsSizeX(j).getValue().longValue(),
-                retrieve.getPixelsSizeY(j).getValue().longValue(),
-                retrieve.getPixelsSizeZ(j).getValue().longValue(),
-                retrieve.getPixelsSizeC(j).getValue().longValue(),
-                retrieve.getPixelsSizeT(j).getValue().longValue()};
-            put("shape", shape, responseStruct, true);
+
+            addMultidimensionalFields(retrieve, responseStruct, j);
+
             //data type doesn't actually matter, since this is not a NumericData object
             ByteOrder b;
             if (retrieve.getPixelsBinDataBigEndian(j, 0)) {
@@ -203,20 +201,6 @@ public class FileMetadata {
             }
             put("dataType", new NumericDataType(NumericDataFormat.SignedFixedPointDataType, (short) 4, b), responseStruct, true);
             put("units", "pixels", responseStruct, true);
-
-            put("dimensionLabels", new String[]{"X", "Y", "Z", "Channels", "Time"}, responseStruct, true);
-            double timeIncrement = retrieve.getPixelsTimeIncrement(j).doubleValue();
-            put("samplingRates", new double[]{
-                        shape[0] == 0 ? 0 : retrieve.getPixelsPhysicalSizeX(j).getValue() / shape[0],
-                        shape[1] == 0 ? 0 : retrieve.getPixelsPhysicalSizeY(j).getValue() / shape[1],
-                        shape[2] == 0 ? 0 : retrieve.getPixelsPhysicalSizeZ(j).getValue() / shape[2],
-                        1,
-                        timeIncrement == 0 ? 0 : (1 / timeIncrement)}, responseStruct, true);
-            put("samplingRateUnits", new String[]{"microns",
-                        "microns",
-                        "frames",
-                        "channels",
-                        "Hz"}, responseStruct, true);//TODO not sure about Hz
             put("uti", "public.tiff", responseStruct, true);//TODO: fix - get file type?
 
             //TODO: planes (represent images in time)
@@ -231,30 +215,46 @@ public class FileMetadata {
         put("imageName", retrieve.getImageName(imageNum), parameters);
         put("imageDescription", retrieve.getImageDescription(imageNum), parameters);
         put("imageID", retrieve.getImageID(imageNum), parameters);
-        
-        try{ put("imagingEnvironment.airPressure", retrieve.getImagingEnvironmentAirPressure(imageNum), parameters);
-        } catch (NullPointerException e){}
-        try{put("imagingEnvironment.CO2Percent", retrieve.getImagingEnvironmentCO2Percent(imageNum), parameters);
-        } catch (NullPointerException e){}
-        try{put("imagingEnvironment.humidity", retrieve.getImagingEnvironmentHumidity(imageNum), parameters);
-        } catch (NullPointerException e){}
-        try{put("imagingEnvironment.temperature", retrieve.getImagingEnvironmentTemperature(imageNum), parameters);
-        } catch (NullPointerException e){}
-        try{
-            put("stage." + retrieve.getStageLabelName(imageNum) +".x", retrieve.getStageLabelX(imageNum), parameters);
-            put("stage." + retrieve.getStageLabelName(imageNum) +".y", retrieve.getStageLabelY(imageNum), parameters);
-            put("stage." + retrieve.getStageLabelName(imageNum) +".z", retrieve.getStageLabelZ(imageNum), parameters);
-        } catch (NullPointerException e){}
-        
+
+        try {
+            put("imagingEnvironment.airPressure", retrieve.getImagingEnvironmentAirPressure(imageNum), parameters);
+        } catch (NullPointerException e) {
+        }
+        try {
+            put("imagingEnvironment.CO2Percent", retrieve.getImagingEnvironmentCO2Percent(imageNum), parameters);
+        } catch (NullPointerException e) {
+        }
+        try {
+            put("imagingEnvironment.humidity", retrieve.getImagingEnvironmentHumidity(imageNum), parameters);
+        } catch (NullPointerException e) {
+        }
+        try {
+            put("imagingEnvironment.temperature", retrieve.getImagingEnvironmentTemperature(imageNum), parameters);
+        } catch (NullPointerException e) {
+        }
+        try {
+            put("stage." + retrieve.getStageLabelName(imageNum) + ".x", retrieve.getStageLabelX(imageNum), parameters);
+            put("stage." + retrieve.getStageLabelName(imageNum) + ".y", retrieve.getStageLabelY(imageNum), parameters);
+            put("stage." + retrieve.getStageLabelName(imageNum) + ".z", retrieve.getStageLabelZ(imageNum), parameters);
+        } catch (NullPointerException e) {
+        }
+
         try {
             String obj = "objective";
             put(obj + ".settingsID", retrieve.getObjectiveSettingsID(imageNum), parameters);
             put(obj + ".settingsMedium", retrieve.getObjectiveSettingsMedium(imageNum), parameters);
             put(obj + ".settingsRefractiveIndex", retrieve.getObjectiveSettingsRefractiveIndex(imageNum), parameters);
             put(obj + ".settingsCorrectionCollar", retrieve.getObjectiveSettingsCorrectionCollar(imageNum), parameters);
-        } catch (NullPointerException e) {}
-        
-        for (int i = 0; i < retrieve.getChannelCount(imageNum); i++) {
+        } catch (NullPointerException e) {
+        }
+
+        int channelCount = 0;
+        try {
+            channelCount = retrieve.getChannelCount(imageNum);
+        } catch (IndexOutOfBoundsException e) {
+        }
+
+        for (int i = 0; i < channelCount; i++) {
             String channelID = "channel_" + retrieve.getChannelID(imageNum, i);
             put(channelID + ".acqisitionMode", retrieve.getChannelAcquisitionMode(imageNum, i), parameters);
             put(channelID + ".color", retrieve.getChannelColor(imageNum, i), parameters);
@@ -263,13 +263,14 @@ public class FileMetadata {
             put(channelID + ".illuminationType", retrieve.getChannelIlluminationType(imageNum, i), parameters);
             put(channelID + ".fluor", retrieve.getChannelFluor(imageNum, i), parameters);
             put(channelID + ".ID", retrieve.getChannelID(imageNum, i), parameters);
-            
-            try{
+
+            try {
                 put(channelID + ".lightSourceSettingsID", retrieve.getChannelLightSourceSettingsID(imageNum, i), parameters);
                 put(channelID + ".lightSourceSettingsAttenuation", retrieve.getChannelLightSourceSettingsAttenuation(imageNum, i), parameters);
                 put(channelID + ".lightSourceSettingsWavelength", retrieve.getChannelLightSourceSettingsWavelength(imageNum, i), parameters);
-            } catch (NullPointerException e){}
-            
+            } catch (NullPointerException e) {
+            }
+
             put(channelID + ".name", retrieve.getChannelName(imageNum, i), parameters);
             put(channelID + ".NDFilter", retrieve.getChannelNDFilter(imageNum, i), parameters);
             put(channelID + ".pinholeSize", retrieve.getChannelPinholeSize(imageNum, i), parameters);
@@ -284,60 +285,74 @@ public class FileMetadata {
                 put(channelDetector + ".settingsOffset", retrieve.getDetectorSettingsOffset(imageNum, i), parameters);//TODO: do they really mean channel number?
                 put(channelDetector + ".settingsReadOutRate", retrieve.getDetectorSettingsReadOutRate(imageNum, i), parameters);//TODO: do they really mean channel number?
                 put(channelDetector + ".settingsVoltage", retrieve.getDetectorSettingsVoltage(imageNum, i), parameters);//TODO: do they really mean channel number?
-            } catch (NullPointerException e) {}
+            } catch (NullPointerException e) {
+            }
         }
 
-        try{
-            for (int i = 0; i < retrieve.getMicrobeamManipulationCount(imageNum); i++) {
-                put("microbeamManipulation" + i + ".ID", retrieve.getMicrobeamManipulationID(imageNum, i), parameters);
-                put("microbeamManipulation" + i + ".description", retrieve.getMicrobeamManipulationDescription(imageNum, i), parameters);
-                put("microbeamManipulation" + i + ".type", retrieve.getMicrobeamManipulationType(imageNum, i), parameters);
+        int mmCount = 0;
+        try {
+            mmCount = retrieve.getMicrobeamManipulationCount(imageNum);
+        } catch (IndexOutOfBoundsException e) {
+        }
+        for (int i = 0; i < mmCount; i++) {
+            put("microbeamManipulation" + i + ".ID", retrieve.getMicrobeamManipulationID(imageNum, i), parameters);
+            put("microbeamManipulation" + i + ".description", retrieve.getMicrobeamManipulationDescription(imageNum, i), parameters);
+            put("microbeamManipulation" + i + ".type", retrieve.getMicrobeamManipulationType(imageNum, i), parameters);
 
-                //for each light source ?
-                //put("microbeamManipulation" + i+"."+ "lightSourceSettingsAttenuation", retrieve.getMicrobeamManipulationLightSourceSettingsAttenuation(imageNumber, i), parameters);
-                //put("microbeamManipulation" + i+"."+ "lightSourceSettingsID", retrieve.getMicrobeamManipulationLightSourceSettingsID(imageNumber, i), parameters);
-                //put("microbeamManipulation" + i+"."+ "lightSourceSettingnWavelength", retrieve.getMicrobeamManipulationLightSourceSettingsWavelength(imageNumber, i), parameters);
+            //for each light source ?
+            //put("microbeamManipulation" + i+"."+ "lightSourceSettingsAttenuation", retrieve.getMicrobeamManipulationLightSourceSettingsAttenuation(imageNumber, i), parameters);
+            //put("microbeamManipulation" + i+"."+ "lightSourceSettingsID", retrieve.getMicrobeamManipulationLightSourceSettingsID(imageNumber, i), parameters);
+            //put("microbeamManipulation" + i+"."+ "lightSourceSettingnWavelength", retrieve.getMicrobeamManipulationLightSourceSettingsWavelength(imageNumber, i), parameters);
 
-            }
-        }catch (IndexOutOfBoundsException e){}
+        }
 
-        for (int k = 0; k < retrieve.getLightSourceCount(imageNum); k++) {
+        int lsCount = 0;
+        try {
+            lsCount = retrieve.getLightSourceCount(imageNum);
+        } catch (IndexOutOfBoundsException e) {
+        }
+        for (int k = 0; k < lsCount; k++) {
             String type = retrieve.getLightSourceType(imageNum, k).toLowerCase();
-            
-            if (type.equals("arc"))
-            {
+
+            if (type.equals("arc")) {
                 String arcName = "arc_" + retrieve.getArcID(imageNum, k);
                 put(arcName + ".power", retrieve.getArcPower(imageNum, k), parameters);
             }
-            if (type.equals("filament"))
-            {
+            if (type.equals("filament")) {
                 String filamentName = "filament_" + retrieve.getFilamentID(imageNum, k);
                 put(filamentName + ".power", retrieve.getFilamentPower(imageNum, k), parameters);
             }
-            
-            if (type.equals("laser"))
-            {
+
+            if (type.equals("laser")) {
                 String laserName = "laser_" + retrieve.getLaserID(imageNum, k);
                 put(laserName + ".frequencyMultiplication", retrieve.getLaserFrequencyMultiplication(imageNum, k), parameters);
                 put(laserName + ".medium", retrieve.getLaserLaserMedium(imageNum, k), parameters);
-                try{put(laserName + ".pockelCell", retrieve.getLaserPockelCell(imageNum, k), parameters);
-                } catch (NullPointerException e){}
+                try {
+                    put(laserName + ".pockelCell", retrieve.getLaserPockelCell(imageNum, k), parameters);
+                } catch (NullPointerException e) {
+                }
                 put(laserName + ".power", retrieve.getLaserPower(imageNum, k), parameters);
-                try{put(laserName + ".pump", retrieve.getLaserPump(imageNum, k), parameters);
-                } catch (NullPointerException e){}
+                try {
+                    put(laserName + ".pump", retrieve.getLaserPump(imageNum, k), parameters);
+                } catch (NullPointerException e) {
+                }
                 put(laserName + ".repetitionRate", retrieve.getLaserRepetitionRate(imageNum, k), parameters);
                 put(laserName + ".tuneable", retrieve.getLaserTuneable(imageNum, k), parameters);
                 put(laserName + ".wavelength", retrieve.getLaserWavelength(imageNum, k), parameters);
             }
-            
-            if(type.equals("lightEmittingDiodeName"))
-            {
+
+            if (type.equals("lightEmittingDiodeName")) {
                 String lightEmittingDiodeName = "lightEmittingDiodeName_" + retrieve.getLightEmittingDiodeID(imageNum, k);
                 put(lightEmittingDiodeName + ".power", retrieve.getLightEmittingDiodePower(imageNum, k), parameters);
             }
         }
 
-        for (int k = 0; k < retrieve.getObjectiveCount(imageNum); k++) {
+        int objCount = 0;
+        try {
+            objCount = retrieve.getObjectiveCount(imageNum);
+        } catch (IndexOutOfBoundsException e) {
+        }
+        for (int k = 0; k < objCount; k++) {
             String objName = "objective_" + retrieve.getObjectiveID(imageNum, k);
             put(objName + ".calibratedMagnification", retrieve.getObjectiveCalibratedMagnification(imageNum, k), parameters);
             put(objName + ".correction", retrieve.getObjectiveCorrection(imageNum, k), parameters);
@@ -348,7 +363,12 @@ public class FileMetadata {
             put(objName + ".workingDistance", retrieve.getObjectiveWorkingDistance(imageNum, k), parameters);
         }
 
-        for (int k = 0; k < retrieve.getFilterCount(imageNum); k++) {
+        int filterCount = 0;
+        try {
+            filterCount = retrieve.getFilterCount(imageNum);
+        } catch (IndexOutOfBoundsException e) {
+        }
+        for (int k = 0; k < filterCount; k++) {
             String filterName = "filter_" + retrieve.getFilterID(imageNum, k);
             put(filterName + ".transmittanceRangeCutIn", retrieve.getTransmittanceRangeCutIn(imageNum, k), parameters);
             put(filterName + ".transmittanceRangeCutInTolerance", retrieve.getTransmittanceRangeCutInTolerance(imageNum, k), parameters);
@@ -359,7 +379,12 @@ public class FileMetadata {
             put(filterName + ".wheel", retrieve.getFilterFilterWheel(imageNum, k), parameters);
         }
 
-        for (int k = 0; k < retrieve.getDetectorCount(imageNum); k++) {
+        int detectorCount = 0;
+        try {
+            detectorCount = retrieve.getDetectorCount(imageNum);
+        } catch (IndexOutOfBoundsException e) {
+        }
+        for (int k = 0; k < detectorCount; k++) {
             String filterName = "detector_" + retrieve.getDetectorID(imageNum, k);
             put(filterName + ".amplificationGain", retrieve.getDetectorAmplificationGain(imageNum, k), parameters);
             put(filterName + ".gain", retrieve.getDetectorGain(imageNum, k), parameters);
@@ -372,14 +397,24 @@ public class FileMetadata {
     }
 
     protected void addMetadataProperties(Map<String, Object> properties, MetadataRetrieve retrieve) {
-        for (int i = 0; i < retrieve.getDatasetCount(); i++) {
+        int dsCount = 0;
+        try {
+            dsCount = retrieve.getDatasetCount();
+        } catch (IndexOutOfBoundsException e) {
+        }
+        for (int i = 0; i < dsCount; i++) {
             put("dataset" + i + ".description", retrieve.getDatasetDescription(i), properties);
             put("dataset" + i + ".ID", retrieve.getDatasetID(i), properties);
             put("dataset" + i + ".name", retrieve.getDatasetName(i), properties);
             put("dataset" + i + ".imageRef", retrieve.getDatasetImageRefCount(i), properties);
         }
 
-        for (int i = 0; i < retrieve.getExperimenterCount(); i++) {
+        int experimenterCount = 0;
+        try {
+            experimenterCount = retrieve.getExperimenterCount();
+        } catch (IndexOutOfBoundsException e) {
+        }
+        for (int i = 0; i < experimenterCount; i++) {
             String name = retrieve.getExperimenterFirstName(i) + retrieve.getExperimenterLastName(i);
             put("experimenter" + i + ".username", retrieve.getExperimenterUserName(i), properties);
             put("experimenter" + i + ".ID", retrieve.getExperimenterID(i), properties);
@@ -392,7 +427,12 @@ public class FileMetadata {
     private List<Map<String, Object>> getInstrumentData() {
         List<Map<String, Object>> instrumentStructs = new ArrayList<Map<String, Object>>();
 
-        for (int j = 0; j < retrieve.getInstrumentCount(); j++) {
+        int instrumentCount = 0;
+        try {
+            instrumentCount = retrieve.getInstrumentCount();
+        } catch (IndexOutOfBoundsException e) {
+        }
+        for (int j = 0; j < instrumentCount; j++) {
             Map<String, Object> instrumentProperties = new HashMap<String, Object>();
             Map<String, Object> instrumentStruct = new HashMap<String, Object>();
             put("ID", retrieve.getInstrumentID(j), instrumentStruct);
@@ -406,7 +446,12 @@ public class FileMetadata {
                 put("microscopeType", retrieve.getMicroscopeType(j), instrumentProperties);
             }
 
-            for (int k = 0; k < retrieve.getLightSourceCount(j); k++) {
+            int lsCount = 0;
+            try {
+                lsCount = retrieve.getLightSourceCount(j);
+            } catch (IndexOutOfBoundsException e) {
+            }
+            for (int k = 0; k < lsCount; k++) {
 
                 String type = retrieve.getLightSourceType(j, k).toLowerCase();
                 put("lightSource" + k + ".type", type, instrumentProperties);
@@ -421,9 +466,7 @@ public class FileMetadata {
                     put(arcName + ".model", retrieve.getArcModel(j, k), instrumentProperties);
                     put(arcName + ".serialNumber", retrieve.getArcSerialNumber(j, k), instrumentProperties);
                     put(arcName + ".type", retrieve.getArcType(j, k), instrumentProperties);
-                }
-
-                if (type.equals("filament")) {
+                } else if (type.equals("filament")) {
                     String filamentName = "filament_" + retrieve.getFilamentID(j, k);
                     put(filamentName + ".ID", retrieve.getFilamentID(j, k), instrumentProperties);
                     put(filamentName + ".lotNumber", retrieve.getFilamentLotNumber(j, k), instrumentProperties);
@@ -432,9 +475,7 @@ public class FileMetadata {
                     put(filamentName + ".model", retrieve.getFilamentModel(j, k), instrumentProperties);
                     put(filamentName + ".serialNumber", retrieve.getFilamentSerialNumber(j, k), instrumentProperties);
                     put(filamentName + ".type", retrieve.getFilamentType(j, k), instrumentProperties);
-                }
-
-                if (type.equals("laser")) {
+                } else if (type.equals("laser")) {
                     String laserName = "laser_" + retrieve.getLaserID(j, k);
                     put(laserName + ".ID", retrieve.getLaserID(j, k), instrumentProperties);
                     put(laserName + ".medium", retrieve.getLaserLaserMedium(j, k), instrumentProperties);
@@ -445,9 +486,7 @@ public class FileMetadata {
                     put(laserName + ".serialNumber", retrieve.getLaserSerialNumber(j, k), instrumentProperties);
                     put(laserName + ".tuneable", retrieve.getLaserTuneable(j, k), instrumentProperties);
                     put(laserName + ".type", retrieve.getLaserType(j, k), instrumentProperties);
-                }
-
-                if (type.equals("lightEmittingDiode")) {
+                } else if (type.equals("lightEmittingDiode")) {
                     String lightEmittingDiodeName = "lightEmittingDiodeName_" + retrieve.getLightEmittingDiodeID(j, k);
                     put(lightEmittingDiodeName + ".ID", retrieve.getLightEmittingDiodeID(j, k), instrumentProperties);
                     put(lightEmittingDiodeName + ".lotNumber", retrieve.getLightEmittingDiodeLotNumber(j, k), instrumentProperties);
@@ -457,8 +496,13 @@ public class FileMetadata {
                     put(lightEmittingDiodeName + ".serialNumber", retrieve.getLightEmittingDiodeSerialNumber(j, k), instrumentProperties);
                 }
             }
-            
-            for (int k = 0; k < retrieve.getDichroicCount(j); k++) {
+
+            int count = 0;
+            try {
+                count = retrieve.getDichroicCount(j);
+            } catch (IndexOutOfBoundsException e) {
+            }
+            for (int k = 0; k < count; k++) {
                 String filterName = "dichroic_" + retrieve.getDichroicID(j, k);
                 put(filterName + ".ID", retrieve.getDichroicID(j, k), instrumentProperties);
                 put(filterName + ".lotNumber", retrieve.getDichroicLotNumber(j, k), instrumentProperties);
@@ -468,7 +512,12 @@ public class FileMetadata {
                 put(filterName + ".serialNumber", retrieve.getDichroicSerialNumber(j, k), instrumentProperties);
             }
 
-            for (int k = 0; k < retrieve.getObjectiveCount(j); k++) {
+            count = 0;
+            try {
+                count = retrieve.getObjectiveCount(j);
+            } catch (IndexOutOfBoundsException e) {
+            }
+            for (int k = 0; k < count; k++) {
                 String objName = "objective_" + retrieve.getObjectiveID(j, k);
                 put(objName + ".ID", retrieve.getObjectiveID(j, k), instrumentProperties);
                 put(objName + ".lotNumber", retrieve.getObjectiveLotNumber(j, k), instrumentProperties);
@@ -478,7 +527,12 @@ public class FileMetadata {
                 put(objName + ".serialNumber", retrieve.getObjectiveSerialNumber(j, k), instrumentProperties);
             }
 
-            for (int k = 0; k < retrieve.getFilterCount(j); k++) {
+            count = 0;
+            try {
+                count = retrieve.getFilterCount(j);
+            } catch (IndexOutOfBoundsException e) {
+            }
+            for (int k = 0; k < count; k++) {
                 String filterName = "filter_" + retrieve.getFilterID(j, k);
                 put(filterName + ".wheel", retrieve.getFilterFilterWheel(j, k), instrumentProperties);
                 put(filterName + ".ID", retrieve.getFilterID(j, k), instrumentProperties);
@@ -490,7 +544,12 @@ public class FileMetadata {
                 put(filterName + ".type", retrieve.getFilterType(j, k), instrumentProperties);
             }
 
-            for (int k = 0; k < retrieve.getDetectorCount(j); k++) {
+            count = 0;
+            try {
+                count = retrieve.getDetectorCount(j);
+            } catch (IndexOutOfBoundsException e) {
+            }
+            for (int k = 0; k < count; k++) {
                 String filterName = "detector_" + retrieve.getDetectorID(j, k);
                 put(filterName + ".ID", retrieve.getDetectorID(j, k), instrumentProperties);
                 put(filterName + ".lotNumber", retrieve.getDetectorLotNumber(j, k), instrumentProperties);
@@ -507,64 +566,55 @@ public class FileMetadata {
         return instrumentStructs;
     }
 
-    private Object get(MetadataRetrieve retrieve, 
-            String methodName,
-            Class[] argClasses,
-            Object[] args)
-    {        
-        Method m;
+    public Object catchNullPointer(MetadataRetrieve retrieve, String methodName, Class[] argTypes, Object[] args) {
         try {
-            m = retrieve.getClass().getMethod(methodName, argClasses);
+            Method m = retrieve.getClass().getMethod(methodName, argTypes);
             return m.invoke(retrieve, args);
-        } catch (IllegalAccessException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (IllegalArgumentException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (InvocationTargetException ex) {
-            Exceptions.printStackTrace(ex);
-        }catch(NullPointerException ex){
-        } 
-        catch (NoSuchMethodException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (SecurityException ex) {
-            Exceptions.printStackTrace(ex);
+        } catch (IllegalAccessException e) {
+        } catch (IllegalArgumentException e) {
+        } catch (InvocationTargetException e) {
+        } catch (NullPointerException e) {
+        } catch (NoSuchMethodException e) {
+        } catch (SecurityException e) {
         }
         return null;
     }
-    
+
     private void put(String name, Object value, Map<String, Object> map) {
         put(name, value, map, false);
     }
-    
+
     private void put(String name, Object value, Map<String, Object> map, boolean putDirectly) {
         if (value != null) {
-            if (putDirectly || value instanceof String)
-            {
+            if (putDirectly || value instanceof String) {
                 map.put(name, value);
                 return;
             }
-            
+
             //cast to string then to int
             //TODO: handle each OME enum, PositiveInteger, etc separately
             String val = value.toString();
-            try{
+            try {
                 int v = Integer.valueOf(val);
-                 map.put(name, v);
-                 return;
-            } catch (NumberFormatException e){}
-            
-            try{
+                map.put(name, v);
+                return;
+            } catch (NumberFormatException e) {
+            }
+
+            try {
                 long v = Long.valueOf(val);
-                 map.put(name, v);
-                 return;
-            } catch (NumberFormatException e){}
-            
-            try{
+                map.put(name, v);
+                return;
+            } catch (NumberFormatException e) {
+            }
+
+            try {
                 double v = Double.valueOf(val);
-                 map.put(name, v);
-                 return;
-            } catch (NumberFormatException e){}
-            
+                map.put(name, v);
+                return;
+            } catch (NumberFormatException e) {
+            }
+
             map.put(name, val);
         }
     }
@@ -588,7 +638,105 @@ public class FileMetadata {
     }
 
     private void setManufacturer(String manufacturer, Map<String, Object> instrumentStruct) {
-        if (instrumentStruct.get("manufacturer") == null)
+        if (instrumentStruct.get("manufacturer") == null) {
             put("manufacturer", manufacturer, instrumentStruct);
+        }
+    }
+
+    private void addMultidimensionalFields(MetadataRetrieve retrieve, Map<String, Object> responseStruct, int j) {
+        int shapeCount = 0;
+        long shapeX = -1, shapeY = -1, shapeZ = -1, shapeC = -1, shapeT = -1;
+        double rateX = -1, rateY = -1, rateZ = -1, rateC = -1, rateT = -1;
+        try {
+            shapeX = retrieve.getPixelsSizeX(j).getValue().longValue();
+            rateX = retrieve.getPixelsPhysicalSizeX(j).getValue() / shapeX;
+        } catch (NullPointerException e) {
+        } finally {
+            if (shapeX > 0) {
+                shapeCount++;
+            }
+        }
+        try {
+            shapeY = retrieve.getPixelsSizeY(j).getValue().longValue();
+            rateY = retrieve.getPixelsPhysicalSizeY(j).getValue() / shapeY;
+        } catch (NullPointerException e) {
+        } finally {
+            if (shapeY > 0) {
+                shapeCount++;
+            }
+        }
+        try {
+            shapeZ = retrieve.getPixelsSizeZ(j).getValue().longValue();
+            rateZ = retrieve.getPixelsPhysicalSizeZ(j).getValue() / shapeZ;
+        } catch (NullPointerException e) {
+        } finally {
+            if (shapeZ > 0) {
+                shapeCount++;
+            }
+        }
+        try {
+            shapeC = retrieve.getPixelsSizeC(j).getValue().longValue();
+            rateC = 1;
+        } catch (NullPointerException e) {
+        } finally {
+            if (shapeC > 0) {
+                shapeCount++;
+            }
+        }
+        try {
+            shapeT = retrieve.getPixelsSizeT(j).getValue().longValue();
+            try {
+                double timeIncrement = retrieve.getPixelsTimeIncrement(j).doubleValue();
+                rateT = timeIncrement == 0 ? 0 : (1 / timeIncrement);
+            } catch (NullPointerException e) {
+            }
+        } catch (NullPointerException e) {
+        } finally {
+            if (shapeT > 0) {
+                shapeCount++;
+            }
+        }
+
+        long[] shape = new long[shapeCount];
+        double[] samplingRates = new double[shapeCount];
+        String[] samplingRateUnits = new String[shapeCount];
+        String[] dimensionLabels = new String[shapeCount];
+        shapeCount = 0;
+        if (shapeX > 0) {
+            shape[shapeCount] = shapeX;
+            samplingRates[shapeCount] = rateX;
+            samplingRateUnits[shapeCount] = "microns";
+            dimensionLabels[shapeCount++] = "X";
+        }
+        if (shapeY > 0) {
+            shape[shapeCount] = shapeY;
+            samplingRates[shapeCount] = rateY;
+            samplingRateUnits[shapeCount] = "microns";
+            dimensionLabels[shapeCount++] = "Y";
+        }
+        if (shapeZ > 0) {
+            shape[shapeCount] = shapeZ;
+            samplingRates[shapeCount] = rateZ;
+            samplingRateUnits[shapeCount] = "frames";
+            dimensionLabels[shapeCount++] = "Z";
+        }
+        if (shapeC > 0) {
+            shape[shapeCount] = shapeC;
+            samplingRates[shapeCount] = rateC;
+            samplingRateUnits[shapeCount] = "channels";
+            dimensionLabels[shapeCount++] = "Channels";
+        }
+        if (shapeT > 0) {
+            shape[shapeCount] = shapeT;
+            samplingRates[shapeCount] = rateT;
+            samplingRateUnits[shapeCount] = "Hz";//I'm not sure about Hz
+            dimensionLabels[shapeCount++] = "Time";
+        }
+
+        put("shape", shape, responseStruct, true);
+        put("samplingRates", samplingRates, responseStruct, true);
+        put("samplingRateUnits", samplingRateUnits, responseStruct, true);//TODO make sure the UI handles dimension errors gracefully
+        put("dimensionLabels", dimensionLabels, responseStruct, true);
+
     }
 }
