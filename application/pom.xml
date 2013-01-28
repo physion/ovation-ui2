@@ -114,7 +114,7 @@
 					<installerOsSolaris>false</installerOsSolaris>
 					<templateFile>${basedir}/installer/template.xml</templateFile>
 					<userSettings>
-						<nbi.icon.file>${basedir}/installer/ovation_48.png</nbi.icon.file>
+						<nbi.icon.file>${basedir}/installer/ovation_48x48.png</nbi.icon.file>
 					</userSettings>
                 </configuration>
             </plugin>
