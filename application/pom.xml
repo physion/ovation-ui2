@@ -52,13 +52,13 @@
             <artifactId>ovation-ui-database-connection-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-api-module</artifactId>
             <version>${ovation.api.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-ui-common-interfaces</artifactId>
@@ -119,6 +119,7 @@
 					</userSettings>
                 </configuration>
             </plugin>
+
             <!-- Permits NbModuleSuite to be run in integration-test phase: -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -129,6 +130,17 @@
                         <all.clusters>${all.clusters}</all.clusters>
                         <branding.token>${brandingToken}</branding.token>
                     </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <!-- NetBeans 6.9+ requires JDK 6 -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
                 </configuration>
             </plugin>
         </plugins>

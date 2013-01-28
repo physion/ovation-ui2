@@ -28,49 +28,12 @@ import ovation.URLResponse;
         if (r instanceof URLResponse)
 	    {
 		String url = ((URLResponse)r).getURLString();
+                try {
 		return new ImageJVisualization(url);
-		/*try {
-		  /*ImgPlus ip = ImgOpener.open(((URLResponse)r).getURLString());
-// display the dataset
-DisplayService displayService = new ImageJ().getService(DisplayService.class);
-displayService.getActiveDisplay().display(ip);
-return new ImageJVisualization(((URLResponse)r).getURLString());*/
-                
-                // define the file to open
-
-       
- 
-		// display it via ImageJ
-		//imp.show();//null pointer
- 
-		// wrap it into an ImgLib image (no copying)
-		//final Img image = ImagePlusAdapter.wrap( imp );
- 
-		// display it via ImgLib using ImageJ
-		//ImageJFunctions.show( image );
-		/*} catch (Exception ex) {
-System.out.println(ex.getMessage());
-/*try{
-ImgPlus ip = ImgOpener.open(((URLResponse)r).getURLString());
-// display the dataset
-DisplayService displayService = new ImageJ().getService(DisplayService.class);
-displayService.getActiveDisplay().display(ip);
-return new ImageJVisualization(((URLResponse)r).getURLString());
-/*System.out.println("First error " + e.getMessage());
-try{
-// load the dataset
-final IOService ioService = context.getService(IOService.class);
-final Dataset dataset = ioService.loadDataset(url);
-
-// display the dataset
-final DisplayService displayService =
-context.getService(DisplayService.class);
-displayService.createDisplay(file.getName(), dataset);*/
-                /*}catch (Exception e)
-{
-System.out.println(e.getMessage());
-}*/
-	    /* }*/
+                } catch (Throwable e) {
+                    System.out.println(e);
+                    throw new OvationException("Unable to create ImageJVisualization", e);
+                }
 	    }
         
         return new ImageJVisualization(null);

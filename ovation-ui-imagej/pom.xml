@@ -86,14 +86,8 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publicPackages>
-                        <publicPackage>imagej.*</publicPackage>
-                        <!--<publicPackage>imagej.data.*</publicPackage>-->
-                        <!--<publicPackage>imagej.display.*</publicPackage>-->
+                        <publicPackage>imagej.*</publicPackage>å
                         <publicPackage>loci.*</publicPackage>
-                        <!--<publicPackage>loci.common.services.*</publicPackage>-->
-                        <!--<publicPackage>loci.formats.*</publicPackage>-->
-                        <!--<publicPackage>loci.formats.meta.*</publicPackage>-->
-                        <!--<publicPackage>loci.formats.services.*</publicPackage>-->
                         <publicPackage>org.xml.sax.*</publicPackage>
                         <publicPackage>org.w3c.dom.*</publicPackage>
                         <publicPackage>javax.xml.*</publicPackage>

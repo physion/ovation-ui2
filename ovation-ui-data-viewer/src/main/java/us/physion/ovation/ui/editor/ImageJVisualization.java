@@ -9,6 +9,7 @@ import imagej.data.Dataset;
 import imagej.data.display.DefaultImageDisplay;
 import imagej.data.display.ImageDisplay;
 import imagej.io.IOService;
+import imagej.ui.swing.mdi.viewer.SwingMdiImageDisplayViewer;
 import imagej.ui.swing.sdi.viewer.SwingDisplayWindow;
 import imagej.ui.swing.sdi.viewer.SwingSdiImageDisplayViewer;
 import imagej.ui.swing.viewer.image.SwingDisplayPanel;
@@ -28,30 +29,38 @@ import java.awt.*;
  */
 public class ImageJVisualization implements Visualization {
 
-    JPanel panel;
+    final JPanel panel;
 
+    final IOService ioService;
+    final Dataset data;
+    final ImageDisplay display;
+    final SwingImageDisplayViewer displayViewer;
+    final SwingDisplayWindow displayWindow;
+    final ImageJ context;
+    
     ImageJVisualization(String url) {
         url = url.substring("file:".length());
         // open a file with ImageJ
         try {
+            context = new ImageJ();
 
-            ImageJ context = new ImageJ();
-            final IOService ioService = context.getService(IOService.class);
-            final Dataset data = ioService.loadDataset(url);
+            ioService = context.getService(IOService.class);
+            data = ioService.loadDataset(url);
 
-            final ImageDisplay display = new DefaultImageDisplay();
+            display = new DefaultImageDisplay();
             display.setContext(context);
             display.display(data);
-
-            final SwingImageDisplayViewer displayViewer = new SwingSdiImageDisplayViewer();
-            final SwingDisplayWindow displayWindow = new SwingDisplayWindow();
+            
+            displayViewer = new SwingMdiImageDisplayViewer();
+            displayWindow = new SwingDisplayWindow();
+            
+            displayViewer.setContext(context);
             displayViewer.view(displayWindow, display);
-            SwingDisplayPanel displayPanel = displayViewer.getPanel();
-
-            panel = displayPanel;
-        } catch (Exception e) {
+            
+            panel = displayViewer.getPanel();
+        } catch (Throwable e) {
             System.out.println(e);
-            throw new OvationException(e.getMessage());
+            throw new OvationException("Unable to open image", e);
         }
     }
 
