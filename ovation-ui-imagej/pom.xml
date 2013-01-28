@@ -69,6 +69,12 @@
             <artifactId>ij-ui</artifactId>
             <version>${imagej.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>net.imagej</groupId>
+            <artifactId>ij-ui-swing</artifactId>
+            <version>${imagej.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
