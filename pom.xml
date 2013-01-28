@@ -43,6 +43,9 @@
                         <brandingToken>${brandingToken}</brandingToken>
                         <cluster>${brandingToken}</cluster>
                         <useOSGiDependencies>false</useOSGiDependencies>
+						<userSettings>
+							<releaseVersion>${project.version}</releaseVersion>
+						</userSettings>
                     </configuration>
                 </plugin>
                 <plugin>

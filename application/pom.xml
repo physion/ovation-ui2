@@ -112,9 +112,7 @@
 					<installerOsLinux>true</installerOsLinux>
 					<installerOsMacosx>true</installerOsMacosx>
 					<installerOsSolaris>false</installerOsSolaris>
-					<userSettings>
-						<nbi.icon.file>${basedir}/src/main/resources/icon.png</nbi.icon.file>
-					</userSettings>
+					<templateFile>${basedir}/installer/template.xml</templateFile>
                 </configuration>
             </plugin>
             <!-- Permits NbModuleSuite to be run in integration-test phase: -->
