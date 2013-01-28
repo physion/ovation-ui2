@@ -128,8 +128,10 @@
             <artifactId>jFreeChart</artifactId>
 	    <version>1.0</version>
 	    <type>jar</type>
-	    <scope>system</scope>
-	    <systemPath>${project.basedir}/../lib/JFreeChart-Ovation.jar</systemPath>
+	     <!--
+		 <scope>system</scope>
+		 <systemPath>${project.basedir}/../lib/JFreeChart-Ovation.jar</systemPath>
+		 -->
         </dependency>
 
 	<dependency>
@@ -137,9 +139,10 @@
             <artifactId>pixelmed</artifactId>
 	    <version>1.0</version>
 	    <type>jar</type>
-	    <scope>system</scope>
+	    <!--<scope>system</scope>
 	    <systemPath>${project.basedir}/../lib/pixelmed.jar</systemPath>
-        </dependency>
+        -->
+	</dependency>
 
     </dependencies>
 
