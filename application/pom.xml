@@ -113,6 +113,9 @@
 					<installerOsMacosx>true</installerOsMacosx>
 					<installerOsSolaris>false</installerOsSolaris>
 					<templateFile>${basedir}/installer/template.xml</templateFile>
+					<userSettings>
+						<nbi.icon.file>${basedir}/installer/ovation_48.png</nbi.icon.file>
+					</userSettings>
                 </configuration>
             </plugin>
             <!-- Permits NbModuleSuite to be run in integration-test phase: -->
