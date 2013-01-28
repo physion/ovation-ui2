@@ -18,6 +18,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <imagej.version>2.0.0-SNAPSHOT</imagej.version>
     </properties>
 
     <repositories>
@@ -128,12 +129,14 @@
             <groupId>us.physion</groupId>
             <artifactId>jFreeChart</artifactId>
             <version>1.0</version>
-            <type>jar</type>
-            <!--
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/JFreeChart-Ovation.jar</systemPath>
-            -->
         </dependency>
+
+        <dependency>
+            <groupId>net.imagej</groupId>
+            <artifactId>ij-ui-swing</artifactId>
+            <version>${imagej.version}</version>
+        </dependency>
+
         <!--
             <dependency>
                     <groupId>us.physion</groupId>
@@ -152,10 +155,6 @@
             <groupId>us.physion</groupId>
             <artifactId>pixelmed</artifactId>
             <version>1.0</version>
-            <type>jar</type>
-            <!--<scope>system</scope>
-            <systemPath>${project.basedir}/../lib/pixelmed.jar</systemPath>
-            -->
         </dependency>
 
     </dependencies>

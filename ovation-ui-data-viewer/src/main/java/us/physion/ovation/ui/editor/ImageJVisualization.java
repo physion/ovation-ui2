@@ -34,14 +34,7 @@ public class ImageJVisualization implements Visualization {
         url = url.substring("file:".length());
         // open a file with ImageJ
         try {
-            //ImageJ ij = new ImageJ();
-            //Opener.setOpenUsingPlugins(true);
-            /*final ImagePlus imp = new Opener().openImage(url);
-            if (imp != null)
-                panel = new BufferedImagePanel(imp.getBufferedImage());
-            else{
-                panel = new JPanel();
-            }*/
+
             ImageJ context = new ImageJ();
             final IOService ioService = context.getService(IOService.class);
             final Dataset data = ioService.loadDataset(url);
@@ -56,21 +49,7 @@ public class ImageJVisualization implements Visualization {
             SwingDisplayPanel displayPanel = displayViewer.getPanel();
 
             panel = displayPanel;
-
-            //ImgPlus ip  = ImgOpener.open(url);
-            /*ImageCanvas ic = new ImageCanvas(imp);
-panel = new JPanel();
-panel.add(ic);
-	    */
         } catch (Exception e) {
-            /*try {
-ImgPlus ip = ImgOpener.open(url);
-// display the dataset
-DisplayService displayService = new ImageJ().getService(DisplayService.class);
-displayService.getActiveDisplay().display(ip);
-} catch (Exception ex){
-System.out.println(ex);
-}*/
             System.out.println(e);
             throw new OvationException(e.getMessage());
         }
