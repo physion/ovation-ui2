@@ -45,7 +45,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-api-module</artifactId>
-            <version>1.4</version>
+            <version>1.4.2</version>
         </dependency>
 
         <dependency>
