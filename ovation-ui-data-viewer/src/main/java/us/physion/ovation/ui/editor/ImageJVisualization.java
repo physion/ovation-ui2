@@ -5,41 +5,32 @@
 package us.physion.ovation.ui.editor;
 
 import imagej.ImageJ;
-//import ij.ImagePlus;
-//import ij.io.Opener;
 import imagej.data.Dataset;
 import imagej.data.display.DefaultImageDisplay;
 import imagej.data.display.ImageDisplay;
 import imagej.io.IOService;
-import imagej.thread.ThreadService;
 import imagej.ui.swing.sdi.viewer.SwingDisplayWindow;
 import imagej.ui.swing.sdi.viewer.SwingSdiImageDisplayViewer;
 import imagej.ui.swing.viewer.image.SwingDisplayPanel;
 import imagej.ui.swing.viewer.image.SwingImageDisplayViewer;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import net.imglib2.img.*;
-import net.imglib2.io.ImgOpener;
-import org.openide.util.lookup.ServiceProvider;
 import ovation.OvationException;
 import ovation.Response;
-import ovation.URLResponse;
+
+import javax.swing.*;
+import java.awt.*;
+
+//import ij.ImagePlus;
+//import ij.io.Opener;
 
 
 /**
- *
  * @author huecotanks
  */
-public class ImageJVisualization implements Visualization{
+public class ImageJVisualization implements Visualization {
 
     JPanel panel;
-    ImageJVisualization(String url)
-    {
+
+    ImageJVisualization(String url) {
         url = url.substring("file:".length());
         // open a file with ImageJ
         try {
@@ -59,20 +50,13 @@ public class ImageJVisualization implements Visualization{
             display.setContext(context);
             display.display(data);
 
-            final ThreadService threadService = context.getService(ThreadService.class);
-            threadService.queue(new Runnable() {
+            final SwingImageDisplayViewer displayViewer = new SwingSdiImageDisplayViewer();
+            final SwingDisplayWindow displayWindow = new SwingDisplayWindow();
+            displayViewer.view(displayWindow, display);
+            SwingDisplayPanel displayPanel = displayViewer.getPanel();
 
-                @Override
-                public void run() {
-                    final SwingImageDisplayViewer displayViewer =
-                            new SwingSdiImageDisplayViewer();
-                    final SwingDisplayWindow displayWindow = new SwingDisplayWindow();
-                    displayViewer.view(displayWindow, display);
-                    SwingDisplayPanel displayPanel = displayViewer.getPanel();
+            panel = displayPanel;
 
-                    panel = displayPanel;
-                }
-            });
             //ImgPlus ip  = ImgOpener.open(url);
             /*ImageCanvas ic = new ImageCanvas(imp);
 panel = new JPanel();
@@ -91,20 +75,20 @@ System.out.println(ex);
             throw new OvationException(e.getMessage());
         }
     }
-    
+
     @Override
-	public Component generatePanel() {
+    public Component generatePanel() {
         return panel;
     }
 
     @Override
-	public boolean shouldAdd(Response r) {
+    public boolean shouldAdd(Response r) {
         return false;
     }
 
     @Override
-	public void add(Response r) {
+    public void add(Response r) {
         throw new UnsupportedOperationException("Not supported for this image visualization.");
-    }    
+    }
 }
 

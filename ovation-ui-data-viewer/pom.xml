@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -123,40 +124,39 @@
             <version>1.4</version>
         </dependency>
 
-	<dependency>
+        <dependency>
             <groupId>us.physion</groupId>
             <artifactId>jFreeChart</artifactId>
-	    <version>1.0</version>
-	    <type>jar</type>
-	     <!--
-		 <scope>system</scope>
-		 <systemPath>${project.basedir}/../lib/JFreeChart-Ovation.jar</systemPath>
-		 -->
-        </dependency>
-<!--
-	<dependency>
-            <groupId>us.physion</groupId>
-            <artifactId>ij-bundle</artifactId>
             <version>1.0</version>
             <type>jar</type>
+            <!--
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/JFreeChart-Ovation.jar</systemPath>
+            -->
         </dependency>
--->
-	<dependency>
+        <!--
+            <dependency>
+                    <groupId>us.physion</groupId>
+                    <artifactId>ij-bundle</artifactId>
+                    <version>1.0</version>
+                    <type>jar</type>
+                </dependency>
+        -->
+        <dependency>
             <groupId>us.physion</groupId>
             <artifactId>ovation-ui-imagej</artifactId>
             <version>1.5-SNAPSHOT</version>
-            <type>nbm</type>
         </dependency>
 
-	<dependency>
+        <dependency>
             <groupId>us.physion</groupId>
             <artifactId>pixelmed</artifactId>
-	    <version>1.0</version>
-	    <type>jar</type>
-	    <!--<scope>system</scope>
-	    <systemPath>${project.basedir}/../lib/pixelmed.jar</systemPath>
-        -->
-	</dependency>
+            <version>1.0</version>
+            <type>jar</type>
+            <!--<scope>system</scope>
+            <systemPath>${project.basedir}/../lib/pixelmed.jar</systemPath>
+            -->
+        </dependency>
 
     </dependencies>
 
