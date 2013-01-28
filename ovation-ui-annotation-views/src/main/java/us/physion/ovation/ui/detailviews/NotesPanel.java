@@ -4,7 +4,9 @@
  */
 package us.physion.ovation.ui.detailviews;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.util.Locale;
 import org.joda.time.DateTime;
@@ -27,10 +29,9 @@ public class NotesPanel extends javax.swing.JPanel {
         setNoteValue(n);
 
     }
-    
+  
     public NotesPanel() {
         initComponents();
-        jTextField1.setEditable(false);
     }
     
     public void setNoteValue(NoteValue n)
@@ -42,7 +43,10 @@ public class NotesPanel extends javax.swing.JPanel {
             DateTimeFormatter dtf = DateTimeFormat.forStyle("MM").withLocale(Locale.getDefault());
             dateText.setText(n.timestamp.toString(dtf));
         }
-        jTextField1.setText(text);
+        Font old = firstLine.getFont();
+        firstLine.setFont(new Font(old.getFontName(), Font.ITALIC, old.getSize()));
+        firstLine.setText(text);
+        
     }
     
     /**
@@ -56,7 +60,7 @@ public class NotesPanel extends javax.swing.JPanel {
 
         dateText = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JTextField();
+        firstLine = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -69,29 +73,28 @@ public class NotesPanel extends javax.swing.JPanel {
             }
         });
 
-        jTextField1.setText(org.openide.util.NbBundle.getMessage(NotesPanel.class, "NotesPanel.jTextField1.text")); // NOI18N
+        firstLine.setFont(new java.awt.Font("Lucida Grande", 2, 13)); // NOI18N
+        firstLine.setText(org.openide.util.NbBundle.getMessage(NotesPanel.class, "NotesPanel.firstLine.text")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(dateText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 76, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-            .add(jTextField1)
+                .add(dateText, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 166, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(18, 18, 18)
+                .add(firstLine)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 27, Short.MAX_VALUE)
+                .add(jButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 76, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(dateText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(jButton1)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 28, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jButton1)
+                    .add(firstLine)
+                    .add(dateText)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -101,7 +104,7 @@ public class NotesPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel dateText;
+    private javax.swing.JLabel firstLine;
     private javax.swing.JButton jButton1;
-    private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }

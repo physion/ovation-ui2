@@ -72,7 +72,7 @@ class NotesTableModel extends DefaultTableModel {
 
     @Override
     public boolean isCellEditable(int row, int column) {
-        return true;
+        return false;
     }
 
     public int getColumnCount() {
@@ -140,6 +140,9 @@ class NotesTableModel extends DefaultTableModel {
                 {
                     IAnnotation a = note.getAnnotation(dsc);
                     a.setText((String)val);
+                    DateTime now = new DateTime();
+                    a.addProperty("ovation_timestamp", new Timestamp(now.getMillis()));
+                    a.addProperty("ovation_timezone", Calendar.getInstance().getTimeZone().getID());
                     note.update(dsc);
                 }
                 

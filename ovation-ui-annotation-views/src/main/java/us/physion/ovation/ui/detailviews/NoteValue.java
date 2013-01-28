@@ -52,7 +52,7 @@ public class NoteValue implements Comparable<NoteValue> {
 
     public void update(IAuthenticatedDataStoreCoordinator dsc) {
         IAnnotation ann = getAnnotation(dsc);
-        text = ann.getText();
+        text = ann.getText().split("\n")[0];
         Timestamp ts = (Timestamp) (ann.getMyProperty("ovation_timestamp"));
         String timezone = (String) (ann.getMyProperty("ovation_timezone"));
         if (ts != null && timezone != null && !timezone.isEmpty()) {

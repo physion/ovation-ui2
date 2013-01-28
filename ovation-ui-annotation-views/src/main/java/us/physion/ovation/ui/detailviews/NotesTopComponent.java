@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.detailviews;
 
+import java.awt.Color;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -39,7 +40,7 @@ autostore = false)
 @TopComponent.Description(preferredID = "NotesTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
 persistenceType = TopComponent.PERSISTENCE_ALWAYS)
-@TopComponent.Registration(mode = "output", openAtStartup = true)
+@TopComponent.Registration(mode = "output", openAtStartup = false)
 @ActionID(category = "Window", id = "us.physion.ovation.ui.detailviews.NotesTopComponent")
 @ActionReference(path = "Menu/Window" /*
  * , position = 333
@@ -75,7 +76,7 @@ public final class NotesTopComponent extends TopComponent {
         initComponents();
         setName(Bundle.CTL_NotesTopComponent());
         setToolTipText(Bundle.HINT_NotesTopComponent());
-        renderer = new NotesTableRenderer(notesModel);
+        renderer = new NotesTableRenderer(notesModel, jTable1.getSelectionBackground());
         jTable1.setDefaultRenderer(Object.class, renderer);
         jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         jTable1.setRowSelectionAllowed(true);
@@ -92,7 +93,7 @@ public final class NotesTopComponent extends TopComponent {
             }
 
         });
-        
+        jTable1.setGridColor(Color.LIGHT_GRAY);
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         global.addLookupListener(listener);
     }
@@ -163,7 +164,7 @@ public final class NotesTopComponent extends TopComponent {
 
     private void jTextArea1FocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextArea1FocusLost
         int row = jTable1.getSelectedRow();
-        if (row > 0 )
+        if (row >= 0 )
         {
             notesModel.setValueAt(jTextArea1.getText(), row, 0);
         }

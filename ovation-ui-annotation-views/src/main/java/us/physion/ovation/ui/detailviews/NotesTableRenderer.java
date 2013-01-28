@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.detailviews;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.EventObject;
@@ -26,9 +27,19 @@ class NotesTableRenderer implements TableCellRenderer {
     NotesPanel editor;
     NotesTableModel m;
     int row,column;
-    public NotesTableRenderer(NotesTableModel model) {
+    Color selectionColor;
+    public NotesTableRenderer(NotesTableModel model, Color selectionBackground) {
         m = model;
         editor = new NotesPanel();
+        final float[] bgHSB = java.awt.Color.RGBtoHSB(
+            Color.WHITE.getRed( ), Color.WHITE.getGreen( ),
+            Color.WHITE.getBlue( ), null );
+        final float[] selHSB  = java.awt.Color.RGBtoHSB(
+            selectionBackground.getRed( ), selectionBackground.getGreen( ), selectionBackground.getBlue( ), null );
+        selectionColor = java.awt.Color.getHSBColor(
+            (selHSB[1]==0.0||selHSB[2]==0.0) ? bgHSB[0] : selHSB[0],
+            0.1f * selHSB[1] + 0.9f * bgHSB[1],
+            bgHSB[2] + ((bgHSB[2]<0.5f) ? 0.05f : -0.05f));
     }
 
     @Override
@@ -38,6 +49,10 @@ class NotesTableRenderer implements TableCellRenderer {
             NoteValue n = (NoteValue)o;
             NotesPanel p = new NotesPanel(n);
             
+            if (isSelected)
+            {
+                p.setBackground(selectionColor);
+            }
             int cWidth = table.getTableHeader().getColumnModel().getColumn(column).getWidth();
             int prefH = p.getPreferredSize().height;
             p.setSize(new Dimension(cWidth, prefH));
