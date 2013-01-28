@@ -4,7 +4,7 @@
 
     <groupId>us.physion</groupId>
     <artifactId>ovation-ui-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>ovation-ui-parent</name>
@@ -37,12 +37,15 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>nbm-maven-plugin</artifactId>
-                    <version>3.7</version>
+                    <version>${nbm.plugin.version}</version>
                     <extensions>true</extensions>
                     <configuration>
                         <brandingToken>${brandingToken}</brandingToken>
                         <cluster>${brandingToken}</cluster>
                         <useOSGiDependencies>false</useOSGiDependencies>
+						<userSettings>
+							<releaseVersion>${project.version}</releaseVersion>
+						</userSettings>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -77,7 +80,8 @@
         <module>ovation-ui-data-viewer</module>
         <module>ovation-ui-annotation-views</module>
         <module>ovation-ui-image-importer</module>
-    </modules>
+		<module>ovation-ui-query</module>
+  </modules>
 
     <properties>
         <netbeans.version>RELEASE721</netbeans.version>
@@ -88,5 +92,6 @@
         <keystore.store.password>ovation-core-dev</keystore.store.password>
         <keystore.key.password>ovation-core-dev</keystore.key.password>
 		<ovation.api.version>1.4.2</ovation.api.version>
+		<nbm.plugin.version>3.9</nbm.plugin.version>
     </properties>
 </project>

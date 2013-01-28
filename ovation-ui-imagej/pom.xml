@@ -4,12 +4,12 @@
     <parent>
         <artifactId>ovation-ui-parent</artifactId>
         <groupId>us.physion</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.5-SNAPSHOT</version>
     </parent>
 
     <groupId>us.physion</groupId>
     <artifactId>ovation-ui-imagej</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.5-SNAPSHOT</version>
     <packaging>nbm</packaging>
 
     <name>ovation-ui-imagej</name>
@@ -74,7 +74,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                <version>3.7</version>
+                <version>${nbm.plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <publicPackages>
