@@ -4,7 +4,7 @@
 
     <groupId>us.physion</groupId>
     <artifactId>ovation-ui-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>ovation-ui-parent</name>
