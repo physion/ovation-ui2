@@ -24,3 +24,4 @@
 *.iws
 
 *.fdb
+/target/

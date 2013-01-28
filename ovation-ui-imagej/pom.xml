@@ -79,13 +79,13 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>imagej.*</publicPackage>
-                        <publicPackage>imagej.data.*</publicPackage>
-                        <publicPackage>imagej.display.*</publicPackage>
+                        <!-- <publicPackage>imagej.data.*</publicPackage>
+                        <publicPackage>imagej.display.*</publicPackage> -->
                         <publicPackage>loci.*</publicPackage>
-                        <publicPackage>loci.common.services.*</publicPackage>
+                        <!-- <publicPackage>loci.common.services.*</publicPackage>
                         <publicPackage>loci.formats.*</publicPackage>
                         <publicPackage>loci.formats.meta.*</publicPackage>
-                        <publicPackage>loci.formats.services.*</publicPackage>
+                        <publicPackage>loci.formats.services.*</publicPackage> -->
                     </publicPackages>
                 </configuration>
             </plugin>
