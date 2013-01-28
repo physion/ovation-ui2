@@ -145,9 +145,6 @@
 			<groupId>us.physion</groupId>
 			<artifactId>bioFormats</artifactId>
 			<version>1.0</version>
-			<type>jar</type>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/../lib/bioFormats.jar</systemPath>
 		</dependency>
 
 	</dependencies>
