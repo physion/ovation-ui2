@@ -81,7 +81,7 @@
 
     <properties>
         <netbeans.version>RELEASE721</netbeans.version>
-        <brandingToken>ovation_ui</brandingToken>
+        <brandingToken>ovation</brandingToken>
         <keystore.path>cert/dev.keystore</keystore.path>
         <keystore.type>JKS</keystore.type>
         <keystore.alias>dev</keystore.alias>
