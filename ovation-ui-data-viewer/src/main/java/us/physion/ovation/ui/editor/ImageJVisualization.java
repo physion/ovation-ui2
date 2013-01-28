@@ -4,13 +4,24 @@
  */
 package us.physion.ovation.ui.editor;
 
-import ij.ImageJ;
-import ij.ImagePlus;
-import ij.io.Opener;
+import imagej.ImageJ;
+//import ij.ImagePlus;
+//import ij.io.Opener;
+import imagej.data.Dataset;
+import imagej.data.display.DefaultImageDisplay;
+import imagej.data.display.ImageDisplay;
+import imagej.io.IOService;
+import imagej.thread.ThreadService;
+import imagej.ui.swing.sdi.viewer.SwingDisplayWindow;
+import imagej.ui.swing.sdi.viewer.SwingSdiImageDisplayViewer;
+import imagej.ui.swing.viewer.image.SwingDisplayPanel;
+import imagej.ui.swing.viewer.image.SwingImageDisplayViewer;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import net.imglib2.img.*;
 import net.imglib2.io.ImgOpener;
@@ -34,12 +45,34 @@ public class ImageJVisualization implements Visualization{
         try {
             //ImageJ ij = new ImageJ();
             //Opener.setOpenUsingPlugins(true);
-            final ImagePlus imp = new Opener().openImage(url);
+            /*final ImagePlus imp = new Opener().openImage(url);
             if (imp != null)
                 panel = new BufferedImagePanel(imp.getBufferedImage());
             else{
                 panel = new JPanel();
-            }
+            }*/
+            ImageJ context = new ImageJ();
+            final IOService ioService = context.getService(IOService.class);
+            final Dataset data = ioService.loadDataset(url);
+
+            final ImageDisplay display = new DefaultImageDisplay();
+            display.setContext(context);
+            display.display(data);
+
+            final ThreadService threadService = context.getService(ThreadService.class);
+            threadService.queue(new Runnable() {
+
+                @Override
+                public void run() {
+                    final SwingImageDisplayViewer displayViewer =
+                            new SwingSdiImageDisplayViewer();
+                    final SwingDisplayWindow displayWindow = new SwingDisplayWindow();
+                    displayViewer.view(displayWindow, display);
+                    SwingDisplayPanel displayPanel = displayViewer.getPanel();
+
+                    panel = displayPanel;
+                }
+            });
             //ImgPlus ip  = ImgOpener.open(url);
             /*ImageCanvas ic = new ImageCanvas(imp);
 panel = new JPanel();

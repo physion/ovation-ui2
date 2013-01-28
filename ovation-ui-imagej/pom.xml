@@ -78,6 +78,8 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publicPackages>
+                        <publicPackage>imagej</publicPackage>
+                        <publicPackage>imagej.data</publicPackage>
                         <publicPackage>imagej.*</publicPackage>
                         <publicPackage>imagej.data.*</publicPackage>
                         <publicPackage>imagej.display.*</publicPackage>
