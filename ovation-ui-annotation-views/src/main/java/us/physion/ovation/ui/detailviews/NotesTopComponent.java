@@ -8,6 +8,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
@@ -74,8 +77,21 @@ public final class NotesTopComponent extends TopComponent {
         setToolTipText(Bundle.HINT_NotesTopComponent());
         renderer = new NotesTableRenderer(notesModel);
         jTable1.setDefaultRenderer(Object.class, renderer);
-        jTable1.setDefaultEditor(Object.class, renderer);
-        //jList1.setCellRenderer(new NotesListRenderer());
+        jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        jTable1.setRowSelectionAllowed(true);
+        jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            @Override
+            public void valueChanged(ListSelectionEvent lse) {
+                int row = jTable1.getSelectedRow();
+                if (row >=0 )
+                {
+                    NoteValue v = (NoteValue)notesModel.getValueAt(row, 0);
+                    jTextArea1.setText(v.text);
+                }
+            }
+
+        });
         
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         global.addLookupListener(listener);
@@ -95,6 +111,9 @@ public final class NotesTopComponent extends TopComponent {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
+        jSplitPane1 = new javax.swing.JSplitPane();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new JTable();
@@ -103,28 +122,61 @@ public final class NotesTopComponent extends TopComponent {
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(NotesTopComponent.class, "NotesTopComponent.jLabel1.text")); // NOI18N
         jLabel1.setAlignmentX(0.5F);
 
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jTextArea1.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                jTextArea1FocusLost(evt);
+            }
+        });
+        jTextArea1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextArea1KeyReleased(evt);
+            }
+        });
+        jScrollPane3.setViewportView(jTextArea1);
+
+        jSplitPane1.setRightComponent(jScrollPane3);
+
         jTable1.setModel(notesModel);
         jScrollPane1.setViewportView(jTable1);
 
         jScrollPane2.setViewportView(jScrollPane1);
 
+        jSplitPane1.setLeftComponent(jScrollPane2);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 792, Short.MAX_VALUE)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 690, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 639, Short.MAX_VALUE)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 319, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jTextArea1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextArea1KeyReleased
+        
+    }//GEN-LAST:event_jTextArea1KeyReleased
+
+    private void jTextArea1FocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextArea1FocusLost
+        int row = jTable1.getSelectedRow();
+        if (row > 0 )
+        {
+            notesModel.setValueAt(jTextArea1.getText(), row, 0);
+        }
+    }//GEN-LAST:event_jTextArea1FocusLost
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables
     @Override
     public void componentOpened() {

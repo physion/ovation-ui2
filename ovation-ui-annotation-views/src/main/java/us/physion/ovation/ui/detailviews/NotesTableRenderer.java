@@ -21,7 +21,7 @@ import org.joda.time.format.DateTimeFormatter;
  *
  * @author jackie
  */
-class NotesTableRenderer extends AbstractCellEditor implements TableCellRenderer, TableCellEditor {
+class NotesTableRenderer implements TableCellRenderer {
 
     NotesPanel editor;
     NotesTableModel m;
@@ -29,7 +29,6 @@ class NotesTableRenderer extends AbstractCellEditor implements TableCellRenderer
     public NotesTableRenderer(NotesTableModel model) {
         m = model;
         editor = new NotesPanel();
-        editor.setEditable(true);
     }
 
     @Override
@@ -48,7 +47,7 @@ class NotesTableRenderer extends AbstractCellEditor implements TableCellRenderer
         return new JLabel(o.toString());
     }
 
-    @Override
+    /*@Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         ///this will only be used for String values, which correspond to TextAreas here
         if (editor == null)
@@ -83,10 +82,9 @@ class NotesTableRenderer extends AbstractCellEditor implements TableCellRenderer
     @Override
     public boolean stopCellEditing() {
         return super.stopCellEditing();
-    }
+    }*/
 
     void delete() {
-        cancelCellEditing();
         m.remove(row);
     }
 }

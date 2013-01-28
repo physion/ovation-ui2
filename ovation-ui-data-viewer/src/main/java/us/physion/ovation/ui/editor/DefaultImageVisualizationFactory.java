@@ -26,7 +26,6 @@ public class DefaultImageVisualizationFactory implements VisualizationFactory{
         String lowercaseUTI = r.getUTI().toLowerCase();
         for (String name : ImageIO.getReaderFormatNames()) {
             if (lowercaseUTI.contains(name.toLowerCase())) {
-                DefaultImageWrapper d = new DefaultImageWrapper(r);
                 return 100;
             }
         }

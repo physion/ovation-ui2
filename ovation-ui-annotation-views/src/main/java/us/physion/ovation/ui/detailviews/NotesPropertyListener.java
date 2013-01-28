@@ -20,10 +20,6 @@ class NotesPropertyListener implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent pce) {
-        if (pce.getPropertyName().equals("done.editing"))
-        {
-            renderer.stopCellEditing();
-        }
         
         if (pce.getPropertyName().equals("delete"))
         {
