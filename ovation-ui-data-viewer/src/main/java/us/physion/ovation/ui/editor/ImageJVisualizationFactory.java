@@ -4,11 +4,6 @@
  */
 package us.physion.ovation.ui.editor;
 
-import ij.ImagePlus;
-import ij.gui.ImageCanvas;
-import ij.io.Opener;
-import imagej.ImageJ;
-import imagej.display.DisplayService;
 //import net.imglib2.img.ImagePlusAdapter;
 //import net.imglib2.img.Img;
 //import net.imglib2.img.ImgPlus;
