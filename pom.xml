@@ -37,7 +37,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>nbm-maven-plugin</artifactId>
-                    <version>3.8</version>
+                    <version>${nbm.plugin.version}</version>
                     <extensions>true</extensions>
                     <configuration>
                         <brandingToken>${brandingToken}</brandingToken>
@@ -88,5 +88,6 @@
         <keystore.store.password>ovation-core-dev</keystore.store.password>
         <keystore.key.password>ovation-core-dev</keystore.key.password>
 		<ovation.api.version>1.4.2</ovation.api.version>
+		<nbm.plugin.version>3.9</nbm.plugin.version>
     </properties>
 </project>
