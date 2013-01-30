@@ -7,10 +7,12 @@ package us.physion.ovation.ui.editor;
 import ij.ImageJ;
 import ij.ImagePlus;
 import ij.io.Opener;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import net.imglib2.img.*;
 import net.imglib2.io.ImgOpener;
@@ -39,13 +41,15 @@ public class ImageJVisualization implements Visualization{
                 panel = new BufferedImagePanel(imp.getBufferedImage());
             else{
                 panel = new JPanel();
+                panel.setBackground(Color.WHITE);
+                panel.add(new JLabel("Currently unable to open image type"));
             }
             //ImgPlus ip  = ImgOpener.open(url);
             /*ImageCanvas ic = new ImageCanvas(imp);
 panel = new JPanel();
 panel.add(ic);
 	    */
-        } catch (Exception e) {
+        } catch (Throwable e) {
             /*try {
 ImgPlus ip = ImgOpener.open(url);
 // display the dataset
@@ -54,8 +58,16 @@ displayService.getActiveDisplay().display(ip);
 } catch (Exception ex){
 System.out.println(ex);
 }*/
-            System.out.println(e);
-            throw new OvationException(e.getMessage());
+            panel = new JPanel();
+            panel.setBackground(Color.WHITE);
+            if ( e instanceof java.lang.OutOfMemoryError )
+            {
+                panel.add(new JLabel("Image currently too large to open. Future versions of Ovation will address this issue"));
+            }else
+            {
+                panel.add(new JLabel("Unable to open image"));
+            }
+            System.out.println("Unable to open image at '" + url + "'  \n" + e.getMessage());
         }
     }
     
