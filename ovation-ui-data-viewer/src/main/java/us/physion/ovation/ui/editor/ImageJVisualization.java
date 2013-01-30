@@ -42,7 +42,7 @@ public class ImageJVisualization implements Visualization{
             else{
                 panel = new JPanel();
                 panel.setBackground(Color.WHITE);
-                panel.add(new JLabel("Currently unable to open image type"));
+                panel.add(new JLabel("Currently unable to open image type."));
             }
             //ImgPlus ip  = ImgOpener.open(url);
             /*ImageCanvas ic = new ImageCanvas(imp);
@@ -62,7 +62,7 @@ System.out.println(ex);
             panel.setBackground(Color.WHITE);
             if ( e instanceof java.lang.OutOfMemoryError )
             {
-                panel.add(new JLabel("Image currently too large to open. Future versions of Ovation will address this issue"));
+                panel.add(new JLabel("Image too large to open"));
             }else
             {
                 panel.add(new JLabel("Unable to open image"));
