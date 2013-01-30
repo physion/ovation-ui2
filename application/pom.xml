@@ -20,6 +20,14 @@
 		<all.clusters>${project.build.directory}/${brandingToken}</all.clusters>
 	</properties>
 
+	<!-- To use Jelly Tools in your functional tests, add or replace with:
+	<dependency>
+		<groupId>org.netbeans.api</groupId>
+		<artifactId>org-netbeans-modules-jellytools-platform</artifactId>
+		<version>${netbeans.version}</version>
+		<scope>test</scope>
+	</dependency>-->
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.netbeans.cluster</groupId>
@@ -39,153 +47,171 @@
 			<version>${netbeans.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- To use Jelly Tools in your functional tests, add or replace with:
+
 		<dependency>
-			<groupId>org.netbeans.api</groupId>
-			<artifactId>org-netbeans-modules-jellytools-platform</artifactId>
-			<version>${netbeans.version}</version>
-			<scope>test</scope>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ovation-ui-database-connection-provider</artifactId>
+			<version>${project.version}</version>
 		</dependency>
-	-->
-	<dependency>
-		<groupId>${project.groupId}</groupId>
-		<artifactId>ovation-ui-database-connection-provider</artifactId>
-		<version>${project.version}</version>
-	</dependency>
         
-	<dependency>
-		<groupId>${project.groupId}</groupId>
-		<artifactId>ovation-api-module</artifactId>
-		<version>${ovation.api.version}</version>
-	</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ovation-api-module</artifactId>
+			<version>${ovation.api.version}</version>
+		</dependency>
         
-	<dependency>
-		<groupId>${project.groupId}</groupId>
-		<artifactId>ovation-ui-common-interfaces</artifactId>
-		<version>${project.version}</version>
-	</dependency>
-	<dependency>
-		<groupId>${project.groupId}</groupId>
-		<artifactId>ovation-ui-imagej</artifactId>
-		<version>${project.version}</version>
-	</dependency>
-	<dependency>
-		<groupId>${project.groupId}</groupId>
-		<artifactId>ovation-ui-browser</artifactId>
-		<version>${project.version}</version>
-	</dependency>
-	<dependency>
-		<groupId>${project.groupId}</groupId>
-		<artifactId>ovation-ui-data-viewer</artifactId>
-		<version>${project.version}</version>
-	</dependency>
-	<dependency>
-		<groupId>${project.groupId}</groupId>
-		<artifactId>scrollable-table-tree</artifactId>
-		<version>${project.version}</version>
-	</dependency>
-	<dependency>
-		<groupId>${project.groupId}</groupId>
-		<artifactId>ovation-ui-annotation-views</artifactId>
-		<version>${project.version}</version>
-	</dependency>
-	<dependency>
-		<groupId>${project.groupId}</groupId>
-		<artifactId>ovation-ui-image-importer</artifactId>
-		<version>${project.version}</version>
-	</dependency>
-	<dependency>
-		<groupId>${project.groupId}</groupId>
-		<artifactId>ovation-ui-query</artifactId>
-		<version>${project.version}</version>
-	</dependency>
-</dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ovation-ui-common-interfaces</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ovation-ui-imagej</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ovation-ui-browser</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ovation-ui-data-viewer</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>scrollable-table-tree</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ovation-ui-annotation-views</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ovation-ui-image-importer</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ovation-ui-query</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
 
-<build>
-	<plugins>
-		<plugin>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>nbm-maven-plugin</artifactId>
-			<version>${nbm.plugin.version}</version>
-			<configuration>
-				<installerLicenseFile>../licenses/license-GPL.txt</installerLicenseFile>
-				<installerOsLinux>true</installerOsLinux>
-				<installerOsMacosx>true</installerOsMacosx>
-				<installerOsWindows>true</installerOsWindows>
-				<installerOsSolaris>false</installerOsSolaris>
-				<templateFile>${basedir}/installer/template.xml</templateFile>
-				<userSettings>
-					<nbi.icon.file>${basedir}/installer/ovation_48x48.png</nbi.icon.file>
-				</userSettings>
-			</configuration>
-		</plugin>
-		<!-- Permits NbModuleSuite to be run in integration-test phase: -->
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-surefire-plugin</artifactId>
-			<version>2.10</version>
-			<configuration>
-				<systemPropertyVariables>
-					<all.clusters>${all.clusters}</all.clusters>
-					<branding.token>${brandingToken}</branding.token>
-				</systemPropertyVariables>
-			</configuration>
-		</plugin>
-	</plugins>
-</build>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>nbm-maven-plugin</artifactId>
+				<version>${nbm.plugin.version}</version>
+				<configuration>
+					<installerLicenseFile>../licenses/license-GPL.txt</installerLicenseFile>
+					<installerOsLinux>true</installerOsLinux>
+					<installerOsMacosx>true</installerOsMacosx>
+					<installerOsWindows>true</installerOsWindows>
+					<installerOsSolaris>false</installerOsSolaris>
+					<templateFile>${basedir}/installer/template.xml</templateFile>
+					<userSettings>
+						<nbi.icon.file>${basedir}/installer/ovation_48x48.png</nbi.icon.file>
+					</userSettings>
+				</configuration>
+			</plugin>
+			<!-- Permits NbModuleSuite to be run in integration-test phase: -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.10</version>
+				<configuration>
+					<systemPropertyVariables>
+						<all.clusters>${all.clusters}</all.clusters>
+						<branding.token>${brandingToken}</branding.token>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
-<profiles>
-	<profile>
-		<id>deployment</id>
-		<build>
-			<plugins>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>nbm-maven-plugin</artifactId>
-					<executions>
-						<execution>
-							<id>extra</id>
-							<goals>
-								<goal>autoupdate</goal>
-								<!-- <goal>webstart-app</goal> -->
-								<goal>build-installers</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>build-helper-maven-plugin</artifactId>
-					<version>1.7</version>
-					<executions>
-						<execution>
-							<id>attach-artifacts</id>
-							<phase>package</phase>
-							<goals>
-								<goal>attach-artifact</goal>
-							</goals>
-							<configuration>
-								<artifacts>
-									<artifact>
-										<file>target/ovation-ui-app-${project.version}-linux.sh</file>
-										<type>sh</type>
-									</artifact>
-									<artifact>
-										<file>target/ovation-ui-app-${project.version}-windows.exe</file>
-										<type>exe</type>
-									</artifact>
-									<artifact>
-										<file>target/ovation-ui-app-${project.version}-macos.tgz</file>
-										<type>tgz</type>
-									</artifact>
-								</artifacts>
-								<skipAttach>false</skipAttach>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
-			</plugins>
-		</build>
-	</profile>
-</profiles>
+	<profiles>
+		<profile>
+			<id>deployment</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>nbm-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>extra</id>
+								<goals>
+									<goal>autoupdate</goal>
+									<!-- <goal>webstart-app</goal> -->
+									<goal>build-installers</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>attach-artifacts</id>
+								<phase>package</phase>
+								<goals>
+									<goal>attach-artifact</goal>
+								</goals>
+								<configuration>
+									<artifacts>
+										<artifact>
+											<file>target/ovation-ui-app-${project.version}-linux.sh</file>
+											<type>sh</type>
+										</artifact>
+										<artifact>
+											<file>target/ovation-ui-app-${project.version}-windows.exe</file>
+											<type>exe</type>
+										</artifact>
+										<artifact>
+											<file>target/ovation-ui-app-${project.version}-macos.tgz</file>
+											<type>tgz</type>
+										</artifact>
+									</artifacts>
+									<skipAttach>false</skipAttach>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	
+	<repositories>
+		<repository>  
+			<id>s3-release-repository</id>  
+			<name>S3 Release Repository</name>  
+			<url>s3://us.physion.maven/release</url>  
+			<releases>  
+				<enabled>true</enabled>  
+			</releases>  
+			<snapshots>  
+				<enabled>false</enabled>  
+			</snapshots>  
+		</repository>  
+		<repository>  
+			<id>s3-snapshot-repository</id>  
+			<name>S3 Snapshot Repository</name>  
+			<url>s3://us.physion.maven/snapshot</url>  
+			<releases>  
+				<enabled>false</enabled>  
+			</releases>  
+			<snapshots>  
+				<enabled>true</enabled>  
+			</snapshots>  
+		</repository>  
+	</repositories>
 </project>
