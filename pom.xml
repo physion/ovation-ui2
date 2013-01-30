@@ -39,6 +39,7 @@
 				<version>4.4.0.RELEASE</version>
 			</extension>
 		</extensions>
+		
         <pluginManagement>
             <plugins>
                 <plugin>

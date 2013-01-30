@@ -160,7 +160,7 @@
 						<version>1.7</version>
 						<executions>
 							<execution>
-								<id>attach-artifacts</id>
+								<id>attach-installer-artifacts</id>
 								<phase>package</phase>
 								<goals>
 									<goal>attach-artifact</goal>
@@ -168,15 +168,15 @@
 								<configuration>
 									<artifacts>
 										<artifact>
-											<file>target/ovation-ui-app-${project.version}-linux.sh</file>
+											<file>${project.build.directory}/ovation-ui-app-${project.version}-linux.sh</file>
 											<type>sh</type>
 										</artifact>
 										<artifact>
-											<file>target/ovation-ui-app-${project.version}-windows.exe</file>
+											<file>${project.build.directory}/ovation-ui-app-${project.version}-windows.exe</file>
 											<type>exe</type>
 										</artifact>
 										<artifact>
-											<file>target/ovation-ui-app-${project.version}-macos.tgz</file>
+											<file>${project.build.directory}/ovation-ui-app-${project.version}-macosx.tgz</file>
 											<type>tgz</type>
 										</artifact>
 									</artifacts>
