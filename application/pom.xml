@@ -117,6 +117,7 @@
 					<templateFile>${basedir}/installer/template.xml</templateFile>
 					<userSettings>
 						<nbi.icon.file>${basedir}/installer/ovation_48x48.png</nbi.icon.file>
+						<nbi.dock.icon.file>${basedir}/osx/ovation.icns</nbi.dock.icon.file>
 					</userSettings>
 				</configuration>
 			</plugin>
@@ -132,6 +133,7 @@
 					</systemPropertyVariables>
 				</configuration>
 			</plugin>
+			
 		</plugins>
 	</build>
 
