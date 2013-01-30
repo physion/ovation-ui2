@@ -18,8 +18,8 @@ while [ -h "$PRG" ]; do
     fi
 done
 
+progdir=`dirname "$PRG"`
 APPNAME=`basename "$PRG"`
-progdir=`dirname "$PRG"`/../Resources/$APPNAME/$APPNAME
 
 if [ -f "$progdir/../etc/$APPNAME".conf ] ; then
     . "$progdir/../etc/$APPNAME".conf
@@ -88,7 +88,7 @@ case "`uname`" in
 	        --userdir '"${userdir}"' \
 	        ${default_options} \
 	        "$args"
-	    ;;
+        ;;
     *)  
        sh=sh
        # #73162: Ubuntu uses the ancient Bourne shell, which does not implement trap well.
