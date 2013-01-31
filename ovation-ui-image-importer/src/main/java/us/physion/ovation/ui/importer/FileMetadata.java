@@ -217,7 +217,7 @@ public class FileMetadata {
         {
             int planeCount = (Integer) catchNullPointer(retrieve, "getPlaneCount", new Class[]{Integer.TYPE}, new Object[]{imageNumber});
            
-            if (planeCount <= 0)
+           if (!isPrairie)// if (planeCount <= 1)
             {
                 responses.add(createResponse(imageNumber));
             }else

@@ -20,7 +20,10 @@ public class ResponseDetailsController extends BasicWizardPanel{
     public ResponseDetailsController(int epochCount, int responseCount)
     {
         super();
-        responseName = "epoch" + epochCount + ".response" + responseCount;
+        if (epochCount <0)
+            responseName = "response";
+        else
+            responseName = "epoch" + epochCount + ".response" + responseCount;
         this.responseCount = responseCount;
     }
     
