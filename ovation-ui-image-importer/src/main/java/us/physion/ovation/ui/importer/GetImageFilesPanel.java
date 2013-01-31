@@ -130,7 +130,7 @@ public class GetImageFilesPanel extends javax.swing.JPanel {
             startPickers.add(start);
             
             DateTimePickerPanel end = new DateTimePickerPanel(DatePickerUtilities.createDateTimePicker());
-            end.getPicker().setDate(meta.getEnd());
+            end.getPicker().setDate(meta.getEnd(true));
             endPickers.add(end); 
             
             JComboBox timezones = new JComboBox(new DefaultComboBoxModel(timezoneIDs));

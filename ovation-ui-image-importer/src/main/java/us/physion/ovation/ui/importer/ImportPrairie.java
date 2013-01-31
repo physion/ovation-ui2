@@ -4,68 +4,37 @@
  */
 package us.physion.ovation.ui.importer;
 
-import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
-import org.openide.WizardDescriptor;
-import org.openide.WizardDescriptor.Panel;
-import us.physion.ovation.ui.interfaces.*;
-import loci.common.DateTools;
-import loci.common.services.DependencyException;
-import loci.common.services.ServiceException;
-import loci.common.services.ServiceFactory;
-import loci.formats.FormatException;
-import loci.formats.in.PrairieReader;
-import loci.formats.FormatReader;
-import loci.formats.IFormatReader;
-import loci.formats.ImageReader;
-import loci.formats.meta.IMetadata;
-import loci.formats.meta.MetadataRetrieve;
-import loci.formats.ome.OMEXMLMetadata;
-import loci.formats.services.OMEXMLService;
 import org.joda.time.DateTime;
-import org.openide.DialogDisplayer;
-import org.openide.util.Lookup;
-import org.openide.util.Utilities;
+import org.openide.WizardDescriptor;
 import org.openide.util.lookup.ServiceProvider;
 import ovation.*;
+import us.physion.ovation.ui.interfaces.EpochGroupInsertable;
+import us.physion.ovation.ui.interfaces.IEntityWrapper;
+
 
 @ServiceProvider(service = EpochGroupInsertable.class)
 /**
  *
  * @author huecotanks
  */
-public class ImportImage extends InsertEntity implements EpochGroupInsertable
-{
-    ArrayList<FileMetadata> files;
-    public ImportImage()
+public class ImportPrairie extends ImportImage{
+ 
+    public ImportPrairie()
     {
-        putValue(NAME, "Import Image...");
+        putValue(NAME, "Import Prairie Data...");
     }
     
     @Override
     public int getPosition() {
-        return 101;
+        return 105;
     }
-    
-    @Override
-    public void actionPerformed(ActionEvent ae) {
-        
-        setFiles();
-        super.actionPerformed(ae);
-    }
-    
     public void setFiles()
     {
         JFileChooser chooser = new JFileChooser();
@@ -77,18 +46,19 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
             File file = chooser.getSelectedFile();
             if (file != null)
             {
-                files.add(new FileMetadata(file));
+                files.add(new FileMetadata(file, true));
             } else {
                 for (File f : chooser.getSelectedFiles()) {
-                    files.add(new FileMetadata(f));
+                    files.add(new FileMetadata(f, true));
                 }
             }
         }
     }
     
     @Override
-    public List<Panel<WizardDescriptor>> getPanels(IEntityWrapper iew) {
-        List<Panel<WizardDescriptor>> panels = new ArrayList<Panel<WizardDescriptor>>();
+    public List<WizardDescriptor.Panel<WizardDescriptor>> getPanels(IEntityWrapper iew) {
+        List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
+
         GetImageFilesController c = new GetImageFilesController(files);
         int epochCount = files.size();
         
@@ -104,9 +74,10 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
         }
         return panels;
     }
-
+    
     @Override
     public void wizardFinished(WizardDescriptor wd, ovation.IAuthenticatedDataStoreCoordinator dsc, IEntityWrapper iew) {
+    
         EpochGroup eg = ((EpochGroup)iew.getEntity());
         Experiment exp = eg.getExperiment();
         
