@@ -22,7 +22,9 @@
 		<ovation.release.repository.url>s3://us.physion.maven/release</ovation.release.repository.url>
 		<physion.codesign.identity>3rd Party Mac Developer Application: Physion Consulting LLC</physion.codesign.identity>
 		<ovation.updates.site>${project.build.directory}/netbeans_site</ovation.updates.site>
-		<ovation.updates.repository.path>updates</ovation.updates.repository.path>
+		<ovation.updates.repository.path>ovation</ovation.updates.repository.path>
+		<ovation.updates.repository.url>s3://us.physion.maven/updates</ovation.updates.repository.url>
+		<ovation.updates.repository.id>s3-updates-repository</ovation.updates.repository.id>
 		<ovation.appbundle.name>Ovation</ovation.appbundle.name>
 	</properties>
 
@@ -257,9 +259,9 @@
 						<configuration>
 							<fromDir>${ovation.updates.site}</fromDir>
 							<includes>*</includes>
-							<url>${ovation.release.repository.url}</url>
+							<url>${ovation.updates.repository.url}</url>
 							<toDir>${ovation.updates.repository.path}</toDir>
-							<serverId>${ovation.release.repository.id}</serverId>
+							<serverId>${ovation.updates.repository.id}</serverId>
 						</configuration>
 					</plugin>
 				</plugins>
@@ -433,7 +435,7 @@
 			<snapshots>  
 				<enabled>false</enabled>  
 			</snapshots>  
-		</repository>  
+		</repository>
 		<repository>  
 			<id>s3-snapshot-repository</id>  
 			<name>S3 Snapshot Repository</name>  
@@ -443,6 +445,18 @@
 			</releases>  
 			<snapshots>  
 				<enabled>true</enabled>  
+			</snapshots>  
+		</repository>  
+		
+		<repository>  
+			<id>s3-updates-repository</id>  
+			<name>S3 Updates Repository</name>  
+			<url>s3://us.physion.maven/updates</url>  
+			<releases>  
+				<enabled>true</enabled>  
+			</releases>  
+			<snapshots>  
+				<enabled>false</enabled>  
 			</snapshots>  
 		</repository>  
 	</repositories>
