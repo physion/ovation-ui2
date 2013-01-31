@@ -23,7 +23,11 @@ public class EpochDetailsController extends BasicWizardPanel {
     {
         super();
         epochNum = num;
-        epochName = "epoch" + num;
+        if (num == -1)
+            epochName = "epoch";
+        else
+            epochName = "epoch" + num;
+        
         if (num == 0)
             previousEpochName = "epoch";
         else

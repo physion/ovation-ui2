@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.ByteOrder;
 import java.util.*;
 import java.util.logging.Level;
@@ -23,6 +25,7 @@ import loci.formats.in.PrairieReader;
 import loci.formats.meta.IMetadata;
 import loci.formats.meta.MetadataRetrieve;
 import loci.formats.services.OMEXMLService;
+import ome.xml.model.primitives.PositiveInteger;
 import ome.xml.model.primitives.Timestamp;
 import org.joda.time.DateTime;
 import org.openide.WizardDescriptor;
@@ -44,9 +47,17 @@ public class FileMetadata {
     Map<String, Object> epochProperties;
     List<Map<String, Object>> instruments;
     List<Map<String, Object>> responses;
+    Map<String, Object> parentEpochGroup;
+    
+    boolean isPrairie;
 
-    FileMetadata(File f) {
+    FileMetadata(File f)
+    {
+        this(f, false);
+    }
+    FileMetadata(File f, boolean isPrairie) {
         file = f;
+        this.isPrairie = isPrairie;
         ServiceFactory factory = null;
         OMEXMLService service = null;
         IMetadata meta = null;
@@ -67,8 +78,15 @@ public class FileMetadata {
             Logger.getLogger(ImportImage.class.getName()).log(Level.SEVERE, null, ex);
             throw new OvationException("Unable to create metadata. " + ex.getMessage());
         }
-        IFormatReader r = new ImageReader(); //maybe checkbox for prairie images?
-
+        
+        IFormatReader r;
+        if (isPrairie) {
+            r = new PrairieReader();
+        } else {
+            r = new ImageReader(); 
+            if (r instanceof PrairieReader)
+                isPrairie = true;
+        }
         r.setMetadataStore(meta);
         try {
             r.setId(file.getAbsolutePath());
@@ -78,6 +96,10 @@ public class FileMetadata {
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
             throw new OvationException("Unable to read file. " + ex.getMessage());
+        } catch (OutOfMemoryError ex)
+        {
+            Exceptions.printStackTrace(ex);
+            throw new OvationException("Unable to read file. Out of java heap memory");
         }
         Hashtable original;
         try {
@@ -114,24 +136,34 @@ public class FileMetadata {
         return new DateTime(min);
     }
 
-    public DateTime getEnd() {
-        if (end != null) {
+    public DateTime getEnd(boolean recomputeFromStart) {
+        if (end != null && !recomputeFromStart) {
             return end;
         }
 
         Date max = null;
+        int count = -1;
         for (int i = 0; i < retrieve.getImageCount(); i++) {
             Date newDate = retrieve.getImageAcquisitionDate(i).asDate();
             if (newDate != null) {
                 if (max == null) {
                     max = newDate;
+                    count = i;
                 }
-                if (newDate.after(max)) {
+                if (!newDate.before(max)) {//if they're equal, use the later image
                     max = newDate;
+                    count = i;
                 }
             }
         }
-        return new DateTime(max);
+        double seconds = 0;
+        try{
+            for (int i =0; i< retrieve.getPlaneCount(count); i++)
+            {
+                seconds += retrieve.getPlaneDeltaT(count, i);
+            }
+        }catch (NullPointerException e){}
+        return new DateTime(max).plusSeconds(((int)(seconds*1000)));
     }
 
     public void setStart(DateTime s) {
@@ -167,47 +199,135 @@ public class FileMetadata {
 
         responses = new ArrayList<Map<String, Object>>();
 
-        int count = (Integer) catchNullPointer(retrieve, "getImageCount", null, null);
-        for (int j = 0; j < count; j++) {
-            Map<String, Object> responseStruct = new HashMap<String, Object>();
-            put("name", "response" + j, responseStruct, true);
-            put("properties", getResponseProperties(j), responseStruct, true);
+        
+        
+        int imageNumber = -1;
+        try{
+            imageNumber = retrieve.getImageCount() -1;
+        } catch (NullPointerException e)
+        {
+            throw new OvationException("No Images located");//?
+        }
+        
+        if (imageNumber > 0)
+        {
+            throw new OvationException("Multi image import not supported yet");
+        }
+        if (imageNumber == 0)
+        {
+            int planeCount = (Integer) catchNullPointer(retrieve, "getPlaneCount", new Class[]{Integer.TYPE}, new Object[]{imageNumber});
+           
+            if (planeCount <= 0)
+            {
+                responses.add(createResponse(imageNumber));
+            }else
+            {
+                parentEpochGroup = new HashMap<String, Object>();
+                String name = (String) catchNullPointer(retrieve, "getImageName", new Class[]{Integer.TYPE}, new Object[]{imageNumber});
+                if (name == null){
+                    name = getFile().getName().split("\\.")[0];
+                }
+                if (isPrairie){
+                    name = name.split("Config")[0];
+                }
+                put("label", name, parentEpochGroup, true);
+               
+                int responseCount = 0;
+                int tCount = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeT", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
+                for (int i=0; i< tCount; i++)
+                {
+                    Map<String, Object> eg = new HashMap<String, Object>();
+                    put("responseStart", responseCount, eg, true);
+                    int zCount = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeZ", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
+           
+                    double deltaTForEpochGroup = 0;
+                    for (int j=0; j<zCount; j++)
+                    {
+                        Map<String, Object> responseStruct = createResponse(imageNumber);
+                        if (isPrairie)
+                        {
+                            String url = generateURL(i, retrieve.getChannelName(imageNumber, retrieve.getPlaneTheC(imageNumber, j).getValue()), j);
+                            put("url", url, responseStruct);        
+                        }
+                        put("exposureTime", catchNullPointer(retrieve, "getPlaneExposureTime", new Class[]{Integer.TYPE, Integer.TYPE}, new Object[]{imageNumber, j}), responseStruct);
+                        put("deltaT", retrieve.getPlaneDeltaT(imageNumber, j), responseStruct);
+                        put("positionX", retrieve.getPlanePositionX(imageNumber, j), responseStruct);
+                        put("positionY", retrieve.getPlanePositionY(imageNumber, j), responseStruct);
+                        put("positionZ", retrieve.getPlanePositionZ(imageNumber, j), responseStruct);
+                        put("channel", retrieve.getPlaneTheC(imageNumber, j), responseStruct);
+                        put("t-group", retrieve.getPlaneTheT(imageNumber, j), responseStruct);
+                        put("z-group", retrieve.getPlaneTheZ(imageNumber, j), responseStruct);
+                        deltaTForEpochGroup += retrieve.getPlaneDeltaT(imageNumber, j);
+                        responses.add(responseStruct);
+                    }
+                    put("deltaT", deltaTForEpochGroup, eg, true);
+                    put("label", "Cycle_"+ i, eg, true);
+                    responseCount += zCount;
+                    put("responseEnd", responseCount, eg, true);
 
-            String ref = (String) catchNullPointer(retrieve, "getImageInstrumentRef", new Class[]{Integer.TYPE}, new Object[]{j});
-            if (ref != null) {
-                for (Map<String, Object> device : instruments) {
-                    if (device.get("ID").equals(ref)) {
-                        put("device.name", device.get("ID"), responseStruct, true);
-                        put("device.manufacturer", device.get("manufacturer"), responseStruct, true);
+                    if (tCount == 1)
+                    {
+                        eg.remove("label");
+                        parentEpochGroup.putAll(eg);
+                    }else{
+                        put("epochGroup" + i, eg, parentEpochGroup, true);
                     }
                 }
-
-                put("device.parameters", getDeviceParameters(j), responseStruct, true);
             }
+             
+            //TODO: plates -- start and end time information?
+            
+        }
+    }
+    
+    private Map<String, Object> createResponse(int imageNumber)
+    {
+        Map<String, Object> responseStruct = new HashMap<String, Object>();
+        put("name", "response" + imageNumber, responseStruct, true);
+
+        String ref = (String) catchNullPointer(retrieve, "getImageInstrumentRef", new Class[]{Integer.TYPE}, new Object[]{imageNumber});
+        boolean found = false;
+        if (ref != null) {
+            for (Map<String, Object> device : instruments) {
+                if (device.get("ID").equals(ref)) {
+                    put("device.name", device.get("ID"), responseStruct, true);
+                    put("device.manufacturer", device.get("manufacturer"), responseStruct, true);
+                    found = true;
+                }
+            }
+        }
+        if (!found && !instruments.isEmpty()) {
+            String name = "";
+            String manufacturer = "";
+            for (Map<String, Object> device : instruments) {
+                name += "-" + device.get("ID");
+                manufacturer += "-" + device.get("manufacturer");
+            }
+            put("device.name", name.substring(1), responseStruct, true);
+            put("device.manufacturer", manufacturer.substring(1), responseStruct, true);
+        }
+        put("device.parameters", getDeviceParameters(imageNumber), responseStruct, true);
+
+        if (!isPrairie) {
             try {
                 put("url", getFile().toURI().toURL().toExternalForm(), responseStruct, true);
             } catch (MalformedURLException ex) {
                 throw new OvationException("Unable to get url for image file. " + ex.getMessage());
             }
-
-            addMultidimensionalFields(retrieve, responseStruct, j);
-
-            //data type doesn't actually matter, since this is not a NumericData object
-            ByteOrder b;
-            if (retrieve.getPixelsBinDataBigEndian(j, 0)) {
-                b = ByteOrder.BIG_ENDIAN;
-            } else {
-                b = ByteOrder.LITTLE_ENDIAN;
-            }
-            put("dataType", new NumericDataType(NumericDataFormat.SignedFixedPointDataType, (short) 4, b), responseStruct, true);
-            put("units", "pixels", responseStruct, true);
-            put("uti", "public.tiff", responseStruct, true);//TODO: fix - get file type?
-
-            //TODO: planes (represent images in time)
-            //TODO: plates -- start and end time information?
-
-            responses.add(responseStruct);
         }
+        addMultidimensionalFields(retrieve, responseStruct, imageNumber);
+
+        //data type doesn't actually matter, since this is not a NumericData object
+        ByteOrder b;
+        if (retrieve.getPixelsBinDataBigEndian(imageNumber, 0)) {
+            b = ByteOrder.BIG_ENDIAN;
+        } else {
+            b = ByteOrder.LITTLE_ENDIAN;
+        }
+        put("dataType", new NumericDataType(NumericDataFormat.SignedFixedPointDataType, (short) 4, b), responseStruct, true);
+        put("units", "pixels", responseStruct, true);
+        put("uti", "public.tiff", responseStruct, true);//TODO: fix - get file type?
+        return responseStruct;
     }
 
     private Map<String, Object> getDeviceParameters(int imageNum) {
@@ -422,6 +542,11 @@ public class FileMetadata {
             put("experimenter" + i + ".email", retrieve.getExperimenterEmail(i), properties);
             put("experimenter" + i + ".institution", retrieve.getExperimenterInstitution(i), properties);
         }
+        
+        try {
+            this.getImageProperties(0);
+        } catch (IndexOutOfBoundsException e) {
+        }
     }
 
     private List<Map<String, Object>> getInstrumentData() {
@@ -619,7 +744,7 @@ public class FileMetadata {
         }
     }
 
-    protected Map<String, Object> getResponseProperties(int imageNumber) {
+    protected Map<String, Object> getImageProperties(int imageNumber) {
         Map<String, Object> properties = new HashMap<String, Object>();
         put("imageName", retrieve.getImageName(imageNumber), properties);
         put("imageDescription", retrieve.getImageDescription(imageNumber), properties);
@@ -738,5 +863,41 @@ public class FileMetadata {
         put("samplingRateUnits", samplingRateUnits, responseStruct, true);//TODO make sure the UI handles dimension errors gracefully
         put("dimensionLabels", dimensionLabels, responseStruct, true);
 
+    }
+
+    private String generateURL(int cycleNumber, String channelName, int zNumber) {
+        String filename = getFile().getAbsolutePath().split("Config.")[0].split("\\.")[0];
+        filename += "_Cycle" + convertTo5Digit(cycleNumber) + "_CurrentSettings_" + channelName + "_" + convertTo6Digit(zNumber) + ".tif";
+        try {
+            return new File(filename).toURI().toURL().toExternalForm();
+        } catch (MalformedURLException ex) {
+            Exceptions.printStackTrace(ex);
+            throw new OvationException("Unable to create file. Bad path");
+        }
+    }
+
+    private String convertTo5Digit(int number) {
+        int digits = number/10;
+        String s = "";
+        for (int i=0; i < (5 - digits); i++)
+        {
+            s +="0";
+        }
+        s += String.valueOf(number);
+        return s;
+    }
+    private String convertTo6Digit(int number) {
+        int digits = number/10;
+        String s = "";
+        for (int i=0; i < (6 - digits); i++)
+        {
+            s +="0";
+        }
+        s += String.valueOf(number);
+        return s;
+    }
+
+    Map<String, Object> getParentEpochGroup() {
+        return parentEpochGroup;
     }
 }
