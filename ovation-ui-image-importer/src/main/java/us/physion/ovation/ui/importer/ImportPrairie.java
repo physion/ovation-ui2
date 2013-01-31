@@ -19,7 +19,6 @@ import us.physion.ovation.ui.interfaces.EpochGroupInsertable;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 
-@ServiceProvider(service = EpochGroupInsertable.class)
 /**
  *
  * @author huecotanks
@@ -60,18 +59,11 @@ public class ImportPrairie extends ImportImage{
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
 
         GetImageFilesController c = new GetImageFilesController(files);
-        int epochCount = files.size();
-        
         panels.add(c);
-        for (int i = 0; i < epochCount; i++) {
-            panels.add(new EpochDetailsController(i));
+        panels.add(new EpochDetailsController(-1));
+        panels.add(new DeviceDetailsController(-1, -1));
+        panels.add(new ResponseDetailsController(-1, -1));
 
-            int responseCount = files.get(i).getResponses().size();
-            for (int j = 0; j < responseCount; j++) {
-                panels.add(new DeviceDetailsController(i, j));
-                panels.add(new ResponseDetailsController(i, j));
-            }
-        }
         return panels;
     }
     
