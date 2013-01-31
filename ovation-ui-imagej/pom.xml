@@ -75,6 +75,12 @@
             <artifactId>ij-ui-swing</artifactId>
             <version>${imagej.version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>net.imagej</groupId>
+            <artifactId>ij-util-awt</artifactId>
+            <version>${imagej.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -87,6 +93,7 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>imagej.*</publicPackage>
+                        <publicPackage>net.imglib2.display.*</publicPackage>
                         <publicPackage>loci.*</publicPackage>
                         <publicPackage>org.xml.sax.*</publicPackage>
                         <publicPackage>org.w3c.dom.*</publicPackage>

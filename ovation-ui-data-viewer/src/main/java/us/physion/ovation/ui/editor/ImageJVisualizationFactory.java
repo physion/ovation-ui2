@@ -29,14 +29,14 @@ import ovation.URLResponse;
 	    {
 		String url = ((URLResponse)r).getURLString();
                 try {
-		return new ImageJVisualization(url);
+		return new ImageJVisualization(url, r.getExternalDevice().getName());
                 } catch (Throwable e) {
                     System.out.println(e);
                     throw new OvationException("Unable to create ImageJVisualization", e);
                 }
 	    }
         
-        return new ImageJVisualization(null);
+        throw new OvationException("Embedded responses not supported. Use URLResponse.");
     }
 
     @Override

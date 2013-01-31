@@ -6,23 +6,24 @@ package us.physion.ovation.ui.editor;
 
 import imagej.ImageJ;
 import imagej.data.Dataset;
+import imagej.data.display.DatasetView;
 import imagej.data.display.DefaultImageDisplay;
 import imagej.data.display.ImageDisplay;
+import imagej.data.display.ImageDisplayService;
+import imagej.util.awt.AWTImageTools;
 import imagej.io.IOService;
-import imagej.ui.swing.mdi.viewer.SwingMdiImageDisplayViewer;
-import imagej.ui.swing.sdi.viewer.SwingDisplayWindow;
-import imagej.ui.swing.sdi.viewer.SwingSdiImageDisplayViewer;
-import imagej.ui.swing.viewer.image.SwingDisplayPanel;
-import imagej.ui.swing.viewer.image.SwingImageDisplayViewer;
-import ovation.OvationException;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Image;
+
 import ovation.Response;
 
 import javax.swing.*;
-import java.awt.*;
-
-//import ij.ImagePlus;
-//import ij.io.Opener;
-
+import java.awt.image.BufferedImage;
+import net.imglib2.display.ARGBScreenImage;
+import net.imglib2.img.Img;
+import net.imglib2.type.numeric.RealType;
+import ovation.OvationException;
 
 /**
  * @author huecotanks
@@ -30,15 +31,11 @@ import java.awt.*;
 public class ImageJVisualization implements Visualization {
 
     final JPanel panel;
-
     final IOService ioService;
     final Dataset data;
-    final ImageDisplay display;
-    final SwingImageDisplayViewer displayViewer;
-    final SwingDisplayWindow displayWindow;
     final ImageJ context;
-    
-    ImageJVisualization(String url) {
+
+    ImageJVisualization(String url, String name) {
         url = url.substring("file:".length());
         // open a file with ImageJ
         try {
@@ -47,54 +44,34 @@ public class ImageJVisualization implements Visualization {
             ioService = context.getService(IOService.class);
             data = ioService.loadDataset(url);
 
-            display = new DefaultImageDisplay();
+            final ImageDisplay display = new DefaultImageDisplay();
             display.setContext(context);
             display.display(data);
-            
-            displayViewer = new SwingMdiImageDisplayViewer();
-            displayWindow = new SwingDisplayWindow();
-            
-            displayViewer.setContext(context);
-            displayViewer.view(displayWindow, display);
-            
-            panel = displayViewer.getPanel();
+            final ImageDisplayService imageDisplayService =
+                    display.getContext().getService(ImageDisplayService.class);
+            final DatasetView datasetView =
+                    imageDisplayService.getActiveDatasetView(display);
+            final ARGBScreenImage screenImage = datasetView.getScreenImage();
+            final Image pixels = screenImage.image();
+
+            final BufferedImage bufferedImage = AWTImageTools.makeBuffered(pixels);
+            final BufferedImagePanel imgPanel = new BufferedImagePanel(bufferedImage);
+
+            this.panel = new ImagePanel(name, imgPanel);
+
         } catch (Throwable e) {
-            System.out.println(e);
+            /*
+             result = new JPanel();
+             result.setBackground(Color.WHITE);
+
+             if (e instanceof java.lang.OutOfMemoryError) {
+             result.add(new JLabel("Image too large to open"));
+             } else {
+             result.add(new JLabel("Unable to open image"));
+             }
+             */
+
             throw new OvationException("Unable to open image", e);
-            //ImageJ ij = new ImageJ();
-            //Opener.setOpenUsingPlugins(true);
-            final ImagePlus imp = new Opener().openImage(url);
-            if (imp != null)
-                panel = new BufferedImagePanel(imp.getBufferedImage());
-            else{
-                panel = new JPanel();
-                panel.setBackground(Color.WHITE);
-                panel.add(new JLabel("Currently unable to open image type."));
-            }
-            //ImgPlus ip  = ImgOpener.open(url);
-            /*ImageCanvas ic = new ImageCanvas(imp);
-panel = new JPanel();
-panel.add(ic);
-	    */
-        } catch (Throwable e) {
-            /*try {
-ImgPlus ip = ImgOpener.open(url);
-// display the dataset
-DisplayService displayService = new ImageJ().getService(DisplayService.class);
-displayService.getActiveDisplay().display(ip);
-} catch (Exception ex){
-System.out.println(ex);
-}*/
-            panel = new JPanel();
-            panel.setBackground(Color.WHITE);
-            if ( e instanceof java.lang.OutOfMemoryError )
-            {
-                panel.add(new JLabel("Image too large to open"));
-            }else
-            {
-                panel.add(new JLabel("Unable to open image"));
-            }
-            System.out.println("Unable to open image at '" + url + "'  \n" + e.getMessage());
         }
     }
 
@@ -113,4 +90,3 @@ System.out.println(ex);
         throw new UnsupportedOperationException("Not supported for this image visualization.");
     }
 }
-
