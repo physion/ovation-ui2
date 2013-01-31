@@ -69,13 +69,19 @@ public class ImportPrairie extends ImportImage{
     
     @Override
     public void wizardFinished(WizardDescriptor wd, ovation.IAuthenticatedDataStoreCoordinator dsc, IEntityWrapper iew) {
-            System.out.println("Wizard finished");
 
         EpochGroup eg = ((EpochGroup)iew.getEntity());
         Experiment exp = eg.getExperiment();
-        
-        Map<String, Map<String, Object>> devices = (Map<String, Map<String, Object>>) wd.getProperty("devices");
-        for (String deviceName : devices.keySet()) {
+        ExternalDevice dev = exp.externalDevice((String)wd.getProperty("response.device.name"), (String)wd.getProperty("response.device.manufacturer"));
+        Map<String, Object> properties = (Map<String, Object>)wd.getProperty("response.device.properties");
+        if (properties != null) {
+            for (String key : properties.keySet()) {
+                dev.addProperty(key, properties.get(key));
+            }
+        }
+        /*
+         * Map<String, Map<String, Object>> devices = (Map<String, Map<String,
+         * Object>>) wd.getProperty("devices"); for (String deviceName : devices.keySet()) {
             Map<String, Object> device = devices.get(deviceName);
             //name, manufacturer, properties
             ExternalDevice dev = exp.externalDevice((String) device.get("name"),
@@ -86,21 +92,22 @@ public class ImportPrairie extends ImportImage{
                 if (val != null)
                     dev.addProperty(key, val);
             }
-        }
+        }*/
+        
 
-        System.out.println("Printing parent epoch group");
         Map<String, Object> parent = (Map<String, Object>) wd.getProperty("parentEpochGroup");
         Source s = eg.getSource();
         DateTime start = (DateTime) parent.get("start");
         EpochGroup parentEpochGroup = eg.insertEpochGroup(s, (String) parent.get("label"), start, (DateTime) parent.get("end"));
-        List<Map<String, Object>> egs = (List<Map<String, Object>>) parent.get("epochGroups");
+        List<Map<String, Object>> egs = (List<Map<String, Object>>) parent.get("egs");
 
         List<Map<String, Object>> responses = (List<Map<String, Object>>) wd.getProperty("responses");
         if (!egs.isEmpty()) {
             for (Map<String, Object> epochGroup : egs) {
-                DateTime end = start.plusSeconds((Integer) epochGroup.get("deltaT"));
+                double secs = (Double)epochGroup.get("deltaT");
+                DateTime end = start.plusSeconds((int)secs);
                 EpochGroup child = parentEpochGroup.insertEpochGroup(s, (String) epochGroup.get("label"), start, end);
-                insertEpochsAndResponses(exp,
+                insertEpochsAndResponses(dev,
                         epochGroup,
                         child,
                         responses,
@@ -111,7 +118,7 @@ public class ImportPrairie extends ImportImage{
                 start = end;
             }
         } else {
-            insertEpochsAndResponses(exp,
+            insertEpochsAndResponses(dev,
                     parent,
                     parentEpochGroup,
                     responses,
@@ -121,7 +128,7 @@ public class ImportPrairie extends ImportImage{
         }
     }
 
-    private void insertEpochsAndResponses(Experiment exp, 
+    private void insertEpochsAndResponses(ExternalDevice dev, 
             Map<String, Object> epochGroup, 
             EpochGroup child, 
             List<Map<String, Object>> responses, 
@@ -130,7 +137,6 @@ public class ImportPrairie extends ImportImage{
             DateTime start) {
         
         Epoch prev = null;
-        System.out.println("inserting Epochs and responses");
         for (int j = (Integer) epochGroup.get("responseStart"); j < (Integer) epochGroup.get("responseEnd"); j++) {
             Map<String, Object> response = responses.get(j);
             double deltaT = (Double) response.get("epoch.deltaT");
@@ -145,8 +151,6 @@ public class ImportPrairie extends ImportImage{
             
             start = epochEnd;
             
-            String deviceName = (String) response.get("device.name");
-            String deviceManufacturer = (String) response.get("device.manufacturer");
             Map<String, Object> deviceParameters = (Map<String, Object>) response.get("device.parameters");
             String url = (String) response.get("url");
             long[] shape = (long[]) response.get("shape");
@@ -157,7 +161,7 @@ public class ImportPrairie extends ImportImage{
             String[] samplingRateUnits = (String[]) response.get("samplingRateUnits");
             String uti = (String) response.get("uti");
 
-            Response r = e.insertURLResponse(exp.externalDevice(deviceName, deviceManufacturer),
+            Response r = e.insertURLResponse(dev,
                     deviceParameters,
                     url,
                     shape,
@@ -172,6 +176,5 @@ public class ImportPrairie extends ImportImage{
                 r.addProperty(key, properties.get(key));
             }
         }
-        System.out.println("done");
     }
 }

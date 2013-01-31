@@ -124,6 +124,36 @@ public class GetImageFilesController extends BasicWizardPanel{
         parentEpochGroup.put("start", data.getStart());
         parentEpochGroup.put("end", data.getEnd(false));
         
+        //for each device, 
+        List<Map<String, Object>> devices = data.getDevices();
+        String deviceName = "";
+        String deviceManufacturer = "";
+        Map<String, Object> deviceProperties = new HashMap();
+        Map<String, Object> deviceParameters = new HashMap();
+        for (Map<String, Object> device : devices)
+        {
+            String nameToAdd = (String)device.get("name");
+            if (nameToAdd != null)
+                deviceName += "-" + nameToAdd;
+            
+            String manufacturerToAdd = (String)device.get("manufacturer");
+            if (manufacturerToAdd != null)
+                deviceName += "-" + manufacturerToAdd;
+            
+            Map<String, Object> properties = (Map<String, Object>)device.get("properties");
+            if (properties != null)
+                deviceProperties.putAll(properties);
+            
+        }
+        if (!deviceName.isEmpty())
+            deviceName = deviceName.substring(1);
+        
+        if (!deviceManufacturer.isEmpty())
+            deviceManufacturer = deviceManufacturer.substring(1);
+        
+        wiz.putProperty("response.device.name", deviceName);
+        wiz.putProperty("response.device.manufacturer", deviceManufacturer);
+        wiz.putProperty("response.device.properties", deviceProperties);
         wiz.putProperty("parentEpochGroup", parentEpochGroup);
         wiz.putProperty("epoch.properties", data.getEpochProperties());
         wiz.putProperty("responses", data.getResponses());

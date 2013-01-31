@@ -228,7 +228,7 @@ public class FileMetadata {
                     name = getFile().getName().split("\\.")[0];
                 }
                 if (isPrairie){
-                    name = name.split("Config")[0];
+                    name = name.split("Config")[0].split("\\.")[0];
                 }
                 put("label", name, parentEpochGroup, true);
                
@@ -261,7 +261,7 @@ public class FileMetadata {
                         put("t-group", retrieve.getPlaneTheT(imageNumber, j), properties);
                         put("z-group", retrieve.getPlaneTheZ(imageNumber, j), properties);
 
-                        put("properties", properties, responseStruct);
+                        responseStruct.put("properties", properties);
 
                         deltaTForEpochGroup += retrieve.getPlaneDeltaT(imageNumber, j);
                         responses.add(responseStruct);
