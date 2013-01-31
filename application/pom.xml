@@ -199,13 +199,6 @@
 									<goal>autoupdate</goal>
 								</goals>
 							</execution>
-							
-							<execution>
-								<id>extra</id>
-								<goals>
-									<goal>build-installers</goal>
-								</goals>
-							</execution>
 						</executions>
 					</plugin>
                     
@@ -237,7 +230,42 @@
 				</plugins>
 			</build>
 		</profile>
-				
+		
+		<!-- Profile to build installers		 -->
+		<profile>
+			<id>deploy-installers</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>nbm-maven-plugin</artifactId>
+						
+						<configuration>
+							<installerLicenseFile>../licenses/license-GPL.txt</installerLicenseFile>
+							<installerOsLinux>true</installerOsLinux>
+							<installerOsMacosx>false</installerOsMacosx>
+							<installerOsWindows>true</installerOsWindows>
+							<installerOsSolaris>false</installerOsSolaris>
+							<templateFile>${basedir}/installer/template.xml</templateFile>
+							<userSettings>
+								<nbi.icon.file>${basedir}/installer/ovation_48x48.png</nbi.icon.file>
+								<nbi.dock.icon.file>${basedir}/src/main/osx/ovation.icns</nbi.dock.icon.file>
+							</userSettings>
+						</configuration>
+						
+						<executions>
+							<execution>
+								<id>extra</id>
+								<goals>
+									<goal>build-installers</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		
 		<!-- Profile used along with the deployment profile to upload the update site -->
 		<profile>
 			<id>upload-updates</id>
