@@ -900,4 +900,8 @@ public class FileMetadata {
     Map<String, Object> getParentEpochGroup() {
         return parentEpochGroup;
     }
+
+    boolean containsSingleEpoch() {
+        return parentEpochGroup == null;
+    }
 }
