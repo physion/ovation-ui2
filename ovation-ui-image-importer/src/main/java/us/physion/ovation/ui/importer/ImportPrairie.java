@@ -18,7 +18,7 @@ import ovation.*;
 import us.physion.ovation.ui.interfaces.EpochGroupInsertable;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
-
+@ServiceProvider(service = EpochGroupInsertable.class)
 /**
  *
  * @author huecotanks
@@ -62,14 +62,15 @@ public class ImportPrairie extends ImportImage{
         panels.add(c);
         panels.add(new EpochDetailsController(-1));
         panels.add(new DeviceDetailsController(-1, -1));
-        panels.add(new ResponseDetailsController(-1, -1));
+        //panels.add(new ResponseDetailsController(-1, -1));
 
         return panels;
     }
     
     @Override
     public void wizardFinished(WizardDescriptor wd, ovation.IAuthenticatedDataStoreCoordinator dsc, IEntityWrapper iew) {
-    
+            System.out.println("Wizard finished");
+
         EpochGroup eg = ((EpochGroup)iew.getEntity());
         Experiment exp = eg.getExperiment();
         
@@ -87,59 +88,90 @@ public class ImportPrairie extends ImportImage{
             }
         }
 
-        int i =0;
-        for (;;)
-        {
-            String epochName = "epoch" + String.valueOf(i++);
+        System.out.println("Printing parent epoch group");
+        Map<String, Object> parent = (Map<String, Object>) wd.getProperty("parentEpochGroup");
+        Source s = eg.getSource();
+        DateTime start = (DateTime) parent.get("start");
+        EpochGroup parentEpochGroup = eg.insertEpochGroup(s, (String) parent.get("label"), start, (DateTime) parent.get("end"));
+        List<Map<String, Object>> egs = (List<Map<String, Object>>) parent.get("epochGroups");
+
+        List<Map<String, Object>> responses = (List<Map<String, Object>>) wd.getProperty("responses");
+        if (!egs.isEmpty()) {
+            for (Map<String, Object> epochGroup : egs) {
+                DateTime end = start.plusSeconds((Integer) epochGroup.get("deltaT"));
+                EpochGroup child = parentEpochGroup.insertEpochGroup(s, (String) epochGroup.get("label"), start, end);
+                insertEpochsAndResponses(exp,
+                        epochGroup,
+                        child,
+                        responses,
+                        (String) wd.getProperty("epoch.protocolID"),
+                        (Map<String, Object>) wd.getProperty("epoch.protocolParameters"),
+                        start);
+
+                start = end;
+            }
+        } else {
+            insertEpochsAndResponses(exp,
+                    parent,
+                    parentEpochGroup,
+                    responses,
+                    (String) wd.getProperty("epoch.protocolID"),
+                    (Map<String, Object>) wd.getProperty("epoch.protocolParameters"),
+                    start);
+        }
+    }
+
+    private void insertEpochsAndResponses(Experiment exp, 
+            Map<String, Object> epochGroup, 
+            EpochGroup child, 
+            List<Map<String, Object>> responses, 
+            String protocolID, 
+            Map<String, Object>protocolParameters,
+            DateTime start) {
+        
+        Epoch prev = null;
+        System.out.println("inserting Epochs and responses");
+        for (int j = (Integer) epochGroup.get("responseStart"); j < (Integer) epochGroup.get("responseEnd"); j++) {
+            Map<String, Object> response = responses.get(j);
+            double deltaT = (Double) response.get("epoch.deltaT");
+            DateTime epochEnd = start.plusSeconds((int) deltaT);
+            Epoch e = child.insertEpoch(start, epochEnd, protocolID, protocolParameters);
+            if (prev != null)
+            {
+                prev.setNextEpoch(e);
+                e.setPreviousEpoch(prev);
+            }
+            prev = e;
             
-            String protocolID = (String)wd.getProperty(epochName + ".protocolID");
-            if (protocolID == null)
-            {
-                break;//no more epochs
-            }
-            Map<String, Object> protocolParameters = (Map<String, Object>) wd.getProperty(epochName + ".protocolParameters");            
-            DateTime start = (DateTime) wd.getProperty(epochName + ".start");
-            DateTime end = (DateTime) wd.getProperty(epochName + ".end");
-            Map<String, Object> epochProperties = (Map<String, Object>) wd.getProperty(epochName + ".properties");
+            start = epochEnd;
+            
+            String deviceName = (String) response.get("device.name");
+            String deviceManufacturer = (String) response.get("device.manufacturer");
+            Map<String, Object> deviceParameters = (Map<String, Object>) response.get("device.parameters");
+            String url = (String) response.get("url");
+            long[] shape = (long[]) response.get("shape");
+            NumericDataType type = (NumericDataType) response.get("dataType");
+            String units = (String) response.get("units");
+            String[] dimensionLabels = (String[]) response.get("dimensionLabels");
+            double[] samplingRates = (double[]) response.get("samplingRates");
+            String[] samplingRateUnits = (String[]) response.get("samplingRateUnits");
+            String uti = (String) response.get("uti");
 
-            Epoch e = eg.insertEpoch(start, end, protocolID, protocolParameters);
-            for (String key : epochProperties.keySet())
-            {
-                Object val = epochProperties.get(key);
-                if (val != null)
-                    e.addProperty(key, val);
-            }
-
-            int j = 0;
-            for (;;) {
-                String responseName = epochName + ".response" + j;
-                j++;
-                String deviceName = (String) wd.getProperty(responseName + ".device.name");
-                if (deviceName == null) {
-                    break;
-                }
-                String deviceManufacturer = (String)wd.getProperty(responseName + ".device.manufacturer");    
-                Map<String, Object> deviceParameters = (Map<String, Object>) wd.getProperty(responseName + ".device.parameters");
-                String url = (String) wd.getProperty(responseName + ".url");
-                long[] shape = (long[]) wd.getProperty(responseName + ".shape");
-                NumericDataType type = (NumericDataType) wd.getProperty(responseName + ".dataType");
-                String units = (String) wd.getProperty(responseName + ".units");
-                String[] dimensionLabels = (String[]) wd.getProperty(responseName + ".dimensionLabels");
-                double[] samplingRates = (double[]) wd.getProperty(responseName + ".samplingRates");
-                String[] samplingRateUnits = (String[]) wd.getProperty(responseName + ".samplingRateUnits");
-                String uti = (String) wd.getProperty(responseName + ".uti");
-
-                Response r = e.insertURLResponse(exp.externalDevice(deviceName, deviceManufacturer),
-                        deviceParameters,
-                        url,
-                        shape,
-                        type,
-                        units,
-                        dimensionLabels,
-                        samplingRates,
-                        samplingRateUnits,
-                        uti);
+            Response r = e.insertURLResponse(exp.externalDevice(deviceName, deviceManufacturer),
+                    deviceParameters,
+                    url,
+                    shape,
+                    type,
+                    units,
+                    dimensionLabels,
+                    samplingRates,
+                    samplingRateUnits,
+                    uti);
+            Map<String, Object> properties = (Map<String, Object>) response.get("properties");
+            for (String key : properties.keySet()) {
+                r.addProperty(key, properties.get(key));
             }
         }
+        System.out.println("done");
     }
 }

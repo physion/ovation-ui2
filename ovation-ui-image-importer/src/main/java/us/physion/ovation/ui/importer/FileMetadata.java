@@ -163,7 +163,7 @@ public class FileMetadata {
                 seconds += retrieve.getPlaneDeltaT(count, i);
             }
         }catch (NullPointerException e){}
-        return new DateTime(max).plusSeconds(((int)(seconds*1000)));
+        return new DateTime(max).plusSeconds(((int)(seconds)));
     }
 
     public void setStart(DateTime s) {
@@ -234,6 +234,7 @@ public class FileMetadata {
                
                 int responseCount = 0;
                 int tCount = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeT", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
+                List<Map<String, Object>> egs = new ArrayList();
                 for (int i=0; i< tCount; i++)
                 {
                     Map<String, Object> eg = new HashMap<String, Object>();
@@ -249,14 +250,19 @@ public class FileMetadata {
                             String url = generateURL(i, retrieve.getChannelName(imageNumber, retrieve.getPlaneTheC(imageNumber, j).getValue()), j);
                             put("url", url, responseStruct);        
                         }
-                        put("exposureTime", catchNullPointer(retrieve, "getPlaneExposureTime", new Class[]{Integer.TYPE, Integer.TYPE}, new Object[]{imageNumber, j}), responseStruct);
-                        put("deltaT", retrieve.getPlaneDeltaT(imageNumber, j), responseStruct);
-                        put("positionX", retrieve.getPlanePositionX(imageNumber, j), responseStruct);
-                        put("positionY", retrieve.getPlanePositionY(imageNumber, j), responseStruct);
-                        put("positionZ", retrieve.getPlanePositionZ(imageNumber, j), responseStruct);
-                        put("channel", retrieve.getPlaneTheC(imageNumber, j), responseStruct);
-                        put("t-group", retrieve.getPlaneTheT(imageNumber, j), responseStruct);
-                        put("z-group", retrieve.getPlaneTheZ(imageNumber, j), responseStruct);
+                        put("epoch.deltaT", retrieve.getPlaneDeltaT(imageNumber, j), responseStruct);
+
+                        Map<String, Object> properties = new HashMap();
+                        put("exposureTime", catchNullPointer(retrieve, "getPlaneExposureTime", new Class[]{Integer.TYPE, Integer.TYPE}, new Object[]{imageNumber, j}), properties);
+                        put("positionX", retrieve.getPlanePositionX(imageNumber, j), properties);
+                        put("positionY", retrieve.getPlanePositionY(imageNumber, j), properties);
+                        put("positionZ", retrieve.getPlanePositionZ(imageNumber, j), properties);
+                        put("channel", retrieve.getPlaneTheC(imageNumber, j), properties);
+                        put("t-group", retrieve.getPlaneTheT(imageNumber, j), properties);
+                        put("z-group", retrieve.getPlaneTheZ(imageNumber, j), properties);
+
+                        put("properties", properties, responseStruct);
+
                         deltaTForEpochGroup += retrieve.getPlaneDeltaT(imageNumber, j);
                         responses.add(responseStruct);
                     }
@@ -270,9 +276,11 @@ public class FileMetadata {
                         eg.remove("label");
                         parentEpochGroup.putAll(eg);
                     }else{
-                        put("epochGroup" + i, eg, parentEpochGroup, true);
+                        egs.add(eg);
                     }
                 }
+                put("egs", egs, parentEpochGroup, true);
+
             }
              
             //TODO: plates -- start and end time information?

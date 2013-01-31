@@ -121,24 +121,10 @@ public class GetImageFilesController extends BasicWizardPanel{
 
     private void importMultipleEpochs(WizardDescriptor wiz, FileMetadata data, int i) {
         Map<String, Object> parentEpochGroup = data.getParentEpochGroup();
-        if (parentEpochGroup != null)
-        {
-            wiz.putProperty("parentEpochGroup.start", data.getStart());
-            wiz.putProperty("parentEpochGroup.end", data.getEnd(false));
-            wiz.putProperty("parentEpochGroup.label", parentEpochGroup.get("label"));
-            
-            int count = 0;
-            for (;;)
-            {
-                String eg = "epochGroup" + count++;
-                if (parentEpochGroup.containsKey(eg))
-                {
-                    wiz.putProperty("parentEpochGroup."+ eg, parentEpochGroup.get(eg));
-                }else{
-                    break;
-                }
-            }
-        }
+        parentEpochGroup.put("start", data.getStart());
+        parentEpochGroup.put("end", data.getEnd(false));
+        
+        wiz.putProperty("parentEpochGroup", parentEpochGroup);
         wiz.putProperty("epoch.properties", data.getEpochProperties());
         wiz.putProperty("responses", data.getResponses());
     }
