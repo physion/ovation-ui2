@@ -21,8 +21,6 @@ import ovation.Response;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import net.imglib2.display.ARGBScreenImage;
-import net.imglib2.img.Img;
-import net.imglib2.type.numeric.RealType;
 import ovation.OvationException;
 
 /**
@@ -31,46 +29,23 @@ import ovation.OvationException;
 public class ImageJVisualization implements Visualization {
 
     final JPanel panel;
-    final IOService ioService;
-    final Dataset data;
-    final ImageJ context;
+    final static ImageJ context = new ImageJ();
 
     ImageJVisualization(String url, String name) {
         url = url.substring("file:".length());
         // open a file with ImageJ
         try {
-            context = new ImageJ();
+            
+            final IOService ioService = context.getService(IOService.class);
+            final Dataset data = ioService.loadDataset(url);
 
-            ioService = context.getService(IOService.class);
-            data = ioService.loadDataset(url);
-
-            final ImageDisplay display = new DefaultImageDisplay();
-            display.setContext(context);
-            display.display(data);
-            final ImageDisplayService imageDisplayService =
-                    display.getContext().getService(ImageDisplayService.class);
-            final DatasetView datasetView =
-                    imageDisplayService.getActiveDatasetView(display);
-            final ARGBScreenImage screenImage = datasetView.getScreenImage();
-            final Image pixels = screenImage.image();
-
-            final BufferedImage bufferedImage = AWTImageTools.makeBuffered(pixels);
+            BufferedImage bufferedImage = makeBufferedImage(data);
+            
             final BufferedImagePanel imgPanel = new BufferedImagePanel(bufferedImage);
 
             this.panel = new ImagePanel(name, imgPanel);
 
         } catch (Throwable e) {
-            /*
-             result = new JPanel();
-             result.setBackground(Color.WHITE);
-
-             if (e instanceof java.lang.OutOfMemoryError) {
-             result.add(new JLabel("Image too large to open"));
-             } else {
-             result.add(new JLabel("Unable to open image"));
-             }
-             */
-
             throw new OvationException("Unable to open image", e);
         }
     }
@@ -88,5 +63,21 @@ public class ImageJVisualization implements Visualization {
     @Override
     public void add(Response r) {
         throw new UnsupportedOperationException("Not supported for this image visualization.");
+    }
+
+    private static BufferedImage makeBufferedImage(final Dataset data) {
+        
+        final ImageDisplay display = new DefaultImageDisplay();
+        display.setContext(context);
+        display.display(data);
+        final ImageDisplayService imageDisplayService =
+                display.getContext().getService(ImageDisplayService.class);
+        final DatasetView datasetView =
+                imageDisplayService.getActiveDatasetView(display);
+        final ARGBScreenImage screenImage = datasetView.getScreenImage();
+        final Image pixels = screenImage.image();
+        final BufferedImage bufferedImage = AWTImageTools.makeBuffered(pixels);
+        
+        return bufferedImage;
     }
 }
