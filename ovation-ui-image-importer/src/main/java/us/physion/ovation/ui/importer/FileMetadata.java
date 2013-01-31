@@ -4,17 +4,6 @@
  */
 package us.physion.ovation.ui.importer;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.ByteOrder;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import loci.common.services.DependencyException;
 import loci.common.services.ServiceException;
 import loci.common.services.ServiceFactory;
@@ -26,19 +15,27 @@ import loci.formats.meta.IMetadata;
 import loci.formats.meta.MetadataRetrieve;
 import loci.formats.services.OMEXMLService;
 import ome.xml.model.primitives.PositiveInteger;
-import ome.xml.model.primitives.Timestamp;
 import org.joda.time.DateTime;
-import org.openide.WizardDescriptor;
 import org.openide.util.Exceptions;
 import ovation.NumericDataFormat;
 import ovation.NumericDataType;
 import ovation.OvationException;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.nio.ByteOrder;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author huecotanks
  */
-public class FileMetadata {
+public class FileMetadata
+{
 
     File file;
     MetadataRetrieve retrieve;
@@ -48,14 +45,16 @@ public class FileMetadata {
     List<Map<String, Object>> instruments;
     List<Map<String, Object>> responses;
     Map<String, Object> parentEpochGroup;
-    
+
     boolean isPrairie;
 
     FileMetadata(File f)
     {
         this(f, false);
     }
-    FileMetadata(File f, boolean isPrairie) {
+
+    FileMetadata(File f, boolean isPrairie)
+    {
         file = f;
         this.isPrairie = isPrairie;
         ServiceFactory factory = null;
@@ -78,14 +77,15 @@ public class FileMetadata {
             Logger.getLogger(ImportImage.class.getName()).log(Level.SEVERE, null, ex);
             throw new OvationException("Unable to create metadata. " + ex.getMessage());
         }
-        
+
         IFormatReader r;
         if (isPrairie) {
             r = new PrairieReader();
         } else {
-            r = new ImageReader(); 
-            if (r instanceof PrairieReader)
+            r = new ImageReader();
+            if (r instanceof PrairieReader) {
                 isPrairie = true;
+            }
         }
         r.setMetadataStore(meta);
         try {
@@ -96,8 +96,7 @@ public class FileMetadata {
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
             throw new OvationException("Unable to read file. " + ex.getMessage());
-        } catch (OutOfMemoryError ex)
-        {
+        } catch (OutOfMemoryError ex) {
             Exceptions.printStackTrace(ex);
             throw new OvationException("Unable to read file. Out of java heap memory");
         }
@@ -112,11 +111,13 @@ public class FileMetadata {
         parseRetrieve(retrieve, original);
     }
 
-    public File getFile() {
+    public File getFile()
+    {
         return file;
     }
 
-    public DateTime getStart() {
+    public DateTime getStart()
+    {
         if (start != null) {
             return start;
         }
@@ -136,7 +137,8 @@ public class FileMetadata {
         return new DateTime(min);
     }
 
-    public DateTime getEnd(boolean recomputeFromStart) {
+    public DateTime getEnd(boolean recomputeFromStart)
+    {
         if (end != null && !recomputeFromStart) {
             return end;
         }
@@ -157,36 +159,42 @@ public class FileMetadata {
             }
         }
         double seconds = 0;
-        try{
-            for (int i =0; i< retrieve.getPlaneCount(count); i++)
-            {
+        try {
+            for (int i = 0; i < retrieve.getPlaneCount(count); i++) {
                 seconds += retrieve.getPlaneDeltaT(count, i);
             }
-        }catch (NullPointerException e){}
-        return new DateTime(max).plusSeconds(((int)(seconds*1000)));
+        } catch (NullPointerException e) {
+        }
+        return new DateTime(max).plusSeconds(((int) (seconds * 1000)));
     }
 
-    public void setStart(DateTime s) {
+    public void setStart(DateTime s)
+    {
         start = s;
     }
 
-    public void setEnd(DateTime s) {
+    public void setEnd(DateTime s)
+    {
         end = s;
     }
 
-    public Map<String, Object> getEpochProperties() {
+    public Map<String, Object> getEpochProperties()
+    {
         return epochProperties;
     }
 
-    public List<Map<String, Object>> getDevices() {
+    public List<Map<String, Object>> getDevices()
+    {
         return instruments;
     }
 
-    public List<Map<String, Object>> getResponses() {
+    public List<Map<String, Object>> getResponses()
+    {
         return responses;
     }
 
-    private void parseRetrieve(MetadataRetrieve retrieve, Hashtable original) {
+    private void parseRetrieve(MetadataRetrieve retrieve, Hashtable original)
+    {
         instruments = getInstrumentData();
 
         epochProperties = new HashMap<String, Object>();
@@ -199,57 +207,59 @@ public class FileMetadata {
 
         responses = new ArrayList<Map<String, Object>>();
 
-        
-        
+
         int imageNumber = -1;
-        try{
-            imageNumber = retrieve.getImageCount() -1;
-        } catch (NullPointerException e)
-        {
+        try {
+            imageNumber = retrieve.getImageCount() - 1;
+        } catch (NullPointerException e) {
             throw new OvationException("No Images located");//?
         }
-        
-        if (imageNumber > 0)
-        {
+
+        if (imageNumber > 0) {
             throw new OvationException("Multi image import not supported yet");
         }
-        if (imageNumber == 0)
-        {
-            int planeCount = (Integer) catchNullPointer(retrieve, "getPlaneCount", new Class[]{Integer.TYPE}, new Object[]{imageNumber});
-           
-           if (!isPrairie)// if (planeCount <= 1)
+        if (imageNumber == 0) {
+            int planeCount = (Integer) catchNullPointer(retrieve, "getPlaneCount", new Class[]{Integer.TYPE},
+                                                        new Object[]{imageNumber});
+
+            if (!isPrairie)// if (planeCount <= 1)
             {
                 responses.add(createResponse(imageNumber));
-            }else
-            {
+            } else {
                 parentEpochGroup = new HashMap<String, Object>();
-                String name = (String) catchNullPointer(retrieve, "getImageName", new Class[]{Integer.TYPE}, new Object[]{imageNumber});
-                if (name == null){
+                String name = (String) catchNullPointer(retrieve, "getImageName", new Class[]{Integer.TYPE},
+                                                        new Object[]{imageNumber});
+                if (name == null) {
                     name = getFile().getName().split("\\.")[0];
                 }
-                if (isPrairie){
+                if (isPrairie) {
                     name = name.split("Config")[0];
                 }
                 put("label", name, parentEpochGroup, true);
-               
+
                 int responseCount = 0;
-                int tCount = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeT", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
-                for (int i=0; i< tCount; i++)
-                {
+                int tCount = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeT", new Class[]{Integer.TYPE},
+                                                                 new Object[]{imageNumber})).getValue();
+                for (int i = 0; i < tCount; i++) {
                     Map<String, Object> eg = new HashMap<String, Object>();
                     put("responseStart", responseCount, eg, true);
-                    int zCount = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeZ", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
-           
+                    int zCount = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeZ",
+                                                                     new Class[]{Integer.TYPE},
+                                                                     new Object[]{imageNumber})).getValue();
+
                     double deltaTForEpochGroup = 0;
-                    for (int j=0; j<zCount; j++)
-                    {
+                    for (int j = 0; j < zCount; j++) {
                         Map<String, Object> responseStruct = createResponse(imageNumber);
-                        if (isPrairie)
-                        {
-                            String url = generateURL(i, retrieve.getChannelName(imageNumber, retrieve.getPlaneTheC(imageNumber, j).getValue()), j);
-                            put("url", url, responseStruct);        
+                        if (isPrairie) {
+                            String url = generateURL(i, retrieve.getChannelName(imageNumber,
+                                                                                retrieve.getPlaneTheC(imageNumber,
+                                                                                                      j).getValue()),
+                                                     j);
+                            put("url", url, responseStruct);
                         }
-                        put("exposureTime", catchNullPointer(retrieve, "getPlaneExposureTime", new Class[]{Integer.TYPE, Integer.TYPE}, new Object[]{imageNumber, j}), responseStruct);
+                        put("exposureTime",
+                            catchNullPointer(retrieve, "getPlaneExposureTime", new Class[]{Integer.TYPE, Integer.TYPE},
+                                             new Object[]{imageNumber, j}), responseStruct);
                         put("deltaT", retrieve.getPlaneDeltaT(imageNumber, j), responseStruct);
                         put("positionX", retrieve.getPlanePositionX(imageNumber, j), responseStruct);
                         put("positionY", retrieve.getPlanePositionY(imageNumber, j), responseStruct);
@@ -261,31 +271,31 @@ public class FileMetadata {
                         responses.add(responseStruct);
                     }
                     put("deltaT", deltaTForEpochGroup, eg, true);
-                    put("label", "Cycle_"+ i, eg, true);
+                    put("label", "Cycle_" + i, eg, true);
                     responseCount += zCount;
                     put("responseEnd", responseCount, eg, true);
 
-                    if (tCount == 1)
-                    {
+                    if (tCount == 1) {
                         eg.remove("label");
                         parentEpochGroup.putAll(eg);
-                    }else{
+                    } else {
                         put("epochGroup" + i, eg, parentEpochGroup, true);
                     }
                 }
             }
-             
+
             //TODO: plates -- start and end time information?
-            
+
         }
     }
-    
+
     private Map<String, Object> createResponse(int imageNumber)
     {
         Map<String, Object> responseStruct = new HashMap<String, Object>();
         put("name", "response" + imageNumber, responseStruct, true);
 
-        String ref = (String) catchNullPointer(retrieve, "getImageInstrumentRef", new Class[]{Integer.TYPE}, new Object[]{imageNumber});
+        String ref = (String) catchNullPointer(retrieve, "getImageInstrumentRef", new Class[]{Integer.TYPE},
+                                               new Object[]{imageNumber});
         boolean found = false;
         if (ref != null) {
             for (Map<String, Object> device : instruments) {
@@ -324,13 +334,15 @@ public class FileMetadata {
         } else {
             b = ByteOrder.LITTLE_ENDIAN;
         }
-        put("dataType", new NumericDataType(NumericDataFormat.SignedFixedPointDataType, (short) 4, b), responseStruct, true);
+        put("dataType", new NumericDataType(NumericDataFormat.SignedFixedPointDataType, (short) 4, b), responseStruct,
+            true);
         put("units", "pixels", responseStruct, true);
         put("uti", "public.tiff", responseStruct, true);//TODO: fix - get file type?
         return responseStruct;
     }
 
-    private Map<String, Object> getDeviceParameters(int imageNum) {
+    private Map<String, Object> getDeviceParameters(int imageNum)
+    {
         Map<String, Object> parameters = new HashMap<String, Object>();
         put("imageName", retrieve.getImageName(imageNum), parameters);
         put("imageDescription", retrieve.getImageDescription(imageNum), parameters);
@@ -385,9 +397,12 @@ public class FileMetadata {
             put(channelID + ".ID", retrieve.getChannelID(imageNum, i), parameters);
 
             try {
-                put(channelID + ".lightSourceSettingsID", retrieve.getChannelLightSourceSettingsID(imageNum, i), parameters);
-                put(channelID + ".lightSourceSettingsAttenuation", retrieve.getChannelLightSourceSettingsAttenuation(imageNum, i), parameters);
-                put(channelID + ".lightSourceSettingsWavelength", retrieve.getChannelLightSourceSettingsWavelength(imageNum, i), parameters);
+                put(channelID + ".lightSourceSettingsID", retrieve.getChannelLightSourceSettingsID(imageNum, i),
+                    parameters);
+                put(channelID + ".lightSourceSettingsAttenuation",
+                    retrieve.getChannelLightSourceSettingsAttenuation(imageNum, i), parameters);
+                put(channelID + ".lightSourceSettingsWavelength",
+                    retrieve.getChannelLightSourceSettingsWavelength(imageNum, i), parameters);
             } catch (NullPointerException e) {
             }
 
@@ -399,12 +414,18 @@ public class FileMetadata {
 
             try {
                 String channelDetector = channelID + ".detector";
-                put(channelDetector + ".settingsBinning", retrieve.getDetectorSettingsBinning(imageNum, i), parameters);//TODO: do they really mean channel number?
-                put(channelDetector + ".settingsGain", retrieve.getDetectorSettingsGain(imageNum, i), parameters);//TODO: do they really mean channel number?
-                put(channelDetector + ".settingsID", retrieve.getDetectorSettingsID(imageNum, i), parameters);//TODO: do they really mean channel number?
-                put(channelDetector + ".settingsOffset", retrieve.getDetectorSettingsOffset(imageNum, i), parameters);//TODO: do they really mean channel number?
-                put(channelDetector + ".settingsReadOutRate", retrieve.getDetectorSettingsReadOutRate(imageNum, i), parameters);//TODO: do they really mean channel number?
-                put(channelDetector + ".settingsVoltage", retrieve.getDetectorSettingsVoltage(imageNum, i), parameters);//TODO: do they really mean channel number?
+                put(channelDetector + ".settingsBinning", retrieve.getDetectorSettingsBinning(imageNum, i),
+                    parameters);//TODO: do they really mean channel number?
+                put(channelDetector + ".settingsGain", retrieve.getDetectorSettingsGain(imageNum, i),
+                    parameters);//TODO: do they really mean channel number?
+                put(channelDetector + ".settingsID", retrieve.getDetectorSettingsID(imageNum, i),
+                    parameters);//TODO: do they really mean channel number?
+                put(channelDetector + ".settingsOffset", retrieve.getDetectorSettingsOffset(imageNum, i),
+                    parameters);//TODO: do they really mean channel number?
+                put(channelDetector + ".settingsReadOutRate", retrieve.getDetectorSettingsReadOutRate(imageNum, i),
+                    parameters);//TODO: do they really mean channel number?
+                put(channelDetector + ".settingsVoltage", retrieve.getDetectorSettingsVoltage(imageNum, i),
+                    parameters);//TODO: do they really mean channel number?
             } catch (NullPointerException e) {
             }
         }
@@ -416,7 +437,8 @@ public class FileMetadata {
         }
         for (int i = 0; i < mmCount; i++) {
             put("microbeamManipulation" + i + ".ID", retrieve.getMicrobeamManipulationID(imageNum, i), parameters);
-            put("microbeamManipulation" + i + ".description", retrieve.getMicrobeamManipulationDescription(imageNum, i), parameters);
+            put("microbeamManipulation" + i + ".description", retrieve.getMicrobeamManipulationDescription(imageNum, i),
+                parameters);
             put("microbeamManipulation" + i + ".type", retrieve.getMicrobeamManipulationType(imageNum, i), parameters);
 
             //for each light source ?
@@ -445,7 +467,8 @@ public class FileMetadata {
 
             if (type.equals("laser")) {
                 String laserName = "laser_" + retrieve.getLaserID(imageNum, k);
-                put(laserName + ".frequencyMultiplication", retrieve.getLaserFrequencyMultiplication(imageNum, k), parameters);
+                put(laserName + ".frequencyMultiplication", retrieve.getLaserFrequencyMultiplication(imageNum, k),
+                    parameters);
                 put(laserName + ".medium", retrieve.getLaserLaserMedium(imageNum, k), parameters);
                 try {
                     put(laserName + ".pockelCell", retrieve.getLaserPockelCell(imageNum, k), parameters);
@@ -462,7 +485,8 @@ public class FileMetadata {
             }
 
             if (type.equals("lightEmittingDiodeName")) {
-                String lightEmittingDiodeName = "lightEmittingDiodeName_" + retrieve.getLightEmittingDiodeID(imageNum, k);
+                String lightEmittingDiodeName = "lightEmittingDiodeName_" + retrieve.getLightEmittingDiodeID(imageNum,
+                                                                                                             k);
                 put(lightEmittingDiodeName + ".power", retrieve.getLightEmittingDiodePower(imageNum, k), parameters);
             }
         }
@@ -474,7 +498,8 @@ public class FileMetadata {
         }
         for (int k = 0; k < objCount; k++) {
             String objName = "objective_" + retrieve.getObjectiveID(imageNum, k);
-            put(objName + ".calibratedMagnification", retrieve.getObjectiveCalibratedMagnification(imageNum, k), parameters);
+            put(objName + ".calibratedMagnification", retrieve.getObjectiveCalibratedMagnification(imageNum, k),
+                parameters);
             put(objName + ".correction", retrieve.getObjectiveCorrection(imageNum, k), parameters);
             put(objName + ".immersion", retrieve.getObjectiveImmersion(imageNum, k), parameters);
             put(objName + ".iris", retrieve.getObjectiveIris(imageNum, k), parameters);
@@ -491,10 +516,14 @@ public class FileMetadata {
         for (int k = 0; k < filterCount; k++) {
             String filterName = "filter_" + retrieve.getFilterID(imageNum, k);
             put(filterName + ".transmittanceRangeCutIn", retrieve.getTransmittanceRangeCutIn(imageNum, k), parameters);
-            put(filterName + ".transmittanceRangeCutInTolerance", retrieve.getTransmittanceRangeCutInTolerance(imageNum, k), parameters);
-            put(filterName + ".transmittanceRangeCutOut", retrieve.getTransmittanceRangeCutOut(imageNum, k), parameters);
-            put(filterName + ".transmittanceRangeCutOutTolerance", retrieve.getTransmittanceRangeCutOutTolerance(imageNum, k), parameters);
-            put(filterName + ".transmittanceRangeTransmittance", retrieve.getTransmittanceRangeTransmittance(imageNum, k), parameters);
+            put(filterName + ".transmittanceRangeCutInTolerance",
+                retrieve.getTransmittanceRangeCutInTolerance(imageNum, k), parameters);
+            put(filterName + ".transmittanceRangeCutOut", retrieve.getTransmittanceRangeCutOut(imageNum, k),
+                parameters);
+            put(filterName + ".transmittanceRangeCutOutTolerance",
+                retrieve.getTransmittanceRangeCutOutTolerance(imageNum, k), parameters);
+            put(filterName + ".transmittanceRangeTransmittance",
+                retrieve.getTransmittanceRangeTransmittance(imageNum, k), parameters);
 
             put(filterName + ".wheel", retrieve.getFilterFilterWheel(imageNum, k), parameters);
         }
@@ -516,7 +545,8 @@ public class FileMetadata {
         return parameters;
     }
 
-    protected void addMetadataProperties(Map<String, Object> properties, MetadataRetrieve retrieve) {
+    protected void addMetadataProperties(Map<String, Object> properties, MetadataRetrieve retrieve)
+    {
         int dsCount = 0;
         try {
             dsCount = retrieve.getDatasetCount();
@@ -542,14 +572,15 @@ public class FileMetadata {
             put("experimenter" + i + ".email", retrieve.getExperimenterEmail(i), properties);
             put("experimenter" + i + ".institution", retrieve.getExperimenterInstitution(i), properties);
         }
-        
+
         try {
             this.getImageProperties(0);
         } catch (IndexOutOfBoundsException e) {
         }
     }
 
-    private List<Map<String, Object>> getInstrumentData() {
+    private List<Map<String, Object>> getInstrumentData()
+    {
         List<Map<String, Object>> instrumentStructs = new ArrayList<Map<String, Object>>();
 
         int instrumentCount = 0;
@@ -614,11 +645,15 @@ public class FileMetadata {
                 } else if (type.equals("lightEmittingDiode")) {
                     String lightEmittingDiodeName = "lightEmittingDiodeName_" + retrieve.getLightEmittingDiodeID(j, k);
                     put(lightEmittingDiodeName + ".ID", retrieve.getLightEmittingDiodeID(j, k), instrumentProperties);
-                    put(lightEmittingDiodeName + ".lotNumber", retrieve.getLightEmittingDiodeLotNumber(j, k), instrumentProperties);
-                    put(lightEmittingDiodeName + ".manufacturer", retrieve.getLightEmittingDiodeManufacturer(j, k), instrumentProperties);
+                    put(lightEmittingDiodeName + ".lotNumber", retrieve.getLightEmittingDiodeLotNumber(j, k),
+                        instrumentProperties);
+                    put(lightEmittingDiodeName + ".manufacturer", retrieve.getLightEmittingDiodeManufacturer(j, k),
+                        instrumentProperties);
                     setManufacturer(retrieve.getLightEmittingDiodeManufacturer(j, k), instrumentStruct);
-                    put(lightEmittingDiodeName + ".model", retrieve.getLightEmittingDiodeModel(j, k), instrumentProperties);
-                    put(lightEmittingDiodeName + ".serialNumber", retrieve.getLightEmittingDiodeSerialNumber(j, k), instrumentProperties);
+                    put(lightEmittingDiodeName + ".model", retrieve.getLightEmittingDiodeModel(j, k),
+                        instrumentProperties);
+                    put(lightEmittingDiodeName + ".serialNumber", retrieve.getLightEmittingDiodeSerialNumber(j, k),
+                        instrumentProperties);
                 }
             }
 
@@ -691,7 +726,8 @@ public class FileMetadata {
         return instrumentStructs;
     }
 
-    public Object catchNullPointer(MetadataRetrieve retrieve, String methodName, Class[] argTypes, Object[] args) {
+    public Object catchNullPointer(MetadataRetrieve retrieve, String methodName, Class[] argTypes, Object[] args)
+    {
         try {
             Method m = retrieve.getClass().getMethod(methodName, argTypes);
             return m.invoke(retrieve, args);
@@ -705,11 +741,13 @@ public class FileMetadata {
         return null;
     }
 
-    private void put(String name, Object value, Map<String, Object> map) {
+    private void put(String name, Object value, Map<String, Object> map)
+    {
         put(name, value, map, false);
     }
 
-    private void put(String name, Object value, Map<String, Object> map, boolean putDirectly) {
+    private void put(String name, Object value, Map<String, Object> map, boolean putDirectly)
+    {
         if (value != null) {
             if (putDirectly || value instanceof String) {
                 map.put(name, value);
@@ -744,7 +782,8 @@ public class FileMetadata {
         }
     }
 
-    protected Map<String, Object> getImageProperties(int imageNumber) {
+    protected Map<String, Object> getImageProperties(int imageNumber)
+    {
         Map<String, Object> properties = new HashMap<String, Object>();
         put("imageName", retrieve.getImageName(imageNumber), properties);
         put("imageDescription", retrieve.getImageDescription(imageNumber), properties);
@@ -753,7 +792,8 @@ public class FileMetadata {
         return properties;
     }
 
-    private boolean isMicroscope(MetadataRetrieve retrieve, int j) {
+    private boolean isMicroscope(MetadataRetrieve retrieve, int j)
+    {
         try {
             retrieve.getMicroscopeLotNumber(j);
         } catch (NullPointerException e) {
@@ -762,13 +802,15 @@ public class FileMetadata {
         return true;
     }
 
-    private void setManufacturer(String manufacturer, Map<String, Object> instrumentStruct) {
+    private void setManufacturer(String manufacturer, Map<String, Object> instrumentStruct)
+    {
         if (instrumentStruct.get("manufacturer") == null) {
             put("manufacturer", manufacturer, instrumentStruct);
         }
     }
 
-    private void addMultidimensionalFields(MetadataRetrieve retrieve, Map<String, Object> responseStruct, int j) {
+    private void addMultidimensionalFields(MetadataRetrieve retrieve, Map<String, Object> responseStruct, int j)
+    {
         int shapeCount = 0;
         long shapeX = -1, shapeY = -1, shapeZ = -1, shapeC = -1, shapeT = -1;
         double rateX = -1, rateY = -1, rateZ = -1, rateC = -1, rateT = -1;
@@ -860,14 +902,17 @@ public class FileMetadata {
 
         put("shape", shape, responseStruct, true);
         put("samplingRates", samplingRates, responseStruct, true);
-        put("samplingRateUnits", samplingRateUnits, responseStruct, true);//TODO make sure the UI handles dimension errors gracefully
+        put("samplingRateUnits", samplingRateUnits, responseStruct,
+            true);//TODO make sure the UI handles dimension errors gracefully
         put("dimensionLabels", dimensionLabels, responseStruct, true);
 
     }
 
-    private String generateURL(int cycleNumber, String channelName, int zNumber) {
+    private String generateURL(int cycleNumber, String channelName, int zNumber)
+    {
         String filename = getFile().getAbsolutePath().split("Config.")[0].split("\\.")[0];
-        filename += "_Cycle" + convertTo5Digit(cycleNumber) + "_CurrentSettings_" + channelName + "_" + convertTo6Digit(zNumber) + ".tif";
+        filename += "_Cycle" + convertTo5Digit(cycleNumber) + "_CurrentSettings_" + channelName + "_" + convertTo6Digit(
+                zNumber) + ".tif";
         try {
             return new File(filename).toURI().toURL().toExternalForm();
         } catch (MalformedURLException ex) {
@@ -876,32 +921,35 @@ public class FileMetadata {
         }
     }
 
-    private String convertTo5Digit(int number) {
-        int digits = number/10;
+    private String convertTo5Digit(int number)
+    {
+        int digits = number / 10;
         String s = "";
-        for (int i=0; i < (5 - digits); i++)
-        {
-            s +="0";
-        }
-        s += String.valueOf(number);
-        return s;
-    }
-    private String convertTo6Digit(int number) {
-        int digits = number/10;
-        String s = "";
-        for (int i=0; i < (6 - digits); i++)
-        {
-            s +="0";
+        for (int i = 0; i < (5 - digits); i++) {
+            s += "0";
         }
         s += String.valueOf(number);
         return s;
     }
 
-    Map<String, Object> getParentEpochGroup() {
+    private String convertTo6Digit(int number)
+    {
+        int digits = number / 10;
+        String s = "";
+        for (int i = 0; i < (6 - digits); i++) {
+            s += "0";
+        }
+        s += String.valueOf(number);
+        return s;
+    }
+
+    Map<String, Object> getParentEpochGroup()
+    {
         return parentEpochGroup;
     }
 
-    boolean containsSingleEpoch() {
+    boolean containsSingleEpoch()
+    {
         return parentEpochGroup == null;
     }
 }

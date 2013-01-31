@@ -4,38 +4,42 @@
  */
 package us.physion.ovation.ui.importer;
 
-import java.util.*;
 import javax.swing.table.DefaultTableModel;
+import java.util.*;
 
 /**
- *
  * @author jackie
  */
-class ParameterTableModel extends DefaultTableModel {
+class ParameterTableModel extends DefaultTableModel
+{
 
     Map<String, Object> params;
     boolean editable;
     List<String> keys;
 
-    ParameterTableModel() {
+    ParameterTableModel()
+    {
         this(true);
     }
-    
-    ParameterTableModel(boolean editable) {
+
+    ParameterTableModel(boolean editable)
+    {
         super();
         params = new HashMap<String, Object>();
         keys = new ArrayList<String>();
         this.editable = editable;
     }
 
-    public void setParams(Map<String, Object> pp) {
+    public void setParams(Map<String, Object> pp)
+    {
         params = pp;
         keys = new ArrayList<String>();
         keys.addAll(pp.keySet());
         Collections.sort(keys);
     }
 
-    public int getRowCount() {
+    public int getRowCount()
+    {
         if (params == null) {
             return 0;
         }
@@ -48,12 +52,14 @@ class ParameterTableModel extends DefaultTableModel {
     {
         return editable;
     }
-    
-    public int getColumnCount() {
+
+    public int getColumnCount()
+    {
         return 2;
     }
 
-    public String getColumnName(int i) {
+    public String getColumnName(int i)
+    {
         if (i == 0) {
             return "Key";
         }
@@ -63,7 +69,8 @@ class ParameterTableModel extends DefaultTableModel {
         return "";
     }
 
-    public void remove(int row) {
+    public void remove(int row)
+    {
         if (row >= keys.size()) {
             return;
         }
@@ -74,7 +81,8 @@ class ParameterTableModel extends DefaultTableModel {
         this.fireTableRowsDeleted(row, row);
     }
 
-    public Object getValueAt(int row, int column) {
+    public Object getValueAt(int row, int column)
+    {
 
         if (row >= keys.size()) {
             return "";
@@ -91,7 +99,8 @@ class ParameterTableModel extends DefaultTableModel {
     }
 
     @Override
-    public void setValueAt(Object val, int row, int column) {
+    public void setValueAt(Object val, int row, int column)
+    {
 
         if (row >= keys.size()) {
             if (column == 1) {
@@ -123,7 +132,8 @@ class ParameterTableModel extends DefaultTableModel {
         }
     }
 
-    public Map<String, Object> getParams() {
+    public Map<String, Object> getParams()
+    {
         return params;
     }
 }

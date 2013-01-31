@@ -4,43 +4,40 @@
  */
 package us.physion.ovation.ui.importer;
 
-import java.awt.Component;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.nio.ByteOrder;
-import java.util.*;
-import loci.formats.meta.MetadataRetrieve;
 import org.openide.WizardDescriptor;
-import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
-import ovation.ExternalDevice;
-import ovation.NumericDataFormat;
-import ovation.NumericDataType;
-import ovation.OvationException;
 import us.physion.ovation.ui.interfaces.BasicWizardPanel;
 
+import java.awt.*;
+import java.util.*;
+import java.util.List;
+
 /**
- *
  * @author huecotanks
  */
-public class GetImageFilesController extends BasicWizardPanel{
+public class GetImageFilesController extends BasicWizardPanel
+{
 
     ArrayList<FileMetadata> files;
+
     GetImageFilesController(ArrayList<FileMetadata> files)
     {
         super();
         this.files = files;
     }
-    
+
     @Override
-    public Component getComponent() {
+    public Component getComponent()
+    {
         if (component == null) {
             component = new GetImageFilesPanel(changeSupport, files);
         }
         return component;
     }
+
     @Override
-    public HelpCtx getHelp() {
+    public HelpCtx getHelp()
+    {
         // Show no Help button for this panel:
         return HelpCtx.DEFAULT_HELP;
         // If you have context help:
@@ -48,10 +45,10 @@ public class GetImageFilesController extends BasicWizardPanel{
     }
 
     @Override
-    public boolean isValid() {
-        GetImageFilesPanel c = (GetImageFilesPanel)component;
-        if (c != null)
-        {
+    public boolean isValid()
+    {
+        GetImageFilesPanel c = (GetImageFilesPanel) component;
+        if (c != null) {
             List<FileMetadata> files = c.getFiles();
             return files.size() != 0;
         }
@@ -59,51 +56,48 @@ public class GetImageFilesController extends BasicWizardPanel{
     }
 
     @Override
-    public void storeSettings(WizardDescriptor wiz) {
-        GetImageFilesPanel c = (GetImageFilesPanel)component;
+    public void storeSettings(WizardDescriptor wiz)
+    {
+        GetImageFilesPanel c = (GetImageFilesPanel) component;
         List<FileMetadata> files = c.getFiles();
-        
+
         //set the user-approved start and end times
-        int count =0;
-        for (FileMetadata f : files)
-        {
+        int count = 0;
+        for (FileMetadata f : files) {
             f.setStart(c.getStart(count));
             f.setEnd(c.getEnd(count++));
         }
         Collections.sort(files, new FileMetadataComparator());
 
         Map<String, Map<String, Object>> devices = new HashMap<String, Map<String, Object>>();
-        for (int i=0; i< files.size(); i++)
-        {
+        for (int i = 0; i < files.size(); i++) {
             FileMetadata data = files.get(i);
-            
-            for (Map<String, Object> device : data.getDevices())
-            {
-                String id = (String)device.get("ID");
-                if (devices.containsKey(id))
-                {
+
+            for (Map<String, Object> device : data.getDevices()) {
+                String id = (String) device.get("ID");
+                if (devices.containsKey(id)) {
                     devices.put(id, combineDevices(devices.get(id), device));
-                }else{
+                } else {
                     devices.put(id, device);
                 }
             }
-            if (data.containsSingleEpoch())
-            {
+            if (data.containsSingleEpoch()) {
                 importSingleEpoch(wiz, data, i);
-            }else
-            {
+            } else {
                 importMultipleEpochs(wiz, data, i);
             }
         }
         wiz.putProperty("devices", devices);
     }
 
-    private Map<String, Object> combineDevices(Map<String, Object> device1, Map<String, Object> device2) {
+    private Map<String, Object> combineDevices(Map<String, Object> device1, Map<String, Object> device2)
+    {
         device1.putAll(device2);
         return device1;
     }
 
-    private void importSingleEpoch(WizardDescriptor wiz, FileMetadata data, int i) {
+    private void importSingleEpoch(WizardDescriptor wiz, FileMetadata data, int i)
+    {
         String epochName = "epoch" + i;
         wiz.putProperty(epochName + ".start", data.getStart());
         wiz.putProperty(epochName + ".end", data.getEnd(false));
@@ -119,22 +113,20 @@ public class GetImageFilesController extends BasicWizardPanel{
         }
     }
 
-    private void importMultipleEpochs(WizardDescriptor wiz, FileMetadata data, int i) {
+    private void importMultipleEpochs(WizardDescriptor wiz, FileMetadata data, int i)
+    {
         Map<String, Object> parentEpochGroup = data.getParentEpochGroup();
-        if (parentEpochGroup != null)
-        {
+        if (parentEpochGroup != null) {
             wiz.putProperty("parentEpochGroup.start", data.getStart());
             wiz.putProperty("parentEpochGroup.end", data.getEnd(false));
             wiz.putProperty("parentEpochGroup.label", parentEpochGroup.get("label"));
-            
+
             int count = 0;
-            for (;;)
-            {
+            for (; ; ) {
                 String eg = "epochGroup" + count++;
-                if (parentEpochGroup.containsKey(eg))
-                {
-                    wiz.putProperty("parentEpochGroup."+ eg, parentEpochGroup.get(eg));
-                }else{
+                if (parentEpochGroup.containsKey(eg)) {
+                    wiz.putProperty("parentEpochGroup." + eg, parentEpochGroup.get(eg));
+                } else {
                     break;
                 }
             }

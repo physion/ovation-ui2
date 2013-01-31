@@ -4,33 +4,35 @@
  */
 package us.physion.ovation.ui.importer;
 
-import java.awt.Component;
-import java.util.Map;
 import org.openide.WizardDescriptor;
 import us.physion.ovation.ui.interfaces.BasicWizardPanel;
 
+import java.awt.*;
+
 /**
- *
  * @author jackie
  */
-public class ResponseDetailsController extends BasicWizardPanel{
+public class ResponseDetailsController extends BasicWizardPanel
+{
 
     String responseName;
     int responseCount;
+
     public ResponseDetailsController(int epochCount, int responseCount)
     {
         super();
-        if (epochCount <0)
+        if (epochCount < 0) {
             responseName = "response";
-        else
+        } else {
             responseName = "epoch" + epochCount + ".response" + responseCount;
+        }
         this.responseCount = responseCount;
     }
-    
+
     @Override
-    public Component getComponent() {
-        if (component == null)
-        {
+    public Component getComponent()
+    {
+        if (component == null) {
             component = new ResponseDetailsPanel(changeSupport, responseCount);
         }
         return component;
@@ -39,22 +41,23 @@ public class ResponseDetailsController extends BasicWizardPanel{
     @Override
     public void readSettings(WizardDescriptor data)
     {
-        ResponseDetailsPanel c = (ResponseDetailsPanel)getComponent();
+        ResponseDetailsPanel c = (ResponseDetailsPanel) getComponent();
 
-        c.setURL((String)data.getProperty(responseName + ".url"));
-        c.setUTI((String)data.getProperty(responseName + ".uti"));
-        c.setUnits((String)data.getProperty(responseName + ".units"));
-        c.setSamplingRateUnits((String[])data.getProperty(responseName + ".samplingRateUnits"));
-        c.setDimensionLabels((String[])data.getProperty(responseName + ".dimensionLabels"));
-        c.setSamplingRates((double[])data.getProperty(responseName + ".samplingRates"));
-        c.setShape((long[])data.getProperty(responseName + ".shape"));
+        c.setURL((String) data.getProperty(responseName + ".url"));
+        c.setUTI((String) data.getProperty(responseName + ".uti"));
+        c.setUnits((String) data.getProperty(responseName + ".units"));
+        c.setSamplingRateUnits((String[]) data.getProperty(responseName + ".samplingRateUnits"));
+        c.setDimensionLabels((String[]) data.getProperty(responseName + ".dimensionLabels"));
+        c.setSamplingRates((double[]) data.getProperty(responseName + ".samplingRates"));
+        c.setShape((long[]) data.getProperty(responseName + ".shape"));
 
     }
-    
+
     @Override
-    public void storeSettings(WizardDescriptor data) {
-        ResponseDetailsPanel c = (ResponseDetailsPanel)getComponent();
-        
+    public void storeSettings(WizardDescriptor data)
+    {
+        ResponseDetailsPanel c = (ResponseDetailsPanel) getComponent();
+
         data.putProperty(responseName + ".url", c.getURL());
         data.putProperty(responseName + ".uti", c.getUTI());
         data.putProperty(responseName + ".samplingRateUnits", c.getSamplingRateUnits());
@@ -64,14 +67,15 @@ public class ResponseDetailsController extends BasicWizardPanel{
     }
 
     @Override
-    public boolean isValid() {
-        ResponseDetailsPanel c = (ResponseDetailsPanel)getComponent();
+    public boolean isValid()
+    {
+        ResponseDetailsPanel c = (ResponseDetailsPanel) getComponent();
 
-        return  (c.getURL() != null && !c.getURL().isEmpty() &&
+        return (c.getURL() != null && !c.getURL().isEmpty() &&
                 c.getUTI() != null && !c.getUTI().isEmpty() &&
-                c.getSamplingRateUnits() != null && c.getSamplingRateUnits().length !=0 &&
-                c.getSamplingRates() != null && c.getSamplingRates().length !=0 &&
-                c.getDimensionLabels() != null && c.getDimensionLabels().length !=0 &&
-                c.getShape() != null && c.getShape().length !=0);
+                c.getSamplingRateUnits() != null && c.getSamplingRateUnits().length != 0 &&
+                c.getSamplingRates() != null && c.getSamplingRates().length != 0 &&
+                c.getDimensionLabels() != null && c.getDimensionLabels().length != 0 &&
+                c.getShape() != null && c.getShape().length != 0);
     }
 }

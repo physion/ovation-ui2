@@ -5,15 +5,16 @@
 package us.physion.ovation.ui.importer;
 
 /**
- *
  * @author huecotanks
  */
-public class InsertEpochPanel extends javax.swing.JPanel {
+public class InsertEpochPanel extends javax.swing.JPanel
+{
 
     /**
      * Creates new form InsertEpochPanel
      */
-    public InsertEpochPanel() {
+    public InsertEpochPanel()
+    {
         initComponents();
     }
 
@@ -24,7 +25,8 @@ public class InsertEpochPanel extends javax.swing.JPanel {
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -32,24 +34,28 @@ public class InsertEpochPanel extends javax.swing.JPanel {
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(21, 21, 21)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE)
-                    .add(jScrollPane2))
-                .addContainerGap(115, Short.MAX_VALUE))
+                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(layout.createSequentialGroup()
+                                     .add(21, 21, 21)
+                                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                                  .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 264,
+                                                       Short.MAX_VALUE)
+                                                  .add(jScrollPane2))
+                                     .addContainerGap(115, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(57, Short.MAX_VALUE)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(55, 55, 55)
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 34, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(122, 122, 122))
+                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .addContainerGap(57, Short.MAX_VALUE)
+                                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32,
+                                     org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(55, 55, 55)
+                                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 34,
+                                     org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(122, 122, 122))
         );
     }// </editor-fold>//GEN-END:initComponents
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;

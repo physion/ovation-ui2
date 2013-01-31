@@ -4,76 +4,77 @@
  */
 package us.physion.ovation.ui.importer;
 
-import java.util.Map;
-import javax.swing.ListSelectionModel;
 import org.openide.util.ChangeSupport;
 
+import java.util.Map;
+
 /**
- *
  * @author jackie
  */
-public class DeviceDetailsPanel extends javax.swing.JPanel {
+public class DeviceDetailsPanel extends javax.swing.JPanel
+{
 
     private ChangeSupport cs;
     private ParameterTableModel deviceParamModel;
     private String deviceName;
     private String deviceManufacturer;
     private int responseNumber;
-    
+
     @Override
-    public String getName() {
-        return "Response " + (responseNumber+1) + ": Device";
+    public String getName()
+    {
+        return "Response " + (responseNumber + 1) + ": Device";
     }
-    
+
     /**
      * Creates new form DeviceDetailsPanel
      */
-    public DeviceDetailsPanel(ChangeSupport cs, int rNumber) {
+    public DeviceDetailsPanel(ChangeSupport cs, int rNumber)
+    {
         this.cs = cs;
         responseNumber = rNumber;
         deviceParamModel = new ParameterTableModel(false);//not editable
         initComponents();
         //deviceParameterTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
-    
+
     public void setDeviceName(String name)
     {
         boolean originalIsEmpty = deviceName == null || deviceName.isEmpty();
         boolean newIsEmpty = name == null || name.isEmpty();
         deviceNameTextField.setText(name);
         deviceName = name;
-        if (originalIsEmpty != newIsEmpty)
-        {   
+        if (originalIsEmpty != newIsEmpty) {
             cs.fireChange();
         }
     }
-    
+
     public void setDeviceManufacturer(String manufacturer)
     {
         boolean originalIsEmpty = deviceManufacturer == null || deviceManufacturer.isEmpty();
         boolean newIsEmpty = manufacturer == null || manufacturer.isEmpty();
         deviceManufacturerTextField.setText(manufacturer);
         deviceManufacturer = manufacturer;
-        if (originalIsEmpty != newIsEmpty)
-        {   
+        if (originalIsEmpty != newIsEmpty) {
             cs.fireChange();
         }
     }
-    
+
     public void setDeviceParams(Map<String, Object> params)
     {
         deviceParamModel.setParams(params);
     }
-    
+
     public String getDeviceName()
     {
         return deviceName;
     }
+
     public String getDeviceManufacturer()
     {
         return deviceManufacturer;
     }
-    
+
     public Map<String, Object> getDeviceParameters()
     {
         return deviceParamModel.getParams();
@@ -86,7 +87,8 @@ public class DeviceDetailsPanel extends javax.swing.JPanel {
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
 
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -96,32 +98,45 @@ public class DeviceDetailsPanel extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         deviceParameterTable = new javax.swing.JTable();
 
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(DeviceDetailsPanel.class, "DeviceDetailsPanel.jLabel1.text")); // NOI18N
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(DeviceDetailsPanel.class,
+                                                             "DeviceDetailsPanel.jLabel1.text")); // NOI18N
 
-        jLabel2.setText(org.openide.util.NbBundle.getMessage(DeviceDetailsPanel.class, "DeviceDetailsPanel.jLabel2.text")); // NOI18N
+        jLabel2.setText(org.openide.util.NbBundle.getMessage(DeviceDetailsPanel.class,
+                                                             "DeviceDetailsPanel.jLabel2.text")); // NOI18N
 
-        jLabel3.setText(org.openide.util.NbBundle.getMessage(DeviceDetailsPanel.class, "DeviceDetailsPanel.jLabel3.text")); // NOI18N
+        jLabel3.setText(org.openide.util.NbBundle.getMessage(DeviceDetailsPanel.class,
+                                                             "DeviceDetailsPanel.jLabel3.text")); // NOI18N
 
-        deviceNameTextField.setText(org.openide.util.NbBundle.getMessage(DeviceDetailsPanel.class, "DeviceDetailsPanel.deviceNameTextField.text")); // NOI18N
-        deviceNameTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        deviceNameTextField.setText(org.openide.util.NbBundle.getMessage(DeviceDetailsPanel.class,
+                                                                         "DeviceDetailsPanel.deviceNameTextField.text")); // NOI18N
+        deviceNameTextField.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 deviceNameTextFieldActionPerformed(evt);
             }
         });
-        deviceNameTextField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+        deviceNameTextField.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyReleased(java.awt.event.KeyEvent evt)
+            {
                 deviceNameTextFieldKeyReleased(evt);
             }
         });
 
-        deviceManufacturerTextField.setText(org.openide.util.NbBundle.getMessage(DeviceDetailsPanel.class, "DeviceDetailsPanel.deviceManufacturerTextField.text")); // NOI18N
-        deviceManufacturerTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        deviceManufacturerTextField.setText(org.openide.util.NbBundle.getMessage(DeviceDetailsPanel.class,
+                                                                                 "DeviceDetailsPanel.deviceManufacturerTextField.text")); // NOI18N
+        deviceManufacturerTextField.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 deviceManufacturerTextFieldActionPerformed(evt);
             }
         });
-        deviceManufacturerTextField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+        deviceManufacturerTextField.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyReleased(java.awt.event.KeyEvent evt)
+            {
                 deviceManufacturerTextFieldKeyReleased(evt);
             }
         });
@@ -132,63 +147,72 @@ public class DeviceDetailsPanel extends javax.swing.JPanel {
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(jLabel3)
-                .add(0, 0, Short.MAX_VALUE))
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel2)
-                    .add(jLabel1))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(deviceNameTextField)
-                    .add(deviceManufacturerTextField)))
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 546, Short.MAX_VALUE)
+                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(layout.createSequentialGroup()
+                                     .add(jLabel3)
+                                     .add(0, 0, Short.MAX_VALUE))
+                        .add(layout.createSequentialGroup()
+                                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                                  .add(jLabel2)
+                                                  .add(jLabel1))
+                                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                                  .add(deviceNameTextField)
+                                                  .add(deviceManufacturerTextField)))
+                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 546, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(deviceNameTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
-                    .add(deviceManufacturerTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(18, 18, 18)
-                .add(jLabel3)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE))
+                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(layout.createSequentialGroup()
+                                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                                  .add(jLabel1)
+                                                  .add(deviceNameTextField,
+                                                       org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                                                       org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                                       org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                                  .add(jLabel2)
+                                                  .add(deviceManufacturerTextField,
+                                                       org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                                                       org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                                       org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                     .add(18, 18, 18)
+                                     .add(jLabel3)
+                                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                     .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 306,
+                                          Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void deviceNameTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deviceNameTextFieldActionPerformed
-        
+    private void deviceNameTextFieldActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_deviceNameTextFieldActionPerformed
+
     }//GEN-LAST:event_deviceNameTextFieldActionPerformed
 
-    private void deviceManufacturerTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deviceManufacturerTextFieldActionPerformed
-        
+    private void deviceManufacturerTextFieldActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_deviceManufacturerTextFieldActionPerformed
+
     }//GEN-LAST:event_deviceManufacturerTextFieldActionPerformed
 
-    private void deviceManufacturerTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_deviceManufacturerTextFieldKeyReleased
+    private void deviceManufacturerTextFieldKeyReleased(java.awt.event.KeyEvent evt)
+    {//GEN-FIRST:event_deviceManufacturerTextFieldKeyReleased
         String manufacturer = deviceManufacturerTextField.getText();
         boolean originalIsEmpty = deviceManufacturer == null || deviceManufacturer.isEmpty();
         boolean newIsEmpty = manufacturer == null || manufacturer.isEmpty();
         deviceManufacturer = manufacturer;
-        if (originalIsEmpty != newIsEmpty)
-        {   
+        if (originalIsEmpty != newIsEmpty) {
             cs.fireChange();
         }
     }//GEN-LAST:event_deviceManufacturerTextFieldKeyReleased
 
-    private void deviceNameTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_deviceNameTextFieldKeyReleased
+    private void deviceNameTextFieldKeyReleased(java.awt.event.KeyEvent evt)
+    {//GEN-FIRST:event_deviceNameTextFieldKeyReleased
         String name = deviceNameTextField.getText();
         boolean originalIsEmpty = deviceName == null || deviceName.isEmpty();
         boolean newIsEmpty = name == null || name.isEmpty();
         deviceName = name;
-        if (originalIsEmpty != newIsEmpty)
-        {   
+        if (originalIsEmpty != newIsEmpty) {
             cs.fireChange();
         }
     }//GEN-LAST:event_deviceNameTextFieldKeyReleased

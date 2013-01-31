@@ -4,22 +4,24 @@
  */
 package us.physion.ovation.ui.importer;
 
-import java.io.File;
 import javax.swing.filechooser.FileFilter;
+import java.io.File;
 
 /**
- *
  * @author huecotanks
  */
-class ImageFileFilter extends FileFilter {
+class ImageFileFilter extends FileFilter
+{
 
-    public String getDescription() {
+    public String getDescription()
+    {
         return "Image Files for Import";
     }
 
-    public boolean accept(File f) {
+    public boolean accept(File f)
+    {
         return true;
         //return f.isDirectory() || f.getName().endsWith(".tif");
     }
-    
+
 }

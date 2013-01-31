@@ -4,31 +4,35 @@
  */
 package us.physion.ovation.ui.importer;
 
-import java.awt.Component;
-import java.util.Map;
 import org.openide.WizardDescriptor;
 import us.physion.ovation.ui.interfaces.BasicWizardPanel;
 
+import java.awt.*;
+import java.util.Map;
+
 /**
- *
  * @author jackie
  */
-public class DeviceDetailsController extends BasicWizardPanel {
+public class DeviceDetailsController extends BasicWizardPanel
+{
 
     String responseName;
     int responseCount;
 
-    public DeviceDetailsController(int epochCount, int responseCount) {
+    public DeviceDetailsController(int epochCount, int responseCount)
+    {
         super();
-        if (epochCount <0)
+        if (epochCount < 0) {
             responseName = "response";
-        else
+        } else {
             responseName = "epoch" + epochCount + ".response" + responseCount;
+        }
         this.responseCount = responseCount;
     }
 
     @Override
-    public Component getComponent() {
+    public Component getComponent()
+    {
         if (component == null) {
             component = new DeviceDetailsPanel(changeSupport, responseCount);
         }
@@ -36,10 +40,12 @@ public class DeviceDetailsController extends BasicWizardPanel {
     }
 
     @Override
-    public void readSettings(WizardDescriptor data) {
+    public void readSettings(WizardDescriptor data)
+    {
         String initialDeviceName = (String) data.getProperty(responseName + ".device.name");
         String initialDeviceManufacturer = (String) data.getProperty(responseName + ".device.manufacturer");
-        Map<String, Object> initialDeviceParameters = (Map<String, Object>) data.getProperty(responseName + ".device.parameters");
+        Map<String, Object> initialDeviceParameters = (Map<String, Object>) data.getProperty(
+                responseName + ".device.parameters");
         DeviceDetailsPanel c = (DeviceDetailsPanel) getComponent();
         if (initialDeviceName != null) {
             c.setDeviceName(initialDeviceName);
@@ -53,7 +59,8 @@ public class DeviceDetailsController extends BasicWizardPanel {
     }
 
     @Override
-    public void storeSettings(WizardDescriptor data) {
+    public void storeSettings(WizardDescriptor data)
+    {
         DeviceDetailsPanel c = (DeviceDetailsPanel) getComponent();
         String deviceID = (String) data.getProperty(responseName + ".device.name");
         String deviceName = c.getDeviceName();
@@ -72,7 +79,8 @@ public class DeviceDetailsController extends BasicWizardPanel {
     }
 
     @Override
-    public boolean isValid() {
+    public boolean isValid()
+    {
         DeviceDetailsPanel c = (DeviceDetailsPanel) getComponent();
         return (c.getDeviceName() != null && !c.getDeviceName().isEmpty()
                 && c.getDeviceManufacturer() != null && !c.getDeviceManufacturer().isEmpty());
