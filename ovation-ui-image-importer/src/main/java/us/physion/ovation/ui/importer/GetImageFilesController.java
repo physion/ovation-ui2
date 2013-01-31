@@ -87,21 +87,12 @@ public class GetImageFilesController extends BasicWizardPanel{
                     devices.put(id, device);
                 }
             }
-            
-            String epochName = "epoch" + i;
-            wiz.putProperty(epochName + ".start", data.getStart());
-            wiz.putProperty(epochName + ".end", data.getEnd());
-
-            wiz.putProperty(epochName + ".properties", data.getEpochProperties());
-            
-            for (Map<String, Object> response : data.getResponses())
+            if (data.containsSingleEpoch())
             {
-                String responseName = epochName + "." + (String)response.get("name");
-                response.remove("name");
-                for (String key : response.keySet())
-                {
-                    wiz.putProperty(responseName + "." + key, response.get(key));
-                }
+                importSingleEpoch(wiz, data, i);
+            }else
+            {
+                importMultipleEpochs(wiz, data, i);
             }
         }
         wiz.putProperty("devices", devices);
@@ -110,5 +101,45 @@ public class GetImageFilesController extends BasicWizardPanel{
     private Map<String, Object> combineDevices(Map<String, Object> device1, Map<String, Object> device2) {
         device1.putAll(device2);
         return device1;
+    }
+
+    private void importSingleEpoch(WizardDescriptor wiz, FileMetadata data, int i) {
+        String epochName = "epoch" + i;
+        wiz.putProperty(epochName + ".start", data.getStart());
+        wiz.putProperty(epochName + ".end", data.getEnd(false));
+
+        wiz.putProperty(epochName + ".properties", data.getEpochProperties());
+
+        for (Map<String, Object> response : data.getResponses()) {
+            String responseName = epochName + "." + (String) response.get("name");
+            response.remove("name");
+            for (String key : response.keySet()) {
+                wiz.putProperty(responseName + "." + key, response.get(key));
+            }
+        }
+    }
+
+    private void importMultipleEpochs(WizardDescriptor wiz, FileMetadata data, int i) {
+        Map<String, Object> parentEpochGroup = data.getParentEpochGroup();
+        if (parentEpochGroup != null)
+        {
+            wiz.putProperty("parentEpochGroup.start", data.getStart());
+            wiz.putProperty("parentEpochGroup.end", data.getEnd(false));
+            wiz.putProperty("parentEpochGroup.label", parentEpochGroup.get("label"));
+            
+            int count = 0;
+            for (;;)
+            {
+                String eg = "epochGroup" + count++;
+                if (parentEpochGroup.containsKey(eg))
+                {
+                    wiz.putProperty("parentEpochGroup."+ eg, parentEpochGroup.get(eg));
+                }else{
+                    break;
+                }
+            }
+        }
+        wiz.putProperty("epoch.properties", data.getEpochProperties());
+        wiz.putProperty("responses", data.getResponses());
     }
 }
