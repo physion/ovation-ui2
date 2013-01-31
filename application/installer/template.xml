@@ -17,8 +17,9 @@
     </target>
     <target name="-init-maven-props" if="do.load.maven.props" depends="-init-props">
         <xmlproperty file="${suite.location}/pom.xml" prefix="pom.props"/>
-        <property name="suite.props.app.name"  value="${pom.props.project.properties.brandingToken}"/>
-        <property name="suite.props.app.title" value="${pom.props.project.artifactId}"/>
+        <property name="suite.props.app.name"  value="Ovation"/>
+		<!-- ${pom.props.project.properties.brandingToken} -->
+        <property name="suite.props.app.title" value="Ovation"/>
     </target>
     
     <target name="init" depends="-clean,-init-ant-props,-init-maven-props">
@@ -122,7 +123,7 @@
         </replace>
 
         <replace dir="${installer.build.dir}/ext" encoding="utf-8">
-            <replacefilter token="{product-name}" value="${suite.props.app.title}"/>
+            <replacefilter token="{product-name}" value="Ovation"/>
             <replacefilter token="{product-simple-name}" value="${suite.props.app.name}"/>
             <replacefilter token="{product-description}" value=""/>
             <replacefilter token="{product-uid}"         value="${product-uid}"/>
