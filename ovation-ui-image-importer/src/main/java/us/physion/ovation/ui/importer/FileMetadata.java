@@ -885,9 +885,10 @@ public class FileMetadata {
     }
 
     private String convertTo5Digit(int number) {
+        number++;
         int digits = number/10;
         String s = "";
-        for (int i=0; i < (5 - digits); i++)
+        for (int i=0; i < (4 - digits); i++)
         {
             s +="0";
         }
@@ -895,9 +896,10 @@ public class FileMetadata {
         return s;
     }
     private String convertTo6Digit(int number) {
+        number++;
         int digits = number/10;
         String s = "";
-        for (int i=0; i < (6 - digits); i++)
+        for (int i=0; i < (5 - digits); i++)
         {
             s +="0";
         }
