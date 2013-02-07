@@ -8,6 +8,6 @@ package us.physion.ovation.ui;
  *
  * @author jackie
  */
-interface ResizableTree {
+public interface ResizableTree {
     public void resizeNode(TableNode n);
 }

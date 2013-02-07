@@ -7,11 +7,17 @@ package us.physion.ovation.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Insets;
-import javax.swing.JPanel;
-import javax.swing.JTable;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Enumeration;
+import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import us.physion.ovation.ui.ScrollableTableTree.TableInTreeCellRenderer;
 
@@ -53,6 +59,47 @@ public class TreeNodePanelFactory {
             table.getTableHeader().setPreferredSize(new Dimension(-1, 0));
             if (k.isEditable()) {
                 panel = new EditableTable(table, t);
+                //table.setDefaultEditor(Object.class, new CellEditor(new JTextField()));
+                
+                Enumeration e = table.getColumnModel().getColumns();
+                TableColumn col = (TableColumn) e.nextElement();
+                
+                DefaultCellEditor editor = (DefaultCellEditor)table.getDefaultEditor(String.class);
+                editor.setClickCountToStart(3);
+                col.setCellEditor(editor);
+                
+                col = (TableColumn) e.nextElement();
+                col.setCellEditor(editor);
+                
+                table.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0),
+                        "deleteRow");
+                table.getActionMap().put("deleteRow", new AbstractAction() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        JTable table = (JTable)ae.getSource();
+                        if (!table.isEditing()) {
+                            int selection = table.getSelectedRow();
+                            if (selection >= 0 && table.getModel() instanceof EditableTableModel) {
+                                ((EditableTableModel) table.getModel()).remove(table.getSelectedRow());
+                            }
+                        }
+                    }
+                });
+                /*ListSelectionModel listSelectionModel = table.getSelectionModel();
+                listSelectionModel.addListSelectionListener(new ListSelectionListener() {
+
+                    @Override
+                    public void valueChanged(ListSelectionEvent lse) {
+                        DefaultListSelectionModel m = (DefaultListSelectionModel)(lse.getSource());
+                        if (!m.isSelectionEmpty())
+                            m.clearSelection();
+                        //boolean b = table.isCellEditable(lse.getFirstIndex(), 0);
+                        //boolean c = table.isCellEditable(lse.getFirstIndex(), 1);
+                    }
+                });
+                table.setSelectionModel(listSelectionModel);*/
+               
             } else {
                 panel = new NonEditableTable(table, t);
             }
@@ -64,6 +111,10 @@ public class TreeNodePanelFactory {
 
         JTable table = panel.getTable();
         table.setModel(tableModel);
+        if (tableModel instanceof EditableTableModel)
+        {
+            ((EditableTableModel)tableModel).setTable(table);
+        }
 
         TableModelListener l = k.createTableModelListener(t, node);
         if (l != null)
@@ -71,4 +122,5 @@ public class TreeNodePanelFactory {
 
         return panel.getPanel();
     }
+
 }

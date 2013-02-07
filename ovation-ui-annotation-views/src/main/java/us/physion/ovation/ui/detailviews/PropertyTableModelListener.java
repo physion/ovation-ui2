@@ -30,6 +30,7 @@ import ovation.DataContext;
 import ovation.IAuthenticatedDataStoreCoordinator;
 import ovation.IEntityBase;
 import ovation.Ovation;
+import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
@@ -37,7 +38,7 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
  *
  * @author huecotanks
  */
-class PropertyTableModelListener implements EditableTableModelListener{
+class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableModelListener{
 
     ResizableTree tree;
     Set<String> uris;
@@ -65,17 +66,7 @@ class PropertyTableModelListener implements EditableTableModelListener{
         int firstRow = tme.getFirstRow();
         int lastRow = tme.getLastRow();
                          
-        if (tme.getType() == TableModelEvent.INSERT)
-        {
-            EventQueueUtilities.runOffEDT(new Runnable() {
-
-                @Override
-                public void run() {
-                    tree.resizeNode(node);
-                }
-            });
-
-        } else if (tme.getType() == TableModelEvent.UPDATE)
+       if (tme.getType() == TableModelEvent.UPDATE || tme.getType() == TableModelEvent.INSERT)
         {
             Map<String, Object> newProperties = new HashMap<String, Object>();
             
@@ -85,6 +76,11 @@ class PropertyTableModelListener implements EditableTableModelListener{
                     continue;
                 Object value = t.getValueAt(i, 1);
                 newProperties.put(key, value);
+            }
+            if (tme.getType() == TableModelEvent.INSERT) {
+                EditableTable p = (EditableTable) node.getPanel();
+                p.resize();
+                tree.resizeNode(node);//this resizes the tree cell that contains the editable table that just deleted a row
             }
             final Map<String, Object> props = newProperties;
             EventQueueUtilities.runOffEDT(new Runnable() {
@@ -137,10 +133,7 @@ class PropertyTableModelListener implements EditableTableModelListener{
                             model.removeRow(rows[i]);
                         }
                         EditableTable p = (EditableTable)node.getPanel();
-                        JScrollPane sp = p.getScrollPane();
-                        if (sp != null)
-                            sp.setSize(sp.getPreferredSize());
-                        p.setSize(p.getPreferredSize());
+                        p.resize();
                         tree.resizeNode(node);//this resizes the tree cell that contains the editable table that just deleted a row
                     }
                 });

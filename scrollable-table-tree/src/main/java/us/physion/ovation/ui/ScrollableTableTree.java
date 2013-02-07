@@ -32,7 +32,7 @@ public class ScrollableTableTree extends JScrollPane {
     private ExpandableJTree tree;
     private Map<String, DefaultMutableTreeNode> userNodes;
 
-    JTree getTree() {
+    public JTree getTree() {
         return tree;
     }
 
@@ -264,11 +264,11 @@ public class ScrollableTableTree extends JScrollPane {
         return null;
     }
 
-    TableNode getTableNode(String category) {
+    public TableNode getTableNode(String category) {
         return (TableNode) getCategoryNode(category).getChildAt(0);
     }
     
-    TableTreeKey getTableKey(String category) {
+    public TableTreeKey getTableKey(String category) {
         DefaultMutableTreeNode n = getCategoryNode(category);
         if (n == null) {
             return null;

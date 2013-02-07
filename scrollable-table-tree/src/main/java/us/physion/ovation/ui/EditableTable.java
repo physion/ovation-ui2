@@ -2,21 +2,16 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package us.physion.ovation.ui.detailviews;
+package us.physion.ovation.ui;
 
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.util.Arrays;
-import java.util.Vector;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableRowSorter;
-import javax.swing.tree.DefaultTreeModel;
-import org.openide.util.Exceptions;
 import ovation.Ovation;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
@@ -36,6 +31,9 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
         jScrollPane1.getViewport().add(table, null);
         jScrollPane1.setBorder(BorderFactory.createEmptyBorder());
         this.table = table;
+        EditableTableModel m = new EditableTableModel(true);
+        table.setModel(m);
+        m.setTable(table);
         this.treeUtils = t;
         //this.setBorder(BorderFactory.createEtchedBorder());
     }
@@ -64,14 +62,14 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
 
         setBackground(new java.awt.Color(255, 255, 255));
 
-        addButton.setText(org.openide.util.NbBundle.getMessage(EditableTable.class, "EditableTable.addButton.text")); // NOI18N
+        addButton.setText("+");
         addButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addButtonActionPerformed(evt);
             }
         });
 
-        deleteButton.setText(org.openide.util.NbBundle.getMessage(EditableTable.class, "EditableTable.deleteButton.text")); // NOI18N
+        deleteButton.setText("-");
         deleteButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deleteButtonActionPerformed(evt);
@@ -162,6 +160,21 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
        return jScrollPane1;
     }
 
+    protected void adjust() {
+        EventQueueUtilities.runOffEDT(new Runnable() {
+            @Override
+            public void run() {
+                
+                //manually set size of the containing scrollpane, since the table has resized
+                JScrollPane sp = ((JScrollPane) table.getParent().getParent());
+                sp.setSize(sp.getPreferredSize());
+                EditableTable.this.setSize(EditableTable.this.getPreferredSize());
+                table.getSelectionModel().setSelectionInterval(table.getRowCount() - 1, table.getRowCount() - 1);
+                
+            }
+        });
+    }
+    
     protected void addBlankRow() {
         EventQueueUtilities.runOffEDT(new Runnable() {
             @Override

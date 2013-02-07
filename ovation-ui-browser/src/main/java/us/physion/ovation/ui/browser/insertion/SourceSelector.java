@@ -4,6 +4,8 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
+import us.physion.ovation.ui.TableTreeKey;
+import us.physion.ovation.ui.ScrollableTableTree;
 import com.physion.ebuilder.ExpressionBuilder;
 import com.physion.ebuilder.expression.ExpressionTree;
 import java.awt.Color;

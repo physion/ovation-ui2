@@ -19,6 +19,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.openide.util.Lookup;
 import ovation.*;
+import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
@@ -160,10 +161,7 @@ class TagTableModelListener implements EditableTableModelListener {
                         }
                         model.setDataVector(data, new Object[]{"Value"});
                         EditableTable p = (EditableTable)node.getPanel();
-                        JScrollPane sp = p.getScrollPane();
-                        if (sp != null)
-                            sp.setSize(sp.getPreferredSize());
-                        p.setSize(p.getPreferredSize());
+                        p.resize();
                         tree.resizeNode(node);//this resizes the tree cell that contains the editable table that just deleted a row
                     }
                 });
