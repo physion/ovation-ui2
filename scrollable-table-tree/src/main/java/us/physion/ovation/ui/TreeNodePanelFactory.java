@@ -65,13 +65,13 @@ public class TreeNodePanelFactory {
                 TableColumn col = (TableColumn) e.nextElement();
                 
                 DefaultCellEditor editor = (DefaultCellEditor)table.getDefaultEditor(String.class);
-                editor.setClickCountToStart(3);
+                editor.setClickCountToStart(2);
                 col.setCellEditor(editor);
                 
                 col = (TableColumn) e.nextElement();
                 col.setCellEditor(editor);
                 
-                table.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0),
+                /*table.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0),
                         "deleteRow");
                 table.getActionMap().put("deleteRow", new AbstractAction() {
 
@@ -81,24 +81,11 @@ public class TreeNodePanelFactory {
                         if (!table.isEditing()) {
                             int selection = table.getSelectedRow();
                             if (selection >= 0 && table.getModel() instanceof EditableTableModel) {
-                                ((EditableTableModel) table.getModel()).remove(table.getSelectedRow());
+                                ((EditableTableModel) table.getModel()).removeRow(table.getSelectedRow());
                             }
                         }
                     }
-                });
-                /*ListSelectionModel listSelectionModel = table.getSelectionModel();
-                listSelectionModel.addListSelectionListener(new ListSelectionListener() {
-
-                    @Override
-                    public void valueChanged(ListSelectionEvent lse) {
-                        DefaultListSelectionModel m = (DefaultListSelectionModel)(lse.getSource());
-                        if (!m.isSelectionEmpty())
-                            m.clearSelection();
-                        //boolean b = table.isCellEditable(lse.getFirstIndex(), 0);
-                        //boolean c = table.isCellEditable(lse.getFirstIndex(), 1);
-                    }
-                });
-                table.setSelectionModel(listSelectionModel);*/
+                });*/
                
             } else {
                 panel = new NonEditableTable(table, t);

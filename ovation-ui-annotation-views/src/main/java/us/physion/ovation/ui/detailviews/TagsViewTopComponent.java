@@ -162,26 +162,13 @@ public final class TagsViewTopComponent extends TopComponent {
         if (tagTableNode instanceof TableNode)
         {
             final TableNode node = (TableNode)tagTableNode;
-            TagsSet t = (TagsSet)(node.getUserObject());
-            List<String> tagList = new ArrayList();
-            tagList.addAll( t.getTags());
+            EditableTableModel m = ((EditableTableModel)node.getPanel().getTable().getModel());
+            int row = m.getRowCount() -1;
             for (String tag : newTags)
             {
-                String trimmed = tag.trim();
-                if (!trimmed.isEmpty())
-                    tagList.add(tag);
+                m.setValueAt(tag, row++, 0);
             }
-            Collections.sort(tagList);
-            final String[] tags = tagList.toArray(new String[tagList.size()]);
-            
-            DefaultTableModel model = ((DefaultTableModel) node.getPanel().getTable().getModel());
-            Object[][] data = new Object[tags.length][1];
-            for (int i = 0; i < tags.length; i++) {
-                data[i][0] = tags[i];
-            }
-            model.setDataVector(data, new Object[]{"Value"});
-            
-            ((ScrollableTableTree)tagTree).resizeNode(node);
+            //((ScrollableTableTree)tagTree).resizeNode(node);
         }
     }
     

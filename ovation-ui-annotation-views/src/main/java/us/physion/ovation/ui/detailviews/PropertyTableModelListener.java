@@ -62,18 +62,24 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
 
     @Override
     public void tableChanged(TableModelEvent tme) {
-        DefaultTableModel t = (DefaultTableModel)tme.getSource();
+        EditableTableModel t = (EditableTableModel)tme.getSource();
         int firstRow = tme.getFirstRow();
         int lastRow = tme.getLastRow();
                          
        if (tme.getType() == TableModelEvent.UPDATE || tme.getType() == TableModelEvent.INSERT)
         {
+            List<String> old = new ArrayList<String>();
             Map<String, Object> newProperties = new HashMap<String, Object>();
-            
             for (int i = firstRow; i <= lastRow; i++) {
                 String key = (String) t.getValueAt(i, 0);
                 if (key == null || key.isEmpty())
                     continue;
+                String oldKey = t.getOldKey(i);
+                if (oldKey != null)
+                {
+                    old.add(oldKey);
+                    t.removeOldKey(i);
+                }
                 Object value = t.getValueAt(i, 1);
                 newProperties.put(key, value);
             }
@@ -83,12 +89,20 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
                 tree.resizeNode(node);//this resizes the tree cell that contains the editable table that just deleted a row
             }
             final Map<String, Object> props = newProperties;
+            final List<String> oldKeys = old;
             EventQueueUtilities.runOffEDT(new Runnable() {
 
                 @Override
                 public void run() {
                     
                     DataContext c = dsc.getContext();
+                    for (String key: oldKeys)
+                    {
+                        for (String uri : uris) {
+                            IEntityBase eb = c.objectWithURI(uri);
+                            eb.removeProperty(key);
+                        }
+                    }
                     for (String key: props.keySet())
                     {
                         for (String uri : uris) {
@@ -143,6 +157,10 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
 
     void parseAndAdd(IEntityBase eb, String key, Object value)
     {
+        if (value == null){
+            eb.addProperty(key, "");
+            return;
+        }
         if (value instanceof String) {
             String s = (String) value;
             try {

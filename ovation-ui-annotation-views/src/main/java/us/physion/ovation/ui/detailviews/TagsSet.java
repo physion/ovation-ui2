@@ -107,7 +107,9 @@ public class TagsSet extends UserPropertySet{//TODO make a baseclass that they b
 
     @Override
     public TableModel createTableModel() {
-        return new DefaultTableModel(getData(), new String[]{"Value"});
+        EditableTableModel m = new EditableTableModel(true, 1, new String[]{"Tags"});
+        m.setColumn(0, getTags());
+        return m;
     }
     public Object[][] getData()
     {

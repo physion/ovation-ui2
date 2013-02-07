@@ -42,7 +42,6 @@ public class ScrollableTableTree extends JScrollPane {
 
             @Override
             public void run() {
-                Ovation.getLogger().debug("Creating tree nodes");
                 final DefaultMutableTreeNode root = new DefaultMutableTreeNode("");
                 Set<DefaultMutableTreeNode> nodesToExpand = new HashSet<DefaultMutableTreeNode>();
 
@@ -69,6 +68,7 @@ public class ScrollableTableTree extends JScrollPane {
                     tree.expand(node);
                 }
             }
+            
         });
     }
 
