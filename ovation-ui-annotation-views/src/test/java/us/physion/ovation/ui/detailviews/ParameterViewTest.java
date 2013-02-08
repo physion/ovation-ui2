@@ -21,6 +21,7 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
+import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.detailviews.SelectionViewTestManager;
 import us.physion.ovation.ui.test.OvationTestCase;
 import us.physion.ovation.ui.test.TestManager;

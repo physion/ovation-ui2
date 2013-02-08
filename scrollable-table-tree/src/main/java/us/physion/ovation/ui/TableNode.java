@@ -19,7 +19,7 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
  */
 public class TableNode extends DefaultMutableTreeNode{
     TablePanel tp;
-    TableNode(TableTreeKey p)
+    public TableNode(TableTreeKey p)
     {
         super(p);
     }

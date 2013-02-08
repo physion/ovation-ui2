@@ -13,13 +13,14 @@ import ovation.DataContext;
 import ovation.IAuthenticatedDataStoreCoordinator;
 import ovation.IEntityBase;
 import ovation.User;
+import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 /**
  *
  * @author huecotanks
  */
-class UserPropertySet implements TableTreeKey{
+class UserPropertySet implements us.physion.ovation.ui.TableTreeKey{
     String username;
     String userURI;
     boolean isOwner;
@@ -133,16 +134,18 @@ class UserPropertySet implements TableTreeKey{
     }
     
     @Override
-    public TableModelListener createTableModelListener(ScrollableTableTree t, TableNode n) {
+    public TableModel createTableModel() {
+        EditableTableModel m = new EditableTableModel(true);
+        m.setParams(properties);
+        return m;
+    }
+
+    @Override
+    public TableModelListener createTableModelListener(us.physion.ovation.ui.ScrollableTableTree t, us.physion.ovation.ui.TableNode n) {
         if (isEditable())
         {
             return new PropertyTableModelListener(uris, (ExpandableJTree)t.getTree(), n, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection());
         }
         return null;
-    }
-
-    @Override
-    public TableModel createTableModel() {
-        return new DefaultTableModel(getData(), new String[]{"Name", "Property"});
     }
 }

@@ -16,6 +16,7 @@ import ovation.database.DatabaseManager;
 import static org.junit.Assert.*;
 import org.openide.util.Exceptions;
 import ovation.*;
+import us.physion.ovation.ui.TableTreeKey;
 import us.physion.ovation.ui.interfaces.TestEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
 import us.physion.ovation.ui.test.TestManager;

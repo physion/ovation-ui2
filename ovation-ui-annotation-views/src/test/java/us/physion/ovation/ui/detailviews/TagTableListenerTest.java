@@ -15,6 +15,7 @@ import org.joda.time.DateTime;
 import org.junit.*;
 import org.openide.util.Exceptions;
 import ovation.*;
+import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.TestEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
 import us.physion.ovation.ui.test.TestManager;
@@ -354,7 +355,7 @@ public class TagTableListenerTest extends OvationTestCase{
         table.setModel(m);
         m.addTableModelListener(listener);
         
-        t.deleteRows(new int[] {0, 1});
+        //t.deleteRows(new int[] {0, 1});
         try {
             Thread.sleep(1000);
         } catch (InterruptedException ex) {
@@ -374,7 +375,7 @@ public class TagTableListenerTest extends OvationTestCase{
 
     private void addTag(EditableTable t, String newTag, int row, DefaultTableModel m, TagTableModelListener listener)
     {
-        t.addBlankRow();
+        //t.addBlankRow();
         m.setValueAt(newTag, row, 0);
         TableModelEvent event = new TableModelEvent(m, row, row, 0, TableModelEvent.UPDATE);
         listener.tableChanged(event);

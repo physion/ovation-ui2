@@ -30,6 +30,7 @@ import ovation.DataContext;
 import ovation.IAuthenticatedDataStoreCoordinator;
 import ovation.IEntityBase;
 import ovation.Ovation;
+import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
@@ -37,7 +38,7 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
  *
  * @author huecotanks
  */
-class PropertyTableModelListener implements EditableTableModelListener{
+class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableModelListener{
 
     ResizableTree tree;
     Set<String> uris;
@@ -61,38 +62,47 @@ class PropertyTableModelListener implements EditableTableModelListener{
 
     @Override
     public void tableChanged(TableModelEvent tme) {
-        DefaultTableModel t = (DefaultTableModel)tme.getSource();
+        EditableTableModel t = (EditableTableModel)tme.getSource();
         int firstRow = tme.getFirstRow();
         int lastRow = tme.getLastRow();
                          
-        if (tme.getType() == TableModelEvent.INSERT)
+       if (tme.getType() == TableModelEvent.UPDATE || tme.getType() == TableModelEvent.INSERT)
         {
-            EventQueueUtilities.runOffEDT(new Runnable() {
-
-                @Override
-                public void run() {
-                    tree.resizeNode(node);
-                }
-            });
-
-        } else if (tme.getType() == TableModelEvent.UPDATE)
-        {
+            List<String> old = new ArrayList<String>();
             Map<String, Object> newProperties = new HashMap<String, Object>();
-            
             for (int i = firstRow; i <= lastRow; i++) {
                 String key = (String) t.getValueAt(i, 0);
                 if (key == null || key.isEmpty())
                     continue;
+                String oldKey = t.getOldKey(i);
+                if (oldKey != null)
+                {
+                    old.add(oldKey);
+                    t.removeOldKey(i);
+                }
                 Object value = t.getValueAt(i, 1);
                 newProperties.put(key, value);
             }
+            if (tme.getType() == TableModelEvent.INSERT) {
+                EditableTable p = (EditableTable) node.getPanel();
+                p.resize();
+                tree.resizeNode(node);//this resizes the tree cell that contains the editable table that just deleted a row
+            }
             final Map<String, Object> props = newProperties;
+            final List<String> oldKeys = old;
             EventQueueUtilities.runOffEDT(new Runnable() {
 
                 @Override
                 public void run() {
                     
                     DataContext c = dsc.getContext();
+                    for (String key: oldKeys)
+                    {
+                        for (String uri : uris) {
+                            IEntityBase eb = c.objectWithURI(uri);
+                            eb.removeProperty(key);
+                        }
+                    }
                     for (String key: props.keySet())
                     {
                         for (String uri : uris) {
@@ -137,10 +147,7 @@ class PropertyTableModelListener implements EditableTableModelListener{
                             model.removeRow(rows[i]);
                         }
                         EditableTable p = (EditableTable)node.getPanel();
-                        JScrollPane sp = p.getScrollPane();
-                        if (sp != null)
-                            sp.setSize(sp.getPreferredSize());
-                        p.setSize(p.getPreferredSize());
+                        p.resize();
                         tree.resizeNode(node);//this resizes the tree cell that contains the editable table that just deleted a row
                     }
                 });
@@ -150,6 +157,10 @@ class PropertyTableModelListener implements EditableTableModelListener{
 
     void parseAndAdd(IEntityBase eb, String key, Object value)
     {
+        if (value == null){
+            eb.addProperty(key, "");
+            return;
+        }
         if (value instanceof String) {
             String s = (String) value;
             try {

@@ -23,7 +23,7 @@ import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ServiceProvider;
 import ovation.*;
-import us.physion.ovation.ui.detailviews.ScrollableTableTree.TableInTreeCellRenderer;
+import us.physion.ovation.ui.TableTreeKey;
 import us.physion.ovation.ui.interfaces.*;
 import us.physion.ovation.ui.test.OvationTestCase;
 import us.physion.ovation.ui.test.TestManager;
@@ -146,7 +146,7 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
         entitySet.add(project);
         entitySet.add(source);
         
-        ArrayList<TableTreeKey> properties = tc.setEntities(entitySet, dsc);
+        List<TableTreeKey> properties = tc.setEntities(entitySet, dsc);
         assertEquals(properties.size(), 2);
         
         //user1 properties
@@ -168,7 +168,7 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
         
         entitySet.add(project);
         entitySet.add(source);
-        ArrayList<TableTreeKey> properties = tc.setEntities(entitySet, dsc);
+        List<TableTreeKey> properties = tc.setEntities(entitySet, dsc);
        
         assertFalse(properties.get(1).isEditable());
     }

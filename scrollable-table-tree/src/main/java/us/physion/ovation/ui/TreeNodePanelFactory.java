@@ -2,20 +2,24 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package us.physion.ovation.ui.detailviews;
+package us.physion.ovation.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Insets;
-import javax.swing.JPanel;
-import javax.swing.JTable;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Enumeration;
+import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import us.physion.ovation.ui.detailviews.ScrollableTableTree.TableInTreeCellRenderer;
+import us.physion.ovation.ui.ScrollableTableTree.TableInTreeCellRenderer;
 
 /**
  *
@@ -55,6 +59,34 @@ public class TreeNodePanelFactory {
             table.getTableHeader().setPreferredSize(new Dimension(-1, 0));
             if (k.isEditable()) {
                 panel = new EditableTable(table, t);
+                //table.setDefaultEditor(Object.class, new CellEditor(new JTextField()));
+                
+                Enumeration e = table.getColumnModel().getColumns();
+                TableColumn col = (TableColumn) e.nextElement();
+                
+                DefaultCellEditor editor = (DefaultCellEditor)table.getDefaultEditor(String.class);
+                editor.setClickCountToStart(2);
+                col.setCellEditor(editor);
+                
+                col = (TableColumn) e.nextElement();
+                col.setCellEditor(editor);
+                
+                /*table.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0),
+                        "deleteRow");
+                table.getActionMap().put("deleteRow", new AbstractAction() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        JTable table = (JTable)ae.getSource();
+                        if (!table.isEditing()) {
+                            int selection = table.getSelectedRow();
+                            if (selection >= 0 && table.getModel() instanceof EditableTableModel) {
+                                ((EditableTableModel) table.getModel()).removeRow(table.getSelectedRow());
+                            }
+                        }
+                    }
+                });*/
+               
             } else {
                 panel = new NonEditableTable(table, t);
             }
@@ -66,6 +98,10 @@ public class TreeNodePanelFactory {
 
         JTable table = panel.getTable();
         table.setModel(tableModel);
+        if (tableModel instanceof EditableTableModel)
+        {
+            ((EditableTableModel)tableModel).setTable(table);
+        }
 
         TableModelListener l = k.createTableModelListener(t, node);
         if (l != null)
@@ -73,6 +109,5 @@ public class TreeNodePanelFactory {
 
         return panel.getPanel();
     }
-    
-    
+
 }

@@ -2,21 +2,16 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package us.physion.ovation.ui.detailviews;
+package us.physion.ovation.ui;
 
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.util.Arrays;
-import java.util.Vector;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableRowSorter;
-import javax.swing.tree.DefaultTreeModel;
-import org.openide.util.Exceptions;
 import ovation.Ovation;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
@@ -36,6 +31,9 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
         jScrollPane1.getViewport().add(table, null);
         jScrollPane1.setBorder(BorderFactory.createEmptyBorder());
         this.table = table;
+        EditableTableModel m = new EditableTableModel(true);
+        table.setModel(m);
+        m.setTable(table);
         this.treeUtils = t;
         //this.setBorder(BorderFactory.createEtchedBorder());
     }
@@ -59,19 +57,11 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        addButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
-        addButton.setText(org.openide.util.NbBundle.getMessage(EditableTable.class, "EditableTable.addButton.text")); // NOI18N
-        addButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addButtonActionPerformed(evt);
-            }
-        });
-
-        deleteButton.setText(org.openide.util.NbBundle.getMessage(EditableTable.class, "EditableTable.deleteButton.text")); // NOI18N
+        deleteButton.setText(org.openide.util.NbBundle.getMessage(EditableTable.class, "EditableTable.deleteButton.text_1")); // NOI18N
         deleteButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deleteButtonActionPerformed(evt);
@@ -82,40 +72,20 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jScrollPane1)
+            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE)
             .add(layout.createSequentialGroup()
-                .add(addButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 28, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(deleteButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 28, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(0, 360, Short.MAX_VALUE))
+                .add(0, 0, Short.MAX_VALUE)
+                .add(deleteButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 28, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(deleteButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(addButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(deleteButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
-        //add a blank row to the table, make sure tableChanged deals with it appropriately
-        int last = ((DefaultTableModel)table.getModel()).getRowCount() -1;
-        
-        String lastKey;
-        if (last == -1)
-            lastKey = "not null";
-        else{
-            lastKey = (String)table.getValueAt(last, 0);
-        }
-        if ( (lastKey != null && !lastKey.isEmpty()))
-        {
-            addBlankRow();
-        }
-    }//GEN-LAST:event_addButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
        
@@ -123,7 +93,6 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
     }//GEN-LAST:event_deleteButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addButton;
     private javax.swing.JButton deleteButton;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
@@ -149,7 +118,7 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
          }
         else
         {
-            height = (table.getRowCount())*table.getRowHeight() + 24 + addButton.getHeight();
+            height = (table.getRowCount())*table.getRowHeight() + 24 + deleteButton.getHeight();
         }
         int width = treeUtils == null ? getWidth() : treeUtils.getCellWidth();
         Dimension actual = new Dimension(width, height);
@@ -162,16 +131,10 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
        return jScrollPane1;
     }
 
-    protected void addBlankRow() {
+    protected void adjust() {
         EventQueueUtilities.runOffEDT(new Runnable() {
             @Override
             public void run() {
-                DefaultTableModel m = ((DefaultTableModel) table.getModel());
-                int row = m.getRowCount();
-                Object[] blankRow = new String[m.getColumnCount()];
-                for (int i=0; i< m.getColumnCount(); i++)
-                    blankRow[i] = "";
-                m.addRow(blankRow);
                 
                 //manually set size of the containing scrollpane, since the table has resized
                 JScrollPane sp = ((JScrollPane) table.getParent().getParent());
@@ -179,52 +142,10 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
                 EditableTable.this.setSize(EditableTable.this.getPreferredSize());
                 table.getSelectionModel().setSelectionInterval(table.getRowCount() - 1, table.getRowCount() - 1);
                 
-                
-                boolean noListener = true;
-                for (TableModelListener l : m.getListeners(TableModelListener.class)) {
-                    if (l instanceof EditableTableModelListener) {
-                        noListener = false;
-
-                        TableModelEvent t = new TableModelEvent(m, row, row, 1, TableModelEvent.INSERT);
-                        l.tableChanged(t);
-                        break;
-                    }
-                }
-                if (noListener) {
-                    Ovation.getLogger().debug("No listener available for the TableModel");
-                }
             }
         });
     }
     
-    /*protected void editRow(final int row, final String key, final Object value)
-    {
-        final DefaultTableModel m = ((DefaultTableModel) table.getModel());
-        EventQueueUtilities.runOffEDT(new Runnable() {
-
-            @Override
-            public void run() {
-                
-                m.setValueAt(key, row, 0);
-                m.setValueAt(value, row, 1);
-
-                boolean noListener = true;
-                for (TableModelListener l : m.getListeners(TableModelListener.class)) {
-                    if (l instanceof EditableTableModelListener) {
-                        noListener = false;
-
-                        TableModelEvent t = new TableModelEvent(m, row, row, 1, TableModelEvent.UPDATE);
-                        l.tableChanged(t);
-                        break;
-                    }
-                }
-                if (noListener) {
-                    Ovation.getLogger().debug("No listener available for the TableModel");
-                }
-            }
-        });
-    }*/
-
     protected void deleteRows(int[] rows) {
         //There is a bug in getListeners - it doesnt find the EditableTableModelListener if you pass is EditableTableModelListener.class
         TableModelListener[] listeners = ((DefaultTableModel) table.getModel()).getListeners(TableModelListener.class);

@@ -32,7 +32,7 @@ public class ScrollableTableTree extends JScrollPane {
     private ExpandableJTree tree;
     private Map<String, DefaultMutableTreeNode> userNodes;
 
-    JTree getTree() {
+    public JTree getTree() {
         return tree;
     }
 
@@ -42,7 +42,6 @@ public class ScrollableTableTree extends JScrollPane {
 
             @Override
             public void run() {
-                Ovation.getLogger().debug("Creating tree nodes");
                 final DefaultMutableTreeNode root = new DefaultMutableTreeNode("");
                 Set<DefaultMutableTreeNode> nodesToExpand = new HashSet<DefaultMutableTreeNode>();
 
@@ -69,6 +68,7 @@ public class ScrollableTableTree extends JScrollPane {
                     tree.expand(node);
                 }
             }
+            
         });
     }
 
@@ -264,11 +264,11 @@ public class ScrollableTableTree extends JScrollPane {
         return null;
     }
 
-    TableNode getTableNode(String category) {
+    public TableNode getTableNode(String category) {
         return (TableNode) getCategoryNode(category).getChildAt(0);
     }
     
-    TableTreeKey getTableKey(String category) {
+    public TableTreeKey getTableKey(String category) {
         DefaultMutableTreeNode n = getCategoryNode(category);
         if (n == null) {
             return null;

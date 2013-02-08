@@ -21,9 +21,11 @@ import ovation.DataContext;
 import ovation.IAuthenticatedDataStoreCoordinator;
 import ovation.IEntityBase;
 import ovation.User;
+import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
+
 
 /**
  * Top component which displays something.
@@ -74,12 +76,12 @@ public final class PropertiesViewTopComponent extends TopComponent {
         });
     }
     
-    public ScrollableTableTree getTableTree()
+    public us.physion.ovation.ui.ScrollableTableTree getTableTree()
     {
-        return (ScrollableTableTree)jScrollPane1;
+        return (us.physion.ovation.ui.ScrollableTableTree)jScrollPane1;
     }        
        
-    protected void setTableTree(ScrollableTableTree t)
+    protected void setTableTree(us.physion.ovation.ui.ScrollableTableTree t)
     {
         jScrollPane1 = t;
     }
@@ -109,7 +111,7 @@ public final class PropertiesViewTopComponent extends TopComponent {
         }
     }
     
-    protected ArrayList<TableTreeKey> setEntities(Collection<? extends IEntityWrapper> entities, IAuthenticatedDataStoreCoordinator dsc)
+    protected List<TableTreeKey> setEntities(Collection<? extends IEntityWrapper> entities, IAuthenticatedDataStoreCoordinator dsc)
     {
         DataContext c;
         if (dsc == null) {
@@ -118,7 +120,7 @@ public final class PropertiesViewTopComponent extends TopComponent {
             c = dsc.getContext();
         }
 
-        ArrayList<TableTreeKey> properties = new ArrayList<TableTreeKey>();
+        List<TableTreeKey> properties = new ArrayList<TableTreeKey>();
         Set<String> uris = new HashSet<String>();
         Set<IEntityBase> entitybases = new HashSet();
         Set<String> owners = new HashSet();
@@ -185,7 +187,7 @@ public final class PropertiesViewTopComponent extends TopComponent {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new ScrollableTableTree();
+        jScrollPane1 = new us.physion.ovation.ui.ScrollableTableTree();
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

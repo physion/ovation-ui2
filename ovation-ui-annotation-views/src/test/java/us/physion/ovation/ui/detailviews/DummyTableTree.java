@@ -5,6 +5,8 @@
 package us.physion.ovation.ui.detailviews;
 
 import java.util.List;
+import us.physion.ovation.ui.ScrollableTableTree;
+import us.physion.ovation.ui.TableTreeKey;
 
 /**
  *

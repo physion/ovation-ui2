@@ -95,41 +95,21 @@ public final class BrowserTopComponent extends TopComponent implements ExplorerM
 
         jSplitPane1 = new javax.swing.JSplitPane();
         treeViewPane = new BeanTreeView();
-        insertItemButton = new javax.swing.JButton();
-        removeItemButton = new javax.swing.JButton();
-
-        org.openide.awt.Mnemonics.setLocalizedText(insertItemButton, org.openide.util.NbBundle.getMessage(BrowserTopComponent.class, "BrowserTopComponent.insertItemButton.text")); // NOI18N
-
-        org.openide.awt.Mnemonics.setLocalizedText(removeItemButton, org.openide.util.NbBundle.getMessage(BrowserTopComponent.class, "BrowserTopComponent.removeItemButton.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(treeViewPane, javax.swing.GroupLayout.DEFAULT_SIZE, 605, Short.MAX_VALUE)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(insertItemButton, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(removeItemButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(treeViewPane, javax.swing.GroupLayout.DEFAULT_SIZE, 651, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(insertItemButton)
-                    .addComponent(removeItemButton))
-                .addContainerGap())
+            .addComponent(treeViewPane, javax.swing.GroupLayout.DEFAULT_SIZE, 692, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton insertItemButton;
     private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JButton removeItemButton;
     private javax.swing.JScrollPane treeViewPane;
     // End of variables declaration//GEN-END:variables
     @Override

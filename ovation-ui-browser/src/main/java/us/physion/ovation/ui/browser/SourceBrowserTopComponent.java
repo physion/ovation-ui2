@@ -69,43 +69,24 @@ public final class SourceBrowserTopComponent extends TopComponent implements Exp
 
         jComboBox1 = new javax.swing.JComboBox();
         jScrollPane1 = new BeanTreeView();
-        removeItemButton = new javax.swing.JButton();
-        insertItemButton = new javax.swing.JButton();
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        org.openide.awt.Mnemonics.setLocalizedText(removeItemButton, org.openide.util.NbBundle.getMessage(SourceBrowserTopComponent.class, "SourceBrowserTopComponent.removeItemButton.text")); // NOI18N
-
-        org.openide.awt.Mnemonics.setLocalizedText(insertItemButton, org.openide.util.NbBundle.getMessage(SourceBrowserTopComponent.class, "SourceBrowserTopComponent.insertItemButton.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(insertItemButton, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(removeItemButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 676, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(insertItemButton)
-                    .addComponent(removeItemButton))
-                .addGap(12, 12, 12))
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 723, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton insertItemButton;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JButton removeItemButton;
     // End of variables declaration//GEN-END:variables
     @Override
     public void componentOpened() {

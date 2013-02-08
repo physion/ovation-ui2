@@ -125,7 +125,8 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>scrollable-table-tree</artifactId>
-            <version>${project.version}</version>
+            <version>1.5-SNAPSHOT</version>
+            <type>jar</type>
         </dependency>
 
         <dependency>
