@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <groupId>us.physion</groupId>
-    <artifactId>ovation-ui-parent</artifactId>
-    <version>1.5-SNAPSHOT</version>
-    <packaging>pom</packaging>
+	<groupId>us.physion</groupId>
+	<artifactId>ovation-ui-parent</artifactId>
+	<version>1.5-SNAPSHOT</version>
+	<packaging>pom</packaging>
 
-    <name>ovation-ui-parent</name>
-    <url>http://ovation.io</url>
-    <inceptionYear>2010</inceptionYear>
+	<name>ovation-ui-parent</name>
+	<url>http://ovation.io</url>
+	<inceptionYear>2010</inceptionYear>
 
-    <organization>
-        <name>Physion Consulting LLC</name>
-        <url>http://www.physionconsulting.com</url>
-    </organization>
+	<organization>
+		<name>Physion Consulting LLC</name>
+		<url>http://www.physionconsulting.com</url>
+	</organization>
 
 
-    <repositories>
-        <!--
-        Repository hosting NetBeans modules, especially APIs.
-        Versions are based on IDE releases, e.g.: RELEASE691
-        To create your own repository, use: nbm:populate-repository
-        -->
-        <repository>
-            <id>netbeans</id>
-            <name>NetBeans</name>
-            <url>http://bits.netbeans.org/maven2/</url>
-        </repository>
+	<repositories>
+		<!--
+			Repository hosting NetBeans modules, especially APIs.
+			Versions are based on IDE releases, e.g.: RELEASE691
+			To create your own repository, use: nbm:populate-repository
+		-->
+		<repository>
+			<id>netbeans</id>
+			<name>NetBeans</name>
+			<url>http://bits.netbeans.org/maven2/</url>
+		</repository>
 
-    </repositories>
+	</repositories>
 
 	<build>
 		<extensions>
@@ -40,32 +40,32 @@
 			</extension>
 		</extensions>
 		
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>nbm-maven-plugin</artifactId>
-                    <version>${nbm.plugin.version}</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <brandingToken>${brandingToken}</brandingToken>
-                        <cluster>${brandingToken}</cluster>
-                        <useOSGiDependencies>false</useOSGiDependencies>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>nbm-maven-plugin</artifactId>
+					<version>${nbm.plugin.version}</version>
+					<extensions>true</extensions>
+					<configuration>
+						<brandingToken>${brandingToken}</brandingToken>
+						<cluster>${brandingToken}</cluster>
+						<useOSGiDependencies>false</useOSGiDependencies>
 						<userSettings>
 							<releaseVersion>${project.version}</releaseVersion>
 						</userSettings>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <!-- NetBeans 6.9+ requires JDK 6 -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.3.2</version>
-                    <configuration>
-                        <source>1.6</source>
-                        <target>1.6</target>
-                    </configuration>
-                </plugin>
+					</configuration>
+				</plugin>
+				<plugin>
+					<!-- NetBeans 6.9+ requires JDK 6 -->
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.3.2</version>
+					<configuration>
+						<source>1.6</source>
+						<target>1.6</target>
+					</configuration>
+				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
@@ -88,31 +88,60 @@
 		</snapshotRepository>
 	</distributionManagement>
 
-    <modules>
-        <module>branding</module>
-        <module>application</module>
-        <module>ovation-ui-database-connection-provider</module>
-        <module>ovation-ui-imagej</module>
-        <module>ovation-api-module</module>
-        <module>ovation-ui-common-interfaces</module>
-        <module>ovation-ui-test</module>
-        <module>ovation-ui-browser</module>
-        <module>scrollable-table-tree</module>
-        <module>ovation-ui-data-viewer</module>
-        <module>ovation-ui-annotation-views</module>
-        <module>ovation-ui-image-importer</module>
+	<modules>
+		<module>branding</module>
+		<module>application</module>
+		<module>ovation-ui-database-connection-provider</module>
+		<module>ovation-ui-imagej</module>
+		<module>ovation-api-module</module>
+		<module>ovation-ui-common-interfaces</module>
+		<module>ovation-ui-test</module>
+		<module>ovation-ui-browser</module>
+		<module>scrollable-table-tree</module>
+		<module>ovation-ui-data-viewer</module>
+		<module>ovation-ui-annotation-views</module>
+		<module>ovation-ui-image-importer</module>
 		<module>ovation-ui-query</module>
-  </modules>
+	</modules>
 
-    <properties>
-        <netbeans.version>RELEASE721</netbeans.version>
-        <brandingToken>ovation</brandingToken>
-        <keystore.path>cert/dev.keystore</keystore.path>
-        <keystore.type>JKS</keystore.type>
-        <keystore.alias>dev</keystore.alias>
-        <keystore.store.password>ovation-core-dev</keystore.store.password>
-        <keystore.key.password>ovation-core-dev</keystore.key.password>
+	<properties>
+		<netbeans.version>RELEASE721</netbeans.version>
+		<brandingToken>ovation</brandingToken>
+		<keystore.path>${project.parent.basedir}/cert/dev.keystore</keystore.path>
+		<keystore.type>JKS</keystore.type>
+		<keystore.alias>dev</keystore.alias>
+		<keystore.store.password>ovation-core-dev</keystore.store.password>
+		<keystore.key.password>ovation-core-dev</keystore.key.password>
 		<ovation.api.version>1.4.2</ovation.api.version>
 		<nbm.plugin.version>3.9</nbm.plugin.version>
-    </properties>
+	</properties>
+	
+	<profiles>
+		<profile>
+			<id>sign</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<version>2.3.1</version>
+						<executions>
+							<execution>
+								<id>sign</id>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<keystore>${keystore.path}</keystore>
+							<alias>${keystore.alias}</alias>
+							<storepass>${keystore.store.password}</storepass>
+							<keypass>${keystore.key.password}</keypass>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
