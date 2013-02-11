@@ -170,13 +170,10 @@ public class InsertEpochGroupTest extends OvationTestCase{
         cs.addChangeListener(l);
         p.component = ss;
         
-        TestCase.assertFalse(p.isValid());
+        TestCase.assertTrue(p.isValid());
         l.resetStateChanged();
         ss.setSource( new TestEntityWrapper(dsc, dsc.getContext().insertSource("label")));
         TestCase.assertTrue(l.getStateChanged());
-        l.resetStateChanged();
-        TestCase.assertTrue(p.isValid());
-        
     }
     
     @Test
@@ -289,8 +286,8 @@ public class InsertEpochGroupTest extends OvationTestCase{
         
         p.storeSettings(d);
         TestCase.assertTrue(((String)d.getProperty("epochGroup.label")).isEmpty());
-        TestCase.assertFalse(d.getProperty("epochGroup.start").equals(start));
-        TestCase.assertFalse(d.getProperty("epochGroup.end").equals(end));
+        TestCase.assertNull(d.getProperty("epochGroup.start"));
+        TestCase.assertNull(d.getProperty("epochGroup.end"));
         
         panel.setLabel(label);
         panel.setStart(start);

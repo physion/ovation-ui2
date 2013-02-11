@@ -146,7 +146,7 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
         });
     }
     
-    protected void deleteRows(int[] rows) {
+    public void deleteRows(int[] rows) {
         //There is a bug in getListeners - it doesnt find the EditableTableModelListener if you pass is EditableTableModelListener.class
         TableModelListener[] listeners = ((DefaultTableModel) table.getModel()).getListeners(TableModelListener.class);
         for (TableModelListener l : listeners) {

@@ -163,8 +163,8 @@ public class InsertExperimentTest extends OvationTestCase
         
         p.storeSettings(d);
         TestCase.assertTrue(((String)d.getProperty("experiment.purpose")).isEmpty());
-        TestCase.assertFalse(d.getProperty("experiment.start").equals(start));
-        TestCase.assertFalse(d.getProperty("experiment.end").equals(end));
+        TestCase.assertNull(d.getProperty("experiment.start"));
+        TestCase.assertNull(d.getProperty("experiment.end"));
         
         panel.setPurpose(purpose);
         panel.setStart(start);

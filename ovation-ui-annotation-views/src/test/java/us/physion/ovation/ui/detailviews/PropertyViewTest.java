@@ -150,8 +150,8 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
         assertEquals(properties.size(), 2);
         
         //user1 properties
-        Set<TestTuple> props = TableTreeUtils.getTuples(properties.get(0));
-        Set<TestTuple> databaseProps = getAggregateUserProperties(((User)user1.getEntity()), entitySet);
+        Set<Tuple> props = TableTreeUtils.getTuples(properties.get(0));
+        Set<Tuple> databaseProps = getAggregateUserProperties(((User)user1.getEntity()), entitySet);
         assertTrue(TableTreeUtils.setsEqual(props, databaseProps));
         
         //user2 properties
@@ -173,14 +173,14 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
         assertFalse(properties.get(1).isEditable());
     }
    
-    static Set<TestTuple> getAggregateUserProperties(User u, Set<IEntityWrapper> entities) {
+    static Set<Tuple> getAggregateUserProperties(User u, Set<IEntityWrapper> entities) {
         
-        Set<TestTuple> databaseProps = new HashSet<TestTuple>();
+        Set<Tuple> databaseProps = new HashSet<Tuple>();
         for (IEntityWrapper ew : entities) {
             Map<String, Object> props = ew.getEntity().getUserProperties(u);
             for (String key : props.keySet())
             {
-                databaseProps.add(new TestTuple(key, props.get(key)));
+                databaseProps.add(new Tuple(key, props.get(key)));
             }
         }
         return databaseProps;

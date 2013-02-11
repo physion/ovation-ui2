@@ -14,6 +14,7 @@
 	<name>ovation-ui-app</name>
 
 	<properties>
+	        <netbeans.version>RELEASE721</netbeans.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<netbeans.run.params.ide/>
 		<netbeans.run.params>${netbeans.run.params.ide}</netbeans.run.params>
@@ -28,15 +29,13 @@
 		<ovation.appbundle.name>Ovation</ovation.appbundle.name>
 	</properties>
 
-	<!-- To use Jelly Tools in your functional tests, add or replace with:
-	<dependency>
-		<groupId>org.netbeans.api</groupId>
-		<artifactId>org-netbeans-modules-jellytools-platform</artifactId>
-		<version>${netbeans.version}</version>
-		<scope>test</scope>
-	</dependency>-->
-	
 	<dependencies>
+	        <dependency>
+		        <groupId>org.netbeans.api</groupId>
+			<artifactId>org-netbeans-modules-jellytools-platform</artifactId>
+			<version>${netbeans.version}</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.netbeans.cluster</groupId>
 			<artifactId>platform</artifactId>

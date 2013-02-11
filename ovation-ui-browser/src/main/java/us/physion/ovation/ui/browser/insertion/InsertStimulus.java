@@ -12,7 +12,7 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import org.openide.WizardDescriptor;
 import ovation.*;
-import us.physion.ovation.ui.browser.moveme.EpochInsertable;
+import us.physion.ovation.ui.interfaces.EpochInsertable;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /**

@@ -83,7 +83,7 @@ class TagTableModelListener implements EditableTableModelListener {
                             if (eb instanceof ITaggableEntityBase)
                             {
                                 if (tag != null && !tag.isEmpty()) {
-                                    ((ITaggableEntityBase) eb).addTag(tag.trim());
+                                    ((ITaggableEntityBase) eb).removeTag(tag.trim());
                                 }
                             }
                         }

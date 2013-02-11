@@ -19,12 +19,7 @@ import ovation.IAuthenticatedDataStoreCoordinator;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.browser.EntityChildren;
 import us.physion.ovation.ui.browser.EntityNode;
-import us.physion.ovation.ui.browser.moveme.EntityInsertable;
-import us.physion.ovation.ui.browser.moveme.ProjectInsertable;
-import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import us.physion.ovation.ui.interfaces.IEntityWrapper;
-import us.physion.ovation.ui.interfaces.ResetBrowser;
-import us.physion.ovation.ui.interfaces.ResettableNode;
+import us.physion.ovation.ui.interfaces.*;
 
 /**
  *

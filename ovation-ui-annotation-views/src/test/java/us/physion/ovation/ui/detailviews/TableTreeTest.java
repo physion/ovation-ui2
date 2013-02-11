@@ -44,6 +44,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
     
     private Set<String> uris;
     private MockResizableTree mockTree;
+    private EditableTable editableTable;
 
     static TestManager mgr = new SelectionViewTestManager();
     public TableTreeTest() {
@@ -103,34 +104,24 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
     public static void tearDownClass() throws Exception {
         OvationTestCase.tearDownDatabase(mgr);
     }
-
+    
+//table tree tests. TODO: separate out tests of the scrollable table tree to another test class
     @Test
     public void testUpdatesTableModelAndTreeWithRowAddition()
     {
         TableTreeKey k = new TestTreeKey(dsc, uris);
-        TableNode node = new TableNode(k);
-        PropertyTableModelListener listener = new PropertyTableModelListener(uris, mockTree, node, dsc);
+        EditableTableModel m = createTableModel(k, uris);
+        assertEquals(m.getRowCount(), 1); //blank row
 
-        DefaultTableModel m = new DefaultTableModel();
-        JTable table = new JTable();
-        table.setModel(m);
-        m.addTableModelListener(listener);
-        EditableTable t = new EditableTable(table, null);
-        //t.addBlankRow();
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        
-        int rowCount = m.getRowCount();
-        assertEquals(rowCount, 1);
+        m.setValueAt("something", 0, 0);
+        assertEquals(m.getRowCount(), 2);
         
         assertTrue(mockTree.wasResized());
     }
-    
+ 
+    //property tree tests
     @Test
-    public void testAllEntitesContainModifiedPropertyValueEvenIfTheyHadNoPropertyBefore()
+    public void testUpdatesDatabaseAndTableModelWithModifiedPropertyKey()
     {
         String key1 = "something";
         String val1 = "else";
@@ -141,30 +132,22 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         {
             IEntityBase eb = dsc.getContext().objectWithURI(uri);
             if (i++%2 == 0)
-                eb.addProperty(key1, val1);//only some uris have the second property
+                eb.addProperty(key1, val1);//only half of the uris have the property
         }
         
         TableTreeKey k = new TestTreeKey(dsc, uris);
-        PropertyTableModelListener listener = new PropertyTableModelListener(uris, mockTree, new TableNode(k), dsc);
-  
-        final DefaultTableModel m = new DefaultTableModel();
-        m.setDataVector(new Object[][]{new Object[]{key1, val1}}, new Object[]{"Name", "Parameter"});
+        EditableTableModel m = createTableModel(k, uris);
+        m.setValueAt(key1, 0, 0);
+        m.setValueAt(val1, 0, 1);
       
-        assertEquals(m.getRowCount(), 1);
+        assertEquals(m.getRowCount(), 2);
         assertEquals(m.getValueAt(0, 0), key1);
         assertEquals(m.getValueAt(0, 1), val1);
         
-        m.setValueAt(newVal1, 0, 1);//create a new
-        TableModelEvent t = new TableModelEvent(m, 0, 0, 1, TableModelEvent.UPDATE);
-
-        listener.tableChanged(t);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        m.setValueAt(newVal1, 0, 1);//change value 
+        //this should add value to project1, and change value for project 2's existing property
         
-        assertEquals(m.getRowCount(), 1);
+        assertEquals(m.getRowCount(), 2);
     
         for (String uri : uris)
         {
@@ -173,49 +156,6 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         }
     }
   
-     @Test
-    public void testUpdatesDatabaseAndTableModelWithModifiedPropertyKey()
-    {
-        String key1 = "something";
-        String val1 = "else";
-        String newKey1 = "thing2";
-        
-        int i=0;
-        for (String uri : uris)
-        {
-            IEntityBase eb = dsc.getContext().objectWithURI(uri);
-            eb.addProperty(key1, val1);
-        }
-        
-        TableTreeKey k = new TestTreeKey(dsc, uris);
-        PropertyTableModelListener listener = new PropertyTableModelListener(uris, mockTree, new TableNode(k), dsc);
-  
-        final DefaultTableModel m = new DefaultTableModel();
-        m.setDataVector(new Object[][]{new Object[]{key1, val1}}, new Object[]{"Name", "Parameter"});
-      
-        assertEquals(m.getRowCount(), 1);
-        assertEquals(m.getValueAt(0, 0), key1);
-        assertEquals(m.getValueAt(0, 1), val1);
-        
-        m.setValueAt(newKey1, 0, 0);//create a new
-        TableModelEvent t = new TableModelEvent(m, 0, 0, 0, TableModelEvent.UPDATE);
-
-        listener.tableChanged(t);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        
-        assertEquals(m.getRowCount(), 1);
-    
-        for (String uri : uris)
-        {
-            IEntityBase eb = dsc.getContext().objectWithURI(uri);
-            assertEquals(eb.getMyProperty(newKey1), val1);
-        }
-    }
-    
      @Test
     public void testUpdatesDatabaseAndTableModelWithRowDeletion()
     {
@@ -235,29 +175,21 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         }
         
         TableTreeKey k = new TestTreeKey(dsc, uris);
-        PropertyTableModelListener listener = new PropertyTableModelListener(uris, mockTree, new TableNode(k), dsc);
-  
-        final DefaultTableModel m = new DefaultTableModel();
-        m.setDataVector(new Object[][]{new Object[]{newKey1, newVal1}, new Object[]{newKey2, newVal2}}, new Object[]{"Name", "Parameter"});
+        EditableTableModel m = createTableModel(k, uris);
+        
+        m.setValueAt(newKey1, 0, 0);
+        m.setValueAt(newVal1, 0, 1);
+        m.setValueAt(newKey2, 1, 0);
+        m.setValueAt(newVal2, 1, 1);
       
-        assertEquals(m.getRowCount(), 2);
+        assertEquals(m.getRowCount(), 3);
         assertEquals(m.getValueAt(0, 0), newKey1);
         assertEquals(m.getValueAt(0, 1), newVal1);
         assertEquals(m.getValueAt(1, 0), newKey2);
         assertEquals(m.getValueAt(1, 1), newVal2);
         
-        JTable table = new JTable();
-        table.setModel(m);
-        m.addTableModelListener(listener);
-        EditableTable t = new EditableTable(table, null);
-        
-        //t.deleteRows(new int[] {0, 1});
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        
+        editableTable.deleteRows(new int[] {0, 1});
+
         for (String uri : uris)
         {
             IEntityBase eb = dsc.getContext().objectWithURI(uri);
@@ -265,8 +197,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
             assertFalse(eb.getProperties().containsKey(newKey2));
         }
         
-        int rowCount = m.getRowCount();
-        assertEquals(rowCount, 0);
+        assertEquals(m.getRowCount(), 1);
     }
      
     @Test
@@ -275,7 +206,6 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         String key1 = "something";
         String val1 = "else";
         
-        int i=0;
         for (String uri : uris)
         {
             IEntityBase eb = dsc.getContext().objectWithURI(uri);
@@ -283,30 +213,22 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         }
         
         TableTreeKey k = new TestTreeKey(dsc, uris);
-        PropertyTableModelListener listener = new PropertyTableModelListener(uris, mockTree, new TableNode(k), dsc);
-  
-        final DefaultTableModel m = new DefaultTableModel();
-        m.setDataVector(new Object[][]{new Object[]{key1, val1}}, new Object[]{"Name", "Parameter"});
+        EditableTableModel m = createTableModel(k, uris);
+        m.setValueAt(key1, 0, 0);
+        m.setValueAt(val1, 0, 1);
       
-        assertEquals(m.getRowCount(), 1);
-        assertEquals(m.getValueAt(0, 0), key1);
-        assertEquals(m.getValueAt(0, 1), val1);
-        
-        assertNewValueClassIsAppropriate(key1, "6/23/1988", Timestamp.class, m, listener);
-        assertNewValueClassIsAppropriate(key1, "6/23/1988 6:30 pm", Timestamp.class, m, listener);
-        assertNewValueClassIsAppropriate(key1, "1", Long.class, m, listener);
-        assertNewValueClassIsAppropriate(key1, String.valueOf(Integer.MAX_VALUE) + "1", Long.class, m, listener);
-        assertNewValueClassIsAppropriate(key1, "1.5", Double.class, m, listener);
-        assertNewValueClassIsAppropriate(key1, "True", Boolean.class, m, listener);
-        assertNewValueClassIsAppropriate(key1, "false", Boolean.class, m, listener);
+        assertNewValueClassIsAppropriate(key1, "6/23/1988", Timestamp.class, m);
+        assertNewValueClassIsAppropriate(key1, "6/23/1988 6:30 pm", Timestamp.class, m);
+        assertNewValueClassIsAppropriate(key1, "1", Long.class, m);
+        assertNewValueClassIsAppropriate(key1, String.valueOf(Integer.MAX_VALUE) + "1", Long.class, m);
+        assertNewValueClassIsAppropriate(key1, "1.5", Double.class, m);
+        assertNewValueClassIsAppropriate(key1, "True", Boolean.class, m);
+        assertNewValueClassIsAppropriate(key1, "false", Boolean.class, m);
     }
     
-    void assertNewValueClassIsAppropriate(String key, String newValue, Class clazz, DefaultTableModel m, PropertyTableModelListener listener)
+    void assertNewValueClassIsAppropriate(String key, String newValue, Class clazz, EditableTableModel m)
     {
         m.setValueAt(newValue, 0, 1);
-        TableModelEvent t = new TableModelEvent(m, 0, 0, 0, TableModelEvent.UPDATE);
-
-        listener.tableChanged(t);
         
         for (String uri : uris)
         {
@@ -354,5 +276,18 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
             return null;
         }
     }
+    private EditableTableModel createTableModel(TableTreeKey key, Set<String> uris) {
+        EditableTableModel m = (EditableTableModel)key.createTableModel();
 
+        JTable table = new JTable();
+        editableTable = new EditableTable(table, new DummyTableTree());
+        m.setTable(table);
+        
+        TableNode n = new TableNode(key);
+        n.setPanel(editableTable);
+        PropertyTableModelListener listener = new PropertyTableModelListener(uris, mockTree, n, dsc);
+        table.setModel(m);
+        m.addTableModelListener(listener);
+        return m;
+    }
 }

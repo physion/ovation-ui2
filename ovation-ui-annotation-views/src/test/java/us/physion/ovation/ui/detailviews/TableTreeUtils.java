@@ -30,10 +30,10 @@ public class TableTreeUtils {
         return s2.isEmpty();
     }
     
-    public static Set<TestTuple> getTuplesByKey(String key, Set<TestTuple> props)
+    public static Set<Tuple> getTuplesByKey(String key, Set<Tuple> props)
     {
-        Set<TestTuple> result = new HashSet<TestTuple>();
-        for (TestTuple p : props)
+        Set<Tuple> result = new HashSet<Tuple>();
+        for (Tuple p : props)
         {
             if (p.getKey().equals(key))
             {
@@ -43,18 +43,18 @@ public class TableTreeUtils {
         return result;
     }
 
-    public static Set<TestTuple> getTuples(TableTreeKey k) {
-        Set<TestTuple> properties = new HashSet<TestTuple>();
+    public static Set<Tuple> getTuples(TableTreeKey k) {
+        Set<Tuple> properties = new HashSet<Tuple>();
         if (k instanceof UserPropertySet)
         {
             Object[][] data = ((UserPropertySet) k).getData();
             for (int i = 0; i < data.length; ++i) {
-                properties.add(new TestTuple((String) data[i][0], data[i][1]));
+                properties.add(new Tuple((String) data[i][0], data[i][1]));
             }
         } else if (k instanceof ParameterSet) {
             Object[][] data = ((ParameterSet) k).getData();
             for (int i = 0; i < data.length; ++i) {
-                properties.add(new TestTuple((String) data[i][0], data[i][1]));
+                properties.add(new Tuple((String) data[i][0], data[i][1]));
             }
         }
         return properties;

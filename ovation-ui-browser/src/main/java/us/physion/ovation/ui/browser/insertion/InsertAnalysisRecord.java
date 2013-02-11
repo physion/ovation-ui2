@@ -17,9 +17,8 @@ import ovation.AnalysisRecord;
 import ovation.Epoch;
 import ovation.IAuthenticatedDataStoreCoordinator;
 import ovation.Project;
-import us.physion.ovation.ui.browser.moveme.EntityInsertable;
-import us.physion.ovation.ui.browser.moveme.ProjectInsertable;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
+import us.physion.ovation.ui.interfaces.ProjectInsertable;
 
 //@ServiceProvider(service=ProjectInsertable.class)
 /**

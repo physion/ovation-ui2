@@ -62,9 +62,9 @@ public class ResourceViewTopComponentTest extends OvationTestCase{
         project = new TestEntityWrapper(dsc, c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
         source = new TestEntityWrapper(dsc, c.insertSource("source"));
         Resource r1 = project.getEntity().addResource(uti, "resource 1", data);
-        rw1 = new TestResourceWrapper(dsc, r1);
+        rw1 = new DummyResourceWrapper(dsc, r1);
         Resource r2 = source.getEntity().addResource(uti, "resource 2", data);
-        rw2 = new TestResourceWrapper(dsc, r2);
+        rw2 = new DummyResourceWrapper(dsc, r2);
 
         Ovation.enableLogging(LogLevel.DEBUG);
     }

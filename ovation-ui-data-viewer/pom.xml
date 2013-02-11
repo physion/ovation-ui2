@@ -124,15 +124,10 @@
         </dependency>
 
 	<dependency>
-            <groupId>us.physion</groupId>
-            <artifactId>jFreeChart</artifactId>
-	    <version>1.0</version>
-	    <type>jar</type>
-	     <!--
-		 <scope>system</scope>
-		 <systemPath>${project.basedir}/../lib/JFreeChart-Ovation.jar</systemPath>
-		 -->
-        </dependency>
+	  <groupId>jfree</groupId>
+	  <artifactId>jfreechart</artifactId>
+	  <version>1.0.9</version>
+	</dependency>
 
 	<dependency>
             <groupId>us.physion</groupId>

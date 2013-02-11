@@ -172,8 +172,8 @@ public class InsertProjectTest extends OvationTestCase
         p.storeSettings(d);
         TestCase.assertTrue(((String)d.getProperty("project.name")).isEmpty());
         TestCase.assertTrue(((String)d.getProperty("project.purpose")).isEmpty());
-        TestCase.assertFalse(d.getProperty("project.start").equals(start));
-        TestCase.assertFalse(d.getProperty("project.end").equals(end));
+        TestCase.assertNull(d.getProperty("project.start"));
+        TestCase.assertNull(d.getProperty("project.end"));
         
         panel.setProjectName(name);
         panel.setPurpose(purpose);

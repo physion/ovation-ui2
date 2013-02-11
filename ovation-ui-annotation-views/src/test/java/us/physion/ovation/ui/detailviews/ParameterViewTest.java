@@ -129,7 +129,7 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         ParameterSet protocolParams = (ParameterSet)params.get(0);
         assertEquals(protocolParams.getDisplayName(), "Protocol Parameters");
         assertEquals(protocolParams.isEditable(), false);
-        Set<TestTuple> databaseParams = new HashSet<TestTuple>();
+        Set<Tuple> databaseParams = new HashSet<Tuple>();
         for (IEntityWrapper ew : entitySet)
         {
             Map<String, Object> ps = ((Epoch)ew.getEntity()).getProtocolParameters();
@@ -160,7 +160,7 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         ParameterSet protocolParams = (ParameterSet)params.get(0);
         assertEquals(protocolParams.getDisplayName(), "Device Parameters");
         assertEquals(protocolParams.isEditable(), false);
-        Set<TestTuple> databaseParams = new HashSet<TestTuple>();
+        Set<Tuple> databaseParams = new HashSet<Tuple>();
         for (IEntityWrapper ew : entitySet)
         {
             Map<String, Object> ps = ((Response)ew.getEntity()).getDeviceParameters();
@@ -192,7 +192,7 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         ParameterSet protocolParams = (ParameterSet)params.get(0);
         assertEquals(protocolParams.getDisplayName(), "Analysis Parameters");
         assertEquals(protocolParams.isEditable(), false);
-        Set<TestTuple> databaseParams = new HashSet<TestTuple>();
+        Set<Tuple> databaseParams = new HashSet<Tuple>();
         for (IEntityWrapper ew : entitySet)
         {
             Map<String, Object> ps = ((AnalysisRecord)ew.getEntity()).getAnalysisParameters();
@@ -231,7 +231,7 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         ParameterSet deviceParams = (ParameterSet)params.get(0);
         assertEquals(deviceParams.getDisplayName(), "Device Parameters");
         assertEquals(deviceParams.isEditable(), false);
-        Set<TestTuple> databaseParams = new HashSet<TestTuple>();
+        Set<Tuple> databaseParams = new HashSet<Tuple>();
         for (IEntityWrapper ew : entitySet)
         {
             Map<String, Object> ps = ((Stimulus)ew.getEntity()).getDeviceParameters();
@@ -243,7 +243,7 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         ParameterSet stimulusParams = (ParameterSet)params.get(1);
         assertEquals(stimulusParams.getDisplayName(), "Stimulus Parameters");
         assertEquals(stimulusParams.isEditable(), false);
-        databaseParams = new HashSet<TestTuple>();
+        databaseParams = new HashSet<Tuple>();
         for (IEntityWrapper ew : entitySet)
         {
             Map<String, Object> ps = ((Stimulus)ew.getEntity()).getStimulusParameters();
@@ -272,14 +272,14 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-        static Set<TestTuple> getAggregateUserProperties(User u, Set<IEntityWrapper> entities) {
+        static Set<Tuple> getAggregateUserProperties(User u, Set<IEntityWrapper> entities) {
         
-        Set<TestTuple> databaseProps = new HashSet<TestTuple>();
+        Set<Tuple> databaseProps = new HashSet<Tuple>();
         for (IEntityWrapper ew : entities) {
             Map<String, Object> props = ew.getEntity().getUserProperties(u);
             for (String key : props.keySet())
             {
-                databaseProps.add(new TestTuple(key, props.get(key)));
+                databaseProps.add(new Tuple(key, props.get(key)));
             }
         }
         return databaseProps;
@@ -303,10 +303,10 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         //assertTrue(s1.containsAll(s2));
     }
     
-    Set<TestTuple> getPropertiesByKey(String key, Set<TestTuple> props)
+    Set<Tuple> getPropertiesByKey(String key, Set<Tuple> props)
     {
-        Set<TestTuple> result = new HashSet<TestTuple>();
-        for (TestTuple p : props)
+        Set<Tuple> result = new HashSet<Tuple>();
+        for (Tuple p : props)
         {
             if (p.getKey().equals(key))
             {
@@ -316,8 +316,8 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         return result;
     }
     
-    private Set<TestTuple> getProperties(ScrollableTableTree t, String userURI) {
-        Set<TestTuple> properties = new HashSet<TestTuple>();
+    private Set<Tuple> getProperties(ScrollableTableTree t, String userURI) {
+        Set<Tuple> properties = new HashSet<Tuple>();
         TableTreeKey k = t.getTableKey(userURI);
         if (k == null)
         {
@@ -331,7 +331,7 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         //DefaultTableModel m = ((DefaultTableModel) ((TableInTreeCellRenderer) t.getTree().getCellRenderer()).getTableModel(k));
         for (int i  = 0; i < data.length; ++i)
         {
-            properties.add(new TestTuple((String) data[i][0], data[i][1]));
+            properties.add(new Tuple((String) data[i][0], data[i][1]));
         }
         return properties;
     }
@@ -341,19 +341,19 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    private void aggregateDatabaseParams(Set<TestTuple> databaseParams, Map<String, Object> ps) {
+    private void aggregateDatabaseParams(Set<Tuple> databaseParams, Map<String, Object> ps) {
         for (String key : ps.keySet())
             {
                 if (!TableTreeUtils.getTuplesByKey(key, databaseParams).isEmpty())
                 {
-                    TestTuple tuple = TableTreeUtils.getTuplesByKey(key, databaseParams).iterator().next();
+                    Tuple tuple = TableTreeUtils.getTuplesByKey(key, databaseParams).iterator().next();
                     MultiUserParameter p = new MultiUserParameter(tuple.getValue());
                     p.add(ps.get(tuple.getKey()));
                     databaseParams.remove(tuple);
-                    databaseParams.add(new TestTuple(tuple.getKey(), p));
+                    databaseParams.add(new Tuple(tuple.getKey(), p));
                 }
                 else{
-                    databaseParams.add(new TestTuple(key, ps.get(key)));
+                    databaseParams.add(new Tuple(key, ps.get(key)));
                 }
             }
     }
