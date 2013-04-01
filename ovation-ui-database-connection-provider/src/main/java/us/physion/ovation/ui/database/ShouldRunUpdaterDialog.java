@@ -6,7 +6,6 @@ package us.physion.ovation.ui.database;
 
 import javax.swing.JFrame;
 import org.openide.util.Exceptions;
-import ovation.DataStoreCoordinator;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.ModalDialogBase;
 

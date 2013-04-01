@@ -4,8 +4,6 @@
  */
 package us.physion.ovation.ui.database;
 
-import com.objy.db.DatabaseNotFoundException;
-import com.objy.db.DatabaseOpenException;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -19,6 +17,7 @@ import org.openide.ErrorManager;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import ovation.*;
+import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.ui.interfaces.*;
 
 /**
@@ -29,7 +28,7 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
 
     ConnectionHistoryProvider prefs;
     DefaultComboBoxModel connectionComboBoxModel;
-    IAuthenticatedDataStoreCoordinator dsc;
+    DataStoreCoordinator dsc;
     ProgressHandle progressHandle;
 
     DBConnectionManager manager;
@@ -39,7 +38,7 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
         manager = m;
     }
 
-    public IAuthenticatedDataStoreCoordinator getDataStoreCoordinator() {
+    public DataStoreCoordinator getDataStoreCoordinator() {
         return dsc;
     }
 
@@ -102,11 +101,11 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
             @Override
             public void run() {
                 errorScrollPane.setVisible(true);
-                if (e instanceof UserAuthenticationException) {
+                /*if (e instanceof UserAuthenticationException) {
                     errorTextArea.setText("**Error: Username and password combination was not found." + otherError);
-                } else {
+                } else {*/
                     errorTextArea.setText("**Error: " + e.getLocalizedMessage() + otherError);
-                }
+                //}
                 errorTextArea.setForeground(Color.RED);
                 pack();
                 repaint();
@@ -156,7 +155,6 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
     private void initComponents() {
         bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
-        viewModel = new us.physion.ovation.ui.database.ConnectionDialogModel();
         chooseButton = new javax.swing.JButton();
         connectionFileComboBox = new javax.swing.JComboBox();
         credentialsPanel = new javax.swing.JPanel();
@@ -185,7 +183,7 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
         connectionFileComboBox.setEditable(true);
         connectionFileComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "<your connection file here>" }));
 
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, viewModel, org.jdesktop.beansbinding.ELProperty.create("${connection}"), connectionFileComboBox, org.jdesktop.beansbinding.BeanProperty.create("selectedItem"));
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, new org.netbeans.modules.form.InvalidComponent(), org.jdesktop.beansbinding.ELProperty.create("${connection}"), connectionFileComboBox, org.jdesktop.beansbinding.BeanProperty.create("selectedItem"));
         bindingGroup.addBinding(binding);
 
         connectionFileComboBox.addItemListener(new java.awt.event.ItemListener() {
@@ -200,10 +198,10 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
 
         passwordLabel.setText(org.openide.util.NbBundle.getMessage(DBConnectionDialog.class, "DBConnectionDialog.passwordLabel.text")); // NOI18N
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, viewModel, org.jdesktop.beansbinding.ELProperty.create("${username}"), usernameTextField, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, new org.netbeans.modules.form.InvalidComponent(), org.jdesktop.beansbinding.ELProperty.create("${username}"), usernameTextField, org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, viewModel, org.jdesktop.beansbinding.ELProperty.create("${password}"), passwordTextField, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, new org.netbeans.modules.form.InvalidComponent(), org.jdesktop.beansbinding.ELProperty.create("${password}"), passwordTextField, org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
         org.jdesktop.layout.GroupLayout credentialsPanelLayout = new org.jdesktop.layout.GroupLayout(credentialsPanel);
@@ -244,7 +242,7 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
         connectButton.setText(org.openide.util.NbBundle.getMessage(DBConnectionDialog.class, "DBConnectionDialog.connectButton.text")); // NOI18N
         connectButton.setToolTipText(org.openide.util.NbBundle.getMessage(DBConnectionDialog.class, "DBConnectionDialog.connectButton.toolTipText")); // NOI18N
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, viewModel, org.jdesktop.beansbinding.ELProperty.create("${complete}"), connectButton, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, new org.netbeans.modules.form.InvalidComponent(), org.jdesktop.beansbinding.ELProperty.create("${complete}"), connectButton, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
         bindingGroup.addBinding(binding);
 
         connectButton.addActionListener(new java.awt.event.ActionListener() {
@@ -432,7 +430,6 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
     private javax.swing.JPasswordField passwordTextField;
     private javax.swing.JLabel usernameLabel;
     private javax.swing.JTextField usernameTextField;
-    private us.physion.ovation.ui.database.ConnectionDialogModel viewModel;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 

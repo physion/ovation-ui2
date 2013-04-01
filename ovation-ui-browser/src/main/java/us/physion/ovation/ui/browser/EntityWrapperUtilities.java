@@ -21,6 +21,8 @@ import org.openide.util.Lookup;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 import ovation.*;
+import us.physion.ovation.domain.*;
+import us.physion.ovation.domain.mixin.ProcedureElement;
 import us.physion.ovation.ui.browser.insertion.InsertSource;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -36,7 +38,7 @@ public class EntityWrapperUtilities {
         Map<String, Node> treeMap = BrowserUtilities.getNodeMap();
         Set<IEntityWrapper> resultSet = new HashSet<IEntityWrapper>();
         while (itr.hasNext()) {
-            IEntityBase e = itr.next();
+            OvationEntity e = itr.next();
             IEntityWrapper ew = new EntityWrapper(e);
             resultSet.add(ew);
 
@@ -82,13 +84,13 @@ public class EntityWrapperUtilities {
             path.push(new PerUserEntityWrapper(e.getOwner().getUsername(), e.getOwner().getURIString()));
         }
 
-        Set<IEntityBase> parents = getParents(e, path);
+        Set<OvationEntity> parents = getParents(e, path);
         if (parents.isEmpty()) {
             paths.add(path);
             return paths;
         }
 
-        for (IEntityBase parent : parents) {
+        for (OvationEntity parent : parents) {
             Stack newPath = new Stack();
             for (int i = 0; i < path.size(); i++) {
                 newPath.push(path.get(i));
@@ -103,8 +105,8 @@ public class EntityWrapperUtilities {
 
     //entity....... the entity whose parents we find
     //path......... the path from result set object to entity (for getting Sources from EpochGroups)
-    private static Set<IEntityBase> getParents(IEntityBase entity, Stack<IEntityWrapper> path) {
-        Set<IEntityBase> parents = new HashSet();
+    private static Set<OvationEntity> getParents(OvationEntity entity, Stack<IEntityWrapper> path) {
+        Set<OvationEntity> parents = new HashSet();
         Class type = entity.getClass();
         if (type.isAssignableFrom(Source.class)) {
             Source parent = ((Source) entity).getParent();
@@ -134,29 +136,24 @@ public class EntityWrapperUtilities {
                 }
             }
         } else if (type.isAssignableFrom(EpochGroup.class)) {
-            EpochGroup parent = ((EpochGroup) entity).getParent();
-            if (parent == null) {
-                parents.add(((EpochGroup) entity).getExperiment());
+            ProcedureElement parent = ((EpochGroup) entity).getParent();
+            if (parent instanceof Experiment) {
+                parents.add((Experiment)parent);
             } else {
-                parents.add(parent);
+                parents.add((EpochGroup)parent);
             }
         } else if (type.isAssignableFrom(Epoch.class)) {
             parents.add(((Epoch) entity).getEpochGroup());
-        } else if (type.isAssignableFrom(Response.class)) {
-            parents.add(((Response) entity).getEpoch());
-        } else if (type.isAssignableFrom(Stimulus.class)) {
-            parents.add(((Stimulus) entity).getEpoch());
-        } else if (type.isAssignableFrom(DerivedResponse.class)) {
-            parents.add(((DerivedResponse) entity).getEpoch());
+        } else if (type.isAssignableFrom(Measurement.class)) {
+            parents.add(((Measurement) entity).getEpoch());
         } else if (type.isAssignableFrom(AnalysisRecord.class)) {
-            parents.add(((AnalysisRecord) entity).getProject());
+            parents.add(((AnalysisRecord) entity).getParent());
         }
         return parents;
     }
 
-    private static boolean isPerUser(IEntityBase e) {
-        if (e instanceof AnalysisRecord
-                || e instanceof DerivedResponse) {
+    private static boolean isPerUser(OvationEntity e) {
+        if (e instanceof AnalysisRecord) {
             return true;
         }
         return false;
@@ -204,10 +201,8 @@ public class EntityWrapperUtilities {
             n.setIconBaseWithExtension("us/physion/ovation/ui/browser/epoch.png");
         } else if (entityClass.isAssignableFrom(AnalysisRecord.class)) {
             n.setIconBaseWithExtension("us/physion/ovation/ui/browser/analysis-record.png");
-        } else if (entityClass.isAssignableFrom(Response.class) || entityClass.isAssignableFrom(URLResponse.class)){
+        } else if (entityClass.isAssignableFrom(Measurement.class)){
            n.setIconBaseWithExtension("us/physion/ovation/ui/browser/response.png"); 
-        } else if (entityClass.isAssignableFrom(Stimulus.class) ){
-           n.setIconBaseWithExtension("us/physion/ovation/ui/browser/stimulus.png"); 
         } else if (entityClass.isAssignableFrom(User.class) ){
            n.setIconBaseWithExtension("us/physion/ovation/ui/browser/user.png"); 
         }

@@ -6,8 +6,8 @@ package us.physion.ovation.ui.database;
 
 import org.openide.modules.ModuleInstall;
 import org.openide.util.Lookup;
-import ovation.Ovation;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.api.Ovation;
 
 public class Installer extends ModuleInstall {
 

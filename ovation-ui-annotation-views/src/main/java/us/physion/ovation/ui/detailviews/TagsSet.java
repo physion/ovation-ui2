@@ -54,7 +54,9 @@ public class TagsSet extends UserPropertySet{//TODO make a baseclass that they b
                 {
                     if (keyword.getOwner().getURIString().equals(userURI))
                     {
-                        tags.add(keyword.getTag());
+                        String t = keyword.getTag();
+                        if(!tags.contains(t))
+                            tags.add(t);
                     }
                 }
                 Collections.sort(tags);

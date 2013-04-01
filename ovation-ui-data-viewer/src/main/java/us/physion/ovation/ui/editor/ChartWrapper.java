@@ -4,11 +4,16 @@
  */
 package us.physion.ovation.ui.editor;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
-import ovation.NumericData;
-import ovation.Response;
-import ovation.URLResponse;
-
+import java.util.concurrent.ExecutionException;
+import org.openide.util.Exceptions;
+import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.NumericData;
+import us.physion.ovation.domain.NumericData.Data;
+import us.physion.ovation.domain.NumericMeasurement;
+import us.physion.ovation.exceptions.OvationException;
 
 /**
  *
@@ -16,25 +21,25 @@ import ovation.URLResponse;
  */
 public class ChartWrapper {
     NumericData data;
-    InputStream dataStream;
     String name;
     double samplingRate;
     String yunits;
     String xunits;
     
-    public ChartWrapper(Response r)
+    public ChartWrapper(Measurement m)
     {
-        if (r instanceof URLResponse)
+        if (m instanceof NumericMeasurement)
         {
-            dataStream = ((URLResponse) r).getDataStream();
-        }else{
-            data = r.getData();
+            NumericMeasurement r = (NumericMeasurement)m;
+            data = r.getNumericData();
+            name = r.getName();
+            Data d = data.getDataArray()[0];
+            //samplingRate = data.getSamplingRate();//Numeric data should have samplingRate and units
+            yunits = d.getUnits();
+            //xunits = convertSamplingRateUnitsToGraphUnits(d.getUnits());
+        } else {
+            throw new OvationException("Only NumericMeasuements may be displayed as a chart!");
         }
-        name = r.getExternalDevice().getName();
-        samplingRate = r.getSamplingRates()[0];
-        yunits = r.getUnits();
-        xunits = convertSamplingRateUnitsToGraphUnits(r.getSamplingUnits()[0]);
-        
     }
    
     protected static String convertSamplingRateUnitsToGraphUnits(String samplingRateUnits){
@@ -69,10 +74,5 @@ public class ChartWrapper {
     public NumericData getNumericData()
     {
         return data;
-    }
-    
-    public InputStream getDataStream()
-    {
-        return dataStream;
     }
 }

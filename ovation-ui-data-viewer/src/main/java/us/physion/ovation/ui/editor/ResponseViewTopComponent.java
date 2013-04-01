@@ -55,6 +55,9 @@ import org.jfree.ui.RectangleInsets;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.util.*;
+import org.slf4j.LoggerFactory;
+import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -181,30 +184,30 @@ public final class ResponseViewTopComponent extends TopComponent {
         if (updateEntitySelection != null && !updateEntitySelection.isDone())
         {
             updateEntitySelection.cancel(true);
-            Ovation.getLogger().debug("Cancelled other thread");
+            LoggerFactory.getLogger(ResponseViewTopComponent.class).debug("Cancelled other thread");
         }
         updateEntitySelection = EventQueueUtilities.runOffEDT(r);
     }
 
     protected List<Visualization> updateEntitySelection(Collection<? extends IEntityWrapper> entities) {
         
-        LinkedList<Response> responseList = new LinkedList<Response>();
+        LinkedList<Measurement> responseList = new LinkedList<Measurement>();
 
         for (IEntityWrapper ew : entities) {
             if (ew.getType().isAssignableFrom(Epoch.class)) {
                 Epoch epoch = (Epoch) (ew.getEntity());//getEntity gets the context for the given thread
-                for (String name : epoch.getResponseNames()) {
-                    responseList.add(epoch.getResponse(name));
+                for (String name : epoch.getMeasurementNames()) {
+                    responseList.add(epoch.getMeasurements(name));
                 }
 
-            } else if (ew.getType().isAssignableFrom(Response.class) || ew.getType().isAssignableFrom(URLResponse.class)) {
-                responseList.add((Response)ew.getEntity());
+            } else if (ew.getType().isAssignableFrom(Measurement.class)) {
+                responseList.add((Measurement)ew.getEntity());
             }
         }
 
         List<Visualization> responseGroups = new LinkedList<Visualization>();
 
-        for (Response rw : responseList) {
+        for (Measurement rw : responseList) {
             boolean added = false;
             for (Visualization group : responseGroups) {
                 if (group.shouldAdd(rw)) {

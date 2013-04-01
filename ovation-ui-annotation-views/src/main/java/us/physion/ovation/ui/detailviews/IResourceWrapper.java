@@ -5,7 +5,7 @@
 package us.physion.ovation.ui.detailviews;
 
 import ovation.Resource;
-
+import us.physion.ovation.domain.Project;
 /**
  *
  * @author jackie

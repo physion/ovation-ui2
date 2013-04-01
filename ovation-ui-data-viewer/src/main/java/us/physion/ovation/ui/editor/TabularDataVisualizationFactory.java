@@ -7,7 +7,7 @@ package us.physion.ovation.ui.editor;
 import java.util.HashSet;
 import java.util.Set;
 import org.openide.util.lookup.ServiceProvider;
-import ovation.Response;
+import us.physion.ovation.domain.Measurement;
 
 @ServiceProvider(service = VisualizationFactory.class)
 /**
@@ -16,24 +16,23 @@ import ovation.Response;
  */
 public class TabularDataVisualizationFactory implements VisualizationFactory {
 
-    Set<String> utis;
+    Set<String> mimeTypes;
 
     public TabularDataVisualizationFactory()
     {
-        utis = new HashSet<String>();
-        utis.add("public.csv");
-        utis.add("public.comma-separated-values-text");
-        utis.add("dyn.age80g650");
+        mimeTypes = new HashSet<String>();
+        mimeTypes.add("application/vnd.ms-excel");
+        mimeTypes.add("text/comma-separated-values");
     }
     
     @Override
-    public Visualization createVisualization(Response r) {
+    public Visualization createVisualization(Measurement r) {
         return new TabularDataWrapper(r);
     }
 
     @Override
-    public int getPreferenceForDataContainer(Response r) {
-        if (utis.contains(r.getUTI()))
+    public int getPreferenceForDataContainer(Measurement r) {
+        if (mimeTypes.contains(r.getMimeType()))
         {
             return 100;
         }

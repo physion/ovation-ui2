@@ -4,8 +4,6 @@
  */
 package us.physion.ovation.ui.browser;
 
-import com.physion.ebuilder.ExpressionBuilder;
-import com.physion.ebuilder.expression.ExpressionTree;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -30,8 +28,6 @@ import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.Lookups;
 import org.openide.windows.WindowManager;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.IEntityBase;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
 

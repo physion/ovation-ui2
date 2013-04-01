@@ -17,9 +17,7 @@ import javax.swing.JPanel;
 import net.imglib2.img.*;
 import net.imglib2.io.ImgOpener;
 import org.openide.util.lookup.ServiceProvider;
-import ovation.OvationException;
-import ovation.Response;
-import ovation.URLResponse;
+import us.physion.ovation.domain.Measurement;
 
 
 /**
@@ -77,12 +75,12 @@ System.out.println(ex);
     }
 
     @Override
-	public boolean shouldAdd(Response r) {
+	public boolean shouldAdd(Measurement r) {
         return false;
     }
 
     @Override
-	public void add(Response r) {
+	public void add(Measurement r) {
         throw new UnsupportedOperationException("Not supported for this image visualization.");
     }    
 }

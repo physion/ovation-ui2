@@ -10,6 +10,9 @@ import java.util.concurrent.Callable;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -23,9 +26,9 @@ public class EntityWrapper implements IEntityWrapper {
     private Class type;
     private String displayName;
     
-    public EntityWrapper(IEntityBase e)
+    public EntityWrapper(OvationEntity e)
     {
-        uri = e.getURIString();
+        uri = e.getURI().toString();
         type = e.getClass();
         displayName = EntityWrapper.inferDisplayName(e);
     }
@@ -39,16 +42,16 @@ public class EntityWrapper implements IEntityWrapper {
     }
     
     @Override
-    public IEntityBase getEntity(){
-        IEntityBase b = null;
+    public OvationEntity getEntity(){
+        OvationEntity b = null;
         try{
-            IAuthenticatedDataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
+            DataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
             if (dsc == null)
             {
                 return null;
             }
             DataContext c = dsc.getContext();
-            b = c.objectWithURI(uri);
+            b = c.getObjectWithURI(uri);
         
         } catch (RuntimeException e)
         {
@@ -72,7 +75,7 @@ public class EntityWrapper implements IEntityWrapper {
     @Override
     public Class getType() { return type;}
 
-    public static String inferDisplayName(IEntityBase e) {
+    public static String inferDisplayName(OvationEntity e) {
 	Class type = e.getClass();
         if (type.isAssignableFrom(Source.class))
         {
@@ -83,7 +86,7 @@ public class EntityWrapper implements IEntityWrapper {
             return ((Project)e).getName();
         }else if (type.isAssignableFrom(Experiment.class))
         {
-            return ((Experiment)e).getStartTime().toString("MM/dd/yyyy-hh:mm:ss");
+            return ((Experiment)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
         }
         else if (type.isAssignableFrom(EpochGroup.class))
         {
@@ -91,19 +94,15 @@ public class EntityWrapper implements IEntityWrapper {
         }
         else if (type.isAssignableFrom(Epoch.class))
         {
-            return ((Epoch)e).getProtocolID();
+            if (((Epoch)e).getProtocol() != null)
+                return ((Epoch)e).getProtocol().getName();
+            else{
+                ((Epoch)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
+            }
         }
-        else if (type.isAssignableFrom(Response.class) || type.isAssignableFrom(URLResponse.class) )
+        else if (type.isAssignableFrom(Measurement.class))
         {
-            return ((Response)e).getExternalDevice().getName();
-        }
-        else if (type.isAssignableFrom(Stimulus.class))
-        {
-            return ((Stimulus)e).getExternalDevice().getName();
-        }
-        else if (type.isAssignableFrom(DerivedResponse.class))
-        {
-            return ((DerivedResponse)e).getName();
+            return ((Measurement)e).getName();
         }
         else if (type.isAssignableFrom(AnalysisRecord.class))
         {

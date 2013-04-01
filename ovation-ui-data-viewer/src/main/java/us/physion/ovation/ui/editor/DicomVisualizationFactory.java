@@ -6,7 +6,7 @@ package us.physion.ovation.ui.editor;
 
 import javax.imageio.ImageIO;
 import org.openide.util.lookup.ServiceProvider;
-import ovation.Response;
+import us.physion.ovation.domain.Measurement;
 
 @ServiceProvider(service = VisualizationFactory.class)
 /**
@@ -16,8 +16,8 @@ import ovation.Response;
 public class DicomVisualizationFactory implements VisualizationFactory{
 
     @Override
-    public int getPreferenceForDataContainer(Response r) {
-        if (r.getUTI().equals("org.nema.dicom"))
+    public int getPreferenceForDataContainer(Measurement r) {
+        if (r.getMimeType().equals("application/dicom"))
         {
             return 100;
         }
@@ -25,7 +25,7 @@ public class DicomVisualizationFactory implements VisualizationFactory{
     }
     
     @Override
-    public Visualization createVisualization(Response r) {
+    public Visualization createVisualization(Measurement r) {
         return new DicomWrapper(r);
     }
     

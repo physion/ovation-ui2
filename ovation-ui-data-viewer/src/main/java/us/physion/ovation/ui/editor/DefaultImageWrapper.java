@@ -9,16 +9,17 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import org.openide.util.Exceptions;
-import ovation.Response;
-import ovation.URLResponse;
+import us.physion.ovation.domain.Measurement;
 
 
 /**
@@ -29,18 +30,19 @@ public class DefaultImageWrapper implements Visualization{
 
     String name;
     BufferedImage img;
-    DefaultImageWrapper(Response r)
+    DefaultImageWrapper(Measurement r)
     {
         InputStream in = null;
         try {
-            if (r instanceof URLResponse)
-                in = r.getDataStream();
-            else{
-                in = new ByteArrayInputStream(r.getDataBytes());
-            }
-            
+            in = new FileInputStream(r.getData().get());
             img = ImageIO.read(in);
-            this.name = r.getExternalDevice().getName();
+            this.name = r.getName();
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+            throw new RuntimeException(ex.getLocalizedMessage());
+        } catch (ExecutionException ex) {
+            Exceptions.printStackTrace(ex);
+            throw new RuntimeException(ex.getLocalizedMessage());
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
             throw new RuntimeException(ex.getLocalizedMessage());
@@ -66,12 +68,12 @@ public class DefaultImageWrapper implements Visualization{
     
 
     @Override
-    public boolean shouldAdd(Response r) {
+    public boolean shouldAdd(Measurement r) {
         return false;
     }
 
     @Override
-    public void add(Response r) {
+    public void add(Measurement r) {
         throw new UnsupportedOperationException("Images are currently implemented one per panel");
     }
     

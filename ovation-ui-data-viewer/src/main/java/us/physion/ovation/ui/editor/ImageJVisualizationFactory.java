@@ -10,11 +10,10 @@ package us.physion.ovation.ui.editor;
 //import net.imglib2.img.display.imagej.ImageJFunctions;
 //import net.imglib2.io.ImgIOException;
 //import net.imglib2.io.ImgOpener;
+import java.net.MalformedURLException;
 import org.openide.util.Exceptions;
 import org.openide.util.lookup.ServiceProvider;
-import ovation.OvationException;
-import ovation.Response;
-import ovation.URLResponse;
+import us.physion.ovation.domain.Measurement;
 
 @ServiceProvider(service = VisualizationFactory.class)
 /**
@@ -24,13 +23,11 @@ import ovation.URLResponse;
     public class ImageJVisualizationFactory implements VisualizationFactory{
 
     @Override
-	public Visualization createVisualization(Response r) {
-        if (r instanceof URLResponse)
-	    {
-		String url = ((URLResponse)r).getURLString();
-		return new ImageJVisualization(url);
-		/*try {
-		  /*ImgPlus ip = ImgOpener.open(((URLResponse)r).getURLString());
+	public Visualization createVisualization(Measurement r) {
+        try {
+            return new ImageJVisualization(r.getURI().toURL().toExternalForm());
+                /*try {
+                  /*ImgPlus ip = ImgOpener.open(((URLResponse)r).getURLString());
 // display the dataset
 DisplayService displayService = new ImageJ().getService(DisplayService.class);
 displayService.getActiveDisplay().display(ip);
@@ -40,15 +37,15 @@ return new ImageJVisualization(((URLResponse)r).getURLString());*/
 
        
  
-		// display it via ImageJ
-		//imp.show();//null pointer
+                // display it via ImageJ
+                //imp.show();//null pointer
  
-		// wrap it into an ImgLib image (no copying)
-		//final Img image = ImagePlusAdapter.wrap( imp );
+                // wrap it into an ImgLib image (no copying)
+                //final Img image = ImagePlusAdapter.wrap( imp );
  
-		// display it via ImgLib using ImageJ
-		//ImageJFunctions.show( image );
-		/*} catch (Exception ex) {
+                // display it via ImgLib using ImageJ
+                //ImageJFunctions.show( image );
+                /*} catch (Exception ex) {
 System.out.println(ex.getMessage());
 /*try{
 ImgPlus ip = ImgOpener.open(((URLResponse)r).getURLString());
@@ -70,19 +67,20 @@ displayService.createDisplay(file.getName(), dataset);*/
 {
 System.out.println(e.getMessage());
 }*/
-	    /* }*/
-	    }
-        
-        return new ImageJVisualization(null);
+            /*
+             * }
+             */
+        } catch (MalformedURLException ex) {
+            Exceptions.printStackTrace(ex);
+            throw new RuntimeException(ex.getLocalizedMessage());
+        }
     }
 
     @Override
-	public int getPreferenceForDataContainer(Response r) {
-        if (r.getUTI().toLowerCase().contains("tif"))
-	    {
-		return 110;
-	    }
+	public int getPreferenceForDataContainer(Measurement r) {
+        if (r.getMimeType().toLowerCase().contains("tif")) {
+            return 110;
+        }
         return -1;
     }
-    
-    }
+}

@@ -19,6 +19,9 @@ import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -33,9 +36,9 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
     EntityWrapper parent;
     boolean projectView;
-    IAuthenticatedDataStoreCoordinator dsc;
+    DataStoreCoordinator dsc;
 
-    EntityChildren(EntityWrapper e, boolean pView, IAuthenticatedDataStoreCoordinator theDSC) {
+    EntityChildren(EntityWrapper e, boolean pView, DataStoreCoordinator theDSC) {
         parent = e;
         projectView = pView;
         dsc = theDSC;
@@ -108,14 +111,10 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
             //case root node: add entityWrapper for each project
             if (projectView) {
                 for (Project p : c.getProjects()) {
-                    p.getURIString();
                     list.add(new EntityWrapper(p));
                 }
             } else {
-                Iterator<Source> itr = c.query(Source.class, "isNull(parent)");
-                while (itr.hasNext()) {
-                    Source s = itr.next();
-                    s.getURIString();
+                for (Source s : c.getSources()) {
                     list.add(new EntityWrapper(s));
                 }
             }
@@ -134,22 +133,25 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
         if (projectView) {
             if (entityClass.isAssignableFrom(Project.class)) {
                 Project entity = (Project) ew.getEntity();
-                for (Experiment e : entity.getExperiments()) {
+                Iterator<Experiment> itr = entity.getExperiments();
+                while(itr.hasNext())
+                {
+                    Experiment e = itr.next();
                     list.add(new EntityWrapper(e));
                 }
-                String currentUser = c.currentAuthenticatedUser().getUsername();
+                String currentUser = c.getAuthenticatedUser().getUsername();
 
                 Iterator<User> userItr = c.getUsersIterator();
                 while (userItr.hasNext()) {
                     User user = userItr.next();
                     String username = user.getUsername();
-                    Iterator<AnalysisRecord> itr = entity.getAnalysisRecordIterable(user).iterator();
+                    Iterator<AnalysisRecord> itr = entity.getAnalysisRecords(user).iterator();
                     if (itr.hasNext()) {
                         List<EntityWrapper> l = new LinkedList();
                         while (itr.hasNext()) {
                             l.add(new EntityWrapper(itr.next()));
                         }
-                        list.add(new PerUserEntityWrapper(username, user.getURIString(), l));
+                        list.add(new PerUserEntityWrapper(username, user.getURI(), l));
                     }
                 }
 
@@ -194,24 +196,21 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
             context.beginTransaction();
             try {
                 Epoch entity = (Epoch) ew.getEntity();
-                for (Stimulus s : entity.getStimulusIterable()) {
-                    list.add(new EntityWrapper(s));
-                }
-                for (Response r : entity.getResponseIterable()) {
-                    list.add(new EntityWrapper(r));
+                for (Measurement m : entity.getMeasurements()) {
+                    list.add(new EntityWrapper(m));
                 }
 
                 Iterator<User> userItr = c.getUsersIterator();
                 while (userItr.hasNext()) {
                     User user = userItr.next();
                     String username = user.getUsername();
-                    Iterator<DerivedResponse> itr = entity.getDerivedResponseIterable(user).iterator();
+                    Iterator<AnalysisRecord> itr = entity.getAnalysisRecords(user).iterator();
                     if (itr.hasNext()) {
                         List<EntityWrapper> l = new LinkedList();
                         while (itr.hasNext()) {
                             l.add(new EntityWrapper(itr.next()));
                         }
-                        list.add(new PerUserEntityWrapper(username, user.getURIString(), l));
+                        list.add(new PerUserEntityWrapper(username, user.getURI().toString(), l));
                     }
                 }
             } finally {

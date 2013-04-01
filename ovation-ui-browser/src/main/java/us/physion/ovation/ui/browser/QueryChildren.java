@@ -7,8 +7,8 @@ package us.physion.ovation.ui.browser;
 import java.util.*;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import ovation.Project;
-import ovation.Source;
+import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.Source;
 
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 

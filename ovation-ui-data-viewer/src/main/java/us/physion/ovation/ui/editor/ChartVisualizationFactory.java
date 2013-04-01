@@ -6,7 +6,8 @@ package us.physion.ovation.ui.editor;
 
 import org.jfree.data.xy.DefaultXYDataset;
 import org.openide.util.lookup.ServiceProvider;
-import ovation.Response;
+import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.NumericMeasurement;
 
 @ServiceProvider(service = VisualizationFactory.class)
 /**
@@ -16,8 +17,8 @@ import ovation.Response;
 public class ChartVisualizationFactory implements VisualizationFactory{
 
    @Override
-    public Visualization createVisualization(Response r) {
-       ChartWrapper cw = new ChartWrapper(r);
+    public Visualization createVisualization(Measurement r) {
+        ChartWrapper cw = new ChartWrapper(r);
         ChartGroupWrapper g = new ChartGroupWrapper(new DefaultXYDataset(), cw.xunits, cw.yunits);
         g.setTitle(cw.getName());
         g.addXYDataset(cw);
@@ -25,10 +26,11 @@ public class ChartVisualizationFactory implements VisualizationFactory{
     }
 
     @Override
-    public int getPreferenceForDataContainer(Response r) {
-        if (r.getUTI().equals(Response.NUMERIC_DATA_UTI) && r.getShape().length == 1)
+    public int getPreferenceForDataContainer(Measurement r) {
+        if (r instanceof NumericMeasurement)
         {
-            return 100;
+            if (((NumericMeasurement)r).getNumericData().getDataList().size() == 1);
+                return 100;
         }
         return -1;
     }

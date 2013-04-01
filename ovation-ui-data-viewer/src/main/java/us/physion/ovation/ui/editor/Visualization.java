@@ -5,7 +5,7 @@
 package us.physion.ovation.ui.editor;
 
 import java.awt.Component;
-import ovation.Response;
+import us.physion.ovation.domain.Measurement;
 
 /**
  *
@@ -14,7 +14,7 @@ import ovation.Response;
 public interface Visualization {
     public Component generatePanel();
     
-    public boolean shouldAdd(Response r);
+    public boolean shouldAdd(Measurement r);
     
-    public void add(Response r);
+    public void add(Measurement r);
 }

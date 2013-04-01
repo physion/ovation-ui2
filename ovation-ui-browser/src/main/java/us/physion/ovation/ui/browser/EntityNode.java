@@ -25,6 +25,7 @@ import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.NewType;
 import org.openide.util.datatransfer.PasteType;
 import ovation.*;
+import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.interfaces.*;
 
 /**
@@ -99,9 +100,8 @@ public class EntityNode extends AbstractNode implements ResettableNode{
         insertables.put(Experiment.class, ExperimentInsertable.class);
         insertables.put(EpochGroup.class, EpochGroupInsertable.class);
         insertables.put(Epoch.class, EpochInsertable.class);
-        insertables.put(Response.class, ResponseInsertable.class);
-        insertables.put(Stimulus.class, StimulusInsertable.class);
-        insertables.put(DerivedResponse.class, DerivedResponseInsertable.class);
+        insertables.put(Measurement.class, ResponseInsertable.class);
+        insertables.put(AnalysisRecord.class, DerivedResponseInsertable.class);
         return insertables;
     }
    

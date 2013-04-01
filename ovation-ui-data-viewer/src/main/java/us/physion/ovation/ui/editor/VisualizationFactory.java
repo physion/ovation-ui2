@@ -4,13 +4,14 @@
  */
 package us.physion.ovation.ui.editor;
 
-import ovation.Response;
+import us.physion.ovation.domain.Measurement;
+
 
 /**
  *
  * @author huecotanks
  */
 public interface VisualizationFactory {
-    public Visualization createVisualization(Response r);
-    public int getPreferenceForDataContainer(Response r);
+    public Visualization createVisualization(Measurement r);
+    public int getPreferenceForDataContainer(Measurement r);
 }

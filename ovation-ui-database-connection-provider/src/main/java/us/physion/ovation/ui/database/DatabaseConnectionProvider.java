@@ -24,9 +24,7 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 import org.openide.util.lookup.ServiceProvider;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.LogLevel;
-import ovation.Ovation;
+import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -38,13 +36,11 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
  */
 public class DatabaseConnectionProvider implements ConnectionProvider {
 
-    private IAuthenticatedDataStoreCoordinator dsc = null;
+    private DataStoreCoordinator dsc = null;
     private Set<ConnectionListener> connectionListeners;
     private boolean waitingForDSC = false;
 
     public DatabaseConnectionProvider() {
-
-        Ovation.enableLogging(LogLevel.DEBUG);
         connectionListeners = Collections.synchronizedSet(new HashSet());
     }
 
@@ -55,7 +51,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider {
     }
 
     @Override
-    public IAuthenticatedDataStoreCoordinator getConnection() {
+    public DataStoreCoordinator getConnection() {
 
         synchronized (this) {
             if (waitingForDSC || dsc != null) {
@@ -96,7 +92,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider {
 
                 try {
                     //If licensing information is not set in the java preferences, set it now
-                    Preferences p = Preferences.userNodeForPackage(Ovation.class);
+                    Preferences p = Preferences.userNodeForPackage(DataStoreCoordinator.class);
                     if (p.get("ovation_license_licenseText", null) == null)
                     {
                         LicenseInfoDialog licenseDialog = new LicenseInfoDialog();
@@ -132,7 +128,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider {
         return dsc;
     }
 
-    private synchronized void setDsc(IAuthenticatedDataStoreCoordinator the_dsc) {
+    private synchronized void setDsc(DataStoreCoordinator the_dsc) {
         dsc = the_dsc;
     }
 

@@ -17,10 +17,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.ui.RectangleInsets;
-import ovation.NumericData;
-import ovation.NumericDataFormat;
-import ovation.Ovation;
-import ovation.Response;
+import us.physion.ovation.domain.Measurement;
 
 /**
  *
@@ -72,11 +69,11 @@ class ChartGroupWrapper implements Visualization
     
     protected void addXYDataset(ChartWrapper cw)
     {
-        addXYDataset(cw.getNumericData(), cw.getSamplingRate(), cw.getName());
+        addXYDataset(cw.getSamplingRate(), cw.getName());
     }
-     protected void addXYDataset(NumericData d, double samplingRate, String datasetName)
+     protected void addXYDataset(double samplingRate, String datasetName)
     {
-        if (d == null)
+        /*if (d == null)
         {
             return; //TODO: handle URLResponses of numericData
         }
@@ -184,11 +181,11 @@ class ChartGroupWrapper implements Visualization
             else{
                 Ovation.getLogger().debug("NumericData object has unknown type: " + d.getDataFormat());
             }
-        }
+        }*/
     }
 
     @Override
-    public boolean shouldAdd(Response r) {
+    public boolean shouldAdd(Measurement r) {
         ChartWrapper cw = new ChartWrapper(r);
         //if units match
         if (cw.xunits.equals(_xAxis) && cw.yunits.equals(_yAxis)) {
@@ -198,7 +195,7 @@ class ChartGroupWrapper implements Visualization
     }
 
     @Override
-    public void add(Response r) {
+    public void add(Measurement r) {
         ChartWrapper cw = new ChartWrapper(r);
         String preface = "Aggregate responses: ";
         addXYDataset(cw);
