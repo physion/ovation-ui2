@@ -10,6 +10,8 @@ import javax.swing.table.DefaultTableModel;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import ovation.*;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.AnnotatableEntity;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.detailviews.NoteValue;
@@ -20,7 +22,7 @@ import us.physion.ovation.ui.detailviews.NoteValue;
  */
 class NotesTableModel extends DefaultTableModel {
 
-    IAuthenticatedDataStoreCoordinator dsc;
+    DataStoreCoordinator dsc;
     List<NoteValue> notes;
 
     NotesTableModel() {
@@ -28,7 +30,7 @@ class NotesTableModel extends DefaultTableModel {
         notes = new ArrayList<NoteValue>();
     }
 
-    public void setDSC(IAuthenticatedDataStoreCoordinator dsc) {
+    public void setDSC(DataStoreCoordinator dsc) {
         this.dsc = dsc;
     }
 
@@ -43,14 +45,14 @@ class NotesTableModel extends DefaultTableModel {
         }
         notes = new ArrayList<NoteValue>();
         for (IEntityWrapper ew : entities) {
-            if (IAnnotatableEntityBase.class.isAssignableFrom(ew.getType())) {
-                IAnnotation[] anns = ((IAnnotatableEntityBase) ew.getEntity()).getMyAnnotations();
+            if (AnnotatableEntity.class.isAssignableFrom(ew.getType())) {
+                /*IAnnotation[] anns = ((IAnnotatableEntityBase) ew.getEntity()).getMyAnnotations();
                 for (IAnnotation ann : anns) {
                     if (!annotationUUIDs.contains(ann.getUuid())) {
                         notes.add(new NoteValue(ann));
                         annotationUUIDs.add(ann.getUuid());
                     }
-                }
+                }*/
             }
         }
         Collections.sort(notes);
@@ -95,7 +97,7 @@ class NotesTableModel extends DefaultTableModel {
 
             @Override
             public void run() {
-                NoteValue note = notes.get(row);
+                /*NoteValue note = notes.get(row);
 
                 IAnnotation a = (IAnnotation) dsc.getContext().objectWithURI(note.uri);
                 a.delete();
@@ -108,6 +110,8 @@ class NotesTableModel extends DefaultTableModel {
                         NotesTableModel.this.fireTableRowsDeleted(row, row);
                     }
                 });
+                * 
+                */
             }
         });
     }
@@ -134,7 +138,7 @@ class NotesTableModel extends DefaultTableModel {
 
             @Override
             public void run() {
-                NoteValue note = notes.get(row);
+                /*NoteValue note = notes.get(row);
                 
                 if (val instanceof String)
                 {
@@ -152,19 +156,13 @@ class NotesTableModel extends DefaultTableModel {
                     a.addProperty("ovation_timestamp", new Timestamp(((DateTime) val).getMillis()));
                     a.addProperty("ovation_timezone", Calendar.getInstance().getTimeZone().getID());
                 }
-                /*EventQueueUtilities.runOnEDT(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        fireTableCellUpdated(row, column);
-                    }
-                });*/
+                */
             }
         });
     }
   
 
-    public void addNote(final IAnnotation ann) {
+    /*public void addNote(final IAnnotation ann) {
         
         EventQueueUtilities.runOffEDT(new Runnable() {
 
@@ -185,5 +183,5 @@ class NotesTableModel extends DefaultTableModel {
                 });
             }
         });
-    }
+    }*/
 }

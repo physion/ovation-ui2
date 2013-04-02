@@ -4,8 +4,7 @@
  */
 package us.physion.ovation.ui.detailviews;
 
-import ovation.Resource;
-import us.physion.ovation.domain.Project;
+import us.physion.ovation.values.Resource;
 /**
  *
  * @author jackie

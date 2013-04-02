@@ -26,10 +26,10 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.openide.util.Lookup;
-import ovation.DataContext;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.IEntityBase;
-import ovation.Ovation;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.AnnotatableEntity;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -42,7 +42,7 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
 
     ResizableTree tree;
     Set<String> uris;
-    IAuthenticatedDataStoreCoordinator dsc;
+    DataStoreCoordinator dsc;
     TableNode node;
     public PropertyTableModelListener(Set<String> uriSet, ResizableTree tree, TableNode node) {
         this.dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
@@ -53,7 +53,7 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
 
     // this contructor is used in unit tests
     public PropertyTableModelListener(Set<String> uriSet, ResizableTree tree, TableNode node,
-            IAuthenticatedDataStoreCoordinator dsc) {
+            DataStoreCoordinator dsc) {
         this.dsc = dsc;
         uris = uriSet;
         this.tree = tree;
@@ -99,15 +99,17 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
                     for (String key: oldKeys)
                     {
                         for (String uri : uris) {
-                            IEntityBase eb = c.objectWithURI(uri);
-                            eb.removeProperty(key);
+                            OvationEntity eb = c.getObjectWithURI(uri);
+                            if (eb instanceof AnnotatableEntity)
+                                ((AnnotatableEntity)eb).removeProperty(key);
                         }
                     }
                     for (String key: props.keySet())
                     {
                         for (String uri : uris) {
-                            IEntityBase eb = c.objectWithURI(uri);
-                            parseAndAdd(eb, key, props.get(key));
+                            OvationEntity eb = c.getObjectWithURI(uri);
+                            if (eb instanceof AnnotatableEntity)
+                                parseAndAdd((AnnotatableEntity)eb, key, props.get(key));
                         }
                     }
                     node.reset(dsc);
@@ -130,10 +132,14 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
                     final Object value = model.getValueAt(rows[i], 1);
 
                     for (String uri : uris) {
-                        IEntityBase eb = c.objectWithURI(uri);
-                        Map<String, Object> properties = eb.getMyProperties();
-                        if (properties.containsKey(key) && properties.get(key).equals(value)) {
-                            eb.removeProperty(key);
+                        OvationEntity entity = c.getObjectWithURI(uri);
+                        if (entity instanceof AnnotatableEntity)
+                        {
+                            AnnotatableEntity eb = (AnnotatableEntity) entity;
+                            Map<String, Object> properties = eb.getMyProperties();
+                            if (properties.containsKey(key) && properties.get(key).equals(value)) {
+                                eb.removeProperty(key);
+                            }
                         }
                     }
 
@@ -155,7 +161,7 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
         });
     }
 
-    void parseAndAdd(IEntityBase eb, String key, Object value)
+    void parseAndAdd(AnnotatableEntity eb, String key, Object value)
     {
         if (value == null){
             eb.addProperty(key, "");

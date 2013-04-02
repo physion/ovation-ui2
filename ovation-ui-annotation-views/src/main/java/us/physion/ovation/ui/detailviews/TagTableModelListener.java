@@ -19,6 +19,10 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.openide.util.Lookup;
 import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.mixin.Taggable;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -31,9 +35,9 @@ class TagTableModelListener implements EditableTableModelListener {
 
     Set<String> uris;
     ResizableTree tree;
-    IAuthenticatedDataStoreCoordinator dsc;
+    DataStoreCoordinator dsc;
     TableNode node;
-    public TagTableModelListener(Set<String> uriSet, ResizableTree expandableJTree, TableNode n, IAuthenticatedDataStoreCoordinator connection) {
+    public TagTableModelListener(Set<String> uriSet, ResizableTree expandableJTree, TableNode n, DataStoreCoordinator connection) {
         this.dsc = connection;
         uris = uriSet;
         this.tree = expandableJTree;
@@ -79,11 +83,11 @@ class TagTableModelListener implements EditableTableModelListener {
                     for (String tag: oldTags)
                     {
                         for (String uri : uris) {
-                            IEntityBase eb = c.objectWithURI(uri);
-                            if (eb instanceof ITaggableEntityBase)
+                            OvationEntity eb = c.getObjectWithURI(uri);
+                            if (eb instanceof Taggable)
                             {
                                 if (tag != null && !tag.isEmpty()) {
-                                    ((ITaggableEntityBase) eb).removeTag(tag.trim());
+                                    ((Taggable) eb).removeTag(tag.trim());
                                 }
                             }
                         }
@@ -91,10 +95,10 @@ class TagTableModelListener implements EditableTableModelListener {
                     for (String tag: tags)
                     {
                         for (String uri : uris) {
-                            IEntityBase eb = c.objectWithURI(uri);
-                            if (eb instanceof ITaggableEntityBase) {
+                            OvationEntity eb = c.getObjectWithURI(uri);
+                            if (eb instanceof Taggable) {
                                 if (tag != null && !tag.isEmpty()) {
-                                    ((ITaggableEntityBase) eb).addTag(tag.trim());
+                                    ((Taggable) eb).addTag(tag.trim());
                                 }
                             }
                         }
@@ -110,7 +114,7 @@ class TagTableModelListener implements EditableTableModelListener {
         return ((TagsSet) node.getUserObject()).getTags();
     }
     
-    protected static void updateTagList(final Set<String> newTags, final Set<String> uris, final TableNode node, final IAuthenticatedDataStoreCoordinator dsc)
+    protected static void updateTagList(final Set<String> newTags, final Set<String> uris, final TableNode node, final DataStoreCoordinator dsc)
     {
         if (newTags.isEmpty()) {
             return;
@@ -132,16 +136,16 @@ class TagTableModelListener implements EditableTableModelListener {
                     }
                 }
                 for (String uri : uris) {
-                    IEntityBase eb = c.objectWithURI(uri);
-                    if (eb instanceof ITaggableEntityBase) {
+                    OvationEntity eb = c.getObjectWithURI(uri);
+                    if (eb instanceof Taggable) {
                         for (String tag : newTags) {
                             if (tag != null && !tag.isEmpty()) {
-                                ((ITaggableEntityBase) eb).addTag(tag.trim());
+                                ((Taggable) eb).addTag(tag.trim());
                             }
                         }
                         for (String tag : toRemove) {
                             if (tag != null && !tag.isEmpty()) {
-                                ((ITaggableEntityBase) eb).removeTag(tag.trim());
+                                ((Taggable) eb).removeTag(tag.trim());
                             }
                         }
                     }
@@ -170,10 +174,10 @@ class TagTableModelListener implements EditableTableModelListener {
                 DataContext c = dsc.getContext();
                 for (String tag : toRemove) {
                     for (String uri : uris) {
-                        IEntityBase eb = c.objectWithURI(uri);
-                        if (eb instanceof ITaggableEntityBase)
+                        OvationEntity eb = c.getObjectWithURI(uri);
+                        if (eb instanceof Taggable)
                         {
-                            ((ITaggableEntityBase)eb).removeTag(tag);
+                            ((Taggable)eb).removeTag(tag);
                         }
                     }
                 }

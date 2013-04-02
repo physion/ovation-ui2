@@ -5,10 +5,10 @@
 package us.physion.ovation.ui.detailviews;
 
 import org.openide.util.Lookup;
-import ovation.DataContext;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.Resource;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.values.Resource;
 
 public class ResourceWrapper implements IResourceWrapper {
 
@@ -16,7 +16,7 @@ public class ResourceWrapper implements IResourceWrapper {
     String name;
 
     public ResourceWrapper(Resource r) {
-        uri = r.getURIString();
+        uri = r.getUti();
         name = r.getName();
     }
 
@@ -32,10 +32,10 @@ public class ResourceWrapper implements IResourceWrapper {
 
     @Override
     public Resource getEntity() {
-        IAuthenticatedDataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
+        DataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
         DataContext c = dsc.getContext();
 
-        return (Resource) c.objectWithURI(uri);
+        return (Resource) c.getObjectWithURI(uri);
     }
 
     @Override

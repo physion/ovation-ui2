@@ -17,10 +17,11 @@ import org.openide.util.LookupListener;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
-import ovation.DataContext;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.IEntityBase;
-import ovation.User;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.User;
+import us.physion.ovation.domain.mixin.Owned;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -111,7 +112,7 @@ public final class PropertiesViewTopComponent extends TopComponent {
         }
     }
     
-    protected List<TableTreeKey> setEntities(Collection<? extends IEntityWrapper> entities, IAuthenticatedDataStoreCoordinator dsc)
+    protected List<TableTreeKey> setEntities(Collection<? extends IEntityWrapper> entities, DataStoreCoordinator dsc)
     {
         DataContext c;
         if (dsc == null) {
@@ -122,26 +123,29 @@ public final class PropertiesViewTopComponent extends TopComponent {
 
         List<TableTreeKey> properties = new ArrayList<TableTreeKey>();
         Set<String> uris = new HashSet<String>();
-        Set<IEntityBase> entitybases = new HashSet();
+        Set<OvationEntity> entitybases = new HashSet();
         Set<String> owners = new HashSet();
         for (IEntityWrapper w : entities) {
-            IEntityBase e = w.getEntity();
+            OvationEntity e = w.getEntity();
             entitybases.add(e);
-            uris.add(e.getURIString());
-            owners.add(e.getOwner().getUuid());
+            uris.add(e.getURI().toString());
+            if (e instanceof Owned)
+            {
+                owners.add(((Owned)e).getOwner().getUuid().toString());
+            }
         }
 
-        String currentUserUUID = c.currentAuthenticatedUser().getUuid();
+        String currentUserUUID = c.getAuthenticatedUser().getUuid().toString();
         Iterator<User> users = c.getUsersIterator();
         boolean containsCurrentUser = false;//current user's property table should always exist, even if there are no properties
         while (users.hasNext()) {
             User u = users.next();
             Map<String, Object> userProps = new HashMap();
-            for (IEntityBase e : entitybases) {
+            for (OvationEntity e : entitybases) {
                 userProps.putAll(e.getUserProperties(u));
             }
             if (!userProps.isEmpty()) {
-                String uuid = u.getUuid();
+                String uuid = u.getUuid().toString();
                 UserPropertySet propertySet;
                 if (currentUserUUID.equals(uuid)) {
                     containsCurrentUser = true;
@@ -153,7 +157,7 @@ public final class PropertiesViewTopComponent extends TopComponent {
             }
         }
         if (!containsCurrentUser) {
-            User current = c.currentAuthenticatedUser();
+            User current = c.getAuthenticatedUser();
             properties.add(new UserPropertySet(current, owners.contains(current.getUuid()), true, new HashMap<String, Object>(), uris));
         }
         
