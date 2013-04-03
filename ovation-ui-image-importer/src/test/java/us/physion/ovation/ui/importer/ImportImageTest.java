@@ -23,8 +23,6 @@ import loci.formats.meta.MetadataRetrieve;
 import loci.formats.services.OMEXMLService;
 import org.junit.*;
 import static org.junit.Assert.*;
-import ovation.LogLevel;
-import ovation.Ovation;
 import us.physion.ovation.ui.importer.ImportTestManager;
 import us.physion.ovation.ui.test.OvationTestCase;
 import us.physion.ovation.ui.test.TestManager;
@@ -42,7 +40,6 @@ public class ImportImageTest extends OvationTestCase{
     @BeforeClass
     public static void setUpClass()
     {
-        Ovation.enableLogging(LogLevel.ALL);
         AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
 
             public Boolean run() {

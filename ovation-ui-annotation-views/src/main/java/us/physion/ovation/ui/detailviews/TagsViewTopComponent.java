@@ -4,15 +4,11 @@
  */
 package us.physion.ovation.ui.detailviews;
 
-import java.awt.event.ActionEvent;
+import com.google.common.collect.Lists;
+
 import java.util.*;
-import java.util.concurrent.FutureTask;
-import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JScrollPane;
 import javax.swing.JTree;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -25,8 +21,12 @@ import org.openide.util.LookupListener;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
-import org.openide.windows.WindowManager;
-import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.User;
+import us.physion.ovation.domain.mixin.Owned;
+import us.physion.ovation.domain.mixin.Taggable;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -94,53 +94,39 @@ public final class TagsViewTopComponent extends TopComponent {
         });
     }
 
-    protected List<TableTreeKey> update(Collection<? extends IEntityWrapper> entities, IAuthenticatedDataStoreCoordinator dsc)
+    protected List<TableTreeKey> update(Collection<? extends IEntityWrapper> entities, DataStoreCoordinator dsc)
     {
         DataContext c = dsc.getContext();
 
         ArrayList<TableTreeKey> tags = new ArrayList<TableTreeKey>();
         Set<String> uris = new HashSet<String>();
-        Set<IEntityBase> entitybases = new HashSet();
+        Set<OvationEntity> entitybases = new HashSet();
         Set<String> owners = new HashSet();
         for (IEntityWrapper w : entities) {
-            IEntityBase e = w.getEntity();
+            OvationEntity e = w.getEntity();
             entitybases.add(e);
-            uris.add(e.getURIString());
-            owners.add(e.getOwner().getUuid());
+            uris.add(e.getURI().toString());
+            if (e instanceof Owned)
+                owners.add(((Owned)e).getOwner().getUuid().toString());
         }
 
-        String currentUserUUID = c.currentAuthenticatedUser().getUuid();
-        Iterator<User> users = c.getUsersIterator();
         boolean containsCurrentUser = false;//current user's property table should always exist, even if there are no properties
-        while (users.hasNext()) {
-            User u = users.next();
+        for (User u : c.getUsers()) {
             List<String> taglist = new ArrayList<String>();
-            for (IEntityBase e : entitybases) {
-                if (e instanceof ITaggableEntityBase)
+            for (OvationEntity e : entitybases) {
+                if (e instanceof Taggable)
                 {
-                    for (KeywordTag t : ((ITaggableEntityBase)e).getTagSet())//TODO: Make this faster
-                    {
-                        if (t.getOwner().getUuid().equals(u.getUuid()))
-                        {
-                            taglist.add(t.getTag());
-                        }
-                    }
+                    taglist.addAll(Lists.newArrayList(((Taggable)e).getUserTags(u)));
                 }
             }
             if (!taglist.isEmpty()) {
-                String uuid = u.getUuid();
-                TagsSet tagSet;
-                if (currentUserUUID.equals(uuid)) {
-                    containsCurrentUser = true;
-                    tagSet = new TagsSet(u, owners.contains(uuid), true, taglist, uris);
-                } else {
-                    tagSet = new TagsSet(u, owners.contains(uuid), false, taglist, uris);
-                }
-                tags.add(tagSet);
+                String uuid = u.getUuid().toString();
+                containsCurrentUser = isUserAuthenticated(u, c);
+                tags.add(new TagsSet(u, owners.contains(uuid), containsCurrentUser, taglist, uris));
             }
         }
         if (!containsCurrentUser) {
-            User current = c.currentAuthenticatedUser();
+            User current = c.getAuthenticatedUser();
             tags.add(new TagsSet(current, owners.contains(current.getUuid()), true, new ArrayList<String>(), uris));
         }
         
@@ -151,8 +137,12 @@ public final class TagsViewTopComponent extends TopComponent {
         this.entities = entities;
         return tags;
     }
-    
-    protected void updateTagList(String[] newTags, IAuthenticatedDataStoreCoordinator dsc)
+
+    private boolean isUserAuthenticated(User u, DataContext c) {
+        return c.getAuthenticatedUser().getUuid().equals(u.getUuid());
+    }
+
+    protected void updateTagList(String[] newTags, DataStoreCoordinator dsc)
     {
         JTree tree = ((ScrollableTableTree) tagTree).getTree();
         DefaultMutableTreeNode n = (DefaultMutableTreeNode)((DefaultTreeModel)tree.getModel()).getRoot();

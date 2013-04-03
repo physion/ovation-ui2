@@ -136,7 +136,7 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
                         if (entity instanceof AnnotatableEntity)
                         {
                             AnnotatableEntity eb = (AnnotatableEntity) entity;
-                            Map<String, Object> properties = eb.getMyProperties();
+                            Map<String, Object> properties = eb.getUserProperties(c.getAuthenticatedUser());
                             if (properties.containsKey(key) && properties.get(key).equals(value)) {
                                 eb.removeProperty(key);
                             }

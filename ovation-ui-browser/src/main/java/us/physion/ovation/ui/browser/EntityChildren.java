@@ -160,10 +160,10 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
         } else {
             if (entityClass.isAssignableFrom(Source.class)) {
                 Source entity = (Source) ew.getEntity();
-                for (Source e : entity.getChildren()) {
+                for (Source e : entity.getChildrenSources()) {
                     list.add(new EntityWrapper(e));
                 }
-                for (Experiment e : entity.getExperiments()) {
+                for (Epoch e : entity.getEpochs()) {
                     list.add(new EntityWrapper(e));
                 }
                 return list;

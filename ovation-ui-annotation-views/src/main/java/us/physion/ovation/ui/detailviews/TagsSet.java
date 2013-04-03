@@ -4,14 +4,19 @@
  */
 package us.physion.ovation.ui.detailviews;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import java.util.*;
-import javax.swing.JButton;
-import javax.swing.JTable;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import org.openide.util.Lookup;
-import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.User;
+import us.physion.ovation.domain.mixin.Owned;
+import us.physion.ovation.domain.mixin.Taggable;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
@@ -19,13 +24,14 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
  *
  * @author huecotanks
  */
-public class TagsSet extends UserPropertySet{//TODO make a baseclass that they both inherit from!
+public class TagsSet extends PerUserAnnotationSet{//TODO make a baseclass that they both inherit from!
 
     List<String> tags;
-    
+    Map<String, Object> properties;
+
     TagsSet(User u, boolean isOwner, boolean currentUser, List<String> tags, Set<String> uris)
     {
-        super(u, isOwner, currentUser, null, uris);
+        super(u, isOwner, currentUser, uris);
         Collections.sort(tags);
         this.tags = tags;
     }
@@ -34,47 +40,18 @@ public class TagsSet extends UserPropertySet{//TODO make a baseclass that they b
     {
         return tags;
     }
-    public void refresh(IAuthenticatedDataStoreCoordinator dsc) {
-        DataContext c = dsc.getContext();
-        User u = (User)c.objectWithURI(userURI);
-        
-        boolean owner = false;
-        String uuid = u.getUuid();
-        List<String> tags = new ArrayList<String>();
-        for (String uri: uris)
+
+    protected void refreshAnnotations(User u, Iterable<OvationEntity> entities) {
+        this.tags = new ArrayList<String>();
+        for (OvationEntity eb: entities)
         {
-            IEntityBase eb = c.objectWithURI(uri);
-            if (eb instanceof ITaggableEntityBase)
-            {
-                if (eb.getOwner().getUuid().equals(uuid)) {
-                    owner = true;
-                }
-                Set<KeywordTag> keywords = ((ITaggableEntityBase)eb).getTagSet();
-                for (KeywordTag keyword : keywords)
-                {
-                    if (keyword.getOwner().getURIString().equals(userURI))
-                    {
-                        String t = keyword.getTag();
-                        if(!tags.contains(t))
-                            tags.add(t);
-                    }
-                }
-                Collections.sort(tags);
-            }
+            tags.addAll(Sets.newHashSet(((Taggable)eb).getUserTags(u)));
         }
-        
-        username = u.getUsername();
-        this.isOwner = owner;
-        this.tags = tags;
-        this.current = c.currentAuthenticatedUser().getUuid().equals(u.getUuid());
+        Collections.sort(tags);
     }
 
     public String getDisplayName() {
-        String s = username + "'s Tags";
-        if (isOwner) {
-            return s + " (owner)";
-        }
-        return s;
+        return getDisplayName("Tags");
     }
 
     @Override
@@ -83,7 +60,7 @@ public class TagsSet extends UserPropertySet{//TODO make a baseclass that they b
         {
             TagsSet s = (TagsSet)t;
             
-            if (s.isCurrentUser())
+            if (s.isExpandedByDefault())
             {
                 if (this.isCurrentUser())
                     return 0;

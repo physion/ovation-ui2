@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Sets;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.DicomInputStream;
 import com.pixelmed.display.SingleImagePanel;
@@ -196,9 +197,7 @@ public final class ResponseViewTopComponent extends TopComponent {
         for (IEntityWrapper ew : entities) {
             if (ew.getType().isAssignableFrom(Epoch.class)) {
                 Epoch epoch = (Epoch) (ew.getEntity());//getEntity gets the context for the given thread
-                for (String name : epoch.getMeasurementNames()) {
-                    responseList.add(epoch.getMeasurements(name));
-                }
+                responseList.addAll(Sets.newHashSet(epoch.getMeasurements()));
 
             } else if (ew.getType().isAssignableFrom(Measurement.class)) {
                 responseList.add((Measurement)ew.getEntity());

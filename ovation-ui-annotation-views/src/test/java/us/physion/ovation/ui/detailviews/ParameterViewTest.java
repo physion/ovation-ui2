@@ -21,6 +21,8 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.detailviews.SelectionViewTestManager;
 import us.physion.ovation.ui.test.OvationTestCase;
@@ -55,7 +57,6 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
     @Before
     public void setUp() throws UserAuthenticationException {
         dsc = setUpTest();
-        Ovation.enableLogging(LogLevel.DEBUG);
 
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
@@ -146,10 +147,10 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         Map<String, Object> deviceParameters = new HashMap();
         deviceParameters.put("one", 1);
         deviceParameters.put("two", "fish");
-        Response r1 = e.insertResponse(e.getEpochGroup().getExperiment().externalDevice("name", "manufacturer"), deviceParameters, new NumericData(new double[]{1, 2, 3}), "units", "label", 10, "hz", Response.NUMERIC_DATA_UTI);
+        Measurement r1 = e.insertMeasurement("name", deviceParameters, new NumericData(new double[]{1, 2, 3}), "units", "label", 10, "hz", Response.NUMERIC_DATA_UTI);
         e = ((Epoch)e2.getEntity());
         deviceParameters.put("one", 2);
-        Response r2 = e.insertResponse(e.getEpochGroup().getExperiment().externalDevice("name", "manufacturer"), deviceParameters, new NumericData(new double[]{1, 2, 3}), "units", "label", 10, "hz", Response.NUMERIC_DATA_UTI);
+        Measurement r2 = e.insertMeasurement("name", deviceParameters, new NumericData(new double[]{1, 2, 3}), "units", "label", 10, "hz", Response.NUMERIC_DATA_UTI);
         entitySet.add(new TestEntityWrapper(dsc, r1));
         entitySet.add(new TestEntityWrapper(dsc, r2));
 

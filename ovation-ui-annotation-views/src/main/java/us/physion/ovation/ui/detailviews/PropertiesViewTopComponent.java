@@ -19,6 +19,7 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.AnnotatableEntity;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.Owned;
@@ -136,13 +137,13 @@ public final class PropertiesViewTopComponent extends TopComponent {
         }
 
         String currentUserUUID = c.getAuthenticatedUser().getUuid().toString();
-        Iterator<User> users = c.getUsersIterator();
         boolean containsCurrentUser = false;//current user's property table should always exist, even if there are no properties
-        while (users.hasNext()) {
-            User u = users.next();
+        
+        for (User u : c.getUsers()) {
             Map<String, Object> userProps = new HashMap();
             for (OvationEntity e : entitybases) {
-                userProps.putAll(e.getUserProperties(u));
+                if (e instanceof AnnotatableEntity)
+                    userProps.putAll(((AnnotatableEntity)e).getUserProperties(u));
             }
             if (!userProps.isEmpty()) {
                 String uuid = u.getUuid().toString();

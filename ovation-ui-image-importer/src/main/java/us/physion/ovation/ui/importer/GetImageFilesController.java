@@ -13,10 +13,6 @@ import loci.formats.meta.MetadataRetrieve;
 import org.openide.WizardDescriptor;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
-import ovation.ExternalDevice;
-import ovation.NumericDataFormat;
-import ovation.NumericDataType;
-import ovation.OvationException;
 import us.physion.ovation.ui.interfaces.BasicWizardPanel;
 
 /**

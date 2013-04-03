@@ -22,6 +22,7 @@ import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 import ovation.*;
 import us.physion.ovation.domain.*;
+import us.physion.ovation.domain.mixin.Owned;
 import us.physion.ovation.domain.mixin.ProcedureElement;
 import us.physion.ovation.ui.browser.insertion.InsertSource;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
@@ -77,11 +78,11 @@ public class EntityWrapperUtilities {
     }
 
     //TODO use the BrowserUtilites.getNodeMap() to stop early
-    protected static Set<Stack<IEntityWrapper>> getParentsInTree(IEntityBase e, Stack<IEntityWrapper> path) {
+    protected static Set<Stack<IEntityWrapper>> getParentsInTree(OvationEntity e, Stack<IEntityWrapper> path) {
         Set<Stack<IEntityWrapper>> paths = new HashSet<Stack<IEntityWrapper>>();
 
         if (isPerUser(e)) {
-            path.push(new PerUserEntityWrapper(e.getOwner().getUsername(), e.getOwner().getURIString()));
+            path.push(new PerUserEntityWrapper(((Owned)e).getOwner().getUsername(), ((Owned)e).getOwner().getURI().toString()));
         }
 
         Set<OvationEntity> parents = getParents(e, path);
@@ -109,31 +110,10 @@ public class EntityWrapperUtilities {
         Set<OvationEntity> parents = new HashSet();
         Class type = entity.getClass();
         if (type.isAssignableFrom(Source.class)) {
-            Source parent = ((Source) entity).getParent();
-            if (parent != null) {
-                parents.add(parent);
-            }
+            parents.addAll(((Source) entity).getParentSources());
         } else if (type.isAssignableFrom(Experiment.class)) {
             for (Project p : ((Experiment) entity).getProjects()) {
                 parents.add(p);
-            }
-
-            boolean epochGroupsInPath = false;
-            for (IEntityWrapper ew : path)
-            {
-                if (ew.getType().isAssignableFrom(EpochGroup.class))
-                {
-                    epochGroupsInPath = true;
-                    Source s = ((EpochGroup)ew.getEntity()).getSource();
-                    if (s != null)
-                        parents.add(s);
-                }
-            }
-            if (!epochGroupsInPath)
-            {
-                for (Source p : ((Experiment) entity).getSources()) {
-                    parents.add(p);
-                }
             }
         } else if (type.isAssignableFrom(EpochGroup.class)) {
             ProcedureElement parent = ((EpochGroup) entity).getParent();
@@ -143,9 +123,12 @@ public class EntityWrapperUtilities {
                 parents.add((EpochGroup)parent);
             }
         } else if (type.isAssignableFrom(Epoch.class)) {
-            parents.add(((Epoch) entity).getEpochGroup());
+            parents.add(((Epoch) entity).getParent()));
         } else if (type.isAssignableFrom(Measurement.class)) {
             parents.add(((Measurement) entity).getEpoch());
+            Epoch epoch = ((Measurement) entity).getEpoch();
+            for (String source : ((Measurement) entity).getSourceNames())
+                parents.add(epoch.getInputSources().get(source));
         } else if (type.isAssignableFrom(AnalysisRecord.class)) {
             parents.add(((AnalysisRecord) entity).getParent());
         }

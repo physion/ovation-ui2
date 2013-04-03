@@ -15,7 +15,6 @@ import org.openide.WizardDescriptor.Iterator;
 import org.openide.WizardDescriptor.Panel;
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
-import ovation.IAuthenticatedDataStoreCoordinator;
 
 /**
  *

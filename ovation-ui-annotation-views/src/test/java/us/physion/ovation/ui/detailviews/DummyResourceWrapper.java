@@ -4,8 +4,8 @@
  */
 package us.physion.ovation.ui.detailviews;
 
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.Resource;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.values.Resource;
 
 /**
  *
@@ -13,18 +13,18 @@ import ovation.Resource;
  */
 public class DummyResourceWrapper implements IResourceWrapper{
 
-    private IAuthenticatedDataStoreCoordinator dsc;
+    private DataStoreCoordinator dsc;
     String uri; 
     String name;
-    public DummyResourceWrapper(IAuthenticatedDataStoreCoordinator dsc, Resource r)
+    public DummyResourceWrapper(DataStoreCoordinator dsc, Resource r)
     {
         this.dsc = dsc;
         name = r.getName();
-        uri = r.getURIString();
+        uri = r.getURI().toString();
     }
     @Override
     public Resource getEntity() {
-        return (Resource)dsc.getContext().objectWithURI(uri);
+        return (Resource)dsc.getContext().getObjectWithURI(uri);
     }
 
     @Override

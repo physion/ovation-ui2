@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import org.openide.util.Lookup;
 import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -22,9 +25,9 @@ public class EntityWrapperBase implements IEntityWrapper {
     private Class type;
     private String displayName;
     
-    public EntityWrapperBase(IEntityBase e)
+    public EntityWrapperBase(OvationEntity e)
     {
-        uri = e.getURIString();
+        uri = e.getURI().toString();
         type = e.getClass();
         displayName = inferDisplayName(e);
     }
@@ -38,15 +41,15 @@ public class EntityWrapperBase implements IEntityWrapper {
     }
     
     @Override
-    public IEntityBase getEntity(){
-        IAuthenticatedDataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
+    public OvationEntity getEntity(){
+        DataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
         if (dsc == null)
         {
             return null;
         }
         DataContext c = dsc.getContext();
       
-        return c.objectWithURI(uri);
+        return c.getObjectWithURI(uri);
     }
     @Override
     public String getURI()
@@ -59,7 +62,7 @@ public class EntityWrapperBase implements IEntityWrapper {
     public Class getType() { return type;}
 
    
-    public static String inferDisplayName(IEntityBase e) {
+    public static String inferDisplayName(OvationEntity e) {
 	Class type = e.getClass();
         if (type.isAssignableFrom(Source.class))
         {
@@ -70,7 +73,7 @@ public class EntityWrapperBase implements IEntityWrapper {
             return ((Project)e).getName();
         }else if (type.isAssignableFrom(Experiment.class))
         {
-            return ((Experiment)e).getStartTime().toString("MM/dd/yyyy-hh:mm:ss");
+            return ((Experiment)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
         }
         else if (type.isAssignableFrom(EpochGroup.class))
         {
@@ -78,20 +81,13 @@ public class EntityWrapperBase implements IEntityWrapper {
         }
         else if (type.isAssignableFrom(Epoch.class))
         {
-            return ((Epoch)e).getProtocolID();
+            return ((Epoch)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
         }
-        else if (type.isAssignableFrom(Response.class))
+        else if (type.isAssignableFrom(Measurement.class))
         {
-            return ((Response)e).getExternalDevice().getName();
+            return ((Measurement)e).getName();
         }
-        else if (type.isAssignableFrom(Stimulus.class))
-        {
-            return ((Stimulus)e).getExternalDevice().getName();
-        }
-        else if (type.isAssignableFrom(DerivedResponse.class))
-        {
-            return ((DerivedResponse)e).getName();
-        }
+        
         else if (type.isAssignableFrom(AnalysisRecord.class))
         {
             return ((AnalysisRecord)e).getName();

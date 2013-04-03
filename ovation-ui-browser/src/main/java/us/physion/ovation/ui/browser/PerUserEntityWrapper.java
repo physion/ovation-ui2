@@ -5,8 +5,7 @@
 package us.physion.ovation.ui.browser;
 
 import java.util.List;
-import ovation.IEntityBase;
-import ovation.User;
+import us.physion.ovation.domain.User;
 import us.physion.ovation.ui.browser.EntityWrapper;
 
 /**

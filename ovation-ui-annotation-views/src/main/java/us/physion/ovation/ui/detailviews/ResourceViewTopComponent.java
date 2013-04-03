@@ -25,9 +25,12 @@ import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
 import ovation.*;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
+import us.physion.ovation.values.Resource;
 
 /**
  * Top component which displays something.
@@ -352,7 +355,7 @@ public final class ResourceViewTopComponent extends TopComponent {
             if (o instanceof IResourceWrapper) {
                 String rName = ((IResourceWrapper) o).getName();
                 for (IEntityWrapper e : entities) {
-                    IEntityBase eb = e.getEntity();
+                    OvationEntity eb = e.getEntity();
                     for (String name : eb.getResourceNames()) {
                         if (name.equals(rName)) {
                             Resource r = eb.getResource(name);
