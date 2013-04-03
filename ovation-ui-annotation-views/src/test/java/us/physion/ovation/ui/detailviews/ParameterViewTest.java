@@ -164,7 +164,7 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         Set<Tuple> databaseParams = new HashSet<Tuple>();
         for (IEntityWrapper ew : entitySet)
         {
-            Map<String, Object> ps = ((Response)ew.getEntity()).getDeviceParameters();
+            Map<String, Object> ps = ((Measurement)ew.getEntity()).getDeviceParameters();
             aggregateDatabaseParams(databaseParams, ps);
 
         }

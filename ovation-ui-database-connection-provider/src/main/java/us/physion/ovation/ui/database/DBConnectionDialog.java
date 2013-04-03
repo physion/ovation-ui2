@@ -86,11 +86,13 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
 
     public void showErrors(final Exception e, DataStoreCoordinator toClose) {
         String message = "";
+        //TODO: logout?
+        
         try{
-            if (toClose != null)
+            /*if (toClose != null)
             {
-                toClose.close();
-            }
+                toClose.close();//TODO: logout?
+            }*/
         }catch (Exception ex){ 
             message += "\n**Error thrown while closing database connection: " + ex.getLocalizedMessage();
         }
@@ -389,12 +391,12 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
         */
         
        
-        final String username = viewModel.getUsername();
+        /*final String username = viewModel.getUsername();
         final String password = viewModel.getPassword();
         final String connectionFile = connectionFileComboBox.getSelectedItem().toString();
         prefs.addConnectionFile(connectionFile);
         
-        manager.tryToConnect(username, password, connectionFile);
+        manager.tryToConnect(username, password, connectionFile);*/
     }//GEN-LAST:event_connectAction
 
     private void cancelAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelAction

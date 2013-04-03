@@ -30,9 +30,7 @@ import ome.xml.model.primitives.Timestamp;
 import org.joda.time.DateTime;
 import org.openide.WizardDescriptor;
 import org.openide.util.Exceptions;
-import ovation.NumericDataFormat;
-import ovation.NumericDataType;
-import ovation.OvationException;
+import us.physion.ovation.exceptions.OvationException;
 
 /**
  *
