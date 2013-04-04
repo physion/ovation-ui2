@@ -4,7 +4,9 @@
  */
 package us.physion.ovation.ui.browser;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
@@ -142,15 +144,16 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                 String currentUser = c.getAuthenticatedUser().getUsername();
 
                 for (User user : c.getUsers()) {
-                    String username = user.getUsername();
-                    for (AnalysisRecord ar : entity.getAnalysisRecords(user));
-                    if (itr.hasNext()) {
-                        List<EntityWrapper> l = new LinkedList();
-                        while (itr.hasNext()) {
-                            l.add(new EntityWrapper(itr.next()));
-                        }
-                        list.add(new PerUserEntityWrapper(username, user.getURI().toString(), l));
-                    }
+                    List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
+                            new Function<AnalysisRecord, EntityWrapper>() {
+
+                                @Override
+                                public EntityWrapper apply(AnalysisRecord f) {
+                                    return new EntityWrapper(f);
+                                }
+                            }));
+                    list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));
+                    
                 }
 
                 return list;
@@ -198,18 +201,16 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                     list.add(new EntityWrapper(m));
                 }
 
-                Iterator<User> userItr = c.getUsersIterator();
-                while (userItr.hasNext()) {
-                    User user = userItr.next();
-                    String username = user.getUsername();
-                    Iterator<AnalysisRecord> itr = entity.getAnalysisRecords(user).iterator();
-                    if (itr.hasNext()) {
-                        List<EntityWrapper> l = new LinkedList();
-                        while (itr.hasNext()) {
-                            l.add(new EntityWrapper(itr.next()));
-                        }
-                        list.add(new PerUserEntityWrapper(username, user.getURI().toString(), l));
-                    }
+                for (User user : c.getUsers()) {
+                    List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
+                            new Function<AnalysisRecord, EntityWrapper>() {
+
+                                @Override
+                                public EntityWrapper apply(AnalysisRecord f) {
+                                    return new EntityWrapper(f);
+                                }
+                            }));
+                    list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));    
                 }
             } finally {
                 context.commitTransaction();

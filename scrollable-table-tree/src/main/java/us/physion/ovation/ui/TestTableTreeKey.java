@@ -8,7 +8,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-import ovation.IAuthenticatedDataStoreCoordinator;
+import us.physion.ovation.DataStoreCoordinator;
 
 /**
  *
@@ -26,7 +26,7 @@ public class TestTableTreeKey implements TableTreeKey{
         this.isEditable = isEditable;
     }
     @Override
-    public void refresh(IAuthenticatedDataStoreCoordinator dsc) {
+    public void refresh(DataStoreCoordinator dsc) {
         
     }
 

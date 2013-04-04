@@ -15,6 +15,8 @@ public interface IEntityWrapper {
     String getDisplayName();
 
     OvationEntity getEntity();
+    
+    <T extends OvationEntity> T getEntity(Class<T> clazz);
 
     Class getType();
 

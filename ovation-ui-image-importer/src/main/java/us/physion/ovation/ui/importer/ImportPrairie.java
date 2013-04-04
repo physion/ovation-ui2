@@ -17,6 +17,8 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.WizardDescriptor;
 import org.openide.util.lookup.ServiceProvider;
 import ovation.*;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.interfaces.EpochGroupInsertable;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
@@ -72,7 +74,7 @@ public class ImportPrairie extends ImportImage{
     }
     
     @Override
-    public void wizardFinished(final WizardDescriptor wd, final ovation.IAuthenticatedDataStoreCoordinator dsc, final IEntityWrapper iew) {
+    public void wizardFinished(final WizardDescriptor wd, final DataStoreCoordinator dsc, final IEntityWrapper iew) {
 
         EventQueueUtilities.runOffEDT(new Runnable() {
             

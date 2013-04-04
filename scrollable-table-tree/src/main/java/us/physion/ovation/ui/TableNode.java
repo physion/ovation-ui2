@@ -7,10 +7,7 @@ package us.physion.ovation.ui;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.tree.DefaultMutableTreeNode;
-import ovation.DataContext;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.IEntityBase;
-import ovation.User;
+import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 /**
@@ -24,7 +21,7 @@ public class TableNode extends DefaultMutableTreeNode{
         super(p);
     }
     
-    public void reset(IAuthenticatedDataStoreCoordinator dsc)
+    public void reset(DataStoreCoordinator dsc)
     {
         //regrab properties/tags/etc from the database
         TableTreeKey p = (TableTreeKey)getUserObject();

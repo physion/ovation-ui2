@@ -22,6 +22,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.detailviews.SelectionViewTestManager;
@@ -55,7 +56,7 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
     }
     
     @Before
-    public void setUp() throws UserAuthenticationException {
+    public void setUp() {
         dsc = setUpTest();
 
         String UNUSED_NAME = "name";
@@ -203,63 +204,13 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         assertTrue(TableTreeUtils.setsEqual(TableTreeUtils.getTuples(protocolParams), databaseParams));
     }
     
-    @Test
-    public void testGetsParametersAppropriatelyForStimulus()
-    {
-        Set<IEntityWrapper> entitySet = new HashSet<IEntityWrapper>();
-        Epoch e = ((Epoch)e1.getEntity());
-        Map<String, Object> deviceParameters = new HashMap();
-        deviceParameters.put("one", 1);
-        deviceParameters.put("two", "fish");
-        Map<String, Object> parameters = new HashMap();
-        parameters.put("one", "fish");
-        parameters.put("another", "fish");
-        Stimulus r1 = e.insertStimulus(e.getEpochGroup().getExperiment().externalDevice("name", "manufacturer"), deviceParameters, "pluginID", parameters, "units", new String[]{"thing1"});
-        e = ((Epoch)e2.getEntity());
-        deviceParameters.put("one", 2);
-        parameters.put("red", "fish");
-        parameters.put("blue", "fish");
-        Stimulus r2 = e.insertStimulus(e.getEpochGroup().getExperiment().externalDevice("name", "manufacturer"), deviceParameters, "pluginID", parameters, "units", new String[]{"thing1"});
-        entitySet.add(new TestEntityWrapper(dsc, r1));
-        entitySet.add(new TestEntityWrapper(dsc, r2));
-        List<TableTreeKey> params = t.setEntities(entitySet);
-        
-        assertEquals(params.size(), 2);
-        assertTrue(params.get(0) instanceof ParameterSet);
-        assertTrue(params.get(1) instanceof ParameterSet);
-        
-        //device params
-        ParameterSet deviceParams = (ParameterSet)params.get(0);
-        assertEquals(deviceParams.getDisplayName(), "Device Parameters");
-        assertEquals(deviceParams.isEditable(), false);
-        Set<Tuple> databaseParams = new HashSet<Tuple>();
-        for (IEntityWrapper ew : entitySet)
-        {
-            Map<String, Object> ps = ((Stimulus)ew.getEntity()).getDeviceParameters();
-            aggregateDatabaseParams(databaseParams, ps);
-        }
-        assertTrue(TableTreeUtils.setsEqual(TableTreeUtils.getTuples(deviceParams), databaseParams));
-        
-        // stimulus params
-        ParameterSet stimulusParams = (ParameterSet)params.get(1);
-        assertEquals(stimulusParams.getDisplayName(), "Stimulus Parameters");
-        assertEquals(stimulusParams.isEditable(), false);
-        databaseParams = new HashSet<Tuple>();
-        for (IEntityWrapper ew : entitySet)
-        {
-            Map<String, Object> ps = ((Stimulus)ew.getEntity()).getStimulusParameters();
-            aggregateDatabaseParams(databaseParams, ps);
-        }
-        assertTrue(TableTreeUtils.setsEqual(TableTreeUtils.getTuples(stimulusParams), databaseParams));
-    }
-
     @Override
     public Lookup getLookup() {
         return l;
     }
 
     @Override
-    public IAuthenticatedDataStoreCoordinator getConnection() {
+    public DataStoreCoordinator getConnection() {
         return dsc;
     }
 

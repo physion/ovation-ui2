@@ -6,7 +6,6 @@ package us.physion.ovation.ui;
 
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
-import ovation.IAuthenticatedDataStoreCoordinator;
 import us.physion.ovation.DataStoreCoordinator;
 
 /**

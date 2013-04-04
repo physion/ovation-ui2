@@ -110,4 +110,13 @@ public class EntityWrapper implements IEntityWrapper {
         }
         return "<no name>";
     }
+
+    @Override
+    public <T extends OvationEntity> T getEntity(Class<T> clazz) {
+        if (clazz.isAssignableFrom(getType()))
+        {
+            return (T)getEntity();
+        }
+        return null;
+    }
 }

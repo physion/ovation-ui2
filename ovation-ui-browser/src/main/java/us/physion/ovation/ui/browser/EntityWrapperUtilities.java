@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.browser;
 
+import com.google.common.collect.Sets;
 import us.physion.ovation.ui.browser.insertion.InsertProject;
 import java.beans.PropertyVetoException;
 import java.util.*;
@@ -35,7 +36,7 @@ public class EntityWrapperUtilities {
 
     private static String SEPARATOR = ";";
 
-    protected static Set<IEntityWrapper> createNodesFromQuery(Set<ExplorerManager> mgrs, Iterator<IEntityBase> itr) {
+    protected static Set<IEntityWrapper> createNodesFromQuery(Set<ExplorerManager> mgrs, Iterator<OvationEntity> itr) {
         Map<String, Node> treeMap = BrowserUtilities.getNodeMap();
         Set<IEntityWrapper> resultSet = new HashSet<IEntityWrapper>();
         while (itr.hasNext()) {
@@ -110,7 +111,7 @@ public class EntityWrapperUtilities {
         Set<OvationEntity> parents = new HashSet();
         Class type = entity.getClass();
         if (type.isAssignableFrom(Source.class)) {
-            parents.addAll(((Source) entity).getParentSources());
+            parents.addAll(Sets.newHashSet(((Source) entity).getParentSources()));
         } else if (type.isAssignableFrom(Experiment.class)) {
             for (Project p : ((Experiment) entity).getProjects()) {
                 parents.add(p);
@@ -123,7 +124,7 @@ public class EntityWrapperUtilities {
                 parents.add((EpochGroup)parent);
             }
         } else if (type.isAssignableFrom(Epoch.class)) {
-            parents.add(((Epoch) entity).getParent()));
+            parents.add(((Epoch) entity).getParent());
         } else if (type.isAssignableFrom(Measurement.class)) {
             parents.add(((Measurement) entity).getEpoch());
             Epoch epoch = ((Measurement) entity).getEpoch();

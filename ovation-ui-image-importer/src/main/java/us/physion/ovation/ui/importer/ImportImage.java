@@ -42,7 +42,9 @@ import org.openide.util.lookup.ServiceProvider;
 import ovation.*;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.EpochGroup;
+import us.physion.ovation.domain.EquipmentSetup;
 import us.physion.ovation.domain.Experiment;
+import us.physion.ovation.domain.Measurement;
 
 @ServiceProvider(service = EpochGroupInsertable.class)
 /**
@@ -114,16 +116,14 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
         Experiment exp = eg.getExperiment();
         
         Map<String, Map<String, Object>> devices = (Map<String, Map<String, Object>>) wd.getProperty("devices");
+        EquipmentSetup es = exp.getEquipmentSetup();
         for (String deviceName : devices.keySet()) {
             Map<String, Object> device = devices.get(deviceName);
             //name, manufacturer, properties
-            ExternalDevice dev = exp.externalDevice((String) device.get("name"),
-                    (String) device.get("manufacturer"));
             Map<String, Object> properties = (Map<String, Object>) device.get("properties");
+            String prefix = device.get("name") + "." + device.get("manufacturer") + ".";
             for (String key : properties.keySet()) {
-                Object val = properties.get(key);
-                if (val != null)
-                    dev.addProperty(key, val);
+                es.addDeviceDetail(prefix + key, properties.get(key));
             }
         }
 
@@ -142,7 +142,7 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
             DateTime end = (DateTime) wd.getProperty(epochName + ".end");
             Map<String, Object> epochProperties = (Map<String, Object>) wd.getProperty(epochName + ".properties");
 
-            Epoch e = eg.insertEpoch(start, end, protocolID, protocolParameters);
+            Epoch e = eg.insertEpoch(start, end, protocol, protocolParameters, null);
             for (String key : epochProperties.keySet())
             {
                 Object val = epochProperties.get(key);
@@ -150,6 +150,8 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
                     e.addProperty(key, val);
             }
 
+            //TODO: multiple devices
+            //TODO: measurement associated with multiple sources?
             int j = 0;
             for (;;) {
                 String responseName = epochName + ".response" + j;
@@ -162,23 +164,19 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
                 Map<String, Object> deviceParameters = (Map<String, Object>) wd.getProperty(responseName + ".device.parameters");
                 String url = (String) wd.getProperty(responseName + ".url");
                 long[] shape = (long[]) wd.getProperty(responseName + ".shape");
-                NumericDataType type = (NumericDataType) wd.getProperty(responseName + ".dataType");
+                String type = (String) wd.getProperty(responseName + ".dataType");
                 String units = (String) wd.getProperty(responseName + ".units");
                 String[] dimensionLabels = (String[]) wd.getProperty(responseName + ".dimensionLabels");
                 double[] samplingRates = (double[]) wd.getProperty(responseName + ".samplingRates");
                 String[] samplingRateUnits = (String[]) wd.getProperty(responseName + ".samplingRateUnits");
                 String uti = (String) wd.getProperty(responseName + ".uti");
 
-                Response r = e.insertURLResponse(exp.externalDevice(deviceName, deviceManufacturer),
-                        deviceParameters,
-                        url,
-                        shape,
-                        type,
-                        units,
-                        dimensionLabels,
-                        samplingRates,
-                        samplingRateUnits,
-                        uti);
+                //TODO: deviceParameters go on the Epoch
+                //dimensionLabels, 
+                //units
+                //samplingRates
+                //samplingRateUnits should all go somewhere, right?
+                Measurement r = e.insertMeasurement(name, Set<String> sourceNames, Set<String> devices, url, uti);
             }
         }
     }

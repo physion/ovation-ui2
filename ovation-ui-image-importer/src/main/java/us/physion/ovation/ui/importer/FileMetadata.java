@@ -21,6 +21,7 @@ import loci.common.services.ServiceFactory;
 import loci.formats.FormatException;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
+import loci.formats.MetadataStore;
 import loci.formats.in.PrairieReader;
 import loci.formats.meta.IMetadata;
 import loci.formats.meta.MetadataRetrieve;
@@ -85,7 +86,7 @@ public class FileMetadata {
             if (r instanceof PrairieReader)
                 isPrairie = true;
         }
-        r.setMetadataStore(meta);
+        r.setMetadataStore((MetadataStore)meta);
         try {
             r.setId(file.getAbsolutePath());
         } catch (FormatException ex) {
@@ -105,7 +106,7 @@ public class FileMetadata {
         } catch (ServiceException ex) {
             throw new OvationException("Unable to read original metadata. " + ex.getMessage());
         }
-        retrieve = service.asRetrieve(r.getMetadataStore());
+        retrieve = service.asRetrieve((loci.formats.meta.MetadataStore)r.getMetadataStore());
 
         parseRetrieve(retrieve, original);
     }
@@ -330,7 +331,7 @@ public class FileMetadata {
         } else {
             b = ByteOrder.LITTLE_ENDIAN;
         }
-        put("dataType", new NumericDataType(NumericDataFormat.SignedFixedPointDataType, (short) 4, b), responseStruct, true);
+        put("dataType", "tiff", responseStruct, true);
         put("units", "pixels", responseStruct, true);
         put("uti", "public.tiff", responseStruct, true);//TODO: fix - get file type?
         return responseStruct;

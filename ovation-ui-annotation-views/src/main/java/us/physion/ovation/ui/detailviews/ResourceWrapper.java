@@ -15,9 +15,9 @@ public class ResourceWrapper implements IResourceWrapper {
     String uri;
     String name;
 
-    public ResourceWrapper(Resource r) {
+    public ResourceWrapper(String name, Resource r) {
         uri = r.getUti();
-        name = r.getName();
+        this.name = name;
     }
 
     @Override

@@ -81,5 +81,10 @@ public class TestEntityWrapper implements IEntityWrapper{
         }
         return "<no name>";
     }
+
+    @Override
+    public <T extends OvationEntity> T getEntity(Class<T> clazz) {
+        return (T)getEntity();
+    }
     
 }

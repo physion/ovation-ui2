@@ -16,10 +16,10 @@ public class DummyResourceWrapper implements IResourceWrapper{
     private DataStoreCoordinator dsc;
     String uri; 
     String name;
-    public DummyResourceWrapper(DataStoreCoordinator dsc, Resource r)
+    public DummyResourceWrapper(DataStoreCoordinator dsc, String name, Resource r)
     {
         this.dsc = dsc;
-        name = r.getName();
+        this.name = name;
         uri = r.getURI().toString();
     }
     @Override
