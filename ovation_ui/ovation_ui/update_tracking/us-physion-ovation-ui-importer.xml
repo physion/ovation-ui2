@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><module codename="us.physion.ovation.ui.importer">
-    <module_version install_time="1359341780060" last="true" origin="installer" specification_version="1.3">
-        <file crc="123115017" name="config/Modules/us-physion-ovation-ui-importer.xml"/>
-        <file crc="3379943687" name="modules/ext/org.swinglabs/swing-layout-1.0.3.jar"/>
-        <file crc="2849040825" name="modules/us-physion-ovation-ui-image-importer.jar"/>
-    </module_version>
-</module>

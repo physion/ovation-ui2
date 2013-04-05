@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><module codename="us.physion.scrollable.table.tree">
-    <module_version install_time="1359341780037" last="true" origin="installer" specification_version="1.0">
-        <file crc="3201809078" name="config/Modules/us-physion-scrollable-table-tree.xml"/>
-        <file crc="3379943687" name="modules/ext/org.swinglabs/swing-layout-1.0.3.jar"/>
-        <file crc="2024876227" name="modules/us-physion-scrollable-table-tree.jar"/>
-    </module_version>
-</module>

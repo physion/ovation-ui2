@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><module codename="us.physion.ovation.ui.common.interfaces">
-    <module_version install_time="1359341779292" last="true" origin="installer" specification_version="1.0">
-        <file crc="1163012035" name="config/Modules/us-physion-ovation-ui-common-interfaces.xml"/>
-        <file crc="266464404" name="modules/us-physion-ovation-ui-common-interfaces.jar"/>
-    </module_version>
-</module>

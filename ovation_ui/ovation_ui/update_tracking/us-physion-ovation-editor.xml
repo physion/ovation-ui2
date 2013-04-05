@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><module codename="us.physion.ovation.editor">
-    <module_version install_time="1359341779994" last="true" origin="installer" specification_version="1.2">
-        <file crc="1450697186" name="config/Modules/us-physion-ovation-editor.xml"/>
-        <file crc="3379943687" name="modules/ext/org.swinglabs/swing-layout-1.0.3.jar"/>
-        <file crc="168122853" name="modules/ext/us.physion/jFreeChart-1.0.jar"/>
-        <file crc="1292537499" name="modules/ext/us.physion/pixelmed-1.0.jar"/>
-        <file crc="359871174" name="modules/us-physion-ovation-ui-data-viewer.jar"/>
-    </module_version>
-</module>
