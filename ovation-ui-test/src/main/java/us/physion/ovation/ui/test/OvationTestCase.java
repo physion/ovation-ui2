@@ -4,12 +4,20 @@
  */
 package us.physion.ovation.ui.test;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import java.io.File;
 import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.*;
 import static org.junit.Assert.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.api.Ovation;
+import us.physion.ovation.api.OvationApiModule;
+import us.physion.ovation.domain.User;
 /**
  *
  * @author huecotanks
@@ -17,76 +25,43 @@ import static org.junit.Assert.*;
 public class OvationTestCase {
 
     public OvationTestCase() { }
-    private TestManager tm;
     public DataStoreCoordinator dsc;
 
-    public void setTestManager(TestManager mgr)
+    public static UUID USER_UUID;
+    public final static String EMAIL = "me@bobslawblog.com";
+    public final static String USER_NAME = "jackie";
+    public final static char[] PASSWORD = "poorPasswordChoice".toCharArray();
+    
+    @BeforeClass
+    public static void setUpClass() {}
+    
+    @Before
+    public void setUp() {
+        OvationApiModule m = new OvationApiModule();
+        Injector injector = Guice.createInjector(m);
+        injector.getInstance(DataStoreCoordinator.class);
+        dsc = Ovation.newDataStoreCoordinator();
+        createUser();
+    }
+    
+    @After
+    public void tearDown() throws InterruptedException
     {
-	tm = mgr;
-    }
-
-    
-   public static void setUpDatabase(TestManager tm, int defaultID) {
-
-        File f = new File(tm.getConnectionFile());
-        if (!f.exists()) {
-            String lockServer = System.getProperty("OVATION_LOCK_SERVER");
-            if(lockServer == null) {
-		try{
-		    lockServer = InetAddress.getLocalHost().getHostName();
-            	} catch (java.net.UnknownHostException e){
-		    lockServer = "127.0.0.1";
-		}
-	    }
-            
-            String nodeFdIdString = System.getProperty("NODE_FDID");
-	    if (nodeFdIdString == null)
-	    {
-		nodeFdIdString = System.getenv("NODE_FDID");
-	    }
-	    if (nodeFdIdString == null)
-	    {
-		nodeFdIdString = "0";
-	    }
-	    int nodeFdId = Integer.parseInt(nodeFdIdString);
-
-
-            String jobFdIdString = System.getProperty("JOB_FDID");
-	    if (jobFdIdString == null)
-	    {
-		jobFdIdString = System.getenv("JOB_FDID");
-	    }
-	    int jobFdId = defaultID;
-	    if (jobFdIdString != null)
-	    {
-	        jobFdId = Integer.parseInt(jobFdIdString);
-	    }
-            
-            DatabaseManager.createLocalDatabase(tm.getConnectionFile(), lockServer, nodeFdId + jobFdId);
-        }
-
-    }
-    public static void tearDownDatabase(TestManager tm) throws Exception {
-        DatabaseManager.deleteLocalDatabase(tm.getConnectionFile());
-    }
-
-    
-    public IAuthenticatedDataStoreCoordinator setUpTest() {
-        IAuthenticatedDataStoreCoordinator dsc = null;
-	try {
-            dsc = tm.setupDatabase();
-        } catch (Exception e) {
-	    System.err.println(e.getMessage());
-            tearDownTest();
-            fail(e.getMessage());
-        }
-
-        Ovation.enableLogging(LogLevel.DEBUG);
-	return dsc;
-    }
-
-    public void tearDownTest() {
-        tm.tearDownDatabase();
+        dsc.deleteDB();
+        //queryService.reset();
+        Thread.sleep(1000);
     }
     
+    @AfterClass
+    public static void tearDownClass() throws Exception {}
+    
+    public static void setUpDatabase() {}
+    
+    public void createUser()
+    {
+        DataContext ctx = dsc.getContext();
+        User u = ctx.addUser(USER_NAME, EMAIL, PASSWORD);
+        USER_UUID = u.getUuid();
+        dsc.authenticateUser(USER_UUID, PASSWORD);
+    }
 }

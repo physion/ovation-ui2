@@ -116,7 +116,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                     list.add(new EntityWrapper(p));
                 }
             } else {
-                for (Source s : c.getSources()) {
+                for (Source s : c.getTopLevelSources()) {
                     list.add(new EntityWrapper(s));
                 }
             }
@@ -135,10 +135,8 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
         if (projectView) {
             if (entityClass.isAssignableFrom(Project.class)) {
                 Project entity = (Project) ew.getEntity();
-                Iterator<Experiment> itr = entity.getExperiments();
-                while(itr.hasNext())
+                for (Experiment e : entity.getExperiments())
                 {
-                    Experiment e = itr.next();
                     list.add(new EntityWrapper(e));
                 }
                 String currentUser = c.getAuthenticatedUser().getUsername();

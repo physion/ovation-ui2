@@ -148,7 +148,8 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         Map<String, Object> deviceParameters = new HashMap();
         deviceParameters.put("one", 1);
         deviceParameters.put("two", "fish");
-        Measurement r1 = e.insertMeasurement("name", deviceParameters, new NumericData(new double[]{1, 2, 3}), "units", "label", 10, "hz", Response.NUMERIC_DATA_UTI);
+        NumericData data;
+        Measurement r1 = e.insertMeasurement("name", deviceParameters, data, "units", "label", 10, "hz", Response.NUMERIC_DATA_UTI);
         e = ((Epoch)e2.getEntity());
         deviceParameters.put("one", 2);
         Measurement r2 = e.insertMeasurement("name", deviceParameters, new NumericData(new double[]{1, 2, 3}), "units", "label", 10, "hz", Response.NUMERIC_DATA_UTI);

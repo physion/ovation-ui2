@@ -70,6 +70,9 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publicPackages>
+		        <publicPackage>org.apache.log4j.*</publicPackage>
+		        <publicPackage>com.google.inject.*</publicPackage>
+		        <publicPackage>us.physion.ovation.*</publicPackage>
                         <publicPackage>us.physion.ovation.domain.*</publicPackage>
                         <publicPackage>us.physion.ovation.api.*</publicPackage>
                         <publicPackage>com.physion.ebuilder.expression.*</publicPackage>
