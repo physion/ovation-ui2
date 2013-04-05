@@ -105,7 +105,7 @@ public class InsertEpochGroupTest extends OvationTestCase{
         
         new InsertEpochGroup().wizardFinished(d, dsc, parent);
         
-        EpochGroup eg = e.getEpochGroups()[0];
+        EpochGroup eg = e.getEpochGroups().iterator().next();
         TestCase.assertEquals(eg.getLabel(), label);
         TestCase.assertEquals(eg.getStart(), start);
         TestCase.assertEquals(eg.getEnd(), end);

@@ -8,9 +8,6 @@ import junit.framework.TestCase;
 import org.junit.*;
 import org.openide.WizardDescriptor;
 import org.openide.util.ChangeSupport;
-import ovation.LogLevel;
-import ovation.Ovation;
-import ovation.Source;
 import us.physion.ovation.ui.browser.BrowserTestManager;
 import us.physion.ovation.ui.test.OvationTestCase;
 import us.physion.ovation.ui.test.TestManager;
@@ -19,6 +16,7 @@ import javax.swing.*;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.List;
+import us.physion.ovation.domain.Source;
 
 /**
  *
@@ -35,7 +33,6 @@ public class InsertSourceTest extends OvationTestCase
     @BeforeClass
     public static void setUpClass()
     {
-        Ovation.enableLogging(LogLevel.ALL);
         AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
 
             public Boolean run() {

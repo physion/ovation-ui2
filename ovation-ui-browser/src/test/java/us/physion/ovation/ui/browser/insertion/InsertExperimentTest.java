@@ -9,10 +9,6 @@ import org.joda.time.DateTime;
 import org.junit.*;
 import org.openide.WizardDescriptor;
 import org.openide.util.ChangeSupport;
-import ovation.Experiment;
-import ovation.LogLevel;
-import ovation.Ovation;
-import ovation.Project;
 import us.physion.ovation.ui.browser.BrowserTestManager;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.TestEntityWrapper;
@@ -23,6 +19,8 @@ import javax.swing.*;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.List;
+import us.physion.ovation.domain.Experiment;
+import us.physion.ovation.domain.Project;
 
 /**
  *
@@ -39,7 +37,6 @@ public class InsertExperimentTest extends OvationTestCase
     @BeforeClass
     public static void setUpClass()
     {
-        Ovation.enableLogging(LogLevel.ALL);
         AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
 
             public Boolean run() {
@@ -93,10 +90,9 @@ public class InsertExperimentTest extends OvationTestCase
         IEntityWrapper w = new TestEntityWrapper(dsc, p);
         new InsertExperiment().wizardFinished(d, dsc, w);
         
-        Experiment ex = p.getExperiments()[0];
+        Experiment ex = p.getExperiments().iterator().next();
         TestCase.assertEquals(ex.getPurpose(), purpose);
-        TestCase.assertEquals(ex.getStartTime(), start);
-        TestCase.assertEquals(ex.getEndTime(), end);
+        TestCase.assertEquals(ex.getStart(), start);
     }
     
     //Panel 1 methods
