@@ -5,14 +5,14 @@
 package us.physion.ovation.ui.browser.insertion;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.net.URL;
+import java.util.*;
 import javax.swing.AbstractAction;
 import org.openide.WizardDescriptor;
 import org.openide.util.lookup.ServiceProvider;
 import ovation.*;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.interfaces.EpochInsertable;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -24,7 +24,7 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 public class InsertResponse extends InsertEntity implements EpochInsertable {
 
     public InsertResponse() {
-        putValue(NAME, "Insert Response...");
+        putValue(NAME, "Insert Measurement...");
     }
 
     public List<WizardDescriptor.Panel<WizardDescriptor>> getPanels()
@@ -37,15 +37,12 @@ public class InsertResponse extends InsertEntity implements EpochInsertable {
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wiz, IAuthenticatedDataStoreCoordinator dsc, IEntityWrapper parent)
+    public void wizardFinished(WizardDescriptor wiz, DataStoreCoordinator dsc, IEntityWrapper parent)
     {
-        ((Epoch)parent.getEntity()).insertResponse(((ExternalDevice)wiz.getProperty("response.device")), 
-                ((Map<String, Object>)wiz.getProperty("response.deviceParameters")), 
-                ((NumericData)wiz.getProperty("response.numericData")), 
-                ((String)wiz.getProperty("response.units")), 
-                ((String[])wiz.getProperty("response.dimensionLabels")), 
-                ((double[])wiz.getProperty("response.samplingRates")),
-                ((String[])wiz.getProperty("response.samplingRateUnits")),
-                ((String)wiz.getProperty("response.dataUTI")));
+        ((Epoch)parent.getEntity()).insertMeasurement(((String)wiz.getProperty("measurement.name")), 
+                ((Set<String>)wiz.getProperty("measurement.sources")), 
+                ((Set<String>)wiz.getProperty("measurement.devices")), 
+                ((URL)wiz.getProperty("measurement.url")), 
+                ((String)wiz.getProperty("measurement.mimeType"))); 
     }
 }

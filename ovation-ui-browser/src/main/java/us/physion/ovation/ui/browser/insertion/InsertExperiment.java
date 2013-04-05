@@ -15,10 +15,8 @@ import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
-import ovation.AnalysisRecord;
-import ovation.Epoch;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.Project;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.Project;
 import us.physion.ovation.ui.interfaces.ProjectInsertable;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
@@ -42,10 +40,9 @@ public class InsertExperiment extends InsertEntity implements ProjectInsertable{
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wiz, IAuthenticatedDataStoreCoordinator dsc, IEntityWrapper parent)
+    public void wizardFinished(WizardDescriptor wiz, DataStoreCoordinator dsc, IEntityWrapper parent)
     {
         ((Project)parent.getEntity()).insertExperiment(((String)wiz.getProperty("experiment.purpose")), 
-                ((DateTime)wiz.getProperty("experiment.start")), 
-                ((DateTime)wiz.getProperty("experiment.end"))); 
+                ((DateTime)wiz.getProperty("experiment.start"))); 
     }
 }

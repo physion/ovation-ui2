@@ -9,8 +9,6 @@ import java.util.Map;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
-import ovation.AnalysisRecord;
-import ovation.Epoch;
 
 public class InsertAnalysisRecordWizardPanel1 extends BasicWizardPanel {
 // Get the visual component for the panel. In this template, the component

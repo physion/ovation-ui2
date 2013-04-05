@@ -7,7 +7,7 @@ package us.physion.ovation.ui.browser.insertion;
 import java.util.Iterator;
 import javax.swing.JPanel;
 import org.openide.util.ChangeSupport;
-import ovation.AnalysisRecord;
+import us.physion.ovation.domain.AnalysisRecord;
 
 public final class InsertAnalysisRecordVisualPanel2 extends JPanel {
 

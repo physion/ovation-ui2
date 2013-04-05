@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="us.physion.ovation.ui.detailviews">
+    <module_version install_time="1359341780049" last="true" origin="installer" specification_version="1.4">
+        <file crc="1655169286" name="config/Modules/us-physion-ovation-ui-detailviews.xml"/>
+        <file crc="3379943687" name="modules/ext/org.swinglabs/swing-layout-1.0.3.jar"/>
+        <file crc="3663316187" name="modules/us-physion-ovation-ui-annotation-views.jar"/>
+    </module_version>
+</module>

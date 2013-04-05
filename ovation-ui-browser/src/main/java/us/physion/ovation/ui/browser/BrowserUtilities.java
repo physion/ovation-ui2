@@ -4,7 +4,7 @@
  */
 package us.physion.ovation.ui.browser;
 
-import com.sun.source.tree.ExpressionTree;
+//import com.sun.source.tree.ExpressionTree;
 import java.awt.EventQueue;
 import java.io.IOException;
 import java.util.*;
@@ -80,8 +80,8 @@ public class BrowserUtilities{
                     @Override
                     public void run() {
                         browserMap.clear();
-                        ExpressionTree result = Lookup.getDefault().lookup(ExpressionTreeProvider.class).getExpressionTree();
-                        setTrees(result);
+                        //ExpressionTree result = Lookup.getDefault().lookup(ExpressionTreeProvider.class).getExpressionTree();
+                        //setTrees(result);
                     }
                 });
                 etp.addQueryListener(ql);
@@ -128,11 +128,11 @@ public class BrowserUtilities{
     {
         e.setRootContext(new EntityNode(new EntityChildren(null, projectView, null), null));
     }
-    
-    protected static void setTrees(final ExpressionTree result)
+
+    //TODO: uncomment when we have query capabiliites
+    /*protected static void setTrees(final ExpressionTree result)
     {
-        //TODO: uncomment when we have query capabiliites
-        /*if (result == null)
+        if (result == null)
             return;
         
         Set<ExplorerManager> mgrs = new HashSet<ExplorerManager>();
@@ -146,9 +146,8 @@ public class BrowserUtilities{
         Iterator itr = dsc.getContext().query(result);
         
         EntityWrapperUtilities.createNodesFromQuery(mgrs, itr);
-        * 
-        */
-    }
+        
+    }*/
 
     public static void runOnEDT(Runnable r)
     {

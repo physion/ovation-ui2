@@ -8,7 +8,6 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
-import ovation.Source;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 public class InsertEpochGroupWizardPanel1 extends BasicWizardPanel {

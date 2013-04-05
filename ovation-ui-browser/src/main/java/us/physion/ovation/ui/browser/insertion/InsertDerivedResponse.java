@@ -5,14 +5,14 @@
 package us.physion.ovation.ui.browser.insertion;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.net.URL;
+import java.util.*;
 import javax.swing.AbstractAction;
 import org.openide.WizardDescriptor;
 import org.openide.util.lookup.ServiceProvider;
 import ovation.*;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.ui.interfaces.EpochInsertable;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -24,7 +24,7 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 public class InsertDerivedResponse extends InsertEntity implements EpochInsertable{
 
     public InsertDerivedResponse() {
-        putValue(NAME, "Insert Derived Response...");
+        putValue(NAME, "Insert AnalysisRecord...");
     }
 
     public List<WizardDescriptor.Panel<WizardDescriptor>> getPanels()
@@ -37,12 +37,12 @@ public class InsertDerivedResponse extends InsertEntity implements EpochInsertab
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wiz, IAuthenticatedDataStoreCoordinator dsc, IEntityWrapper parent)
+    public void wizardFinished(WizardDescriptor wiz, DataStoreCoordinator dsc, IEntityWrapper parent)
     {
-        ((Epoch)parent.getEntity()).insertDerivedResponse(((String)wiz.getProperty("analysisRecord.name")), 
-                ((NumericData)wiz.getProperty("analysisRecord.data")), 
-                ((String)wiz.getProperty("analysisRecord.units")), 
-                ((Map<String, Object>)wiz.getProperty("analysisRecord.derivationParameters")), 
-                ((String[])wiz.getProperty("analysisRecord.dimensionLabels"))); 
+        ((Epoch)parent.getEntity()).insertMeasurement(((String)wiz.getProperty("analysisRecord.name")), 
+                ((Set<String>)wiz.getProperty("analysisRecord.sources")), 
+                ((Set<String>)wiz.getProperty("analysisRecord.devices")), 
+                ((URL)wiz.getProperty("analysisRecord.url")), 
+                ((String)wiz.getProperty("analysisRecord.mimeType"))); 
     }
 }

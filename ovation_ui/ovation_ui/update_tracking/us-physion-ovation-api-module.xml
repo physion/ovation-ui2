@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="us.physion.ovation.api.module">
+    <module_version install_time="1359341779244" last="true" origin="installer" specification_version="1.4.2">
+        <file crc="2334173065" name="config/Modules/us-physion-ovation-api-module.xml"/>
+        <file crc="2042921554" name="modules/ext/us.physion/ovation-api-1.4.2.jar"/>
+        <file crc="774334748" name="modules/us-physion-ovation-api-module.jar"/>
+    </module_version>
+</module>

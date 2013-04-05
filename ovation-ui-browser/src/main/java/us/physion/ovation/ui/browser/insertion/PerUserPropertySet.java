@@ -8,8 +8,8 @@ import java.util.Map;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.User;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.User;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.ScrollableTableTree;
@@ -48,7 +48,7 @@ class PerUserPropertySet implements TableTreeKey {
     }
 
     @Override
-    public void refresh(IAuthenticatedDataStoreCoordinator dsc) {
+    public void refresh(DataStoreCoordinator dsc) {
     }
 
     @Override

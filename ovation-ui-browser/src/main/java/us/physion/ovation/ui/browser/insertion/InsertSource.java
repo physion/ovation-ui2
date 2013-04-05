@@ -14,6 +14,9 @@ import org.openide.WizardDescriptor;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.util.lookup.ServiceProviders;
 import ovation.*;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.interfaces.*;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -40,11 +43,16 @@ public class InsertSource extends InsertEntity implements SourceInsertable, Root
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wiz, IAuthenticatedDataStoreCoordinator dsc, IEntityWrapper parent)
+    public void wizardFinished(WizardDescriptor wiz, DataStoreCoordinator dsc, IEntityWrapper parent)
     {
         if (parent == null)
-            dsc.getContext().insertSource(((String)wiz.getProperty("source.label")));
+            dsc.getContext().insertSource(((String)wiz.getProperty("source.label")),
+                    ((String)wiz.getProperty("source.identifier")));
         else
-            ((Source)parent.getEntity()).insertSource(((String)wiz.getProperty("source.label")));
+            ((Source)parent.getEntity()).insertSource((Map<String, Source>)wiz.getProperty("source.parents"),
+                    (Epoch)wiz.getProperty("source.epoch"),
+                    (String)wiz.getProperty("source.name"),
+                    (String)wiz.getProperty("source.label"),
+                    (String)wiz.getProperty("source.identifier"));
     }
 }

@@ -13,10 +13,12 @@ import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.ServiceProvider;
-import ovation.AnalysisRecord;
-import ovation.Epoch;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.Project;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.AnalysisRecord;
+import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.Protocol;
+import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ProjectInsertable;
 
@@ -42,15 +44,17 @@ public class InsertAnalysisRecord extends InsertEntity implements ProjectInserta
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wiz, IAuthenticatedDataStoreCoordinator dsc, IEntityWrapper parent)
+    public void wizardFinished(WizardDescriptor wiz, DataStoreCoordinator dsc, IEntityWrapper parent)
     {
+        Protocol protocol = (Protocol)wiz.getProperty("analysisRecord.protocol");
+        if (protocol == null)
+            protocol = dsc.getContext().insertProtocol((String)wiz.getProperty("protocol.name"), (String)wiz.getProperty("protocol.name"));
         ((Project)parent.getEntity()).insertAnalysisRecord(((String)wiz.getProperty("analysisRecord.name")), 
-                ((Iterator<Epoch>)wiz.getProperty("analysisRecord.epochs")), 
-                ((Iterator<AnalysisRecord>)wiz.getProperty("analysisRecord.inputs")), 
-                ((String)wiz.getProperty("analysisRecord.entryFn")), 
-                ((Map<String,Object>)wiz.getProperty("analysisRecord.parameters")), 
-                ((String)wiz.getProperty("analysisRecord.scmURL")), 
-                ((String)wiz.getProperty("analysisRecord.scmRevision")));
+                ((Set<DataElement>)wiz.getProperty("analysisRecord.unnamedInputs")), 
+                ((Map<String, DataElement>)wiz.getProperty("analysisRecord.namedInputs")), 
+                ((Set<DataElement>)wiz.getProperty("analysisRecord.entryFn")), 
+                protocol, 
+                ((Map<String, Object>)wiz.getProperty("analysisRecord.scmURL")));
     }
     
     @Override

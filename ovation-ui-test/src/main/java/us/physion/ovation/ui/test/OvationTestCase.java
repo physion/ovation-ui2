@@ -8,12 +8,8 @@ import java.io.File;
 import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.Set;
-import org.joda.time.DateTime;
 import org.junit.*;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.database.DatabaseManager;
 import static org.junit.Assert.*;
-import ovation.*;
 /**
  *
  * @author huecotanks
@@ -22,7 +18,7 @@ public class OvationTestCase {
 
     public OvationTestCase() { }
     private TestManager tm;
-    public IAuthenticatedDataStoreCoordinator dsc;
+    public DataStoreCoordinator dsc;
 
     public void setTestManager(TestManager mgr)
     {

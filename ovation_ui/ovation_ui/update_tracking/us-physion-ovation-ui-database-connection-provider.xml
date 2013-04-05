@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="us.physion.ovation.ui.database.connection.provider">
+    <module_version install_time="1359341778567" last="true" origin="installer" specification_version="1.0">
+        <file crc="3267323894" name="config/Modules/us-physion-ovation-ui-database-connection-provider.xml"/>
+        <file crc="826192464" name="modules/ext/org.jdesktop/beansbinding-1.2.1.jar"/>
+        <file crc="3379943687" name="modules/ext/org.swinglabs/swing-layout-1.0.3.jar"/>
+        <file crc="1984932393" name="modules/us-physion-ovation-ui-database-connection-provider.jar"/>
+    </module_version>
+</module>

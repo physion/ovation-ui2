@@ -15,7 +15,7 @@ import org.openide.WizardDescriptor.Panel;
 import org.openide.nodes.Children;
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
-import ovation.IAuthenticatedDataStoreCoordinator;
+import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.browser.EntityChildren;
 import us.physion.ovation.ui.browser.EntityNode;
@@ -102,7 +102,7 @@ public class InsertEntity extends AbstractAction implements EntityInsertable{
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wiz, IAuthenticatedDataStoreCoordinator dsc, IEntityWrapper ew) {
+    public void wizardFinished(WizardDescriptor wiz, DataStoreCoordinator dsc, IEntityWrapper ew) {
         throw new UnsupportedOperationException("Subclasses of InsertEntity should implement the wizardFinished method");
     }
 }

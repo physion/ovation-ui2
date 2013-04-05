@@ -20,7 +20,7 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Node;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
-import ovation.*;
+import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.test.TestManager;
 import us.physion.ovation.ui.browser.BrowserTestManager;
 import us.physion.ovation.ui.browser.EntityWrapperUtilities;
@@ -43,7 +43,6 @@ public class InsertEpochGroupTest extends OvationTestCase{
     @BeforeClass
     public static void setUpClass()
     {
-        Ovation.enableLogging(LogLevel.ALL);
         AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
 
             public Boolean run() {
@@ -108,9 +107,8 @@ public class InsertEpochGroupTest extends OvationTestCase{
         
         EpochGroup eg = e.getEpochGroups()[0];
         TestCase.assertEquals(eg.getLabel(), label);
-        TestCase.assertEquals(eg.getStartTime(), start);
-        TestCase.assertEquals(eg.getEndTime(), end);
-        TestCase.assertEquals(eg.getSource().getUuid(), src.getUuid());
+        TestCase.assertEquals(eg.getStart(), start);
+        TestCase.assertEquals(eg.getEnd(), end);
     }
     
     @Test

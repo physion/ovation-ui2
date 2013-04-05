@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="us.physion.ovation.ui.imagej">
+    <module_version install_time="1359341779331" last="true" origin="installer" specification_version="1.0">
+        <file crc="1061636792" name="config/Modules/us-physion-ovation-ui-imagej.xml"/>
+        <file crc="2252596272" name="modules/ext/net.imagej/ij-core-2.0.0-SNAPSHOT.jar"/>
+        <file crc="348306360" name="modules/ext/net.imagej/ij-data-2.0.0-SNAPSHOT.jar"/>
+        <file crc="2475237738" name="modules/ext/net.imagej/ij-options-2.0.0-SNAPSHOT.jar"/>
+        <file crc="497767315" name="modules/ext/net.imagej/ij-ui-2.0.0-SNAPSHOT.jar"/>
+        <file crc="3672817413" name="modules/ext/net.imagej/ij-updater-core-2.0.0-SNAPSHOT.jar"/>
+        <file crc="568156178" name="modules/ext/net.imglib2/imglib2-2.0.0-SNAPSHOT.jar"/>
+        <file crc="4170743692" name="modules/ext/net.imglib2/imglib2-algorithms-2.0.0-SNAPSHOT.jar"/>
+        <file crc="2841326397" name="modules/ext/net.imglib2/imglib2-ops-2.0.0-SNAPSHOT.jar"/>
+        <file crc="1159976773" name="modules/ext/net.java.sezpoz/sezpoz-1.9.jar"/>
+        <file crc="2939964344" name="modules/ext/org.bushe/eventbus-1.4.jar"/>
+        <file crc="1043674433" name="modules/us-physion-ovation-ui-imagej.jar"/>
+    </module_version>
+</module>

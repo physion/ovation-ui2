@@ -6,8 +6,6 @@ package us.physion.ovation.ui.browser.insertion;
 
 import us.physion.ovation.ui.TableTreeKey;
 import us.physion.ovation.ui.ScrollableTableTree;
-import com.physion.ebuilder.ExpressionBuilder;
-import com.physion.ebuilder.expression.ExpressionTree;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -30,10 +28,9 @@ import org.openide.util.Cancellable;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.IEntityBase;
-import ovation.Source;
-import ovation.User;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.Source;
+import us.physion.ovation.domain.User;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.browser.ResetQueryAction;
@@ -56,12 +53,12 @@ public class SourceSelector extends javax.swing.JPanel {
 
     
     ChangeSupport cs;
-    private IAuthenticatedDataStoreCoordinator dsc;
+    private DataStoreCoordinator dsc;
     private void resetSources() {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Sources");
         for (Source s : dsc.getContext().getSources())
         {
-            if (s.getParent() == null)
+            if (s.getParents().isEmpty())
             {
                 root.add(new DefaultMutableTreeNode(new EntityWrapper(s)));
             }
@@ -120,7 +117,7 @@ public class SourceSelector extends javax.swing.JPanel {
     public SourceSelector(ChangeSupport changeSupport, IEntityWrapper source) {
         this(changeSupport, source, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection());
     }
-    public SourceSelector(ChangeSupport changeSupport, IEntityWrapper source, IAuthenticatedDataStoreCoordinator dsc) {
+    public SourceSelector(ChangeSupport changeSupport, IEntityWrapper source, DataStoreCoordinator dsc) {
         initComponents();
         this.cs = changeSupport;
         this.dsc = dsc;
@@ -181,12 +178,8 @@ public class SourceSelector extends javax.swing.JPanel {
 
                 public void run() {
                     ArrayList<TableTreeKey> keys = new ArrayList<TableTreeKey>();
-                    Iterator<User> itr = dsc.getContext().getUsersIterator();
-                    while(itr.hasNext())
+                    for (User u :dsc.getContext().getUsers())
                     {
-                    
-                        User u = itr.next();
-
                         if (!selected.getEntity().getUserProperties(u).isEmpty())
                         {
                             keys.add(new PerUserPropertySet(u, selected));
@@ -283,7 +276,7 @@ public class SourceSelector extends javax.swing.JPanel {
     }//GEN-LAST:event_resetButtonActionPerformed
 
     private void runQueryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runQueryButtonActionPerformed
-        final ExpressionTreeProvider etp = Lookup.getDefault().lookup(ExpressionTreeProvider.class);
+        /*final ExpressionTreeProvider etp = Lookup.getDefault().lookup(ExpressionTreeProvider.class);
         ExpressionTree et = etp.getExpressionTree();
         
         final ExpressionTree result = ExpressionBuilder.editExpression(et).expressionTree;
@@ -330,7 +323,7 @@ public class SourceSelector extends javax.swing.JPanel {
                 root.add(new DefaultMutableTreeNode("<None>"));
                 ((DefaultTreeModel)sourcesTree.getModel()).setRoot(root);
             }
-        });
+        });*/
     }//GEN-LAST:event_runQueryButtonActionPerformed
 
     private void sourcesTreeMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sourcesTreeMouseReleased

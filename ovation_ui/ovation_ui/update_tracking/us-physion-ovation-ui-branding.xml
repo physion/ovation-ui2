@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="us.physion.ovation.ui.branding">
+    <module_version install_time="1359341778526" last="true" origin="installer" specification_version="1.0">
+        <file crc="411816556" name="config/Modules/us-physion-ovation-ui-branding.xml"/>
+        <file crc="2155877430" name="core/locale/core_ovation_ui.jar"/>
+        <file crc="3670608285" name="modules/locale/org-netbeans-core-windows_ovation_ui.jar"/>
+        <file crc="3734576234" name="modules/locale/org-netbeans-core_ovation_ui.jar"/>
+        <file crc="1835906274" name="modules/us-physion-ovation-ui-branding.jar"/>
+    </module_version>
+</module>

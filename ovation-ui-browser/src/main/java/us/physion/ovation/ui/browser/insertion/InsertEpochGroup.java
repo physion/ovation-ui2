@@ -16,6 +16,8 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.util.lookup.ServiceProviders;
 import ovation.*;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.interfaces.*;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
@@ -49,7 +51,7 @@ public class InsertEpochGroup extends InsertEntity implements EpochGroupInsertab
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wiz, IAuthenticatedDataStoreCoordinator dsc, IEntityWrapper parent)
+    public void wizardFinished(WizardDescriptor wiz, DataStoreCoordinator dsc, IEntityWrapper parent)
     {
         IEntityWrapper s = (IEntityWrapper)wiz.getProperty("epochGroup.source");
         Source source = null;
@@ -57,14 +59,12 @@ public class InsertEpochGroup extends InsertEntity implements EpochGroupInsertab
             source = (Source)(s.getEntity());
             
         if (parent.getType().isAssignableFrom(Experiment.class))
-            ((Experiment)parent.getEntity()).insertEpochGroup(source,
-                    ((String)wiz.getProperty("epochGroup.label")),
+            ((Experiment)parent.getEntity()).insertEpochGroup(((String)wiz.getProperty("epochGroup.label")),
                     ((DateTime)wiz.getProperty("epochGroup.start")),
-                    ((DateTime)wiz.getProperty("epochGroup.end")));
+                    null, null, null);
         else if (parent.getType().isAssignableFrom(EpochGroup.class))
-            ((EpochGroup)parent.getEntity()).insertEpochGroup(source,
-                    ((String)wiz.getProperty("epochGroup.label")),
+            ((EpochGroup)parent.getEntity()).insertEpochGroup((String)wiz.getProperty("epochGroup.label")),
                     ((DateTime)wiz.getProperty("epochGroup.start")),
-                    ((DateTime)wiz.getProperty("epochGroup.end")));
+                    null, null, null);
     }
 }

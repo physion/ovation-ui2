@@ -8,7 +8,6 @@ import javax.swing.JPanel;
 import org.openide.WizardDescriptor;
 import org.openide.WizardDescriptor.Panel;
 import org.openide.util.HelpCtx;
-import ovation.Source;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /**

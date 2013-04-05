@@ -9,7 +9,6 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
-import ovation.*;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
 import us.physion.ovation.ui.test.TestManager;
@@ -20,6 +19,7 @@ import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import us.physion.ovation.domain.*;
 
 /**
  *
@@ -37,7 +37,6 @@ public class EntityWrapperUtilitiesTest extends OvationTestCase{
     @BeforeClass
     public static void setUpClass()
     {
-        Ovation.enableLogging(LogLevel.ALL);
         AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
 
             public Boolean run() {
@@ -78,7 +77,7 @@ public class EntityWrapperUtilitiesTest extends OvationTestCase{
     public void testQuerySetsProjectViewRootNodeAppropriately() {
         em = new ExplorerManager();
         em.setRootContext(new AbstractNode(new QueryChildren(true)));
-        Iterator<IEntityBase> itr = dsc.getContext().query(Experiment.class, "true");
+        Iterator<OvationEntity> itr = dsc.getContext().query(Experiment.class, "true");
 
         Set s = new HashSet<ExplorerManager>();
         s.add(em);
@@ -87,7 +86,7 @@ public class EntityWrapperUtilitiesTest extends OvationTestCase{
         Node[] projects = em.getRootContext().getChildren().getNodes(true);
         Set<String> projectSet = new HashSet<String>();
         for (Project p : dsc.getContext().getProjects()) {
-            projectSet.add(p.getURIString());
+            projectSet.add(p.getURI().toString());
         }
 
         for (Node n : projects) {
@@ -102,7 +101,7 @@ public class EntityWrapperUtilitiesTest extends OvationTestCase{
     public void testQuerySetsSourceViewRootNodeAppropriately() {
         ExplorerManager em = new ExplorerManager();
         em.setRootContext(new AbstractNode(new QueryChildren(false)));
-        Iterator<IEntityBase> itr = dsc.getContext().query(Experiment.class, "true");
+        Iterator<OvationEntity> itr = dsc.getContext().query(Experiment.class, "true");
 
         Set mgrSet = new HashSet<ExplorerManager>();
         mgrSet.add(em);
@@ -112,8 +111,8 @@ public class EntityWrapperUtilitiesTest extends OvationTestCase{
         Set<String> sourcesSet = new HashSet<String>();
 
         for (Source s : dsc.getContext().getSources()) {
-            if (s.getParent() == null) {
-                sourcesSet.add(s.getURIString());
+            if (s.getParents().isEmpty()) {
+                sourcesSet.add(s.getURI().toString());
             }
         }
         for (Node n : sources) {
@@ -128,7 +127,7 @@ public class EntityWrapperUtilitiesTest extends OvationTestCase{
     public void testQuerySetsExperimentNodesAppropriatelyInSourceView() {
         ExplorerManager em = new ExplorerManager();
         em.setRootContext(new AbstractNode(new QueryChildren(false)));
-        Iterator<IEntityBase> itr = dsc.getContext().query(Experiment.class, "true");
+        Iterator<OvationEntity> itr = dsc.getContext().query(Experiment.class, "true");
 
         Set mgrSet = new HashSet<ExplorerManager>();
         mgrSet.add(em);
@@ -152,7 +151,7 @@ public class EntityWrapperUtilitiesTest extends OvationTestCase{
         for (Source s : dsc.getContext().getSources()) {
             if (s.getParent() == null) {
                 for (Experiment e : s.getExperiments()) {
-                    entitySet.add(e.getURIString());
+                    entitySet.add(e.getURI().toString());
                 }
             }
         }
@@ -170,7 +169,7 @@ public class EntityWrapperUtilitiesTest extends OvationTestCase{
     public void testQuerySetsExperimentNodesAppropriatelyInProjectView() {
         ExplorerManager em = new ExplorerManager();
         em.setRootContext(new AbstractNode(new QueryChildren(true)));
-        Iterator<IEntityBase> itr = dsc.getContext().query(Experiment.class, "true");
+        Iterator<OvationEntity> itr = dsc.getContext().query(Experiment.class, "true");
 
         Set mgrSet = new HashSet<ExplorerManager>();
         mgrSet.add(em);
@@ -185,7 +184,7 @@ public class EntityWrapperUtilitiesTest extends OvationTestCase{
         Set<String> entitySet = new HashSet<String>();
         for (Project p : dsc.getContext().getProjects()) {
             for (Experiment e : p.getExperiments()) {
-                entitySet.add(e.getURIString());
+                entitySet.add(e.getURI().toString());
             }
         }
         for (Node n : projectChildren) {
@@ -204,7 +203,7 @@ public class EntityWrapperUtilitiesTest extends OvationTestCase{
     public void testQuerySetsAnalysisRecordNodesAppropriatelyInProjectView() {
         ExplorerManager em = new ExplorerManager();
         em.setRootContext(new AbstractNode(new QueryChildren(true)));
-        Iterator<IEntityBase> itr = dsc.getContext().query(AnalysisRecord.class, "true");
+        Iterator<OvationEntity> itr = dsc.getContext().query(AnalysisRecord.class, "true");
 
         Set mgrSet = new HashSet<ExplorerManager>();
         mgrSet.add(em);
@@ -224,7 +223,7 @@ public class EntityWrapperUtilitiesTest extends OvationTestCase{
             User user = userItr.next();
             for (Project p : dsc.getContext().getProjects()) {
                 for (AnalysisRecord e : p.getAnalysisRecords(user.getUsername())) {
-                    entitySet.add(e.getURIString());
+                    entitySet.add(e.getURI().toString());
                 }
             }
         }
