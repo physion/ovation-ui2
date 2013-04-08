@@ -32,14 +32,11 @@ public class OvationTestCase {
     public final static String USER_NAME = "jackie";
     public final static char[] PASSWORD = "poorPasswordChoice".toCharArray();
     
-    @BeforeClass
-    public static void setUpClass() {}
-    
-    @Before
+     @Before
     public void setUp() {
         OvationApiModule m = new OvationApiModule();
         Injector injector = Guice.createInjector(m);
-        injector.getInstance(DataStoreCoordinator.class);
+        dsc = injector.getInstance(DataStoreCoordinator.class);
         dsc = Ovation.newDataStoreCoordinator();
         createUser();
     }
@@ -47,21 +44,18 @@ public class OvationTestCase {
     @After
     public void tearDown() throws InterruptedException
     {
-        dsc.deleteDB();
-        //queryService.reset();
-        Thread.sleep(1000);
+        if (dsc != null)
+        {
+            dsc.deleteDB();
+            //queryService.reset();
+            Thread.sleep(1000);
+        }
     }
-    
-    @AfterClass
-    public static void tearDownClass() throws Exception {}
-    
-    public static void setUpDatabase() {}
     
     public void createUser()
     {
         DataContext ctx = dsc.getContext();
-        User u = ctx.addUser(USER_NAME, EMAIL, PASSWORD);
-        USER_UUID = u.getUuid();
-        dsc.authenticateUser(USER_UUID, PASSWORD);
+        ctx.addUser(USER_NAME, EMAIL, PASSWORD);
+        dsc.authenticateUser(EMAIL, PASSWORD);
     }
 }
