@@ -75,7 +75,7 @@ public class ImportPrairie extends ImportImage{
     
     @Override
     public void wizardFinished(final WizardDescriptor wd, final DataStoreCoordinator dsc, final IEntityWrapper iew) {
-
+/*
         EventQueueUtilities.runOffEDT(new Runnable() {
             
             @Override
@@ -129,9 +129,9 @@ public class ImportPrairie extends ImportImage{
                     h.finish();
                 }
             }
-        });
+        });*/
     }
-
+/*
     private void insertEpochsAndResponses(ExternalDevice dev,
             Map<String, Object> epochGroup,
             EpochGroup child,
@@ -182,4 +182,6 @@ public class ImportPrairie extends ImportImage{
         }
 
     }
+    * 
+    */
 }

@@ -32,7 +32,7 @@ public class TabularDataVisualizationFactory implements VisualizationFactory {
 
     @Override
     public int getPreferenceForDataContainer(Measurement r) {
-        if (mimeTypes.contains(r.getMimeType()))
+        if (mimeTypes.contains(r.getDataContentType()))
         {
             return 100;
         }

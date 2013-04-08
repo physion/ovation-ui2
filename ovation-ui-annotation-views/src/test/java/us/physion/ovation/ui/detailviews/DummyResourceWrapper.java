@@ -20,7 +20,7 @@ public class DummyResourceWrapper implements IResourceWrapper{
     {
         this.dsc = dsc;
         this.name = name;
-        uri = r.getBaseUri().toString();
+        uri = r.getDataUri().toString();
     }
     @Override
     public Resource getEntity() {

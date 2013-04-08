@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URI;
 import java.rmi.RMISecurityManager;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,12 +20,13 @@ import org.junit.*;
 import static org.junit.Assert.*;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
-import ovation.*;
-import ovation.database.DatabaseManager;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.TestEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
-import us.physion.ovation.ui.test.TestManager;
+import us.physion.ovation.values.Resource;
 
 /**
  *
@@ -37,20 +39,8 @@ public class ResourceViewTopComponentTest extends OvationTestCase{
     private TestEntityWrapper project;
     private TestEntityWrapper source;
     
-    static TestManager mgr = new SelectionViewTestManager();
-    public ResourceViewTopComponentTest() {
-	setTestManager(mgr); //this is because there are static and non-static methods that need to use the test manager
-    }
-    
-    @BeforeClass
-    public static void setUpClass()
-    {
-        OvationTestCase.setUpDatabase(mgr, 5);
-    }
-    
     @Before
     public void setUp() {
-        dsc = setUpTest();
 
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
@@ -60,28 +50,15 @@ public class ResourceViewTopComponentTest extends OvationTestCase{
         
         DataContext c = dsc.getContext();
         project = new TestEntityWrapper(dsc, c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
-        source = new TestEntityWrapper(dsc, c.insertSource("source"));
-        Resource r1 = project.getEntity().addResource(uti, "resource 1", data);
-        rw1 = new DummyResourceWrapper(dsc, r1);
+        source = new TestEntityWrapper(dsc, c.insertSource("source", "1002"));
+        /*Resource r1 = ((Project)project.getEntity()).addResource("resource 1", new URI("www.google.com"), uti);
+        rw1 = new DummyResourceWrapper(dsc, r1, new URI(project.getURI()));
         Resource r2 = source.getEntity().addResource(uti, "resource 2", data);
         rw2 = new DummyResourceWrapper(dsc, r2);
-
-        Ovation.enableLogging(LogLevel.DEBUG);
+        *
+        */
     }
     
-    
-    @After
-    public void tearDown()
-    {
-        tearDownTest();
-    }
-    
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-        OvationTestCase.tearDownDatabase(mgr);
-    }
-
-
     
     @Test
     public void testUpdateResourcesUpdatesTheEntitiesList()
@@ -149,7 +126,7 @@ public class ResourceViewTopComponentTest extends OvationTestCase{
                  }
              }
              
-             assertNotNull(source.getEntity().getResource(tmp.getName()));
+             assertNotNull(((Source)source.getEntity()).getResource(tmp.getName()));
              assertTrue(foundResource);
          }
         finally{

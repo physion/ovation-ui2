@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.detailviews;
 
+import com.google.common.collect.Multimap;
 import java.io.File;
 import java.net.InetAddress;
 import java.util.HashSet;
@@ -11,15 +12,15 @@ import java.util.List;
 import java.util.Set;
 import org.joda.time.DateTime;
 import org.junit.*;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.database.DatabaseManager;
 import static org.junit.Assert.*;
 import org.openide.util.Exceptions;
 import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.mixin.Taggable;
 import us.physion.ovation.ui.TableTreeKey;
 import us.physion.ovation.ui.interfaces.TestEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
-import us.physion.ovation.ui.test.TestManager;
 /**
  *
  * @author huecotanks
@@ -28,20 +29,8 @@ public class TagsViewTopComponentTest extends OvationTestCase{
     private TestEntityWrapper project;
     private TestEntityWrapper project2;
     
-    static TestManager mgr = new SelectionViewTestManager();
-    public TagsViewTopComponentTest() {
-        setTestManager(mgr); //this is because there are static and non-static methods that need to use the test manager
-    }
-    
-    @BeforeClass
-    public static void setUpClass()
-    {
-        OvationTestCase.setUpDatabase(mgr, 6);
-    }
-    
     @Before
     public void setUp() {
-        dsc = setUpTest();
 
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
@@ -60,17 +49,6 @@ public class TagsViewTopComponentTest extends OvationTestCase{
         
     }
     
-    @After
-    public void tearDown()
-    {
-        tearDownTest();
-    }
-    
-     @AfterClass
-    public static void tearDownClass() throws Exception {
-        OvationTestCase.tearDownDatabase(mgr);
-    }
-   
     @Test
     public void testUpdateSetsMySelectedTagsProperly()
     {
@@ -83,11 +61,11 @@ public class TagsViewTopComponentTest extends OvationTestCase{
         List<TableTreeKey> tagSets = t.update(entitySet, dsc);
         List<String> myTagsFromUserNode = ((TagsSet)tagSets.get(0)).getTags();
         Set<String> mytags = new HashSet();
-        for (String tag : ((ITaggableEntityBase)project.getEntity()).getMyTags())
+        for (String tag : ((Taggable)project.getEntity()).getUserTags(dsc.getContext().getAuthenticatedUser()))
         {
             mytags.add(tag);
         }
-        for (String tag : ((ITaggableEntityBase)project2.getEntity()).getMyTags())
+        for (String tag : ((Taggable)project2.getEntity()).getUserTags(dsc.getContext().getAuthenticatedUser()))
         {
             mytags.add(tag);
         }
@@ -103,7 +81,7 @@ public class TagsViewTopComponentTest extends OvationTestCase{
         entitySet.add(project);
         myTagsFromUserNode = ((TagsSet)t.update(entitySet, dsc).get(0)).getTags();
         mytags = new HashSet<String>();
-        for (String tag : ((ITaggableEntityBase)project.getEntity()).getTags())
+        for (String tag : ((Taggable)project.getEntity()).getTags().values())
         {
             mytags.add(tag);
         }
@@ -132,11 +110,11 @@ public class TagsViewTopComponentTest extends OvationTestCase{
         List<TableTreeKey> tagSets = t.update(entitySet, dsc);
         List<String> myTagsFromUserNode = ((TagsSet)tagSets.get(0)).getTags();
         Set<String> mytags = new HashSet();
-        for (String tag : ((ITaggableEntityBase)project.getEntity()).getMyTags())
+        for (String tag : ((Taggable)project.getEntity()).getUserTags(dsc.getContext().getAuthenticatedUser()))
         {
             mytags.add(tag);
         }
-        for (String tag : ((ITaggableEntityBase)project2.getEntity()).getMyTags())
+        for (String tag : ((Taggable)project2.getEntity()).getUserTags(dsc.getContext().getAuthenticatedUser()))
         {
             mytags.add(tag);
         }

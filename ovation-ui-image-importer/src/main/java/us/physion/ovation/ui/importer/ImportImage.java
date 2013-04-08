@@ -41,10 +41,7 @@ import org.openide.util.Utilities;
 import org.openide.util.lookup.ServiceProvider;
 import ovation.*;
 import us.physion.ovation.DataStoreCoordinator;
-import us.physion.ovation.domain.EpochGroup;
-import us.physion.ovation.domain.EquipmentSetup;
-import us.physion.ovation.domain.Experiment;
-import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.*;
 
 @ServiceProvider(service = EpochGroupInsertable.class)
 /**
@@ -142,7 +139,7 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
             DateTime end = (DateTime) wd.getProperty(epochName + ".end");
             Map<String, Object> epochProperties = (Map<String, Object>) wd.getProperty(epochName + ".properties");
 
-            Epoch e = eg.insertEpoch(start, end, protocol, protocolParameters, null);
+            Epoch e = eg.insertEpoch(start, end, null, protocolParameters, null);
             for (String key : epochProperties.keySet())
             {
                 Object val = epochProperties.get(key);
@@ -176,7 +173,7 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
                 //units
                 //samplingRates
                 //samplingRateUnits should all go somewhere, right?
-                Measurement r = e.insertMeasurement(name, Set<String> sourceNames, Set<String> devices, url, uti);
+                //Measurement r = e.insertMeasurement(name, Set<String> sourceNames, Set<String> devices, url, uti);
             }
         }
     }

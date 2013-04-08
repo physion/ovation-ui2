@@ -23,10 +23,15 @@ import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ServiceProvider;
 import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.AnnotatableEntity;
+import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.Source;
+import us.physion.ovation.domain.User;
 import us.physion.ovation.ui.TableTreeKey;
 import us.physion.ovation.ui.interfaces.*;
 import us.physion.ovation.ui.test.OvationTestCase;
-import us.physion.ovation.ui.test.TestManager;
 
 @ServiceProvider(service = Lookup.Provider.class)
 /**
@@ -44,23 +49,14 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
     private Set<String> userURIs;
     private PropertiesViewTopComponent tc;
     
-    static TestManager mgr = new SelectionViewTestManager();
     public PropertyViewTest() {
-	setTestManager(mgr); //this is because there are static and non-static methods that need to use the test manager
         ic = new InstanceContent();
         l = new AbstractLookup(ic);
     }
     
-    @BeforeClass
-    public static void setUpClass()
-    {
-        OvationTestCase.setUpDatabase(mgr, 5);
-    }
     
     @Before
-    public void setUp() throws UserAuthenticationException {
-        dsc = setUpTest();
-        Ovation.enableLogging(LogLevel.DEBUG);
+    public void setUp() {
 
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
@@ -69,9 +65,8 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
         String uti = "unknown-uti";
         
         DataContext c = dsc.getContext();
-        User newUser = c.addUser("newUser", "password");
         project = new TestEntityWrapper(dsc, c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
-        source = new TestEntityWrapper(dsc, c.insertSource("source"));
+        source = new TestEntityWrapper(dsc, c.insertSource("source", "10010"));
         Project p = (Project)project.getEntity();
         p.addProperty("color", "yellow");
         p.addProperty("size", 10.5);
@@ -79,13 +74,14 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
         s.addProperty("id", 4);
         s.addProperty("birthday", "6/23/1988");
         
-        user1 = new TestEntityWrapper(dsc, c.currentAuthenticatedUser());
+        User newUser = null;
+        user1 = new TestEntityWrapper(dsc, c.getAuthenticatedUser());
         user2 = new TestEntityWrapper(dsc, newUser);
         userURIs = new HashSet();
         userURIs.add(user1.getURI());
         userURIs.add(user2.getURI());
         
-        c.authenticateUser("newUser", "password");
+        c.authenticateUser(newUser.getUuid(), "password".toCharArray());
         p.addProperty("color", "chartreuse");
         p.addProperty("interesting", true);
         
@@ -96,17 +92,6 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
     }
     
     
-    @After
-    public void tearDown()
-    {
-        tearDownTest();
-    }
-    
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-        OvationTestCase.tearDownDatabase(mgr);
-    }
-
     @Test
     public void testGetsProperTreeNodeStructure()
     {
@@ -177,7 +162,7 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
         
         Set<Tuple> databaseProps = new HashSet<Tuple>();
         for (IEntityWrapper ew : entities) {
-            Map<String, Object> props = ew.getEntity().getUserProperties(u);
+            Map<String, Object> props = ((AnnotatableEntity)ew.getEntity()).getUserProperties(u);
             for (String key : props.keySet())
             {
                 databaseProps.add(new Tuple(key, props.get(key)));
@@ -187,7 +172,7 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
     }
 
     @Override
-    public IAuthenticatedDataStoreCoordinator getConnection() {
+    public DataStoreCoordinator getConnection() {
         return dsc;
     }
 

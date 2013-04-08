@@ -63,7 +63,7 @@ public class InsertEpochGroup extends InsertEntity implements EpochGroupInsertab
                     ((DateTime)wiz.getProperty("epochGroup.start")),
                     null, null, null);
         else if (parent.getType().isAssignableFrom(EpochGroup.class))
-            ((EpochGroup)parent.getEntity()).insertEpochGroup((String)wiz.getProperty("epochGroup.label")),
+            ((EpochGroup)parent.getEntity()).insertEpochGroup((String)wiz.getProperty("epochGroup.label"),
                     ((DateTime)wiz.getProperty("epochGroup.start")),
                     null, null, null);
     }

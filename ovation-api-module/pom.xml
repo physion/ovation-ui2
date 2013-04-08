@@ -72,6 +72,9 @@
                     <publicPackages>
 		        <publicPackage>org.apache.log4j.*</publicPackage>
 		        <publicPackage>com.google.inject.*</publicPackage>
+		        <publicPackage>com.google.common.base.*</publicPackage>
+		        <publicPackage>com.google.common.collect.*</publicPackage>
+		        <publicPackage>com.google.common.util.concurrent.*</publicPackage>
 		        <publicPackage>us.physion.ovation.*</publicPackage>
                         <publicPackage>us.physion.ovation.domain.*</publicPackage>
                         <publicPackage>us.physion.ovation.api.*</publicPackage>
@@ -79,6 +82,7 @@
                         <publicPackage>com.physion.ebuilder.*</publicPackage>
                         <publicPackage>org.jdesktop.swingx.*</publicPackage>
                         <publicPackage>org.joda.time.*</publicPackage>
+			<publicPackage>org.slf4j.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

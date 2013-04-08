@@ -187,7 +187,7 @@ public final class ResourceViewTopComponent extends TopComponent {
             if (AnnotatableEntity.class.isAssignableFrom(e.getType())) {
                 AnnotatableEntity entity = (AnnotatableEntity)e.getEntity();
                 for (String name : entity.getResourceNames()) {
-                    resources.add(new ResourceWrapper(name, entity.getResource(name)));
+                    resources.add(new ResourceWrapper(name, entity.getResource(name), entity.getURI()));
                 }
             }
         }
@@ -405,13 +405,11 @@ public final class ResourceViewTopComponent extends TopComponent {
             AnnotatableEntity entity = e.getEntity(AnnotatableEntity.class);
             try {
                 r = entity.addResource(name, new URI(path), "application/txt");
+                listModel.addResource(new ResourceWrapper(name, r, entity.getURI()));
             } catch (URISyntaxException ex) {
                 Exceptions.printStackTrace(ex);
                 throw new OvationException("Invalid path. " + ex.getLocalizedMessage());
             }
-        }
-        if (r != null) {
-            listModel.addResource(new ResourceWrapper(name, r));
         }
     }
 

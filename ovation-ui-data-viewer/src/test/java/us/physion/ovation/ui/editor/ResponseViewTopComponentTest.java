@@ -109,8 +109,10 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         }
         String name = "name";
         Set<String> sourceNames = null;
-        Set<String> devices = null; 
-        NumericMeasurement r = epoch.insertNumericMeasurement(name, sourceNames, devices, d);
+        Set<String> devices = null;
+        // TODO: create a numeric data for d
+        NumericData data = new NumericData();
+        NumericMeasurement r = epoch.insertNumericMeasurement(name, sourceNames, devices, data);
         entities.add(new TestEntityWrapper(dsc, r));
         
         ChartGroupWrapper cw = (ChartGroupWrapper)ResponseWrapperFactory.create(r).createVisualization(r);

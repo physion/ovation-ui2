@@ -9,11 +9,9 @@ import org.joda.time.DateTime;
 import org.junit.*;
 import org.openide.WizardDescriptor;
 import org.openide.util.ChangeSupport;
-import us.physion.ovation.ui.browser.BrowserTestManager;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.TestEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
-import us.physion.ovation.ui.test.TestManager;
 
 import javax.swing.*;
 import java.security.AccessController;
@@ -28,42 +26,6 @@ import us.physion.ovation.domain.Project;
  */
 public class InsertExperimentTest extends OvationTestCase
 {
-    static TestManager mgr = new BrowserTestManager();
-    
-    public InsertExperimentTest() {
-        setTestManager(mgr); //this is because there are static and non-static methods that need to use the test manager
-    }
-    
-    @BeforeClass
-    public static void setUpClass()
-    {
-        AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
-
-            public Boolean run() {
-                OvationTestCase.setUpDatabase(mgr, 2);
-                return true;
-            }
-        });
-        
-    }
-    
-    @Before
-    public void setUp() {
-        dsc = setUpTest();
-    }
-    
-    
-    @After
-    public void tearDown()
-    {
-        tearDownTest();
-    }
-    
-     @AfterClass
-    public static void tearDownClass() throws Exception {
-        OvationTestCase.tearDownDatabase(mgr);
-    }
-
     //InsertEntity action methods
     @Test
     public void testGetPanels() {

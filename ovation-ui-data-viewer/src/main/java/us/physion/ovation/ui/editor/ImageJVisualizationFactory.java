@@ -78,7 +78,7 @@ System.out.println(e.getMessage());
 
     @Override
 	public int getPreferenceForDataContainer(Measurement r) {
-        if (r.getMimeType().toLowerCase().contains("tif")) {
+        if (r.getDataContentType().toLowerCase().contains("tif")) {
             return 110;
         }
         return -1;

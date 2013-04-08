@@ -24,7 +24,6 @@ import org.openide.util.Utilities;
 import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.NewType;
 import org.openide.util.datatransfer.PasteType;
-import ovation.*;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.interfaces.*;
 

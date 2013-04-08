@@ -8,9 +8,7 @@ import junit.framework.TestCase;
 import org.junit.*;
 import org.openide.WizardDescriptor;
 import org.openide.util.ChangeSupport;
-import us.physion.ovation.ui.browser.BrowserTestManager;
 import us.physion.ovation.ui.test.OvationTestCase;
-import us.physion.ovation.ui.test.TestManager;
 
 import javax.swing.*;
 import java.security.AccessController;
@@ -24,42 +22,6 @@ import us.physion.ovation.domain.Source;
  */
 public class InsertSourceTest extends OvationTestCase
 {
-    static TestManager mgr = new BrowserTestManager();
-    
-    public InsertSourceTest() {
-        setTestManager(mgr); //this is because there are static and non-static methods that need to use the test manager
-    }
-    
-    @BeforeClass
-    public static void setUpClass()
-    {
-        AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
-
-            public Boolean run() {
-                OvationTestCase.setUpDatabase(mgr, 2);
-                return true;
-            }
-        });
-        
-    }
-    
-    @Before
-    public void setUp() {
-        dsc = setUpTest();
-    }
-    
-    
-    @After
-    public void tearDown()
-    {
-        tearDownTest();
-    }
-    
-     @AfterClass
-    public static void tearDownClass() throws Exception {
-        OvationTestCase.tearDownDatabase(mgr);
-    }
-
     //InsertEntity action methods
     @Test
     public void testGetPanels() {
@@ -80,7 +42,7 @@ public class InsertSourceTest extends OvationTestCase
         
         new InsertSource().wizardFinished(d, dsc, null);
         
-        Source s = dsc.getContext().getSources()[0];
+        Source s = dsc.getContext().getTopLevelSources().iterator().next();
         TestCase.assertEquals(s.getLabel(), label);
     }
     

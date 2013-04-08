@@ -29,6 +29,7 @@ import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.AnnotatableEntity;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.User;
 import us.physion.ovation.ui.browser.BrowserUtilities;
@@ -56,9 +57,9 @@ public class SourceSelector extends javax.swing.JPanel {
     private DataStoreCoordinator dsc;
     private void resetSources() {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Sources");
-        for (Source s : dsc.getContext().getSources())
+        for (Source s : dsc.getContext().getTopLevelSources())
         {
-            if (s.getParents().isEmpty())
+            if (!s.getParentSources().iterator().hasNext())
             {
                 root.add(new DefaultMutableTreeNode(new EntityWrapper(s)));
             }
@@ -67,8 +68,7 @@ public class SourceSelector extends javax.swing.JPanel {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) root.getFirstChild();
             while ((node = node.getNextNode()) != null) {
                 Source s = ((Source) ((IEntityWrapper) node.getUserObject()).getEntity());
-                Source[] children = s.getChildren();
-                for (Source child : children) {
+                for (Source child : s.getChildrenSources()) {
                     node.add(new DefaultMutableTreeNode(new EntityWrapper(child)));
                 }
             }
@@ -180,7 +180,7 @@ public class SourceSelector extends javax.swing.JPanel {
                     ArrayList<TableTreeKey> keys = new ArrayList<TableTreeKey>();
                     for (User u :dsc.getContext().getUsers())
                     {
-                        if (!selected.getEntity().getUserProperties(u).isEmpty())
+                        if (!((AnnotatableEntity)selected.getEntity()).getUserProperties(u).isEmpty())
                         {
                             keys.add(new PerUserPropertySet(u, selected));
                         }

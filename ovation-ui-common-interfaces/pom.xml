@@ -83,8 +83,20 @@
                     <useOSGiDependencies>false</useOSGiDependencies>
                     <publicPackages>
                         <publicPackage>us.physion.ovation.ui.interfaces.*</publicPackage>
-                        <publicPackage>ovation.*</publicPackage>
-                    </publicPackages>
+			<publicPackage>us.physion.ovation.ui.*</publicPackage>
+			<publicPackage>us.physion.ovation.*</publicPackage>
+			<publicPackage>us.physion.ovation.api.*</publicPackage>
+			<publicPackage>us.physion.ovation.domain.*</publicPackage>
+			<publicPackage>opendap.dap.*</publicPackage>
+			<publicPackage>org.apache.commons.*</publicPackage>
+			<publicPackage>edu.wisc.*</publicPackage>
+			<publicPackage>Jama.*</publicPackage>
+			<publicPackage>org.jdom.*</publicPackage>
+			<publicPackage>ucar.grib.*</publicPackage>
+			<publicPackage>visad.jmet.*</publicPackage>
+			<publicPackage>org.slf4j.impl.*</publicPackage>
+			<publicPackage>loci.formats.*</publicPackage>
+		    </publicPackages>
                 </configuration>
             </plugin>
 

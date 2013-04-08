@@ -4,9 +4,9 @@
  */
 package us.physion.ovation.ui.query;
 
-import com.objy.db.app.ooId;
-import com.physion.ebuilder.ExpressionBuilder;
-import com.physion.ebuilder.expression.ExpressionTree;
+// import com.objy.db.app.ooId;
+// import com.physion.ebuilder.ExpressionBuilder;
+// import com.physion.ebuilder.expression.ExpressionTree;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -52,10 +52,11 @@ public final class RunQuery implements ActionListener {
          }
          return null;
     }
-    
+
+    // TODO: need expression tree class
     public void actionPerformed(ActionEvent e) {
         
-        final ExpressionTreeProvider etp = Lookup.getDefault().lookup(ExpressionTreeProvider.class);
+        /*final ExpressionTreeProvider etp = Lookup.getDefault().lookup(ExpressionTreeProvider.class);
         ExpressionTree et = etp.getExpressionTree();
         
         IAuthenticatedDataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
@@ -102,6 +103,6 @@ public final class RunQuery implements ActionListener {
                     ph.finish();
                 }
             }
-        });
+        });*/
     }
 }

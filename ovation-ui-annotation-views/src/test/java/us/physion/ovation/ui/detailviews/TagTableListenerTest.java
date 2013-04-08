@@ -15,10 +15,13 @@ import org.joda.time.DateTime;
 import org.junit.*;
 import org.openide.util.Exceptions;
 import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.mixin.Taggable;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.TestEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
-import us.physion.ovation.ui.test.TestManager;
 
 /**
  *
@@ -30,21 +33,8 @@ public class TagTableListenerTest extends OvationTestCase{
     private MockResizableTree mockTree;
     private EditableTable editableTable;
     
-    static TestManager mgr = new SelectionViewTestManager();
-    
-    public TagTableListenerTest() {
-        setTestManager(mgr); 
-    }
-    
-    @BeforeClass
-    public static void setUpClass()
-    {
-        OvationTestCase.setUpDatabase(mgr, 6);
-    }
-    
     @Before
     public void setUp() {
-        dsc = setUpTest();
 
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
@@ -65,17 +55,6 @@ public class TagTableListenerTest extends OvationTestCase{
         
     }
     
-    @After
-    public void tearDown()
-    {
-        tearDownTest();
-    }
-    
-     @AfterClass
-    public static void tearDownClass() throws Exception {
-        OvationTestCase.tearDownDatabase(mgr);
-    }
-
     @Test
     public void testAddMultipleTagsToTableModelAndDatabase()
     {
@@ -89,7 +68,7 @@ public class TagTableListenerTest extends OvationTestCase{
         EditableTableModel m = createTableModel(key, uris);
         for (String uri : uris)
         {
-            ITaggableEntityBase eb = (ITaggableEntityBase)dsc.getContext().objectWithURI(uri);
+            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, false);
             assertContainsTag(newTag2, eb, false);
         }
@@ -99,7 +78,7 @@ public class TagTableListenerTest extends OvationTestCase{
         
         for (String uri : uris)
         {
-            ITaggableEntityBase eb = (ITaggableEntityBase)dsc.getContext().objectWithURI(uri);
+            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, true);
             assertContainsTag(newTag2, eb, true);
         }
@@ -127,7 +106,7 @@ public class TagTableListenerTest extends OvationTestCase{
         
         for (String uri : uris)
         {
-            ITaggableEntityBase eb = (ITaggableEntityBase)dsc.getContext().objectWithURI(uri);
+            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, false);
             assertContainsTag(oldTag1, eb, true);
             assertContainsTag(newTag2, eb, false);
@@ -139,7 +118,7 @@ public class TagTableListenerTest extends OvationTestCase{
 
         for (String uri : uris)
         {
-            ITaggableEntityBase eb = (ITaggableEntityBase)dsc.getContext().objectWithURI(uri);
+            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, true);
             assertContainsTag(oldTag1, eb, false);
             assertContainsTag(newTag2, eb, true);
@@ -167,7 +146,7 @@ public class TagTableListenerTest extends OvationTestCase{
 
         for (String uri : uris)
         {
-            ITaggableEntityBase eb = (ITaggableEntityBase)dsc.getContext().objectWithURI(uri);
+            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
             assertContainsTag(newTag, eb, true);
         }
         TestCase.assertEquals(m.getValueAt(0, 0), newTag);
@@ -193,7 +172,7 @@ public class TagTableListenerTest extends OvationTestCase{
         int i=0;
         for (String uri : uris)
         {
-            ITaggableEntityBase eb = (ITaggableEntityBase)dsc.getContext().objectWithURI(uri);
+            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
             eb.addTag(newTag1);
             assertContainsTag(newTag1, eb, true);
 
@@ -219,7 +198,7 @@ public class TagTableListenerTest extends OvationTestCase{
         
         for (String uri : uris)
         {
-            ITaggableEntityBase eb = (ITaggableEntityBase)dsc.getContext().objectWithURI(uri);
+            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, false);
             assertContainsTag(newTag2, eb, false);
             assertContainsTag(newTag3, eb, true);
@@ -228,9 +207,9 @@ public class TagTableListenerTest extends OvationTestCase{
         }
     }
 
-    private void assertContainsTag(String t, ITaggableEntityBase eb, boolean b) {
+    private void assertContainsTag(String t, Taggable eb, boolean b) {
         boolean contains = false;
-        for (String tag : eb.getMyTags())
+        for (String tag : eb.getUserTags(dsc.getContext().getAuthenticatedUser()))
         {
             if (t.equals(tag))
             {
@@ -257,8 +236,8 @@ public class TagTableListenerTest extends OvationTestCase{
     
     private class TestTreeKey extends TagsSet {
 
-        public TestTreeKey(IAuthenticatedDataStoreCoordinator dsc, Set<String> uris) {
-            super(dsc.getContext().currentAuthenticatedUser(), true, true , new ArrayList<String>(), uris);
+        public TestTreeKey(DataStoreCoordinator dsc, Set<String> uris) {
+            super(dsc.getContext().getAuthenticatedUser(), true, true , new ArrayList<String>(), uris);
         }
         
         @Override

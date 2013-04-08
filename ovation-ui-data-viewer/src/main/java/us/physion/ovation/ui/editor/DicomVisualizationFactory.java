@@ -17,7 +17,7 @@ public class DicomVisualizationFactory implements VisualizationFactory{
 
     @Override
     public int getPreferenceForDataContainer(Measurement r) {
-        if (r.getMimeType().equals("application/dicom"))
+        if (r.getDataContentType().equals("application/dicom"))
         {
             return 100;
         }

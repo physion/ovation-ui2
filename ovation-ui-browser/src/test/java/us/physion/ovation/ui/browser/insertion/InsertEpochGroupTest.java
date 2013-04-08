@@ -21,8 +21,6 @@ import org.openide.nodes.Node;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
 import us.physion.ovation.domain.*;
-import us.physion.ovation.ui.test.TestManager;
-import us.physion.ovation.ui.browser.BrowserTestManager;
 import us.physion.ovation.ui.browser.EntityWrapperUtilities;
 import us.physion.ovation.ui.browser.QueryChildren;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
@@ -35,46 +33,14 @@ import us.physion.ovation.ui.interfaces.TestEntityWrapper;
  */
 public class InsertEpochGroupTest extends OvationTestCase{
 
-    static TestManager mgr = new BrowserTestManager();
     public InsertEpochGroupTest() {
-        setTestManager(mgr); //this is because there are static and non-static methods that need to use the test manager
     }
     
-    @BeforeClass
-    public static void setUpClass()
-    {
-        AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
-
-            public Boolean run() {
-                OvationTestCase.setUpDatabase(mgr, 2);
-                return true;
-            }
-        });
-        
-    }
-    
-    @Before
-    public void setUp() {
-        dsc = setUpTest();
-    }
-    
-    
-    @After
-    public void tearDown()
-    {
-        tearDownTest();
-    }
-    
-     @AfterClass
-    public static void tearDownClass() throws Exception {
-        OvationTestCase.tearDownDatabase(mgr);
-    }
-
     //InsertEntity action methods
     @Test
     public void testGetPanelsForParentEpochGroup() {
         DateTime start = new DateTime();
-        EpochGroup e = dsc.getContext().insertProject("name", "purpose", start).insertExperiment("purpose", start).insertEpochGroup("different-label", start);
+        EpochGroup e = dsc.getContext().insertProject("name", "purpose", start).insertExperiment("purpose", start).insertEpochGroup("different-label", start, null, null, null);
         IEntityWrapper parent = new TestEntityWrapper(dsc, e);
         InsertEpochGroup insert = new InsertEpochGroup();
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = insert.getPanels(parent);
@@ -91,7 +57,7 @@ public class InsertEpochGroupTest extends OvationTestCase{
         String label = "label";
         DateTime start = new DateTime(0);
         DateTime end = new DateTime(1);
-        Source src = dsc.getContext().insertSource("Mouse");
+        Source src = dsc.getContext().insertSource("Mouse", "45");
         IEntityWrapper s = new TestEntityWrapper(dsc, src);
        
         WizardDescriptor d = new WizardDescriptor(new InsertEntityIterator(null));
@@ -116,25 +82,19 @@ public class InsertEpochGroupTest extends OvationTestCase{
     {
         String label = "label";
         DateTime start = new DateTime(0);
-        DateTime end = null;
-        Source src = dsc.getContext().insertSource("Mouse");
-        IEntityWrapper s = new TestEntityWrapper(dsc, src);
         WizardDescriptor d = new WizardDescriptor(new InsertEntityIterator(null));
-        d.putProperty("epochGroup.source", s);
         d.putProperty("epochGroup.label", label);
         d.putProperty("epochGroup.start", start);
-        d.putProperty("epochGroup.end", end);
         
-        EpochGroup e = dsc.getContext().insertProject("name", "purpose", start).insertExperiment("purpose", start).insertEpochGroup("different-label", start, end);
+        EpochGroup e = dsc.getContext().insertProject("name", "purpose", start).insertExperiment("purpose", start).insertEpochGroup("different-label", start, null, null, null);
         IEntityWrapper parent = new TestEntityWrapper(dsc, e);
         
         new InsertEpochGroup().wizardFinished(d, dsc, parent);
         
-        EpochGroup eg = e.getChildren()[0];
+        
+        EpochGroup eg = null;
         TestCase.assertEquals(eg.getLabel(), label);
-        TestCase.assertEquals(eg.getStartTime(), start);
-        TestCase.assertEquals(eg.getEndTime(), end);
-        TestCase.assertEquals(eg.getSource().getUuid(), src.getUuid());
+        TestCase.assertEquals(eg.getStart(), start);
     }
     
     //Panel 1 methods
@@ -151,7 +111,7 @@ public class InsertEpochGroupTest extends OvationTestCase{
         SourceSelector s = new SourceSelector(listener.getChangeSupport(), null, dsc);
         
         TestCase.assertFalse(listener.getStateChanged());
-        Source src = dsc.getContext().insertSource("a new source");
+        Source src = dsc.getContext().insertSource("a new source", "89");
         s.setSource(new TestEntityWrapper(dsc, src));
         TestCase.assertTrue(listener.getStateChanged());
         
@@ -170,7 +130,7 @@ public class InsertEpochGroupTest extends OvationTestCase{
         
         TestCase.assertTrue(p.isValid());
         l.resetStateChanged();
-        ss.setSource( new TestEntityWrapper(dsc, dsc.getContext().insertSource("label")));
+        ss.setSource( new TestEntityWrapper(dsc, dsc.getContext().insertSource("label", "89")));
         TestCase.assertTrue(l.getStateChanged());
     }
     
@@ -185,7 +145,7 @@ public class InsertEpochGroupTest extends OvationTestCase{
         p.storeSettings(d);
         TestCase.assertNull(d.getProperty("epochGroup.source"));
         
-        Source src = dsc.getContext().insertSource("new label");
+        Source src = dsc.getContext().insertSource("new label", "blah");
         ss.setSource( new TestEntityWrapper(dsc, src));
         p.storeSettings(d);
         TestCase.assertEquals(((IEntityWrapper)d.getProperty("epochGroup.source")).getEntity().getUuid(), src.getUuid());
