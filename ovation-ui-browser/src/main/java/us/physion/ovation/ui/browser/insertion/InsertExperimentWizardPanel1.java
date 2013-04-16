@@ -36,12 +36,8 @@ class InsertExperimentWizardPanel1 extends BasicWizardPanel {
     public boolean isValid() {
         String purpose = ((InsertExperimentVisualPanel1)component).getPurpose();
         DateTime start = ((InsertExperimentVisualPanel1)component).getStart();
-        DateTime end = ((InsertExperimentVisualPanel1)component).getEnd();
         
-        boolean valid = purpose != null && !purpose.isEmpty() && start != null;
-        if (end != null)
-            return valid && !start.isAfter(end);
-        return valid;
+        return purpose != null && !purpose.isEmpty() && start != null;
     }
 
 
@@ -49,9 +45,7 @@ class InsertExperimentWizardPanel1 extends BasicWizardPanel {
     public void storeSettings(WizardDescriptor wiz) {
         String purpose = ((InsertExperimentVisualPanel1)component).getPurpose();
         DateTime start = ((InsertExperimentVisualPanel1)component).getStart();
-        DateTime end = ((InsertExperimentVisualPanel1)component).getEnd();
         wiz.putProperty("experiment.purpose", purpose);
         wiz.putProperty("experiment.start", start);
-        wiz.putProperty("experiment.end", end);
     }
 }

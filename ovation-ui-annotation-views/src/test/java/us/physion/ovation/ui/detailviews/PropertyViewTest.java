@@ -81,7 +81,7 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
         userURIs.add(user1.getURI());
         userURIs.add(user2.getURI());
         
-        c.authenticateUser(newUser.getUuid(), "password".toCharArray());
+        c.getCoordinator().authenticateUser(newUser.getEmail(), "password".toCharArray());
         p.addProperty("color", "chartreuse");
         p.addProperty("interesting", true);
         

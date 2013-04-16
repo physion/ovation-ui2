@@ -88,20 +88,12 @@ public class InsertExperimentTest extends OvationTestCase
         panel.setStart(start);
         TestCase.assertTrue(l.getStateChanged());
         l.resetStateChanged();
-        panel.setEnd(end);
-        TestCase.assertTrue(l.getStateChanged());
-        l.resetStateChanged();
         TestCase.assertTrue(p.isValid());
         
         panel.setStart(null);
         TestCase.assertFalse(p.isValid());
         
-        panel.setStart(new DateTime(3));
-        panel.setEnd(new DateTime(0));
-        TestCase.assertFalse(p.isValid());// startTime > endTime
-        
         panel.setStart(start);
-        panel.setEnd(end);
         panel.setPurpose("");
         TestCase.assertFalse(p.isValid());
     }
@@ -126,7 +118,6 @@ public class InsertExperimentTest extends OvationTestCase
         
         panel.setPurpose(purpose);
         panel.setStart(start);
-        panel.setEnd(end);
         p.storeSettings(d);
         TestCase.assertEquals(d.getProperty("experiment.purpose"), purpose);
         TestCase.assertEquals(d.getProperty("experiment.start"), start);

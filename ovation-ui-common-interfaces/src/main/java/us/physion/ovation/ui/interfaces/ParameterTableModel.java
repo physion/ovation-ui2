@@ -2,8 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package us.physion.ovation.ui.importer;
-
+package us.physion.ovation.ui.interfaces;
 import java.util.*;
 import javax.swing.table.DefaultTableModel;
 
@@ -11,17 +10,17 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author jackie
  */
-class ParameterTableModel extends DefaultTableModel {
+public class ParameterTableModel extends DefaultTableModel {
 
     Map<String, Object> params;
     boolean editable;
     List<String> keys;
 
-    ParameterTableModel() {
+    public ParameterTableModel() {
         this(true);
     }
     
-    ParameterTableModel(boolean editable) {
+    public ParameterTableModel(boolean editable) {
         super();
         params = new HashMap<String, Object>();
         keys = new ArrayList<String>();

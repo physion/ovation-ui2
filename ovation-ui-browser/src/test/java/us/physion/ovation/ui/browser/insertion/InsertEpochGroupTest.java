@@ -167,7 +167,7 @@ public class InsertEpochGroupTest extends OvationTestCase{
     {
         DummyPanel1()
         {
-            super(null);
+            super();
         }
         @Override
         public JPanel getComponent()
@@ -212,22 +212,9 @@ public class InsertEpochGroupTest extends OvationTestCase{
         panel.setStart(null);
         TestCase.assertTrue(l.getStateChanged());
         l.resetStateChanged();
-        panel.setEnd(null);
-        TestCase.assertTrue(l.getStateChanged());
-        l.resetStateChanged();
         TestCase.assertFalse(p.isValid());// no start time
         
         panel.setStart(new DateTime());
-        TestCase.assertTrue(p.isValid());
-        
-        panel.setStart(null);
-        panel.setEnd(new DateTime(0));
-        TestCase.assertFalse(p.isValid());// no start time
-        
-        panel.setStart(new DateTime(1));// end < start
-        TestCase.assertFalse(p.isValid());
-        
-        panel.setEnd(new DateTime(2));
         TestCase.assertTrue(p.isValid());
     }
     
@@ -249,7 +236,6 @@ public class InsertEpochGroupTest extends OvationTestCase{
         
         panel.setLabel(label);
         panel.setStart(start);
-        panel.setEnd(end);
         p.storeSettings(d);
         TestCase.assertEquals(d.getProperty("epochGroup.label"), label);
         TestCase.assertEquals(d.getProperty("epochGroup.start"), start);

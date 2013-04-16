@@ -86,7 +86,7 @@ class DBConnectionManager {
                     for (User u : users)
                     {
                         try {
-                            if (c.authenticateUser(u.getUuid(), password.toCharArray())) {
+                            if (c.getCoordinator().authenticateUser(u.getEmail(), password.toCharArray()).get()) {
                                 authenticated = true;
                                 break;
                             }

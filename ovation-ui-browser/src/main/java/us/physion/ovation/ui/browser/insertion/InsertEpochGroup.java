@@ -39,13 +39,10 @@ public class InsertEpochGroup extends InsertEntity implements EpochGroupInsertab
     public List<WizardDescriptor.Panel<WizardDescriptor>> getPanels(IEntityWrapper parent)
     {
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
-        InsertEpochGroupWizardPanel1 panel1;
-        /*if (parent.getType().equals(EpochGroup.class))
-            panel1 = new InsertEpochGroupWizardPanel1(new EntityWrapper(((EpochGroup)parent.getEntity()).getSource()));
-        else
-        */
-            panel1 = new InsertEpochGroupWizardPanel1(null);
-        panels.add(panel1);
+
+        panels.add(new InsertEpochGroupWizardPanel1()); //protocol selector
+        panels.add(new InsertEpochGroupWizardPanel3()); //protocol param
+        panels.add(new InsertEpochGroupWizardPanel4()); //device param
         panels.add(new InsertEpochGroupWizardPanel2());
         return panels;
     }
@@ -53,18 +50,17 @@ public class InsertEpochGroup extends InsertEntity implements EpochGroupInsertab
     @Override
     public void wizardFinished(WizardDescriptor wiz, DataStoreCoordinator dsc, IEntityWrapper parent)
     {
-        IEntityWrapper s = (IEntityWrapper)wiz.getProperty("epochGroup.source");
-        Source source = null;
-        if (s != null)
-            source = (Source)(s.getEntity());
-            
         if (parent.getType().isAssignableFrom(Experiment.class))
             ((Experiment)parent.getEntity()).insertEpochGroup(((String)wiz.getProperty("epochGroup.label")),
                     ((DateTime)wiz.getProperty("epochGroup.start")),
-                    null, null, null);
+                    ((Protocol)wiz.getProperty("epochGroup.protocol")),
+                    ((Map<String, Object>)wiz.getProperty("epochGroup.protocolParameters")),
+                    ((Map<String, Object>)wiz.getProperty("epochGroup.deviceParameters")));
         else if (parent.getType().isAssignableFrom(EpochGroup.class))
             ((EpochGroup)parent.getEntity()).insertEpochGroup((String)wiz.getProperty("epochGroup.label"),
                     ((DateTime)wiz.getProperty("epochGroup.start")),
-                    null, null, null);
+                    ((us.physion.ovation.domain.impl.Protocol)(wiz.getProperty("epochGroup.protocol"))),//TODO: cast to interface, not implementation
+                    ((Map<String, Object>)wiz.getProperty("epochGroup.protocolParameters")),
+                    ((Map<String, Object>)wiz.getProperty("epochGroup.deviceParameters")));
     }
 }

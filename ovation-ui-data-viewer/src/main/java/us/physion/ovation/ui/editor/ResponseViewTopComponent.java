@@ -45,17 +45,7 @@ import org.openide.util.LookupListener;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
-import ovation.*;
-import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import org.jfree.data.*;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.general.Dataset;
-import org.jfree.data.xy.DefaultXYDataset;
-import org.jfree.ui.RectangleInsets;
-import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
-import org.openide.util.*;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Measurement;
@@ -78,9 +68,9 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_ResponseViewAction",
 preferredID = "ResponseViewTopComponent")
 @Messages({
-    "CTL_ResponseViewAction=Response View",
-    "CTL_ResponseViewTopComponent=Response Viewer",
-    "HINT_ResponseViewTopComponent=This plots the currently selected numeric Response data"
+    "CTL_ResponseViewAction=Measurement View",
+    "CTL_ResponseViewTopComponent=Measurement Viewer",
+    "HINT_ResponseViewTopComponent=This plots the currently selected numeric Measurement data, if any"
 })
 public final class ResponseViewTopComponent extends TopComponent {
 
@@ -109,8 +99,8 @@ public final class ResponseViewTopComponent extends TopComponent {
 
     private void initTopComponent() {
         initComponents();
-        setName(Bundle.CTL_ResponseViewTopComponent());
-        setToolTipText(Bundle.HINT_ResponseViewTopComponent());
+        setName("Measurements");//Bundle.CTL_ResponseViewTopComponent());
+        setToolTipText("Displays the selected measurements");//Bundle.HINT_ResponseViewTopComponent());
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         global.addLookupListener(listener);
         jTable1.setDefaultRenderer(ResponsePanel.class, cellRenderer);

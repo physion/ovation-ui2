@@ -5,22 +5,18 @@
 package us.physion.ovation.ui.browser.insertion;
 
 import javax.swing.JPanel;
-import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
-import org.openide.util.Lookup;
-import us.physion.ovation.DataStoreCoordinator;
-import us.physion.ovation.domain.Protocol;
-import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
-public class InsertEpochGroupWizardPanel1 extends BasicWizardPanel {
-
+/**
+ *
+ * @author jackie
+ */
+public class InsertEpochGroupWizardPanel3 extends BasicWizardPanel{
     @Override
     public JPanel getComponent() {
         if (component == null) {
-            DataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
-            component = new ProtocolSelector(changeSupport, dsc);//Protocol
+            component = new ParameterCreator(changeSupport, "Add optional protocol parameters");
         }
         return component;
     }
@@ -38,10 +34,9 @@ public class InsertEpochGroupWizardPanel1 extends BasicWizardPanel {
         return true;
     }
 
-
     @Override
     public void storeSettings(WizardDescriptor wiz) {
-        Protocol protocol = ((ProtocolSelector)component).getProtocol();
-        wiz.putProperty("epochGroup.protocol", protocol);
+        ParameterCreator c = (ParameterCreator)component;
+        wiz.putProperty("epochGroup.protocolParameters", c.getParameters());
     }
 }

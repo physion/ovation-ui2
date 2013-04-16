@@ -7,6 +7,7 @@ package us.physion.ovation.ui.importer;
 import java.util.Map;
 import javax.swing.ListSelectionModel;
 import org.openide.util.ChangeSupport;
+import us.physion.ovation.ui.interfaces.ParameterTableModel;
 
 /**
  *

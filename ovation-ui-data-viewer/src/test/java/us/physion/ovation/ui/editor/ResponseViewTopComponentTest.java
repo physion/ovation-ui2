@@ -25,6 +25,8 @@ import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.*;
+import us.physion.ovation.domain.factories.MeasurementFactory;
+import us.physion.ovation.domain.impl.StdMeasurementFactory;
 import us.physion.ovation.ui.editor.ResponseViewTopComponent;
 import us.physion.ovation.ui.interfaces.*;
 import us.physion.ovation.ui.test.OvationTestCase;
@@ -37,6 +39,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
     
     Experiment experiment;
     Epoch epoch;
+    MeasurementFactory factory;
     
     ResponseViewTopComponent t;
   
@@ -51,14 +54,17 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         String UNUSED_LABEL = "label";
         
         DataContext c = dsc.getContext();
-        Project project = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
+        
+        factory = getInjector().getInstance(StdMeasurementFactory.class);
+        
+        /*Project project = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
         experiment = project.insertExperiment(UNUSED_PURPOSE, UNUSED_START);
 
         EpochGroup group = experiment.insertEpochGroup(UNUSED_LABEL, UNUSED_START, null, null, null);
 
-        epoch = group.insertEpoch(UNUSED_START, UNUSED_END, null, null, null);
-        t = new ResponseViewTopComponent();
-        assertNotNull(Lookup.getDefault().lookup(ConnectionProvider.class));
+        epoch = group.insertEpoch(UNUSED_START, UNUSED_END, null, null, null);*/
+        //t = new ResponseViewTopComponent();
+        //assertNotNull(Lookup.getDefault().lookup(ConnectionProvider.class));
     }
     
     private NumericMeasurement makeNumericMeasurement()
@@ -73,12 +79,15 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         String name = "name";
         Set<String> sourceNames = null;
         Set<String> devices = null; 
-        NumericMeasurement r = epoch.insertNumericMeasurement(name, sourceNames, devices, data);
+        NumericMeasurement r = factory.createNumericMeasurement(dsc.getContext(), name, UUID.randomUUID(), sourceNames, devices, data);
+        //NumericMeasurement r = epoch.insertNumericMeasurement(name, sourceNames, devices, data);
         return r;
     }
 
     @Test
     public void testGraphsSelectedEntity() {
+        t = new ResponseViewTopComponent();
+        
         NumericMeasurement r = makeNumericMeasurement();
         
         String name = r.getName();

@@ -31,17 +31,15 @@ public class InsertEpochGroupWizardPanel2 extends BasicWizardPanel {
     @Override
     public boolean isValid() {
         InsertEpochGroupVisualPanel2 c = (InsertEpochGroupVisualPanel2)component;
-        boolean valid = c.getStart() != null && c.getLabel() != null && !c.getLabel().isEmpty();
-        if (c.getEnd() != null)
-            return valid && !c.getStart().isAfter(c.getEnd());
-        return valid;
+        return c.getStart() != null && c.getLabel() != null && !c.getLabel().isEmpty();
     }
 
     @Override
     public void storeSettings(WizardDescriptor wiz) {
         InsertEpochGroupVisualPanel2 c = (InsertEpochGroupVisualPanel2)component;
         wiz.putProperty("epochGroup.start", c.getStart());
-        wiz.putProperty("epochGroup.end", c.getEnd());
         wiz.putProperty("epochGroup.label", c.getLabel());
+        //wiz.putProperty("epochGroup.protocolParameters", c.getProtocolParameters());
+        //wiz.putProperty("epochGroup.deviceParameters", c.getDeviceParameters());
     }
 }
