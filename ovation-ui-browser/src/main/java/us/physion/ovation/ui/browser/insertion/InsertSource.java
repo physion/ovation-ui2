@@ -21,14 +21,13 @@ import us.physion.ovation.ui.interfaces.*;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 @ServiceProviders(value={
-    @ServiceProvider(service=SourceInsertable.class),
     @ServiceProvider(service=RootInsertable.class)
 })
 /**
  *
  * @author huecotanks
  */
-public class InsertSource extends InsertEntity implements SourceInsertable, RootInsertable
+public class InsertSource extends InsertEntity implements RootInsertable
 {
     public InsertSource() {
         putValue(NAME, "Insert Source...");

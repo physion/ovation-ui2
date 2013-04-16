@@ -9,12 +9,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.prefs.Preferences;
 import javax.swing.*;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.protocol.Protocol;
 import org.openide.util.lookup.ServiceProvider;
+import ucar.nc2.util.net.EasySSLProtocolSocketFactory;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.api.Ovation;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
@@ -74,6 +76,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
     private boolean waitingForDSC = false;
 
     public DatabaseConnectionProvider() {
+        
         connectionListeners = Collections.synchronizedSet(new HashSet());
     }
 

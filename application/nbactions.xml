@@ -34,4 +34,12 @@
                 <netbeans.run.params.ide>-J-Xdebug -J-Xrunjdwp:transport=dt_socket,suspend=n,server=n,address=${jpda.address}</netbeans.run.params.ide>
             </properties>
         </action>
+        <action>
+            <actionName>build-with-dependencies</actionName>
+            <reactor>also-make</reactor>
+            <goals>
+                <goal>install</goal>
+                <goal>-DskipTests</goal>
+            </goals>
+        </action>
     </actions>

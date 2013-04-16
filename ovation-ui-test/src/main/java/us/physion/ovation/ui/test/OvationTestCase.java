@@ -109,7 +109,8 @@ public class OvationTestCase {
                                                                                       userIdentity,
                                                                                       USER_NAME,//OvationCouchModule.COUCH_PROCESS_OWNER,
                                                                                       "localhost",
-                                                                                      "5995");
+                                                                                      "5995",
+                                                                                       UUID.randomUUID());
 
         //Wait for the stack to be built
         cloudUriFuture.get();
@@ -245,9 +246,9 @@ public class OvationTestCase {
                     
             response.put(OvationWebApi.STATUS_KEY, "200");
             response.put(OvationWebApi.BLOB_IDENTITY_KEY, EMAIL);
-            response.put(OvationWebApi.BLOB_ACCESS_KEY, "password");
-            response.put(OvationWebApi.BLOB_URI_KEY, "file:/Users/jackie/something");
-            response.put(OvationWebApi.CLOUDANT_ACCESS_KEY, "118i5r4bem1s7g2k6u2f3bca6k");
+            response.put(OvationWebApi.BLOB_PASSWORD_KEY, "password");
+            response.put(OvationWebApi.BLOB_PASSWORD_KEY, "file:/Users/jackie/something");
+            response.put(OvationWebApi.CLOUDANT_PASSWORD_KEY, "118i5r4bem1s7g2k6u2f3bca6k");
             response.put(OvationWebApi.CLOUDANT_IDENTITY_KEY, "jackie");
             response.put(OvationWebApi.CLOUDANT_URI_KEY, "http://localhost:5995/email-email-com-cloud");
             response.put(OvationWebApi.USER_UUID_KEY, emailLookup.get(email));
