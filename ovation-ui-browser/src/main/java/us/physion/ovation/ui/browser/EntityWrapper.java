@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
-import ovation.*;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
@@ -77,22 +76,22 @@ public class EntityWrapper implements IEntityWrapper {
 
     public static String inferDisplayName(OvationEntity e) {
 	Class type = e.getClass();
-        if (type.isAssignableFrom(Source.class))
+        if (Source.class.isAssignableFrom(type))
         {
             return ((Source)e).getLabel();
         }
-        else if (type.isAssignableFrom(Project.class))
+        else if (Project.class.isAssignableFrom(type))
         {
             return ((Project)e).getName();
-        }else if (type.isAssignableFrom(Experiment.class))
+        }else if (Experiment.class.isAssignableFrom(type))
         {
             return ((Experiment)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
         }
-        else if (type.isAssignableFrom(EpochGroup.class))
+        else if (EpochGroup.class.isAssignableFrom(type))
         {
             return ((EpochGroup)e).getLabel();
         }
-        else if (type.isAssignableFrom(Epoch.class))
+        else if (Epoch.class.isAssignableFrom(type))
         {
             if (((Epoch)e).getProtocol() != null)
                 return ((Epoch)e).getProtocol().getName();
@@ -100,11 +99,11 @@ public class EntityWrapper implements IEntityWrapper {
                 ((Epoch)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
             }
         }
-        else if (type.isAssignableFrom(Measurement.class))
+        else if (Measurement.class.isAssignableFrom(type))
         {
             return ((Measurement)e).getName();
         }
-        else if (type.isAssignableFrom(AnalysisRecord.class))
+        else if (AnalysisRecord.class.isAssignableFrom(type))
         {
             return ((AnalysisRecord)e).getName();
         }
