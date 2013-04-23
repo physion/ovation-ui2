@@ -129,7 +129,9 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
         {
             String epochName = "epoch" + String.valueOf(i++);
             
-            String protocolID = (String)wd.getProperty(epochName + ".protocolID");
+            //create a protocol, if it is a new one
+            Protocol protocol = null;
+            String protocolID = (String)wd.getProperty(epochName + ".protocolID");//Is that where we put the protocol id
             if (protocolID == null)
             {
                 break;//no more epochs
@@ -139,7 +141,7 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
             DateTime end = (DateTime) wd.getProperty(epochName + ".end");
             Map<String, Object> epochProperties = (Map<String, Object>) wd.getProperty(epochName + ".properties");
 
-            Epoch e = eg.insertEpoch(start, end, null, protocolParameters, null);
+            Epoch e = eg.insertEpoch(start, end, protocol, protocolParameters, null);
             for (String key : epochProperties.keySet())
             {
                 Object val = epochProperties.get(key);

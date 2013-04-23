@@ -107,6 +107,7 @@ public class OvationTestCase {
         LocalDatabaseStack databaseStack = injector.getInstance(LocalDatabaseStack.class);
         ListenableFuture<URI> cloudUriFuture = databaseStack.createLocalCloudDatabase(cloudDatabaseName,
                                                                                       userIdentity,
+                                                                                      "password".toCharArray(),
                                                                                       USER_NAME,//OvationCouchModule.COUCH_PROCESS_OWNER,
                                                                                       "localhost",
                                                                                       "5995",

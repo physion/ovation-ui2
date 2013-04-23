@@ -4,11 +4,14 @@
  */
 package us.physion.ovation.ui.database;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.inject.Injector;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.net.URI;
 import java.util.*;
 import java.util.prefs.Preferences;
 import javax.swing.*;
@@ -19,6 +22,8 @@ import org.openide.util.lookup.ServiceProvider;
 import ucar.nc2.util.net.EasySSLProtocolSocketFactory;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.api.Ovation;
+import us.physion.ovation.api.OvationApiModule;
+import us.physion.ovation.couch.CouchServiceManager;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.exceptions.AuthenticationException;
@@ -31,8 +36,14 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
 @ServiceProvider(service = ConnectionProvider.class)
 public class DatabaseConnectionProvider implements ConnectionProvider{
 
-    private JTextField addField(JPanel form, String name, int row) {
-        JTextField f = new JTextField();
+    private JTextField addField(JPanel form, String name, int row, boolean passwordField) {
+        JTextField f;
+        if (passwordField)
+        {
+            f = new JPasswordField();
+        }else{
+            f = new JTextField();
+        }
         JLabel l = new JLabel(name);
         f.setPreferredSize(new Dimension(250, 25));
         
@@ -147,8 +158,8 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         
         //two text fields
         JPanel form = new JPanel(new GridBagLayout());
-        final JTextField emailTB = addField(form, "Email: ", 0);
-        final JTextField passwordTB = addField(form, "Password: ", 1);
+        final JTextField emailTB = addField(form, "Email: ", 0, false);
+        final JTextField passwordTB = addField(form, "Password: ", 1, true);
         
         //Cancel/Ok buttons
         JPanel buttonPane = new JPanel();
@@ -190,9 +201,9 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         
         //two text fields
         JPanel s_form = new JPanel(new GridBagLayout());
-        final JTextField nameTB = addField(s_form, "Name: ", 0);
-        final JTextField s_emailTB = addField(s_form, "Email: ", 1);
-        final JTextField s_passwordTB = addField(s_form, "Password: ", 2);
+        final JTextField nameTB = addField(s_form, "Name: ", 0, false);
+        final JTextField s_emailTB = addField(s_form, "Email: ", 1, false);
+        final JTextField s_passwordTB = addField(s_form, "Password: ", 2, true);
         
         JPanel s_buttonPane = new JPanel();
         JButton signUpButton = new JButton("Sign Up");
@@ -235,9 +246,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
                 return true;
             } catch (AuthenticationException e) {
                 return authenticateUser(dsc, e.getLocalizedMessage());
-            } catch (NullPointerException e){
-                //pass for now
-            }
+            } 
             //TODO: add other common errors here
         }
         return false;
