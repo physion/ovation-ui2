@@ -13,6 +13,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.prefs.Preferences;
 import javax.swing.*;
 import org.apache.commons.httpclient.HttpClient;
@@ -124,7 +125,6 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
                         for (ConnectionListener l : listeners)
                         {
                             l.propertyChange(new PropertyChangeEvent(toAuthenticate, "ovation.connectionChanged", 0, 1));
-                            //l.fire(); TODO: implement
                         }
                     }
                 } finally {
@@ -242,9 +242,12 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         LoginModel m = showLoginDialog(error);
         if (!m.isCancelled()) {
             try {
-                dsc.authenticateUser(m.getEmail(), m.getPassword().toCharArray());
-                return true;
+                return dsc.authenticateUser(m.getEmail(), m.getPassword().toCharArray()).get();
             } catch (AuthenticationException e) {
+                return authenticateUser(dsc, e.getLocalizedMessage());
+            } catch (InterruptedException e) {
+                return authenticateUser(dsc, e.getLocalizedMessage());
+            } catch (ExecutionException e) {
                 return authenticateUser(dsc, e.getLocalizedMessage());
             } 
             //TODO: add other common errors here
