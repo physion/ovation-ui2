@@ -33,11 +33,11 @@ import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.dao.EntityDao;
 import us.physion.ovation.domain.dto.EntityBase;
-import us.physion.ovation.domain.dto.EntityBase.PersistentComponentUpdate;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.exceptions.UserAccessException;
 import us.physion.ovation.validation.ValidationResult;
-import us.physion.ovation.test.util.LocalDatabaseStack;
+import us.physion.ovation.api.OvationApiModule;
+import us.physion.ovation.OvationWebApi;
 
 /**
  *
@@ -93,7 +93,7 @@ public class OvationTestCase {
     }
 
     public void setup_cloud() throws InterruptedException, IOException, ExecutionException {
-        String userIdentity = EMAIL;
+        /*String userIdentity = EMAIL;
         final String databaseName = userIdentity.replace(".", "-").replace("@", "-");
 
         CouchServiceManager m = injector.getInstance(CouchServiceManager.class);
@@ -113,6 +113,8 @@ public class OvationTestCase {
 
         //Wait for the stack to be built
         cloudUriFuture.get();
+        *
+        */
     }
 
     @After
@@ -123,7 +125,7 @@ public class OvationTestCase {
             Thread.sleep(1000);
         }
     }
-
+/*
     protected us.physion.ovation.domain.dto.User makeNewUser() {
         return new us.physion.ovation.domain.dto.User() {
 
@@ -214,7 +216,7 @@ public class OvationTestCase {
             throw new OvationException("Unable to authenticate data context");
         }
 
-    }
+    }*/
 
     static class FakeWebApi implements OvationWebApi {
 
@@ -228,8 +230,7 @@ public class OvationTestCase {
         public void addUser(String email, UUID user) {
             emailLookup.put(email, user.toString());
         }
-
-        @Override
+        
         public ListenableFuture<Map<String, String>> authenticateUser(String email, String password, long l, TimeUnit tu) {
             Map<String, String> response = new HashMap();
 

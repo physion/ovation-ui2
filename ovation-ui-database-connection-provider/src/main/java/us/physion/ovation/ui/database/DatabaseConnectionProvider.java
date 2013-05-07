@@ -20,7 +20,6 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.openide.util.lookup.ServiceProvider;
-import ucar.nc2.util.net.EasySSLProtocolSocketFactory;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.api.Ovation;
 import us.physion.ovation.api.OvationApiModule;

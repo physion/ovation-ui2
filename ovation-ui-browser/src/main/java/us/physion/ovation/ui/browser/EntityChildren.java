@@ -133,7 +133,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
         List<EntityWrapper> list = new LinkedList<EntityWrapper>();
         Class entityClass = ew.getType();
         if (projectView) {
-            if (entityClass.isAssignableFrom(Project.class)) {
+            if (Project.class.isAssignableFrom(entityClass)) {
                 Project entity = (Project) ew.getEntity();
                 for (Experiment e : entity.getExperiments())
                 {
@@ -157,7 +157,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                 return list;
             }
         } else {
-            if (entityClass.isAssignableFrom(Source.class)) {
+            if (Source.class.isAssignableFrom(entityClass)) {
                 Source entity = (Source) ew.getEntity();
                 for (Source e : entity.getChildrenSources()) {
                     list.add(new EntityWrapper(e));
@@ -168,14 +168,14 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                 return list;
             }
         }
-        if (entityClass.isAssignableFrom(Experiment.class)) {
+        if (Experiment.class.isAssignableFrom(entityClass)) {
             Experiment entity = (Experiment) ew.getEntity();
 
             for (EpochGroup eg : entity.getEpochGroups()) {
                 list.add(new EntityWrapper(eg));
             }
             return list;
-        } else if (entityClass.isAssignableFrom(EpochGroup.class)) {
+        } else if (EpochGroup.class.isAssignableFrom(entityClass)) {
             EpochGroup entity = (EpochGroup) ew.getEntity();
 
             for (EpochGroup eg : entity.getChildren()) {
@@ -191,7 +191,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                 context.commitTransaction();
             }
             return list;
-        } else if (entityClass.isAssignableFrom(Epoch.class)) {
+        } else if (Epoch.class.isAssignableFrom(entityClass)) {
             context.beginTransaction();
             try {
                 Epoch entity = (Epoch) ew.getEntity();
@@ -208,7 +208,8 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                                     return new EntityWrapper(f);
                                 }
                             }));
-                    list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));    
+                    if (l.size() > 0)
+                        list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));    
                 }
             } finally {
                 context.commitTransaction();
