@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
+import java.util.Map;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
@@ -42,6 +43,13 @@ public class InsertEpochGroupWizardPanel1 extends BasicWizardPanel {
     @Override
     public void storeSettings(WizardDescriptor wiz) {
         Protocol protocol = ((ProtocolSelector)component).getProtocol();
-        wiz.putProperty("epochGroup.protocol", protocol);
+        if (protocol != null)
+            wiz.putProperty("epochGroup.protocol", protocol);
+        else{
+            Map<String, String> newProtocols = ((ProtocolSelector)component).getNewProtocols();
+            String name = ((ProtocolSelector)component).getProtocolName();
+            wiz.putProperty("epochGroup.newProtocols", newProtocols);
+            wiz.putProperty("epochGroup.protocolName", name);
+        }
     }
 }

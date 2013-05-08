@@ -17,6 +17,7 @@ import org.openide.util.lookup.ServiceProvider;
 import org.openide.util.lookup.ServiceProviders;
 import ovation.*;
 import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.interfaces.*;
@@ -46,21 +47,52 @@ public class InsertEpochGroup extends InsertEntity implements EpochGroupInsertab
         panels.add(new InsertEpochGroupWizardPanel2());
         return panels;
     }
-
+    
+    private Protocol insertProtocolsAndFindSelected(DataContext context, Map<String, String> newProtocols, String selectedProtocolName)
+    {
+        Protocol protocol = null;
+        for(String name : newProtocols.keySet())
+        {
+            String doc = newProtocols.get(name);
+            Protocol p = context.insertProtocol(
+                    name,
+                    newProtocols.get(name));
+            if (name.equals(selectedProtocolName)) 
+            {
+                protocol = p;
+            }
+        }
+        return protocol;
+    }
+    
     @Override
     public void wizardFinished(WizardDescriptor wiz, DataStoreCoordinator dsc, IEntityWrapper parent)
     {
-        if (parent.getType().isAssignableFrom(Experiment.class))
-            ((Experiment)parent.getEntity()).insertEpochGroup(((String)wiz.getProperty("epochGroup.label")),
+        OvationEntity parentEntity = parent.getEntity();
+        
+        Protocol protocol = insertProtocolsAndFindSelected(parentEntity.getDataContext(),
+                (Map<String, String>)wiz.getProperty("epochGroup.newProtocols"), 
+                (String)wiz.getProperty("epochGroup.protocolName"));
+        
+        if (protocol == null)
+        {
+            protocol = (Protocol)wiz.getProperty("epochGroup.protocol");
+        }
+        if (parentEntity instanceof Experiment)
+        {        
+            ((Experiment)parentEntity).insertEpochGroup(((String)wiz.getProperty("epochGroup.label")),
                     ((DateTime)wiz.getProperty("epochGroup.start")),
-                    ((Protocol)wiz.getProperty("epochGroup.protocol")),
+                    protocol,
                     ((Map<String, Object>)wiz.getProperty("epochGroup.protocolParameters")),
                     ((Map<String, Object>)wiz.getProperty("epochGroup.deviceParameters")));
-        else if (parent.getType().isAssignableFrom(EpochGroup.class))
-            ((EpochGroup)parent.getEntity()).insertEpochGroup((String)wiz.getProperty("epochGroup.label"),
+        }
+        else if (parentEntity instanceof EpochGroup)
+        {
+            ((EpochGroup)parentEntity).insertEpochGroup((String)wiz.getProperty("epochGroup.label"),
                     ((DateTime)wiz.getProperty("epochGroup.start")),
-                    ((us.physion.ovation.domain.impl.Protocol)(wiz.getProperty("epochGroup.protocol"))),//TODO: cast to interface, not implementation
+                    (us.physion.ovation.domain.impl.Protocol)protocol,//TODO: fix this in the api
                     ((Map<String, Object>)wiz.getProperty("epochGroup.protocolParameters")),
                     ((Map<String, Object>)wiz.getProperty("epochGroup.deviceParameters")));
+        }
     }
 }

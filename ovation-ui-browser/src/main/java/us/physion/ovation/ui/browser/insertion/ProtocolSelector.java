@@ -5,13 +5,20 @@
 package us.physion.ovation.ui.browser.insertion;
 
 import com.google.common.collect.Lists;
+import java.awt.event.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.DefaultListModel;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import org.openide.util.ChangeSupport;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.Protocol;
+import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.browser.EntityWrapper;
 
 /**
@@ -24,12 +31,15 @@ public class ProtocolSelector extends javax.swing.JPanel {
     
     ChangeSupport cs;
     private DataStoreCoordinator dsc;
+    private DataContext context;
     
     List<Protocol> protocols;
     
+    Map<String, String> newProtocols;
+    
     @Override
     public String getName() {
-        return "Optionall, select an existing Protocol, or create your own";
+        return "Select an existing Protocol, or create your own";
     }
     /**
      * Creates new form ProtocolSelector
@@ -37,16 +47,77 @@ public class ProtocolSelector extends javax.swing.JPanel {
     public ProtocolSelector(ChangeSupport cs, DataStoreCoordinator dsc) {
         this.cs = cs;
         this.dsc = dsc;
+        this.context = dsc.getContext();
         initComponents();
+        newProtocols = new HashMap<String, String>();
         listModel = new DefaultListModel();
         jList1.setModel(listModel);
         jList1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
-        protocols = Lists.newArrayList(dsc.getContext().getProtocols());
+        this.jSplitPane1.setDividerLocation(170);
+        
+        protocols = Lists.newArrayList(context.getProtocols());
         for (Protocol p : protocols)
         {
             listModel.addElement(p.getName());
         }
+        listModel.addElement("<none>");
+        jList1.addListSelectionListener(new ListSelectionListener() {
+
+            @Override
+            public void valueChanged(ListSelectionEvent lse) {
+                Protocol selected = getProtocol();
+                if (selected == null)
+                {
+                    String name = (String)listModel.get(lse.getLastIndex());
+                    if (newProtocols.containsKey(name))
+                    {
+                        jTextArea1.setText(newProtocols.get(name));
+                        jTextArea1.setEditable(true);
+                    }else{
+                        //this happens when <none> is selected
+                        jTextArea1.setText("");
+                        jTextArea1.setEditable(false);
+                    }
+                }else{
+                    jTextArea1.setText(selected.getProtocolDocument());
+                    jTextArea1.setEditable(false);
+                }
+            }
+        });
+        
+        addProtocolButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                String protocolName = jTextField1.getText();
+                if (protocolName == null || protocolName.isEmpty())
+                    return;
+                addProtocol(protocolName);
+                jTextField1.setText("");
+            }
+        });
+        
+        jTextArea1.addKeyListener(new KeyListener() {
+
+            @Override
+            public void keyTyped(KeyEvent ke) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent ke) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent ke) {
+                if (jTextArea1.isEditable()) {
+                    String name = (String) listModel.get(jList1.getSelectedIndex());
+                    if (newProtocols.containsKey(name)) {
+                        newProtocols.put(name, jTextArea1.getText());
+                    }
+                }
+            }
+        });
     }
     
     public Protocol getProtocol()
@@ -57,6 +128,24 @@ public class ProtocolSelector extends javax.swing.JPanel {
         return null;
     }
     
+    protected void addProtocol(String name)
+    {
+        listModel.add(listModel.size() -1, name);
+        newProtocols.put(name, "");
+    }
+    
+    public Map<String, String> getNewProtocols()
+    {
+        return newProtocols;
+    }
+    
+    public String getProtocolName()
+    {
+        int selected = jList1.getSelectedIndex();
+        if (selected >= 0 && selected < listModel.getSize()-1)
+            return (String)listModel.get(selected);
+        return "";
+    }
     
 
     /**
@@ -68,8 +157,14 @@ public class ProtocolSelector extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jSplitPane1 = new javax.swing.JSplitPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jLabel1 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        addProtocolButton = new javax.swing.JButton();
 
         jList1.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -78,21 +173,53 @@ public class ProtocolSelector extends javax.swing.JPanel {
         });
         jScrollPane1.setViewportView(jList1);
 
+        jSplitPane1.setLeftComponent(jScrollPane1);
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane2.setViewportView(jTextArea1);
+
+        jSplitPane1.setRightComponent(jScrollPane2);
+
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(ProtocolSelector.class, "ProtocolSelector.jLabel1.text")); // NOI18N
+
+        jTextField1.setText(org.openide.util.NbBundle.getMessage(ProtocolSelector.class, "ProtocolSelector.jTextField1.text")); // NOI18N
+
+        addProtocolButton.setText(org.openide.util.NbBundle.getMessage(ProtocolSelector.class, "ProtocolSelector.addProtocolButton.text")); // NOI18N
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 406, Short.MAX_VALUE)
+            .add(layout.createSequentialGroup()
+                .add(jLabel1)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(jTextField1)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(addProtocolButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 35, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
-                .addContainerGap())
+                .add(jSplitPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 204, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(3, 3, 3)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(addProtocolButton)
+                    .add(jTextField1)
+                    .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(10, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addProtocolButton;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JList jList1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }

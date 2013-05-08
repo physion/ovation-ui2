@@ -92,6 +92,7 @@ public class InsertSourceTest extends OvationTestCase
         p.storeSettings(d);
         TestCase.assertEquals(d.getProperty("source.label"), label);
     }
+    
     private class DummyPanel1 extends InsertSourceWizardPanel1
     {
         DummyPanel1()

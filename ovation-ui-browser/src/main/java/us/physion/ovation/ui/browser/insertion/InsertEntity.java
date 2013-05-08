@@ -41,7 +41,6 @@ public class InsertEntity extends AbstractAction implements EntityInsertable{
             if (node == null)
             {
                 //we've just inserted a root Source or Project, so reset the entire view for now?
-       
                 Collection<? extends ResetBrowser> entities = Utilities.actionsGlobalContext().lookupResult(ResetBrowser.class).allInstances();
                 if (entities.size() == 1) {
                     ResetBrowser b = entities.iterator().next();

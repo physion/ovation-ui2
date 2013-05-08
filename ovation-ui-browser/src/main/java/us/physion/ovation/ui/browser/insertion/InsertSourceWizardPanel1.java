@@ -43,5 +43,8 @@ class InsertSourceWizardPanel1 extends BasicWizardPanel
     public void storeSettings(WizardDescriptor wiz) {
         String label = ((InsertSourceVisualPanel1)component).getLabel();
         wiz.putProperty("source.label", label);
+        
+        String id = ((InsertSourceVisualPanel1)component).getIdentifier();
+        wiz.putProperty("source.identifier", id);
     }
 }

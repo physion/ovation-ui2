@@ -44,6 +44,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
         parent = e;
         projectView = pView;
         dsc = theDSC;
+        //if its per user, we create 
         if (e instanceof PerUserEntityWrapper)
         {
             setKeys(((PerUserEntityWrapper)e).getChildren());
@@ -64,8 +65,8 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
     }
 
     @Override
-    protected Node[] createNodes(final EntityWrapper key) {
-
+    protected Node[] createNodes(final EntityWrapper key) 
+    {
         return new Node[]{EntityWrapperUtilities.createNode(key, Children.createLazy(getChildrenCallable(key)))};
     }
 
@@ -150,7 +151,8 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                                     return new EntityWrapper(f);
                                 }
                             }));
-                    list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));
+                    if (l.size() > 0)
+                        list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));
                     
                 }
 
