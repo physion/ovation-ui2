@@ -50,6 +50,9 @@ public class InsertEpochGroup extends InsertEntity implements EpochGroupInsertab
     
     private Protocol insertProtocolsAndFindSelected(DataContext context, Map<String, String> newProtocols, String selectedProtocolName)
     {
+        if (newProtocols == null)
+            return null;
+        
         Protocol protocol = null;
         for(String name : newProtocols.keySet())
         {

@@ -19,6 +19,8 @@ import javax.swing.*;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.protocol.Protocol;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.api.Ovation;
@@ -108,7 +110,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         }
 
         final ConnectionListener[] listeners = connectionListeners.toArray(new ConnectionListener[0]);
-
+        
         Runnable r = new Runnable() {
 
             public void run() {
@@ -132,8 +134,10 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
             }
         };
 
+        ProgressHandle ph = ProgressHandleFactory.createHandle("Authenticating...");
+        ph.start();
         EventQueueUtilities.runOnEDT(r);
-
+        ph.finish();
         return dsc;
     }
     
@@ -144,12 +148,13 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         final JDialog d = new JDialog(new JFrame(), true);
         d.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         
-        JTabbedPane tabs = new JTabbedPane(JTabbedPane.BOTTOM);
+        //JTabbedPane tabs = new JTabbedPane(JTabbedPane.BOTTOM);
         JPanel login = new JPanel();
-        tabs.addTab("Login", login);
+        login.setLayout(new BoxLayout(login, BoxLayout.PAGE_AXIS));
+        //tabs.addTab("Login", login);
         
-        JPanel signUp = new JPanel();
-        tabs.addTab("Sign up", signUp);
+        //JPanel signUp = new JPanel();
+        //tabs.addTab("Sign up", signUp);
         
         //LOGIN
         //------------------------------------------------------
@@ -166,9 +171,9 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         JButton okButton = new JButton("Login");
         buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
         buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        //buttonPane.add(Box.createHorizontalGlue());
+        buttonPane.add(Box.createHorizontalGlue());
         //buttonPane.add(cancelButton);
-        //buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
+        buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
         buttonPane.add(okButton);
         /*cancelButton.addActionListener(new ActionListener() {
 
@@ -196,7 +201,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         
         //SIGN UP
         //-----------------------------------------------------------
-        JLabel header = new JLabel("New to Ovation? Sign up");
+        /*JLabel header = new JLabel("New to Ovation? Sign up");
         
         //two text fields
         JPanel s_form = new JPanel(new GridBagLayout());
@@ -229,11 +234,15 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         d.getContentPane().add(tabs);
         login.getRootPane().setDefaultButton(okButton);
         signUp.getRootPane().setDefaultButton(signUpButton);
+        */
 
+        d.getContentPane().add(login);
+        login.getRootPane().setDefaultButton(okButton);
+        
         //show dialog
         d.pack();
         //Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        //d.setLocation((dim.width - d.getWidth())/2, (dim.height - d.getHeight())/2);
+        d.setLocationRelativeTo(null);
         d.setVisible(true);
         return model;
     }
