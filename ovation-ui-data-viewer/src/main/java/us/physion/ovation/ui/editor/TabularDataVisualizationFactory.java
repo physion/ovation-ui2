@@ -23,6 +23,7 @@ public class TabularDataVisualizationFactory implements VisualizationFactory {
         mimeTypes = new HashSet<String>();
         mimeTypes.add("application/vnd.ms-excel");
         mimeTypes.add("text/comma-separated-values");
+        mimeTypes.add("application/csv");
     }
     
     @Override

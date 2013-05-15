@@ -184,12 +184,15 @@ public final class ResponseViewTopComponent extends TopComponent {
         
         LinkedList<Measurement> responseList = new LinkedList<Measurement>();
 
-        for (IEntityWrapper ew : entities) {
-            if (ew.getType().isAssignableFrom(Epoch.class)) {
+        Iterator i = entities.iterator();
+        while(i.hasNext())
+        {
+            IEntityWrapper ew = (IEntityWrapper)i.next();
+            if (Epoch.class.isAssignableFrom(ew.getType())) {
                 Epoch epoch = (Epoch) (ew.getEntity());//getEntity gets the context for the given thread
                 responseList.addAll(Sets.newHashSet(epoch.getMeasurements()));
 
-            } else if (ew.getType().isAssignableFrom(Measurement.class)) {
+            } else if (Measurement.class.isAssignableFrom(ew.getType())) {
                 responseList.add((Measurement)ew.getEntity());
             }
         }
