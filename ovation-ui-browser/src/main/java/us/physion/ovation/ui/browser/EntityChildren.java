@@ -180,7 +180,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
         } else if (EpochGroup.class.isAssignableFrom(entityClass)) {
             EpochGroup entity = (EpochGroup) ew.getEntity();
 
-            for (EpochGroup eg : entity.getChildren()) {
+            for (EpochGroup eg : entity.getEpochGroups()) {
                 list.add(new EntityWrapper(eg));
             }
             

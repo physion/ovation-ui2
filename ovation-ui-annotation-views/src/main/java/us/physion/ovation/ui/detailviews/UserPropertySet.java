@@ -12,7 +12,6 @@ import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.User;
-import us.physion.ovation.domain.impl.AnnotatableEntityBase;
 import us.physion.ovation.domain.mixin.Owned;
 import us.physion.ovation.domain.mixin.PropertyAnnotatable;
 import us.physion.ovation.ui.*;

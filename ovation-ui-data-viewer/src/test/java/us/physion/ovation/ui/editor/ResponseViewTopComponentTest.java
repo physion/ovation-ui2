@@ -30,6 +30,7 @@ import us.physion.ovation.domain.impl.StdMeasurementFactory;
 import us.physion.ovation.ui.editor.ResponseViewTopComponent;
 import us.physion.ovation.ui.interfaces.*;
 import us.physion.ovation.ui.test.OvationTestCase;
+import us.physion.ovation.values.NumericData;
 
 /**
  *

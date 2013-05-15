@@ -122,7 +122,7 @@
 		<keystore.alias>dev</keystore.alias>
 		<keystore.store.password>ovation-core-dev</keystore.store.password>
 		<keystore.key.password>ovation-core-dev</keystore.key.password>
-		<ovation.api.version>1.4.2</ovation.api.version>
+		<ovation.api.version>2.0-SNAPSHOT</ovation.api.version>
 		<nbm.plugin.version>3.9</nbm.plugin.version>
 	</properties>
 	

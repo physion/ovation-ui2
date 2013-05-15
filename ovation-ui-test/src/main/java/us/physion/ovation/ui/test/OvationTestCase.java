@@ -24,10 +24,10 @@ import static org.junit.Assert.*;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.FileService;
+import us.physion.ovation.OvationWebApi;
 import us.physion.ovation.api.*;
 import us.physion.ovation.couch.CouchServiceManager;
 import us.physion.ovation.couch.OvationCouchModule;
-import us.physion.ovation.database.DatabaseCoordinator;
 import us.physion.ovation.domain.Group;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.User;
@@ -37,7 +37,6 @@ import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.exceptions.UserAccessException;
 import us.physion.ovation.validation.ValidationResult;
 import us.physion.ovation.api.OvationApiModule;
-import us.physion.ovation.OvationWebApi;
 
 /**
  *
@@ -49,9 +48,9 @@ public class OvationTestCase {
     }
     public DataStoreCoordinator dsc;
     public final static UUID USER_UUID = UUID.randomUUID();
-    public final static String EMAIL = "email@email.com";//"me@bobslawblog.com";
+    public final static String EMAIL = "email@email.com";
     public final static String USER_NAME = "jackie";
-    public final static char[] PASSWORD = "password".toCharArray();//"poorPasswordChoice".toCharArray();
+    public final static char[] PASSWORD = "password".toCharArray();
     public final static String UNUSED_KEY = "UNUSED KEY";
     public final static String CLOUDANT_SERVER = "http://localhost:5995/ovation-mydb"; /*
      * String.format("http://%s:%s/%s", OvationCouchModule.COUCH_HOST,

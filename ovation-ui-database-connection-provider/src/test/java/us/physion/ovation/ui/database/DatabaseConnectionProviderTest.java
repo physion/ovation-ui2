@@ -12,13 +12,12 @@ import org.junit.*;
 import static org.junit.Assert.*;
 import org.openide.util.Exceptions;
 import us.physion.ovation.ui.interfaces.IUpgradeDB;
-import us.physion.ovation.ui.test.OvationTestCase;
 
 /**
  *
  * @author huecotanks
  */
-public class DatabaseConnectionProviderTest extends OvationTestCase {
+public class DatabaseConnectionProviderTest {//extends OvationTestCase {
     
     private class DummyDialog implements CancellableDialog {
 

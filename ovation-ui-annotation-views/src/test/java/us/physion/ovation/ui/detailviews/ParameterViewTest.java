@@ -26,6 +26,7 @@ import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.test.OvationTestCase;
+import us.physion.ovation.values.NumericData;
 
 @ServiceProvider(service = Lookup.Provider.class)
 /**
