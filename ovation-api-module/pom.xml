@@ -10,7 +10,6 @@
 
     <groupId>us.physion</groupId>
     <artifactId>ovation-api-module</artifactId>
-    <version>${ovation.api.version}</version>
     <packaging>nbm</packaging>
 
     <name>ovation-api-module</name>
@@ -45,7 +44,7 @@
 	<dependency>
 	  <groupId>us.physion</groupId>
 	  <artifactId>ovation-api</artifactId>
-	  <version>2.0-SNAPSHOT</version>
+	  <version>${ovation.api.version}</version>
 	</dependency>
 <!--
 	<dependency>
@@ -59,6 +58,12 @@
 	  <artifactId>swingx</artifactId>
 	  <version>0.9.2</version>
 	</dependency>
+	<dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.7</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -70,37 +75,33 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publicPackages>
-		        <publicPackage>org.apache.log4j.*</publicPackage>
-		        <publicPackage>com.google.inject.*</publicPackage>
-		        <publicPackage>com.google.common.base.*</publicPackage>
-		        <publicPackage>com.google.common.collect.*</publicPackage>
-		        <publicPackage>com.google.common.util.concurrent.*</publicPackage>
-		        <publicPackage>us.physion.ovation.*</publicPackage>
-                        <publicPackage>us.physion.ovation.domain.*</publicPackage>
-                        <publicPackage>us.physion.ovation.api.*</publicPackage>
-                        <publicPackage>com.physion.ebuilder.expression.*</publicPackage>
-                        <publicPackage>com.physion.ebuilder.*</publicPackage>
+                        <publicPackage>Jama.*</publicPackage>
+                        <publicPackage>com.google.common.base.*</publicPackage>
+                        <publicPackage>com.google.common.base.internal.*</publicPackage>
+                        <publicPackage>com.google.common.collect.*</publicPackage>
+                        <publicPackage>com.google.common.util.concurrent.*</publicPackage>
+                        <publicPackage>com.google.inject.*</publicPackage>
+                        <publicPackage>edu.wisc.ssec.mcidas.*</publicPackage>
+                        <publicPackage>edu.wisc.ssec.mcidas.adde.*</publicPackage>
+                        <publicPackage>loci.formats.*</publicPackage>
+                        <publicPackage>opendap.dap.*</publicPackage>
+                        <publicPackage>org.apache.commons.httpclient.*</publicPackage>
+                        <publicPackage>org.apache.commons.logging</publicPackage>
+                        <publicPackage>org.apache.commons.logging.impl</publicPackage>
+                        <publicPackage>org.apache.log4j.*</publicPackage>
                         <publicPackage>org.jdesktop.swingx.*</publicPackage>
+                        <publicPackage>org.jdom.*</publicPackage>
                         <publicPackage>org.joda.time.*</publicPackage>
-			<publicPackage>org.slf4j.*</publicPackage>
-			<publicPackage>edu.wisc.ssec.mcidas.*</publicPackage>
-			<publicPackage>edu.wisc.ssec.mcidas.adde.*</publicPackage>
-			<publicPackage>org.jdom.*</publicPackage>
-			<publicPackage>org.jdom.input.*</publicPackage>
-			<publicPackage>org.jdom.output.*</publicPackage>
-			<publicPackage>opendap.dap.*</publicPackage>
-			<publicPackage>opendap.dap.parser.*</publicPackage>
-			<publicPackage>org.apache.commons.httpclient.*</publicPackage>
-			<publicPackage>org.apache.commons.httpclient.methods.*</publicPackage>
-			<publicPackage>org.apache.commons.httpclient.protocol.*</publicPackage>
-			<publicPackage>org.apache.commons.httpclient.params.*</publicPackage>
-			<publicPackage>org.apache.commons.logging.*</publicPackage>
-			<publicPackage>ucar.grib.*</publicPackage>
-			<publicPackage>ucar.grib.grib1.*</publicPackage>
-			<publicPackage>ucar.grib.grib2.*</publicPackage>
-			<publicPackage>Jama.*</publicPackage>
-			<publicPackage>visad.jmet.*</publicPackage>
-			<publicPackage>loci.formats.*</publicPackage>
+                        <publicPackage>org.slf4j.*</publicPackage>
+                        <publicPackage>ucar.grib.*</publicPackage>
+                        <publicPackage>ucar.grib.grib1.*</publicPackage>
+                        <publicPackage>ucar.grib.grib2.*</publicPackage>
+                        <publicPackage>us.physion.cloud.*</publicPackage>
+                        <publicPackage>us.physion.ovation.*</publicPackage>
+			<publicPackage>us.physion.ovation.domain.*</publicPackage>
+			<publicPackage>us.physion.ovation.api.*</publicPackage>
+			<publicPackage>us.physion.ovation.domain.repositories.*</publicPackage>
+                        <publicPackage>visad.jmet</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
@@ -127,4 +128,5 @@
             </plugin>
         </plugins>
     </build>
+    <version>${ovation.api.version}</version>
 </project>

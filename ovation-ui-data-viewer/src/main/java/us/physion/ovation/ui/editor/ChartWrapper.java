@@ -10,10 +10,10 @@ import java.io.InputStream;
 import java.util.concurrent.ExecutionException;
 import org.openide.util.Exceptions;
 import us.physion.ovation.domain.Measurement;
-import us.physion.ovation.domain.NumericData;
-import us.physion.ovation.domain.NumericData.Data;
 import us.physion.ovation.domain.NumericMeasurement;
 import us.physion.ovation.exceptions.OvationException;
+import us.physion.ovation.values.NumericData;
+import us.physion.ovation.values.NumericData.Data;
 
 /**
  *
@@ -33,7 +33,7 @@ public class ChartWrapper {
             NumericMeasurement r = (NumericMeasurement)m;
             data = r.getNumericData();
             name = r.getName();
-            Data d = data.getDataArray()[0];
+            Data d = data.getDataList().get(0);
             //samplingRate = data.getSamplingRate();//Numeric data should have samplingRate and units
             yunits = d.getUnits();
             //xunits = convertSamplingRateUnitsToGraphUnits(d.getUnits());

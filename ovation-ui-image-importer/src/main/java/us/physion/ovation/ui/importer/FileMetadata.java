@@ -197,8 +197,6 @@ public class FileMetadata {
         addMetadataProperties(epochProperties, retrieve);
 
         responses = new ArrayList<Map<String, Object>>();
-
-        
         
         int imageNumber = -1;
         try{
