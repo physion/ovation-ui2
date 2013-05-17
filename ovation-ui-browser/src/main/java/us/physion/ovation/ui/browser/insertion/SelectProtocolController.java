@@ -19,11 +19,16 @@ public class SelectProtocolController extends BasicWizardPanel {
 
     private String epochName;
     private String previousEpochName;
-    public SelectProtocolController(){}
+    
+    private int epochNum;
+    
+    public SelectProtocolController()
+    {
+        this(-1);
+    }
   
     public SelectProtocolController(int num)
     {
-        this();
         epochNum = num;
         if (num == -1)
             epochName = "epoch";

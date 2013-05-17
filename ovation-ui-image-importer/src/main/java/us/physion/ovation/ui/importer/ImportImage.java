@@ -8,11 +8,9 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -62,8 +60,8 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
     }
     
     @Override
-    public void actionPerformed(ActionEvent ae) {
-        
+    public void actionPerformed(ActionEvent ae) 
+    {
         setFiles();
         super.actionPerformed(ae);
     }
@@ -91,14 +89,13 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
     @Override
     public List<Panel<WizardDescriptor>> getPanels(IEntityWrapper iew) {
         List<Panel<WizardDescriptor>> panels = new ArrayList<Panel<WizardDescriptor>>();
-        GetImageFilesController c = new GetImageFilesController(files);
         int epochCount = files.size();
         
-        panels.add(c);
+        panels.add(new GetImageFilesController(files));
         for (int i = 0; i < epochCount; i++) {
             panels.add(new EpochDetailsController(i));
 
-            int responseCount = files.get(i).getResponses().size();
+            int responseCount = files.get(i).getMeasurements().size();
             for (int j = 0; j < responseCount; j++) {
                 panels.add(new DeviceDetailsController(i, j));
                 panels.add(new ResponseDetailsController(i, j));
@@ -124,8 +121,41 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
             }
         }
 
+        List<Map<String, Object>> epochs = (List<Map<String, Object>>) wd.getProperty("epochs");
+        
         int i =0;
-        for (;;)
+        for (Map<String, Object> epoch : epochs)
+        {
+            Protocol protocol;
+            if (epoch.containsKey("protocol"))
+            {
+                protocol = (Protocol)epoch.get("protocol");
+            }else{
+                protocol = eg.getDataContext().insertProtocol((String)epoch.get("protocolName"), (String)epoch.get("protocolDocument"));
+            }
+            DateTime start = (DateTime)epoch.get("start");
+            DateTime end = (DateTime)epoch.get("end");
+            Map<String, Object> protocolParameters = (Map<String, Object>)epoch.get("protocolParameters");
+            Map<String, Object> epochProperties = (Map<String, Object>)epoch.get("properties");
+            Epoch e = eg.insertEpoch(start, end, protocol, protocolParameters, null);//no device parameters
+            for (String key : epochProperties.keySet())
+            {
+                Object val = epochProperties.get(key);
+                if (val != null)
+                    e.addProperty(key, val);
+            }
+            
+            List<Map<String, Object>> measurements = (List<Map<String, Object>>)epoch.get("measurements");
+            for (Map<String, Object> m : measurements)
+            {
+                e.insertMeasurement((String)m.get("name"), 
+                        (Set<String>)m.get("sourceNames"), 
+                        (Set<String>)m.get("deviceNames"), 
+                        (URL)m.get("url"),
+                        (String)m.get("mimeType"));
+            }
+        }
+        for(;;)
         {
             String epochName = "epoch" + String.valueOf(i++);
             

@@ -106,7 +106,7 @@ public class GetImageFilesController extends BasicWizardPanel{
 
         wiz.putProperty(epochName + ".properties", data.getEpochProperties());
 
-        for (Map<String, Object> response : data.getResponses()) {
+        for (Map<String, Object> response : data.getMeasurements()) {
             String responseName = epochName + "." + (String) response.get("name");
             response.remove("name");
             for (String key : response.keySet()) {
@@ -152,6 +152,6 @@ public class GetImageFilesController extends BasicWizardPanel{
         wiz.putProperty("response.device.properties", deviceProperties);
         wiz.putProperty("parentEpochGroup", parentEpochGroup);
         wiz.putProperty("epoch.properties", data.getEpochProperties());
-        wiz.putProperty("responses", data.getResponses());
+        wiz.putProperty("responses", data.getMeasurements());
     }
 }

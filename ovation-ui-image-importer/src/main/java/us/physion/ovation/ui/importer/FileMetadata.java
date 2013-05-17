@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.importer;
 
+import com.google.common.collect.Sets;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -45,7 +46,7 @@ public class FileMetadata {
     DateTime end;
     Map<String, Object> epochProperties;
     List<Map<String, Object>> instruments;
-    List<Map<String, Object>> responses;
+    List<Map<String, Object>> measurements;
     Map<String, Object> parentEpochGroup;
     
     boolean isPrairie;
@@ -181,158 +182,74 @@ public class FileMetadata {
         return instruments;
     }
 
-    public List<Map<String, Object>> getResponses() {
-        return responses;
+    public List<Map<String, Object>> getMeasurements() {
+        return measurements;
     }
 
     private void parseRetrieve(MetadataRetrieve retrieve, Hashtable original) {
         instruments = getInstrumentData();
 
-        epochProperties = new HashMap<String, Object>();
-        if (original != null) {
-            for (Object key : original.keySet()) {
-                epochProperties.put("original." + key, original.get(key));
-            }
-        }
-        addMetadataProperties(epochProperties, retrieve);
-
-        responses = new ArrayList<Map<String, Object>>();
+        epochProperties = getEpochProperties(retrieve, original);
         
-        int imageNumber = -1;
-        try{
-            imageNumber = retrieve.getImageCount() -1;
-        } catch (NullPointerException e)
-        {
-            throw new OvationException("No Images located");//?
-        }
+        measurements = new ArrayList<Map<String, Object>>();
         
-        if (imageNumber > 0)
+        int imageCount = checkValidImageCount(retrieve);
+        for(int imageNumber =0; imageNumber < imageCount; imageNumber++)
         {
-            throw new OvationException("Multi image import not supported yet");
-        }
-        if (imageNumber == 0)
-        {
-            int planeCount = (Integer) catchNullPointer(retrieve, "getPlaneCount", new Class[]{Integer.TYPE}, new Object[]{imageNumber});
            
-           if (!isPrairie)// if (planeCount <= 1)
+            if (isPrairie)
             {
-                responses.add(createResponse(imageNumber));
+                createPrairieEpochGroupStructure(imageNumber);
             }else
             {
-                parentEpochGroup = new HashMap<String, Object>();
-                String name = (String) catchNullPointer(retrieve, "getImageName", new Class[]{Integer.TYPE}, new Object[]{imageNumber});
-                if (name == null){
-                    name = getFile().getName().split("\\.")[0];
-                }
-                if (isPrairie){
-                    name = name.split("Config")[0].split("\\.")[0];
-                }
-                put("label", name, parentEpochGroup, true);
-               
-                int responseCount = 0;
-                int tCount = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeT", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
-                List<Map<String, Object>> egs = new ArrayList();
-                for (int i=0; i< tCount; i++)
-                {
-                    Map<String, Object> eg = new HashMap<String, Object>();
-                    put("responseStart", responseCount, eg, true);
-                    int zCount = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeZ", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
-           
-                    double deltaTForEpochGroup = 0;
-                    for (int j=0; j<zCount; j++)
-                    {
-                        Map<String, Object> responseStruct = createResponse(imageNumber);
-                        if (isPrairie)
-                        {
-                            String url = generateURL(i, retrieve.getChannelName(imageNumber, retrieve.getPlaneTheC(imageNumber, j).getValue()), j);
-                            put("url", url, responseStruct);        
-                        }
-                        put("epoch.deltaT", retrieve.getPlaneDeltaT(imageNumber, j), responseStruct);
-
-                        Map<String, Object> properties = new HashMap();
-                        put("exposureTime", catchNullPointer(retrieve, "getPlaneExposureTime", new Class[]{Integer.TYPE, Integer.TYPE}, new Object[]{imageNumber, j}), properties);
-                        put("positionX", retrieve.getPlanePositionX(imageNumber, j), properties);
-                        put("positionY", retrieve.getPlanePositionY(imageNumber, j), properties);
-                        put("positionZ", retrieve.getPlanePositionZ(imageNumber, j), properties);
-                        put("channel", retrieve.getPlaneTheC(imageNumber, j), properties);
-                        put("t-group", retrieve.getPlaneTheT(imageNumber, j), properties);
-                        put("z-group", retrieve.getPlaneTheZ(imageNumber, j), properties);
-
-                        responseStruct.put("properties", properties);
-
-                        deltaTForEpochGroup += retrieve.getPlaneDeltaT(imageNumber, j);
-                        responses.add(responseStruct);
-                    }
-                    put("deltaT", deltaTForEpochGroup, eg, true);
-                    put("label", "Cycle_"+ i, eg, true);
-                    responseCount += zCount;
-                    put("responseEnd", responseCount, eg, true);
-
-                    if (tCount == 1)
-                    {
-                        eg.remove("label");
-                        parentEpochGroup.putAll(eg);
-                    }else{
-                        egs.add(eg);
-                    }
-                }
-                put("egs", egs, parentEpochGroup, true);
-
+                measurements.add(createMeasurement(imageNumber));
             }
-             
-            //TODO: plates -- start and end time information?
-            
         }
     }
     
-    private Map<String, Object> createResponse(int imageNumber)
+    private Map<String, Object> createMeasurement(int imageNumber)
     {
-        Map<String, Object> responseStruct = new HashMap<String, Object>();
-        put("name", "response" + imageNumber, responseStruct, true);
+        Map<String, Object> measurement = new HashMap<String, Object>();
+        put("number", imageNumber, measurement, true);
 
-        String ref = (String) catchNullPointer(retrieve, "getImageInstrumentRef", new Class[]{Integer.TYPE}, new Object[]{imageNumber});
-        boolean found = false;
-        if (ref != null) {
-            for (Map<String, Object> device : instruments) {
-                if (device.get("ID").equals(ref)) {
-                    put("device.name", device.get("ID"), responseStruct, true);
-                    put("device.manufacturer", device.get("manufacturer"), responseStruct, true);
-                    found = true;
-                }
-            }
-        }
-        if (!found && !instruments.isEmpty()) {
-            String name = "";
-            String manufacturer = "";
-            for (Map<String, Object> device : instruments) {
-                name += "-" + device.get("ID");
-                manufacturer += "-" + device.get("manufacturer");
-            }
-            put("device.name", name.substring(1), responseStruct, true);
-            put("device.manufacturer", manufacturer.substring(1), responseStruct, true);
-        }
-        put("device.parameters", getDeviceParameters(imageNumber), responseStruct, true);
+        put("deviceNames",getDeviceNamesForImage(retrieve, imageNumber, instruments), measurement, true);
+        put("deviceParameters", getDeviceParameters(imageNumber), measurement, true);
 
-        if (!isPrairie) {
-            try {
-                put("url", getFile().toURI().toURL().toExternalForm(), responseStruct, true);
-            } catch (MalformedURLException ex) {
-                throw new OvationException("Unable to get url for image file. " + ex.getMessage());
-            }
+        try {
+            put("url", getFile().toURI().toURL().toExternalForm(), measurement, true);
+        } catch (MalformedURLException ex) {
+            throw new OvationException("Unable to get url for image file. " + ex.getMessage());
         }
-        addMultidimensionalFields(retrieve, responseStruct, imageNumber);
+        
+        put("mimeType", "application/tiff", measurement, true);
+        
+        Map<String, Object> properties = getDimensionsAndSamplingRates(retrieve, imageNumber);        
+        put("units", "pixels", properties, true);
+        put("properties", properties, measurement, true);
+        
+        return measurement;
+    }
+    
+    private Map<String, Object> createMeasurement(int imageNumber, int tNumber, int zNumber)
+    {
+        Map<String, Object> m = createMeasurement(imageNumber);
+        String url = generateURL(tNumber, retrieve.getChannelName(imageNumber, retrieve.getPlaneTheC(imageNumber, zNumber).getValue()), zNumber);
+        put("url", url, m);
+        
+        put("epoch.deltaT", retrieve.getPlaneDeltaT(imageNumber, zNumber), m);
+        
+        Map<String, Object> properties = (Map<String, Object>)m.get("properties");
+        put("exposureTime", catchNullPointer(retrieve, "getPlaneExposureTime", new Class[]{Integer.TYPE, Integer.TYPE}, new Object[]{imageNumber, zNumber}), properties);
+        put("positionX", retrieve.getPlanePositionX(imageNumber, zNumber), properties);
+        put("positionY", retrieve.getPlanePositionY(imageNumber, zNumber), properties);
+        put("positionZ", retrieve.getPlanePositionZ(imageNumber, zNumber), properties);
+        put("channel", retrieve.getPlaneTheC(imageNumber, zNumber), properties);
+        put("t-group", retrieve.getPlaneTheT(imageNumber, zNumber), properties);
+        put("z-group", retrieve.getPlaneTheZ(imageNumber, zNumber), properties);
 
-        //data type doesn't actually matter, since this is not a NumericData object
-        ByteOrder b;
-        if (retrieve.getPixelsBinDataBigEndian(imageNumber, 0)) {
-            b = ByteOrder.BIG_ENDIAN;
-        } else {
-            b = ByteOrder.LITTLE_ENDIAN;
-        }
-        put("dataType", "tiff", responseStruct, true);
-        put("units", "pixels", responseStruct, true);
-        put("uti", "public.tiff", responseStruct, true);//TODO: fix - get file type?
-        return responseStruct;
+        put("properties", properties, m);
+        
+        return m;
     }
 
     private Map<String, Object> getDeviceParameters(int imageNum) {
@@ -521,7 +438,9 @@ public class FileMetadata {
         return parameters;
     }
 
-    protected void addMetadataProperties(Map<String, Object> properties, MetadataRetrieve retrieve) {
+    protected Map<String, Object> getEpochProperties(MetadataRetrieve retrieve, Hashtable original) {
+        
+        Map<String, Object> properties = new HashMap();
         int dsCount = 0;
         try {
             dsCount = retrieve.getDatasetCount();
@@ -540,21 +459,31 @@ public class FileMetadata {
         } catch (IndexOutOfBoundsException e) {
         }
         for (int i = 0; i < experimenterCount; i++) {
-            String name = retrieve.getExperimenterFirstName(i) + retrieve.getExperimenterLastName(i);
-            put("experimenter" + i + ".username", retrieve.getExperimenterUserName(i), properties);
-            put("experimenter" + i + ".ID", retrieve.getExperimenterID(i), properties);
-            put("experimenter" + i + ".name", name, properties);
-            put("experimenter" + i + ".email", retrieve.getExperimenterEmail(i), properties);
-            put("experimenter" + i + ".institution", retrieve.getExperimenterInstitution(i), properties);
+            String userPrefix = "experimentor." + retrieve.getExperimenterUserName(i);
+            String name = retrieve.getExperimenterFirstName(i) + " " + retrieve.getExperimenterLastName(i);
+            put(userPrefix + ".name", name, properties);
+            put(userPrefix + ".ID", retrieve.getExperimenterID(i), properties);
+            put(userPrefix + ".email", retrieve.getExperimenterEmail(i), properties);
+            put(userPrefix + ".institution", retrieve.getExperimenterInstitution(i), properties);
         }
         
         try {
             this.getImageProperties(0);
         } catch (IndexOutOfBoundsException e) {
         }
+        
+        //add the original metadata, if any, as properties on the epoch
+        if (original != null) {
+            for (Object key : original.keySet()) {
+                properties.put("original." + key, original.get(key));
+            }
+        }
+                
+        return properties;
     }
 
-    private List<Map<String, Object>> getInstrumentData() {
+    private List<Map<String, Object>> getInstrumentData()
+    {
         List<Map<String, Object>> instrumentStructs = new ArrayList<Map<String, Object>>();
 
         int instrumentCount = 0;
@@ -568,12 +497,11 @@ public class FileMetadata {
             put("ID", retrieve.getInstrumentID(j), instrumentStruct);
 
             if (isMicroscope(retrieve, j)) {
-                put("microscopeLotNumber", retrieve.getMicroscopeLotNumber(j), instrumentProperties);
-                put("microscopeManufacturer", retrieve.getMicroscopeManufacturer(j), instrumentProperties);
-                setManufacturer(retrieve.getMicroscopeManufacturer(j), instrumentStruct);
-                put("microscopeModel", retrieve.getMicroscopeModel(j), instrumentProperties);
-                put("microscopeSerialNumber", retrieve.getMicroscopeSerialNumber(j), instrumentProperties);
-                put("microscopeType", retrieve.getMicroscopeType(j), instrumentProperties);
+                put("microscope.lotNumber", retrieve.getMicroscopeLotNumber(j), instrumentProperties);
+                put("microscope.manufacturer", retrieve.getMicroscopeManufacturer(j), instrumentProperties);
+                put("microscope.model", retrieve.getMicroscopeModel(j), instrumentProperties);
+                put("microscope.serialNumber", retrieve.getMicroscopeSerialNumber(j), instrumentProperties);
+                put("microscope.type", retrieve.getMicroscopeType(j), instrumentProperties);
             }
 
             int lsCount = 0;
@@ -591,8 +519,6 @@ public class FileMetadata {
                     put(arcName + ".ID", retrieve.getArcID(j, k), instrumentProperties);
                     put(arcName + ".lotNumber", retrieve.getArcLotNumber(j, k), instrumentProperties);
                     put(arcName + ".manufacturer", retrieve.getArcManufacturer(j, k), instrumentProperties);
-                    setManufacturer(retrieve.getArcManufacturer(j, k), instrumentStruct);
-
                     put(arcName + ".model", retrieve.getArcModel(j, k), instrumentProperties);
                     put(arcName + ".serialNumber", retrieve.getArcSerialNumber(j, k), instrumentProperties);
                     put(arcName + ".type", retrieve.getArcType(j, k), instrumentProperties);
@@ -601,7 +527,6 @@ public class FileMetadata {
                     put(filamentName + ".ID", retrieve.getFilamentID(j, k), instrumentProperties);
                     put(filamentName + ".lotNumber", retrieve.getFilamentLotNumber(j, k), instrumentProperties);
                     put(filamentName + ".manufacturer", retrieve.getFilamentManufacturer(j, k), instrumentProperties);
-                    setManufacturer(retrieve.getFilamentManufacturer(j, k), instrumentStruct);
                     put(filamentName + ".model", retrieve.getFilamentModel(j, k), instrumentProperties);
                     put(filamentName + ".serialNumber", retrieve.getFilamentSerialNumber(j, k), instrumentProperties);
                     put(filamentName + ".type", retrieve.getFilamentType(j, k), instrumentProperties);
@@ -611,7 +536,6 @@ public class FileMetadata {
                     put(laserName + ".medium", retrieve.getLaserLaserMedium(j, k), instrumentProperties);
                     put(laserName + ".lotNumber", retrieve.getLaserLotNumber(j, k), instrumentProperties);
                     put(laserName + ".manufacturer", retrieve.getLaserManufacturer(j, k), instrumentProperties);
-                    setManufacturer(retrieve.getLaserManufacturer(j, k), instrumentStruct);
                     put(laserName + ".model", retrieve.getLaserModel(j, k), instrumentProperties);
                     put(laserName + ".serialNumber", retrieve.getLaserSerialNumber(j, k), instrumentProperties);
                     put(laserName + ".tuneable", retrieve.getLaserTuneable(j, k), instrumentProperties);
@@ -621,7 +545,6 @@ public class FileMetadata {
                     put(lightEmittingDiodeName + ".ID", retrieve.getLightEmittingDiodeID(j, k), instrumentProperties);
                     put(lightEmittingDiodeName + ".lotNumber", retrieve.getLightEmittingDiodeLotNumber(j, k), instrumentProperties);
                     put(lightEmittingDiodeName + ".manufacturer", retrieve.getLightEmittingDiodeManufacturer(j, k), instrumentProperties);
-                    setManufacturer(retrieve.getLightEmittingDiodeManufacturer(j, k), instrumentStruct);
                     put(lightEmittingDiodeName + ".model", retrieve.getLightEmittingDiodeModel(j, k), instrumentProperties);
                     put(lightEmittingDiodeName + ".serialNumber", retrieve.getLightEmittingDiodeSerialNumber(j, k), instrumentProperties);
                 }
@@ -637,7 +560,6 @@ public class FileMetadata {
                 put(filterName + ".ID", retrieve.getDichroicID(j, k), instrumentProperties);
                 put(filterName + ".lotNumber", retrieve.getDichroicLotNumber(j, k), instrumentProperties);
                 put(filterName + ".manufacturer", retrieve.getDichroicManufacturer(j, k), instrumentProperties);
-                setManufacturer(retrieve.getDichroicManufacturer(j, k), instrumentStruct);
                 put(filterName + ".model", retrieve.getDichroicModel(j, k), instrumentProperties);
                 put(filterName + ".serialNumber", retrieve.getDichroicSerialNumber(j, k), instrumentProperties);
             }
@@ -652,7 +574,6 @@ public class FileMetadata {
                 put(objName + ".ID", retrieve.getObjectiveID(j, k), instrumentProperties);
                 put(objName + ".lotNumber", retrieve.getObjectiveLotNumber(j, k), instrumentProperties);
                 put(objName + ".manufacturer", retrieve.getObjectiveManufacturer(j, k), instrumentProperties);
-                setManufacturer(retrieve.getObjectiveManufacturer(j, k), instrumentStruct);
                 put(objName + ".model", retrieve.getObjectiveModel(j, k), instrumentProperties);
                 put(objName + ".serialNumber", retrieve.getObjectiveSerialNumber(j, k), instrumentProperties);
             }
@@ -670,7 +591,6 @@ public class FileMetadata {
                 put(filterName + ".model", retrieve.getFilterModel(j, k), instrumentProperties);
                 put(filterName + ".serialNumber", retrieve.getFilterSerialNumber(j, k), instrumentProperties);
                 put(filterName + ".manufacturer", retrieve.getFilterManufacturer(j, k), instrumentProperties);
-                setManufacturer(retrieve.getFilterManufacturer(j, k), instrumentStruct);
                 put(filterName + ".type", retrieve.getFilterType(j, k), instrumentProperties);
             }
 
@@ -685,7 +605,6 @@ public class FileMetadata {
                 put(filterName + ".lotNumber", retrieve.getDetectorLotNumber(j, k), instrumentProperties);
                 put(filterName + ".model", retrieve.getDetectorModel(j, k), instrumentProperties);
                 put(filterName + ".manufacturer", retrieve.getDetectorManufacturer(j, k), instrumentProperties);
-                setManufacturer(retrieve.getDetectorManufacturer(j, k), instrumentStruct);
                 put(filterName + ".serialNumber", retrieve.getDetectorSerialNumber(j, k), instrumentProperties);
                 put(filterName + ".type", retrieve.getDetectorType(j, k), instrumentProperties);
             }
@@ -773,7 +692,9 @@ public class FileMetadata {
         }
     }
 
-    private void addMultidimensionalFields(MetadataRetrieve retrieve, Map<String, Object> responseStruct, int j) {
+    private Map<String, Object> getDimensionsAndSamplingRates(MetadataRetrieve retrieve, int j) {
+        Map<String, Object> dimensionFields = new HashMap();
+        
         int shapeCount = 0;
         long shapeX = -1, shapeY = -1, shapeZ = -1, shapeC = -1, shapeT = -1;
         double rateX = -1, rateY = -1, rateZ = -1, rateC = -1, rateT = -1;
@@ -863,11 +784,12 @@ public class FileMetadata {
             dimensionLabels[shapeCount++] = "Time";
         }
 
-        put("shape", shape, responseStruct, true);
-        put("samplingRates", samplingRates, responseStruct, true);
-        put("samplingRateUnits", samplingRateUnits, responseStruct, true);//TODO make sure the UI handles dimension errors gracefully
-        put("dimensionLabels", dimensionLabels, responseStruct, true);
-
+        put("shape", shape, dimensionFields, true);
+        put("samplingRates", samplingRates, dimensionFields, true);
+        put("samplingRateUnits", samplingRateUnits, dimensionFields, true);//TODO make sure the UI handles dimension errors gracefully
+        put("dimensionLabels", dimensionLabels, dimensionFields, true);
+        
+        return dimensionFields;
     }
 
     private String generateURL(int cycleNumber, String channelName, int zNumber) {
@@ -910,5 +832,93 @@ public class FileMetadata {
 
     boolean containsSingleEpoch() {
         return parentEpochGroup == null;
+    }
+
+    private int checkValidImageCount(MetadataRetrieve retrieve) {
+        int imageNumber = -1;
+        try{
+            imageNumber = retrieve.getImageCount() -1;
+        } catch (NullPointerException e)
+        {
+            throw new OvationException("No Images located");//?
+        }
+        
+        if (imageNumber > 0)
+        {
+            throw new OvationException("Multi image import not supported yet");
+        }
+        if (imageNumber < 0)
+            throw new OvationException("Invalid image number: " + imageNumber);
+        return imageNumber;
+    }
+
+    private Set<String> getDeviceNamesForImage(MetadataRetrieve retrieve, int imageNumber, List<Map<String, Object>> instruments) {
+        Set<String> allDevices = new HashSet();
+        
+        String ref = (String) catchNullPointer(retrieve, "getImageInstrumentRef", new Class[]{Integer.TYPE}, new Object[]{imageNumber});
+        if (ref != null) {
+            for (Map<String, Object> device : instruments) {
+                if (device.get("ID").equals(ref)) {
+                    return Sets.newHashSet((String)device.get("name"));
+                }
+                
+                allDevices.add((String)device.get("name"));
+            }
+        }
+        
+        return allDevices;
+    }
+
+    //Prairie measurement is as follows:
+    //parentEpochGroup contains:
+    //*label
+    //*
+    /**
+     * Prairie measurement is as follows:
+     * @param imageNumber 
+     */
+    private Map<String, Object> createPrairieEpochGroupStructure(int imageNumber) {
+        //name is the URL to the config file
+        String name = (String) catchNullPointer(retrieve, "getImageName", new Class[]{Integer.TYPE}, new Object[]{imageNumber});
+        name = name.split("Config")[0].split("\\.")[0];
+
+        int totalMeasurementCount = 0;
+        int numberOfEpochGroups = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeT", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
+
+        if (numberOfEpochGroups == 1) {
+            parentEpochGroup = generateEpochGroup(imageNumber, 0, 0);
+            put("label", name, parentEpochGroup, true);//overwrite the label in generateEpochGroup
+        } else {
+            parentEpochGroup = new HashMap<String, Object>();
+            put("label", name, parentEpochGroup, true);
+
+            int measurementsPerEpochGroup = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeZ", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
+            List<Map<String, Object>> egs = new ArrayList();
+            for (int i = 0; i < numberOfEpochGroups; i++) {
+                egs.add(generateEpochGroup(imageNumber, i, totalMeasurementCount));
+                totalMeasurementCount += measurementsPerEpochGroup;
+            }
+            put("egs", egs, parentEpochGroup, true);
+        }
+        return parentEpochGroup;
+    }
+    
+    private Map<String, Object> generateEpochGroup(int imageNumber, int tNumber, int totalMeasurementCount)
+    {
+            Map<String, Object> eg = new HashMap<String, Object>();
+            put("measurementStart", totalMeasurementCount, eg, true);
+            put("label", "Cycle_" + tNumber, eg, true);
+            int zCount = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeZ", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
+            totalMeasurementCount += zCount;
+            put("measurementEnd", totalMeasurementCount, eg, true);
+            
+            double deltaTForEpochGroup = 0;
+            for (int j = 0; j < zCount; j++) {//for each measurement
+                deltaTForEpochGroup += retrieve.getPlaneDeltaT(imageNumber, j);
+                measurements.add(createMeasurement(imageNumber, tNumber, j));
+            }
+            put("deltaT", deltaTForEpochGroup, eg, true);
+
+            return eg;
     }
 }
