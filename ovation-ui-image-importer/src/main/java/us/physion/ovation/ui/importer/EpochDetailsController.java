@@ -8,7 +8,11 @@ import java.awt.Component;
 import java.util.List;
 import java.util.Map;
 import org.openide.WizardDescriptor;
+import org.openide.util.Lookup;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.ui.browser.insertion.ProtocolSelector;
 import us.physion.ovation.ui.interfaces.BasicWizardPanel;
+import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 /**
  *
@@ -37,7 +41,8 @@ public class EpochDetailsController extends BasicWizardPanel {
     @Override
     public Component getComponent() {
         if (component == null) {
-            component = new EpochDetailsPanel(changeSupport, epochNum);
+            DataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
+            component = new ProtocolSelector(changeSupport, dsc);//EpochDetailsPanel
             System.out.println("creating component");
         }
         return component;
@@ -46,14 +51,14 @@ public class EpochDetailsController extends BasicWizardPanel {
     @Override
     public void readSettings(WizardDescriptor data) {
         //read protocolID and protocolParameters
-        EpochDetailsPanel c = (EpochDetailsPanel)getComponent();
+        ProtocolSelector c = (ProtocolSelector)getComponent();
         setProtocolID(data);
         setProtocolParameters(data);
     }
     @Override
     public void storeSettings(WizardDescriptor data) {
-        EpochDetailsPanel c = (EpochDetailsPanel)getComponent();
-        data.putProperty(epochName + ".protocolID", c.getProtocolID());
+        ProtocolSelector c = (ProtocolSelector)getComponent();
+        data.putProperty(epochName + ".protocolID", c.getProtocolName());
         data.putProperty(epochName + ".protocolParameters", c.getProtocolParameters());
     }
 

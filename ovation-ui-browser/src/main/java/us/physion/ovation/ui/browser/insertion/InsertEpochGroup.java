@@ -41,10 +41,10 @@ public class InsertEpochGroup extends InsertEntity implements EpochGroupInsertab
     {
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
 
-        panels.add(new InsertEpochGroupWizardPanel1()); //protocol selector
-        panels.add(new InsertEpochGroupWizardPanel3()); //protocol param
-        panels.add(new InsertEpochGroupWizardPanel4()); //device param
-        panels.add(new InsertEpochGroupWizardPanel2());
+        panels.add(new SelectProtocolController()); //protocol selector
+        panels.add(new ProtocolParametersController()); //protocol param
+        panels.add(new DeviceParametersController()); //device param
+        panels.add(new InsertEpochGroupWizardPanel());
         return panels;
     }
     

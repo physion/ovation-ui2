@@ -9,7 +9,7 @@ import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 
-public class InsertEpochGroupWizardPanel2 extends BasicWizardPanel {
+public class InsertEpochGroupWizardPanel extends BasicWizardPanel {
 
     
     @Override

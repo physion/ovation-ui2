@@ -96,7 +96,7 @@ public class EntityWrapper implements IEntityWrapper {
             if (((Epoch)e).getProtocol() != null)
                 return ((Epoch)e).getProtocol().getName();
             else{
-                ((Epoch)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
+                return ((Epoch)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
             }
         }
         else if (Measurement.class.isAssignableFrom(type))

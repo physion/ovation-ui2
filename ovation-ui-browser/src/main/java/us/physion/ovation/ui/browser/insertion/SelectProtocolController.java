@@ -15,8 +15,26 @@ import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
-public class InsertEpochGroupWizardPanel1 extends BasicWizardPanel {
+public class SelectProtocolController extends BasicWizardPanel {
 
+    private String epochName;
+    private String previousEpochName;
+    public SelectProtocolController(){}
+  
+    public SelectProtocolController(int num)
+    {
+        this();
+        epochNum = num;
+        if (num == -1)
+            epochName = "epoch";
+        else
+            epochName = "epoch" + num;
+        
+        if (num == 0)
+            previousEpochName = "epoch";
+        else
+            previousEpochName = "epoch" + (num-1);
+    }
     @Override
     public JPanel getComponent() {
         if (component == null) {

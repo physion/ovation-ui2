@@ -12,7 +12,7 @@ import org.openide.util.HelpCtx;
  *
  * @author jackie
  */
-public class InsertEpochGroupWizardPanel3 extends BasicWizardPanel{
+public class ProtocolParametersController extends BasicWizardPanel{
     @Override
     public JPanel getComponent() {
         if (component == null) {

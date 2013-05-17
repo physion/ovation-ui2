@@ -46,8 +46,8 @@ public class InsertEpochGroupTest extends OvationTestCase{
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = insert.getPanels(parent);
         TestCase.assertEquals(panels.size(), 2);
         
-        TestCase.assertTrue(panels.get(0) instanceof InsertEpochGroupWizardPanel1);
-        TestCase.assertTrue(panels.get(1) instanceof InsertEpochGroupWizardPanel2);
+        TestCase.assertTrue(panels.get(0) instanceof SelectProtocolController);
+        TestCase.assertTrue(panels.get(1) instanceof InsertEpochGroupWizardPanel);
         //TODO: test the parent's source is set appropriately, when we start using that code
     }
     
@@ -163,7 +163,7 @@ public class InsertEpochGroupTest extends OvationTestCase{
     }
     
     
-    private class DummyPanel1 extends InsertEpochGroupWizardPanel1 
+    private class DummyPanel1 extends SelectProtocolController 
     {
         DummyPanel1()
         {
@@ -176,7 +176,7 @@ public class InsertEpochGroupTest extends OvationTestCase{
         }
     }
     
-    private class DummyPanel2 extends InsertEpochGroupWizardPanel2 
+    private class DummyPanel2 extends InsertEpochGroupWizardPanel 
     {
         @Override
         public JPanel getComponent()
