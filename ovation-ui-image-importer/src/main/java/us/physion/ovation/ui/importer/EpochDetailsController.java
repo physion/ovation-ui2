@@ -59,7 +59,7 @@ public class EpochDetailsController extends BasicWizardPanel {
     public void storeSettings(WizardDescriptor data) {
         ProtocolSelector c = (ProtocolSelector)getComponent();
         data.putProperty(epochName + ".protocolName", c.getProtocolName());
-        data.putProperty(epochName + ".protocolParameters", c.getProtocolParameters());
+        //data.putProperty(epochName + ".protocolParameters", c.getProtocolParameters());
     }
 
     @Override
