@@ -51,7 +51,6 @@ public class EpochDetailsController extends BasicWizardPanel {
     @Override
     public void readSettings(WizardDescriptor data) {
         //read protocolID and protocolParameters
-        ProtocolSelector c = (ProtocolSelector)getComponent();
         setProtocolID(data);
         setProtocolParameters(data);
     }

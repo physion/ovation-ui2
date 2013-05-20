@@ -45,7 +45,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-api-module</artifactId>
-            <version>${project.version}</version>
+            <version>${ovation.api.version}</version>
         </dependency>
 
         <dependency>
@@ -131,12 +131,6 @@
 
         <dependency>
             <groupId>us.physion</groupId>
-            <artifactId>ovation-api-module</artifactId>
-            <version>1.4</version>
-        </dependency>
-
-        <dependency>
-            <groupId>us.physion</groupId>
             <artifactId>ovation-ui-database-connection-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -150,6 +144,12 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <version>${nbm.plugin.version}</version>
                 <extensions>true</extensions>
+                <configuration>
+                    <publicPackages>
+                        <publicPackage>us.physion.ovation.ui.browser.*</publicPackage>
+                        <publicPackage>us.physion.ovation.ui.browser.insertion.*</publicPackage>
+		    </publicPackages>
+		</configuration>
             </plugin>
 
             <plugin>
@@ -172,6 +172,7 @@
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 </project>
