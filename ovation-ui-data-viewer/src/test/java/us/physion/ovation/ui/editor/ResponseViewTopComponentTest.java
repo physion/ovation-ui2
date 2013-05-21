@@ -9,6 +9,7 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import junit.framework.TestCase;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.XYPlot;
@@ -19,6 +20,7 @@ import org.junit.*;
 import static org.junit.Assert.*;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
@@ -27,6 +29,7 @@ import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.factories.MeasurementFactory;
 import us.physion.ovation.domain.impl.StdMeasurementFactory;
+import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.editor.ResponseViewTopComponent;
 import us.physion.ovation.ui.interfaces.*;
 import us.physion.ovation.ui.test.OvationTestCase;
@@ -68,7 +71,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         //assertNotNull(Lookup.getDefault().lookup(ConnectionProvider.class));
     }
     
-    private NumericMeasurement makeNumericMeasurement()
+    private Measurement makeNumericMeasurement()
     {
         NumericData data = new NumericData();
         double[] d = new double[10000];
@@ -80,7 +83,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         String name = "name";
         Set<String> sourceNames = null;
         Set<String> devices = null; 
-        NumericMeasurement r = factory.createNumericMeasurement(dsc.getContext(), name, UUID.randomUUID(), sourceNames, devices, data);
+        Measurement r = factory.createNumericMeasurement(dsc.getContext(), name, UUID.randomUUID(), sourceNames, devices, data);
         //NumericMeasurement r = epoch.insertNumericMeasurement(name, sourceNames, devices, data);
         return r;
     }
@@ -89,10 +92,17 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
     public void testGraphsSelectedEntity() {
         t = new ResponseViewTopComponent();
         
-        NumericMeasurement r = makeNumericMeasurement();
+        Measurement r = makeNumericMeasurement();
         
         String name = r.getName();
-        NumericData.Data data = r.getNumericData().getDataList().get(0);
+        NumericData.Data data;
+        try {
+            data = NumericMeasurementUtils.getNumericData(r).get().getDataList().get(0);
+        } catch (InterruptedException ex) {
+            throw new OvationException(ex.getLocalizedMessage());
+        } catch (ExecutionException ex) {
+            throw new OvationException(ex.getLocalizedMessage());
+        }
         double samplingRate = data.getSamplingRates()[0];
         String samplingUnit = data.getSamplingRateUnits()[0];
         String units = data.getUnits();
@@ -115,7 +125,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
                     assertTrue(i / samplingRate == ds.getXValue(0, i));
                 }
 
-                assertEquals(p.getXAxis(), ChartWrapper.convertSamplingRateUnitsToGraphUnits(samplingUnit));
+                assertEquals(p.getXAxis(), ChartGroupWrapper.convertSamplingRateUnitsToGraphUnits(samplingUnit));
                 assertEquals(p.getYAxis(), units);
             }
         }
@@ -128,10 +138,17 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
     @Test
     public void testCreateChartFromChartWrapper() 
     {
-        NumericMeasurement r = makeNumericMeasurement();
+        Measurement r = makeNumericMeasurement();
         
         String name = r.getName();
-        NumericData.Data data = r.getNumericData().getDataList().get(0);
+        NumericData.Data data;
+        try {
+            data = NumericMeasurementUtils.getNumericData(r).get().getDataList().get(0);
+        } catch (InterruptedException ex) {
+            throw new OvationException(ex.getLocalizedMessage());
+        } catch (ExecutionException ex) {
+            throw new OvationException(ex.getLocalizedMessage());
+        }
         double samplingRate = data.getSamplingRates()[0];
         String samplingUnit = data.getSamplingRateUnits()[0];
         String units = data.getUnits();
@@ -150,7 +167,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
             assertTrue(i / samplingRate == ds.getXValue(0, i));
         }
 
-        assertEquals(plot.getDomainAxis().getLabel(), ChartWrapper.convertSamplingRateUnitsToGraphUnits(samplingUnit));
+        assertEquals(plot.getDomainAxis().getLabel(), ChartGroupWrapper.convertSamplingRateUnitsToGraphUnits(samplingUnit));
         assertEquals(plot.getRangeAxis().getLabel(), units);
     }
     

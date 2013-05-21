@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Lists;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -12,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -62,8 +64,7 @@ public class DefaultImageWrapper implements Visualization{
     public Component generatePanel() {
         BufferedImagePanel pan = new BufferedImagePanel(img);
         pan.setAlignmentX(Component.CENTER_ALIGNMENT);
-        ImagePanel p = new ImagePanel(name, pan);
-        return p;
+        return new ImagePanel(name, pan);
     }
     
 

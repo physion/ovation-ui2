@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Lists;
 import ij.ImageJ;
 import ij.ImagePlus;
 import ij.io.Opener;
@@ -12,6 +13,7 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import net.imglib2.img.*;

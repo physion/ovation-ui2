@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Lists;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.DicomInputStream;
 import com.pixelmed.display.SingleImagePanel;
@@ -12,6 +13,8 @@ import java.awt.Component;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.openide.util.Exceptions;
 import us.physion.ovation.domain.Measurement;
@@ -57,8 +60,7 @@ public class DicomWrapper implements Visualization {
 
     @Override
     public Component generatePanel() {
-        ImagePanel p = new ImagePanel(name, new SingleImagePanel(src));
-        return p;
+        return new ImagePanel(name, new SingleImagePanel(src));
     }
 
     @Override

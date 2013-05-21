@@ -93,7 +93,8 @@
                         <publicPackage>org.jdom.*</publicPackage>
                         <publicPackage>org.joda.time.*</publicPackage>
                         <publicPackage>org.slf4j.*</publicPackage>
-                        <publicPackage>ucar.grib.*</publicPackage>
+                        <publicPackage>ucar.ma2.*</publicPackage>
+			<publicPackage>ucar.grib.*</publicPackage>
                         <publicPackage>ucar.grib.grib1.*</publicPackage>
                         <publicPackage>ucar.grib.grib2.*</publicPackage>
                         <publicPackage>us.physion.cloud.*</publicPackage>
