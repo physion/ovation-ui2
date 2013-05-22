@@ -10,6 +10,7 @@ import java.util.Map;
 import org.openide.WizardDescriptor;
 import org.openide.util.Lookup;
 import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.ui.browser.insertion.ProtocolSelector;
 import us.physion.ovation.ui.interfaces.BasicWizardPanel;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
@@ -20,7 +21,6 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
  */
 public class EpochDetailsController extends BasicWizardPanel {
 
-    String previousEpochName;
     String epochName;
     int epochNum;
     EpochDetailsController(int num)
@@ -31,11 +31,6 @@ public class EpochDetailsController extends BasicWizardPanel {
             epochName = "epoch";
         else
             epochName = "epoch" + num;
-        
-        if (num == 0)
-            previousEpochName = "epoch";
-        else
-            previousEpochName = "epoch" + (num-1);
     }
     
     @Override
@@ -51,44 +46,25 @@ public class EpochDetailsController extends BasicWizardPanel {
     @Override
     public void readSettings(WizardDescriptor data) {
         //read protocolID and protocolParameters
-        setProtocolID(data);
-        setProtocolParameters(data);
     }
     @Override
     public void storeSettings(WizardDescriptor data) {
-        ProtocolSelector c = (ProtocolSelector)getComponent();
-        data.putProperty(epochName + ".protocolName", c.getProtocolName());
-        //data.putProperty(epochName + ".protocolParameters", c.getProtocolParameters());
+        Map<String, Object> epoch;
+        
+        Protocol protocol = ((ProtocolSelector)component).getProtocol();
+        if (protocol != null)
+            data.putProperty(epochName + ".protocol", protocol);
+        else{
+            Map<String, String> newProtocols = ((ProtocolSelector)component).getNewProtocols();
+            String name = ((ProtocolSelector)component).getProtocolName();
+            data.putProperty(epochName + ".newProtocols", newProtocols);
+            data.putProperty(epochName + ".protocolName", name);
+        }
     }
 
     @Override
     public boolean isValid() {
-        EpochDetailsPanel c = (EpochDetailsPanel)component;
-        return !(c.getProtocolID() == null || c.getProtocolID().isEmpty());
-    }
-
-    private void setProtocolID(WizardDescriptor data) {
-        String initialProtocolID =(String)data.getProperty(epochName + ".protocolID");
-        if (initialProtocolID == null)
-            initialProtocolID =(String)data.getProperty(previousEpochName + ".protocolID");
-        if (initialProtocolID != null)
-        {
-            EpochDetailsPanel c = (EpochDetailsPanel)getComponent();
-            c.setProtocolID(initialProtocolID);
-        }
-    }
-    
-    private void setProtocolParameters(WizardDescriptor data)
-    {
-        Map<String, Object> initialProtocolParameters = (Map<String, Object>)data.getProperty(epochName + ".protocolParameters");
-        if (initialProtocolParameters == null)
-            initialProtocolParameters = (Map<String, Object>)data.getProperty(previousEpochName + ".protocolParameters");
-
-        if (initialProtocolParameters != null)
-        {
-            EpochDetailsPanel c = (EpochDetailsPanel)getComponent();
-            c.setProtocolParameters(initialProtocolParameters);
-        }
+      return true;
     }
     
 }

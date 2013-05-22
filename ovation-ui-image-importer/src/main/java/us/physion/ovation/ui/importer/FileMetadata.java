@@ -210,7 +210,7 @@ public class FileMetadata {
     private Map<String, Object> createMeasurement(int imageNumber)
     {
         Map<String, Object> measurement = new HashMap<String, Object>();
-        put("number", imageNumber, measurement, true);
+        put("imageNumber", imageNumber, measurement, true);
 
         put("deviceNames",getDeviceNamesForImage(retrieve, imageNumber, instruments), measurement, true);
         put("deviceParameters", getDeviceParameters(imageNumber), measurement, true);
@@ -886,7 +886,7 @@ public class FileMetadata {
         int numberOfEpochGroups = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeT", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
 
         if (numberOfEpochGroups == 1) {
-            parentEpochGroup = generateEpochGroup(imageNumber, 0, 0);
+            parentEpochGroup = generateEpochGroup(imageNumber, 0);
             put("label", name, parentEpochGroup, true);//overwrite the label in generateEpochGroup
         } else {
             parentEpochGroup = new HashMap<String, Object>();
@@ -895,22 +895,21 @@ public class FileMetadata {
             int measurementsPerEpochGroup = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeZ", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
             List<Map<String, Object>> egs = new ArrayList();
             for (int i = 0; i < numberOfEpochGroups; i++) {
-                egs.add(generateEpochGroup(imageNumber, i, totalMeasurementCount));
+                egs.add(generateEpochGroup(imageNumber, i));
                 totalMeasurementCount += measurementsPerEpochGroup;
             }
             put("egs", egs, parentEpochGroup, true);
+            put("totalMeasurementCount", totalMeasurementCount, parentEpochGroup, true);
         }
         return parentEpochGroup;
     }
     
-    private Map<String, Object> generateEpochGroup(int imageNumber, int tNumber, int totalMeasurementCount)
+    private Map<String, Object> generateEpochGroup(int imageNumber, int tNumber)
     {
+            List<Map<String, Object>> measurements = new LinkedList();
             Map<String, Object> eg = new HashMap<String, Object>();
-            put("measurementStart", totalMeasurementCount, eg, true);
             put("label", "Cycle_" + tNumber, eg, true);
             int zCount = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeZ", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
-            totalMeasurementCount += zCount;
-            put("measurementEnd", totalMeasurementCount, eg, true);
             
             double deltaTForEpochGroup = 0;
             for (int j = 0; j < zCount; j++) {//for each measurement
@@ -918,6 +917,7 @@ public class FileMetadata {
                 measurements.add(createMeasurement(imageNumber, tNumber, j));
             }
             put("deltaT", deltaTForEpochGroup, eg, true);
+            put("measurements", measurements, eg, true);
 
             return eg;
     }

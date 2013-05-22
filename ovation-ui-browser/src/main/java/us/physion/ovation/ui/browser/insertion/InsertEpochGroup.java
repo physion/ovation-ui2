@@ -93,7 +93,7 @@ public class InsertEpochGroup extends InsertEntity implements EpochGroupInsertab
         {
             ((EpochGroup)parentEntity).insertEpochGroup((String)wiz.getProperty("epochGroup.label"),
                     ((DateTime)wiz.getProperty("epochGroup.start")),
-                    (us.physion.ovation.domain.impl.Protocol)protocol,//TODO: fix this in the api
+                    protocol,
                     ((Map<String, Object>)wiz.getProperty("epochGroup.protocolParameters")),
                     ((Map<String, Object>)wiz.getProperty("epochGroup.deviceParameters")));
         }
