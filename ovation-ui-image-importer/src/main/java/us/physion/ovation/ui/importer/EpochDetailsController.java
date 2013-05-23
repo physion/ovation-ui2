@@ -49,17 +49,20 @@ public class EpochDetailsController extends BasicWizardPanel {
     }
     @Override
     public void storeSettings(WizardDescriptor data) {
-        Map<String, Object> epoch;
+        List<Map<String, Object>> epochs = (List<Map<String, Object>>)data.getProperty("epochs");
+        Map<String, Object> epoch = epochs.remove(epochNum);
         
         Protocol protocol = ((ProtocolSelector)component).getProtocol();
         if (protocol != null)
-            data.putProperty(epochName + ".protocol", protocol);
+            epoch.put("protocol", protocol);
         else{
             Map<String, String> newProtocols = ((ProtocolSelector)component).getNewProtocols();
             String name = ((ProtocolSelector)component).getProtocolName();
-            data.putProperty(epochName + ".newProtocols", newProtocols);
-            data.putProperty(epochName + ".protocolName", name);
+            epoch.put("newProtocols", newProtocols);
+            epoch.put("protocolName", name);
         }
+        epochs.add(epochNum, epoch);
+        data.putProperty("epochs", epochs);
     }
 
     @Override

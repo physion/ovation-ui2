@@ -94,7 +94,6 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
         panels.add(new GetImageFilesController(files));//set the files, and start/end times
         for (int i = 0; i < epochCount; i++) {
             panels.add(new EpochDetailsController(i));//set protocol info
-
             int responseCount = files.get(i).getMeasurements().size();
             for (int j = 0; j < responseCount; j++) {
                 panels.add(new DeviceDetailsController(i, j));
@@ -152,7 +151,7 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
                 Measurement measurement = e.insertMeasurement((String)m.get("name"),//set somewhere 
                         (Set<String>)m.get("sourceNames"),//set by sourceSelector? 
                         (Set<String>)m.get("deviceNames"), 
-                        (URL)m.get("url"),
+                        new URL((String)m.get("url")),
                         (String)m.get("mimeType"));
                 
                 Map<String, Object> measurementProperties = (Map<String, Object>)m.get("properties");

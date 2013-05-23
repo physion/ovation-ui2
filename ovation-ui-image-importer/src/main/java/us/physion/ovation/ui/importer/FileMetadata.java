@@ -696,10 +696,10 @@ public class FileMetadata {
         Map<String, Object> dimensionFields = new HashMap();
         
         int shapeCount = 0;
-        long shapeX = -1, shapeY = -1, shapeZ = -1, shapeC = -1, shapeT = -1;
+        int shapeX = -1, shapeY = -1, shapeZ = -1, shapeC = -1, shapeT = -1;
         double rateX = -1, rateY = -1, rateZ = -1, rateC = -1, rateT = -1;
         try {
-            shapeX = retrieve.getPixelsSizeX(j).getValue().longValue();
+            shapeX = retrieve.getPixelsSizeX(j).getValue().intValue();
             rateX = retrieve.getPixelsPhysicalSizeX(j).getValue() / shapeX;
         } catch (NullPointerException e) {
         } finally {
@@ -708,7 +708,7 @@ public class FileMetadata {
             }
         }
         try {
-            shapeY = retrieve.getPixelsSizeY(j).getValue().longValue();
+            shapeY = retrieve.getPixelsSizeY(j).getValue().intValue();
             rateY = retrieve.getPixelsPhysicalSizeY(j).getValue() / shapeY;
         } catch (NullPointerException e) {
         } finally {
@@ -717,7 +717,7 @@ public class FileMetadata {
             }
         }
         try {
-            shapeZ = retrieve.getPixelsSizeZ(j).getValue().longValue();
+            shapeZ = retrieve.getPixelsSizeZ(j).getValue().intValue();
             rateZ = retrieve.getPixelsPhysicalSizeZ(j).getValue() / shapeZ;
         } catch (NullPointerException e) {
         } finally {
@@ -726,7 +726,7 @@ public class FileMetadata {
             }
         }
         try {
-            shapeC = retrieve.getPixelsSizeC(j).getValue().longValue();
+            shapeC = retrieve.getPixelsSizeC(j).getValue().intValue();
             rateC = 1;
         } catch (NullPointerException e) {
         } finally {
@@ -735,7 +735,7 @@ public class FileMetadata {
             }
         }
         try {
-            shapeT = retrieve.getPixelsSizeT(j).getValue().longValue();
+            shapeT = retrieve.getPixelsSizeT(j).getValue().intValue();
             try {
                 double timeIncrement = retrieve.getPixelsTimeIncrement(j).doubleValue();
                 rateT = timeIncrement == 0 ? 0 : (1 / timeIncrement);
@@ -748,7 +748,7 @@ public class FileMetadata {
             }
         }
 
-        long[] shape = new long[shapeCount];
+        int[] shape = new int[shapeCount];
         double[] samplingRates = new double[shapeCount];
         String[] samplingRateUnits = new String[shapeCount];
         String[] dimensionLabels = new String[shapeCount];
@@ -837,17 +837,17 @@ public class FileMetadata {
     private int checkValidImageCount(MetadataRetrieve retrieve) {
         int imageNumber = -1;
         try{
-            imageNumber = retrieve.getImageCount() -1;
+            imageNumber = retrieve.getImageCount();
         } catch (NullPointerException e)
         {
             throw new OvationException("No Images located");//?
         }
         
-        if (imageNumber > 0)
+        if (imageNumber > 1)
         {
             throw new OvationException("Multi image import not supported yet");
         }
-        if (imageNumber < 0)
+        if (imageNumber < 1)
             throw new OvationException("Invalid image number: " + imageNumber);
         return imageNumber;
     }

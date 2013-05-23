@@ -14,12 +14,12 @@ import org.openide.util.ChangeSupport;
 public class ResponseDetailsPanel extends javax.swing.JPanel {
 
     private ChangeSupport cs;
-    private int responseNumber;
+    private int measurementNumber;
     private String url;
-    private String uti;
+    private String contentType;
     private double[] samplingRates;
     private String[] samplingRateUnits;
-    private long[] shape;
+    private int[] shape;
     private String[] dimensionLabels;
     private String units;
     /**
@@ -27,13 +27,13 @@ public class ResponseDetailsPanel extends javax.swing.JPanel {
      */
     public ResponseDetailsPanel(ChangeSupport cs, int rNum) {
         this.cs = cs;
-        responseNumber = rNum;
+        measurementNumber = rNum;
         initComponents();
     }
 
     @Override
     public String getName() {
-        return "Response " + (responseNumber +1) + ": Metadata";
+        return "Measurement " + (measurementNumber +1) + ": Metadata";
     }
     
     public void setUnits(String units)
@@ -60,7 +60,7 @@ public class ResponseDetailsPanel extends javax.swing.JPanel {
         this.urlTextField1.setEditable(false);
     }
     
-    public void setShape(long[] shape)
+    public void setShape(int[] shape)
     {   
         if (shape == null)
         {
@@ -68,7 +68,7 @@ public class ResponseDetailsPanel extends javax.swing.JPanel {
             return;
         }
         this.shape = shape;
-        this.shapeTextField.setText(convertFromLongArray(shape));
+        this.shapeTextField.setText(convertFromIntArray(shape));
         this.shapeTextField.setEditable(false);
     }
     
@@ -115,7 +115,7 @@ public class ResponseDetailsPanel extends javax.swing.JPanel {
             this.utiTextField.setEditable(true);
             return;
         }
-        this.uti = uti;
+        this.contentType = uti;
         this.utiTextField.setText(uti);
         this.utiTextField.setEditable(true);
     }
@@ -125,9 +125,9 @@ public class ResponseDetailsPanel extends javax.swing.JPanel {
         return units;
     }
     
-    public String getUTI()
+    public String getMimeType()
     {
-        return uti;
+        return contentType;
     }
     
     public String getURL()
@@ -145,7 +145,7 @@ public class ResponseDetailsPanel extends javax.swing.JPanel {
         return dimensionLabels;
     }
     
-    public long[] getShape()
+    public int[] getShape()
     {
         return shape;
     }
@@ -350,9 +350,9 @@ public class ResponseDetailsPanel extends javax.swing.JPanel {
     private void utiTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_utiTextFieldKeyReleased
         String newuti = utiTextField.getText();
         boolean newVarIsEmpty = (newuti == null || newuti.isEmpty());
-        boolean oldVarIsEmpty = (uti == null || uti.isEmpty());
+        boolean oldVarIsEmpty = (contentType == null || contentType.isEmpty());
         
-        uti = newuti;
+        contentType = newuti;
         if (newVarIsEmpty != oldVarIsEmpty) {
             cs.fireChange();
         }
@@ -440,20 +440,20 @@ public class ResponseDetailsPanel extends javax.swing.JPanel {
         return newS;
     }
     
-    private long[] convertToLongArray(String arr) {
+    private int[] convertToIntArray(String arr) {
         if (arr.startsWith("{") && arr.endsWith("}")) {
             String[] newS = arr.substring(1, arr.length() - 1).split(",");
-            long[] longs = new long[newS.length];
+            int[] ints = new int[newS.length];
             
             for (int i = 0; i < newS.length; i++) {
-                longs[i] = Long.valueOf(newS[i].trim());
+                ints[i] = Integer.valueOf(newS[i].trim());
             }
-            return longs;
+            return ints;
         }
         return null;
     }
     
-    private String convertFromLongArray(long[] arr) {
+    private String convertFromIntArray(int[] arr) {
         String newS = "{";
         for (double s : arr)
         {
