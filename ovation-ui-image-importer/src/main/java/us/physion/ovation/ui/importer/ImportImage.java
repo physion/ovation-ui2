@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.*;
@@ -34,12 +35,14 @@ import loci.formats.ome.OMEXMLMetadata;
 import loci.formats.services.OMEXMLService;
 import org.joda.time.DateTime;
 import org.openide.DialogDisplayer;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.ServiceProvider;
 import ovation.*;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
+import us.physion.ovation.exceptions.OvationException;
 
 @ServiceProvider(service = EpochGroupInsertable.class)
 /**
@@ -92,12 +95,22 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
         int epochCount = files.size();
         
         panels.add(new GetImageFilesController(files));//set the files, and start/end times
+        panels.add(new EquipmentSetupController());//set equipment setup info
+
         for (int i = 0; i < epochCount; i++) {
-            panels.add(new EpochDetailsController(i));//set protocol info
+            panels.add(new ProtocolController(i));//set protocol info
+            panels.add(new KeyValueController(i, 
+                    "Epoch " + (i+1) + ": Protocol Parameters", 
+                    "Enter any relevent protocol parameters below. These parameters will be associated with Epoch " + (i+1), 
+                    "protocolParams"));
+            panels.add(new KeyValueController(i, 
+                    "Epoch " + (i+1) + ": Device Parameters", 
+                    "Enter any relevent device parameters below. These parameters will be associated with Epoch " + (i+1), 
+                    "deviceParams"));
             int responseCount = files.get(i).getMeasurements().size();
             for (int j = 0; j < responseCount; j++) {
-                panels.add(new DeviceDetailsController(i, j));
-                panels.add(new ResponseDetailsController(i, j));
+                panels.add(new DeviceNamesController(i, j));
+                panels.add(new MeasurementDetailsController(i, j));
             }
         }
         return panels;
@@ -108,17 +121,18 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
         EpochGroup eg = ((EpochGroup)iew.getEntity());
         Experiment exp = eg.getExperiment();
         
-        Map<String, Map<String, Object>> devices = (Map<String, Map<String, Object>>) wd.getProperty("devices");
+        Map<String, Object> equipmentSetup = (Map<String, Object>) wd.getProperty("equipmentSetup");
         EquipmentSetup es = exp.getEquipmentSetup();
-        for (String deviceName : devices.keySet()) {
-            Map<String, Object> device = devices.get(deviceName);
-            //name, manufacturer, properties
-            Map<String, Object> properties = (Map<String, Object>) device.get("properties");
-            String prefix = device.get("name") + "." + device.get("manufacturer") + ".".replace("\\.\\.", "\\.");
-            for (String key : properties.keySet()) {
-                es.addDeviceDetail(prefix + key, properties.get(key));
+        
+        if (es == null)
+        {
+            exp.setEquipmentSetup(equipmentSetup);
+        }else{
+            for (String key : equipmentSetup.keySet())
+            {
+                es.addDeviceDetail(key, equipmentSetup.get(key));
             }
-        }        
+        }
         
         List<Map<String, Object>> epochs = (List<Map<String, Object>>) wd.getProperty("epochs");
         
@@ -148,12 +162,17 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
             List<Map<String, Object>> measurements = (List<Map<String, Object>>)epoch.get("measurements");
             for (Map<String, Object> m : measurements)
             {
-                Measurement measurement = e.insertMeasurement((String)m.get("name"),//set somewhere 
-                        (Set<String>)m.get("sourceNames"),//set by sourceSelector? 
-                        (Set<String>)m.get("deviceNames"), 
-                        new URL((String)m.get("url")),
-                        (String)m.get("mimeType"));
-                
+                Measurement measurement;
+                try {
+                    measurement = e.insertMeasurement((String) m.get("name"),//needs to be set
+                            (Set<String>) m.get("sourceNames"),//set by sourceSelector? 
+                            (Set<String>) m.get("deviceNames"),// needs to be set
+                            new URL((String) m.get("url")),
+                            (String) m.get("mimeType"));
+                } catch (MalformedURLException ex) {
+                    throw new OvationException(ex);
+                }
+
                 Map<String, Object> measurementProperties = (Map<String, Object>)m.get("properties");
                 for (String key : measurementProperties.keySet()) {
                     Object val = measurementProperties.get(key);

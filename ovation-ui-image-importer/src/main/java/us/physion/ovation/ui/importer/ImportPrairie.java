@@ -66,8 +66,8 @@ public class ImportPrairie extends ImportImage{
         GetImageFilesController c = new GetImageFilesController(files);
         files = null;
         panels.add(c);
-        panels.add(new EpochDetailsController(-1));
-        panels.add(new DeviceDetailsController(-1, -1));
+        panels.add(new ProtocolController(-1));
+        panels.add(new DeviceNamesController(-1, -1));
         //panels.add(new ResponseDetailsController(-1, -1));
 
         return panels;

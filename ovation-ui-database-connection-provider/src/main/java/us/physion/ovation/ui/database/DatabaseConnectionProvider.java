@@ -111,33 +111,32 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
 
         final ConnectionListener[] listeners = connectionListeners.toArray(new ConnectionListener[0]);
         
-        Runnable r = new Runnable() {
+        final Runnable r = new Runnable() {
 
             public void run() {
-
+                ProgressHandle ph = ProgressHandleFactory.createHandle("Authenticating...");
                 try {
+                    ph.start();
                     DataStoreCoordinator toAuthenticate = Ovation.newDataStoreCoordinator();
                     boolean succeeded = authenticateUser(toAuthenticate, null);
-                    if (succeeded)
-                    {
+                    if (succeeded) {
                         setDsc(toAuthenticate);
                         setWaitingFlag(false);
 
-                        for (ConnectionListener l : listeners)
-                        {
+                        for (ConnectionListener l : listeners) {
                             l.propertyChange(new PropertyChangeEvent(toAuthenticate, "ovation.connectionChanged", 0, 1));
                         }
                     }
+
                 } finally {
                     setWaitingFlag(false);
+                     ph.finish();
                 }
             }
         };
-
-        ProgressHandle ph = ProgressHandleFactory.createHandle("Authenticating...");
-        ph.start();
+        
         EventQueueUtilities.runOnEDT(r);
-        ph.finish();
+        
         return dsc;
     }
     

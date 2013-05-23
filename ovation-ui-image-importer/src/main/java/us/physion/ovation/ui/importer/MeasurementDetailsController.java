@@ -15,11 +15,11 @@ import us.physion.ovation.ui.interfaces.BasicWizardPanel;
  *
  * @author jackie
  */
-public class ResponseDetailsController extends BasicWizardPanel{
+public class MeasurementDetailsController extends BasicWizardPanel{
 
     int epochNumber;
     int responseNumber;
-    public ResponseDetailsController(int epochCount, int responseCount)
+    public MeasurementDetailsController(int epochCount, int responseCount)
     {
         super();
         this.responseNumber = responseCount;
@@ -30,7 +30,7 @@ public class ResponseDetailsController extends BasicWizardPanel{
     public Component getComponent() {
         if (component == null)
         {
-            component = new ResponseDetailsPanel(changeSupport, responseNumber);
+            component = new MeasurementDetailsPanel(changeSupport, responseNumber);
         }
         return component;
     }
@@ -44,7 +44,7 @@ public class ResponseDetailsController extends BasicWizardPanel{
         Map<String, Object> m = measurements.get(responseNumber);
         Map<String, Object> mProperties = (Map<String, Object>)m.get("properties");
         
-        ResponseDetailsPanel c = (ResponseDetailsPanel)getComponent();
+        MeasurementDetailsPanel c = (MeasurementDetailsPanel)getComponent();
 
         c.setURL(((String)m.get("url")));
         c.setUTI((String)m.get("mimeType"));
@@ -65,7 +65,7 @@ public class ResponseDetailsController extends BasicWizardPanel{
         Map<String, Object> m = measurements.remove(responseNumber);
         Map<String, Object> mProperties = (Map<String, Object>)m.get("properties");
         
-        ResponseDetailsPanel c = (ResponseDetailsPanel)getComponent();
+        MeasurementDetailsPanel c = (MeasurementDetailsPanel)getComponent();
         
         m.put("url", c.getURL());
         m.put("mimeType", c.getMimeType());
@@ -85,7 +85,7 @@ public class ResponseDetailsController extends BasicWizardPanel{
 
     @Override
     public boolean isValid() {
-        ResponseDetailsPanel c = (ResponseDetailsPanel)getComponent();
+        MeasurementDetailsPanel c = (MeasurementDetailsPanel)getComponent();
 
         return  (c.getURL() != null && !c.getURL().isEmpty() &&
                 c.getMimeType() != null && !c.getMimeType().isEmpty() &&

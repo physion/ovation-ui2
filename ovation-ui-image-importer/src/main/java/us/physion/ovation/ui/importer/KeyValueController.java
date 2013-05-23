@@ -1,0 +1,114 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package us.physion.ovation.ui.importer;
+
+import java.awt.Component;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+import org.openide.WizardDescriptor;
+import us.physion.ovation.ui.interfaces.BasicWizardPanel;
+
+/**
+ *
+ * @author huecotanks
+ */
+public class KeyValueController extends BasicWizardPanel{
+
+    KeyValuePanel c;
+    String name;
+    String description;
+    String wizardDescriptorKey;
+    int epochNumber;
+    public KeyValueController(int epochNumber, String name, String description, String wizardDescriptorKey)
+    {
+        this.name = name;
+        this.description = description;
+        this.wizardDescriptorKey = wizardDescriptorKey;
+        this.epochNumber = epochNumber;
+    }
+    
+    @Override
+    public Component getComponent() {
+        if (c == null)
+        {
+            c = new KeyValuePanel(changeSupport, name, description);
+        }
+        return c;
+    }
+
+    @Override
+    public void readSettings(WizardDescriptor data) {
+        String[] keys = wizardDescriptorKey.split(";");
+        Object o = data.getProperty(keys[0]);
+        for (int i=1; i<keys.length; i++)
+        {
+            if (o instanceof List)
+            {
+                int index = Integer.parseInt(keys[i]);
+                o = ((List)o).get(index);
+            }else if (o instanceof Map)
+            {
+                o = ((Map)o).get(keys[i]);
+            }
+        }
+        KeyValuePanel panel = (KeyValuePanel) getComponent();
+        panel.setParameters((Map<String, Object>)o);
+    }
+    
+    @Override
+    public void storeSettings(WizardDescriptor data) {
+        KeyValuePanel panel = (KeyValuePanel) getComponent();
+        String[] keys = wizardDescriptorKey.split(";");
+        Object o = data.getProperty(keys[0]);
+        Stack s = new Stack();
+        s.push(o);
+        for (int i=1; i<keys.length; i++)
+        {
+            if (o instanceof List)
+            {
+                int index = Integer.parseInt(keys[i]);
+                o = ((List)o).get(index);
+                s.push(o);
+
+            }else if (o instanceof Map)
+            {
+                o = ((Map)o).get(keys[i]);
+                s.push(o);
+            }
+        }
+        
+        s.pop();
+        Object modifiedElement = panel.getParameters();
+        int keyIndex = keys.length-2;
+        while (!s.isEmpty())
+        {
+            o = s.pop();
+            
+            if (o instanceof List)
+            {
+                int index = Integer.parseInt(keys[keyIndex]);
+                ((List)o).remove(index);
+                ((List)o).set(index, modifiedElement);
+                modifiedElement = o;
+                keyIndex--;
+
+            }else if (o instanceof Map)
+            {
+                o = ((Map)o).put(keys[keyIndex], modifiedElement);
+                modifiedElement = o;
+                keyIndex--;
+            }
+        }
+        
+        data.putProperty(keys[0], modifiedElement);
+    }
+
+    @Override
+    public boolean isValid() {
+        return true;
+    }
+    
+}

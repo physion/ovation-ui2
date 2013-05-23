@@ -11,7 +11,7 @@ import org.openide.util.ChangeSupport;
  *
  * @author jackie
  */
-public class ResponseDetailsPanel extends javax.swing.JPanel {
+public class MeasurementDetailsPanel extends javax.swing.JPanel {
 
     private ChangeSupport cs;
     private int measurementNumber;
@@ -23,9 +23,9 @@ public class ResponseDetailsPanel extends javax.swing.JPanel {
     private String[] dimensionLabels;
     private String units;
     /**
-     * Creates new form ResponseDetailsPanel
+     * Creates new form MeasurementDetailsPanel
      */
-    public ResponseDetailsPanel(ChangeSupport cs, int rNum) {
+    public MeasurementDetailsPanel(ChangeSupport cs, int rNum) {
         this.cs = cs;
         measurementNumber = rNum;
         initComponents();
@@ -179,21 +179,21 @@ public class ResponseDetailsPanel extends javax.swing.JPanel {
         samplingUnitTextField1 = new javax.swing.JTextField();
         utiTextField = new javax.swing.JTextField();
 
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(ResponseDetailsPanel.class, "ResponseDetailsPanel.jLabel1.text")); // NOI18N
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.jLabel1.text")); // NOI18N
 
-        jLabel2.setText(org.openide.util.NbBundle.getMessage(ResponseDetailsPanel.class, "ResponseDetailsPanel.jLabel2.text")); // NOI18N
+        jLabel2.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.jLabel2.text")); // NOI18N
 
-        jLabel3.setText(org.openide.util.NbBundle.getMessage(ResponseDetailsPanel.class, "ResponseDetailsPanel.jLabel3.text")); // NOI18N
+        jLabel3.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.jLabel3.text")); // NOI18N
 
-        jLabel4.setText(org.openide.util.NbBundle.getMessage(ResponseDetailsPanel.class, "ResponseDetailsPanel.jLabel4.text")); // NOI18N
+        jLabel4.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.jLabel4.text")); // NOI18N
 
-        jLabel5.setText(org.openide.util.NbBundle.getMessage(ResponseDetailsPanel.class, "ResponseDetailsPanel.jLabel5.text")); // NOI18N
+        jLabel5.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.jLabel5.text")); // NOI18N
 
-        jLabel6.setText(org.openide.util.NbBundle.getMessage(ResponseDetailsPanel.class, "ResponseDetailsPanel.jLabel6.text")); // NOI18N
+        jLabel6.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.jLabel6.text")); // NOI18N
 
-        jLabel7.setText(org.openide.util.NbBundle.getMessage(ResponseDetailsPanel.class, "ResponseDetailsPanel.jLabel7.text")); // NOI18N
+        jLabel7.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.jLabel7.text")); // NOI18N
 
-        urlTextField1.setText(org.openide.util.NbBundle.getMessage(ResponseDetailsPanel.class, "ResponseDetailsPanel.urlTextField1.text")); // NOI18N
+        urlTextField1.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.urlTextField1.text")); // NOI18N
         urlTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 urlTextField1ActionPerformed(evt);
@@ -205,21 +205,21 @@ public class ResponseDetailsPanel extends javax.swing.JPanel {
             }
         });
 
-        unitsTextField.setText(org.openide.util.NbBundle.getMessage(ResponseDetailsPanel.class, "ResponseDetailsPanel.unitsTextField.text")); // NOI18N
+        unitsTextField.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.unitsTextField.text")); // NOI18N
         unitsTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 unitsTextFieldActionPerformed(evt);
             }
         });
 
-        shapeTextField.setText(org.openide.util.NbBundle.getMessage(ResponseDetailsPanel.class, "ResponseDetailsPanel.shapeTextField.text")); // NOI18N
+        shapeTextField.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.shapeTextField.text")); // NOI18N
         shapeTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 shapeTextFieldActionPerformed(evt);
             }
         });
 
-        dimensionLabelTextField.setText(org.openide.util.NbBundle.getMessage(ResponseDetailsPanel.class, "ResponseDetailsPanel.dimensionLabelTextField.text")); // NOI18N
+        dimensionLabelTextField.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.dimensionLabelTextField.text")); // NOI18N
         dimensionLabelTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 dimensionLabelTextFieldActionPerformed(evt);
@@ -231,21 +231,21 @@ public class ResponseDetailsPanel extends javax.swing.JPanel {
             }
         });
 
-        samplingRateTextField.setText(org.openide.util.NbBundle.getMessage(ResponseDetailsPanel.class, "ResponseDetailsPanel.samplingRateTextField.text")); // NOI18N
+        samplingRateTextField.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.samplingRateTextField.text")); // NOI18N
         samplingRateTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 samplingRateTextFieldActionPerformed(evt);
             }
         });
 
-        samplingUnitTextField1.setText(org.openide.util.NbBundle.getMessage(ResponseDetailsPanel.class, "ResponseDetailsPanel.samplingUnitTextField1.text")); // NOI18N
+        samplingUnitTextField1.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.samplingUnitTextField1.text")); // NOI18N
         samplingUnitTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 samplingUnitTextField1ActionPerformed(evt);
             }
         });
 
-        utiTextField.setText(org.openide.util.NbBundle.getMessage(ResponseDetailsPanel.class, "ResponseDetailsPanel.utiTextField.text")); // NOI18N
+        utiTextField.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.utiTextField.text")); // NOI18N
         utiTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 utiTextFieldActionPerformed(evt);
@@ -272,7 +272,7 @@ public class ResponseDetailsPanel extends javax.swing.JPanel {
                     .add(jLabel7))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(utiTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE)
+                    .add(utiTextField)
                     .add(samplingUnitTextField1)
                     .add(urlTextField1)
                     .add(unitsTextField)

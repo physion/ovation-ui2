@@ -19,11 +19,11 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
  *
  * @author jackie
  */
-public class EpochDetailsController extends BasicWizardPanel {
+public class ProtocolController extends BasicWizardPanel {
 
     String epochName;
     int epochNum;
-    EpochDetailsController(int num)
+    ProtocolController(int num)
     {
         super();
         epochNum = num;
