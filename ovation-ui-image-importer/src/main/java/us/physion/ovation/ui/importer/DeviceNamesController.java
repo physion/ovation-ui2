@@ -30,7 +30,7 @@ public class DeviceNamesController extends BasicWizardPanel {
     @Override
     public Component getComponent() {
         if (component == null) {
-           // component = new KeyValuePanel(changeSupport, responseCount);
+            component = new KeyValuePanel(changeSupport, "name", "description");
         }
         return component;
     }

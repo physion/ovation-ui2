@@ -93,9 +93,9 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
     public List<Panel<WizardDescriptor>> getPanels(IEntityWrapper iew) {
         List<Panel<WizardDescriptor>> panels = new ArrayList<Panel<WizardDescriptor>>();
         int epochCount = files.size();
-        
-        panels.add(new GetImageFilesController(files));//set the files, and start/end times
+
         panels.add(new EquipmentSetupController());//set equipment setup info
+        panels.add(new GetImageFilesController(files));//set the files, and start/end times
 
         for (int i = 0; i < epochCount; i++) {
             panels.add(new ProtocolController(i));//set protocol info
@@ -109,8 +109,8 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
                     "deviceParams"));
             int responseCount = files.get(i).getMeasurements().size();
             for (int j = 0; j < responseCount; j++) {
-                panels.add(new DeviceNamesController(i, j));
-                panels.add(new MeasurementDetailsController(i, j));
+                //panels.add(new DeviceNamesController(i, j));
+                //panels.add(new MeasurementDetailsController(i, j));
             }
         }
         return panels;
@@ -145,12 +145,14 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
             }else if (epoch.get("protocolName") != null && epoch.get("protocolDocument") != null){
                 protocol = eg.getDataContext().insertProtocol((String)epoch.get("protocolName"), (String)epoch.get("protocolDocument"));
             }
+            
+            Map<String, Source> input = (Map<String, Source>) epoch.get("inputSources");
             DateTime start = (DateTime)epoch.get("start");
             DateTime end = (DateTime)epoch.get("end");
             Map<String, Object> protocolParameters = (Map<String, Object>)epoch.get("protocolParameters");//set by wherever
             Map<String, Object> deviceParameters = (Map<String, Object>)epoch.get("deviceParameters");//set by which panel
             Map<String, Object> epochProperties = (Map<String, Object>)epoch.get("properties");
-            Epoch e = eg.insertEpoch(start, end, protocol, protocolParameters, deviceParameters);
+            Epoch e = eg.insertEpoch(input, null, start, end, protocol, protocolParameters, deviceParameters);
             for (String key : epochProperties.keySet())
             {
                 Object val = epochProperties.get(key);

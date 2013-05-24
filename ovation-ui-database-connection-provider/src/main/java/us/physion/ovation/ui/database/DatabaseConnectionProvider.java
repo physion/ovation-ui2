@@ -147,13 +147,13 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         final JDialog d = new JDialog(new JFrame(), true);
         d.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         
-        //JTabbedPane tabs = new JTabbedPane(JTabbedPane.BOTTOM);
+        JTabbedPane tabs = new JTabbedPane(JTabbedPane.BOTTOM);
         JPanel login = new JPanel();
         login.setLayout(new BoxLayout(login, BoxLayout.PAGE_AXIS));
-        //tabs.addTab("Login", login);
+        tabs.addTab("Login", login);
         
-        //JPanel signUp = new JPanel();
-        //tabs.addTab("Sign up", signUp);
+        JPanel signUp = new JPanel();
+        tabs.addTab("Sign up", signUp);
         
         //LOGIN
         //------------------------------------------------------
@@ -200,7 +200,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         
         //SIGN UP
         //-----------------------------------------------------------
-        /*JLabel header = new JLabel("New to Ovation? Sign up");
+        JLabel header = new JLabel("New to Ovation? Sign up");
         
         //two text fields
         JPanel s_form = new JPanel(new GridBagLayout());
@@ -231,11 +231,6 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         signUp.add(s_buttonPane, BorderLayout.PAGE_END);
         
         d.getContentPane().add(tabs);
-        login.getRootPane().setDefaultButton(okButton);
-        signUp.getRootPane().setDefaultButton(signUpButton);
-        */
-
-        d.getContentPane().add(login);
         login.getRootPane().setDefaultButton(okButton);
         
         //show dialog

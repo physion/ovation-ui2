@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.importer;
 
+import java.util.HashMap;
 import java.util.Map;
 import javax.swing.ListSelectionModel;
 import org.openide.util.ChangeSupport;
@@ -32,13 +33,15 @@ public class KeyValuePanel extends javax.swing.JPanel {
         this.cs = cs;
         this.name = name;
         this.description = description;
-        paramModel = new ParameterTableModel(true);//not editable
+        paramModel = new ParameterTableModel(true);
         initComponents();
         label.setText(description);
     }
     
     public void setParameters(Map<String, Object> params)
     {
+        if (params == null)
+            params = new HashMap();
         paramModel.setParams(params);
     }
     

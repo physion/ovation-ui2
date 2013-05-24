@@ -54,16 +54,23 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         byte[] data = {1, 2, 3, 4, 5};
         String uti = "unknown-uti";
         
+        
+        
         DataContext c = dsc.getContext();
+        Source source = c.insertSource("source", "1");
         Project p = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
         HashMap params = new HashMap();
         params.put("color", "yellow");
         params.put("size", 10.5);
-        e1 = new TestEntityWrapper(dsc, p.insertExperiment("purpose", UNUSED_START).insertEpochGroup("label", UNUSED_START, null, null, null).insertEpoch(UNUSED_START, UNUSED_START, null, params, null));
+        
+        Map<String, Source> input = new HashMap();
+        input.put("subject", source);
+        
+        e1 = new TestEntityWrapper(dsc, p.insertExperiment("purpose", UNUSED_START).insertEpochGroup("label", UNUSED_START, null, null, null).insertEpoch(input, null, UNUSED_START, UNUSED_START, null, params, null));
         params = new HashMap();
         params.put("id", 4);
         params.put("birthday", "6/23/1988");
-        e2 = new TestEntityWrapper(dsc, p.insertExperiment("purpose", UNUSED_START).insertEpochGroup("label", UNUSED_START, null, null, null).insertEpoch(UNUSED_START, UNUSED_START, null, params, null));
+        e2 = new TestEntityWrapper(dsc, p.insertExperiment("purpose", UNUSED_START).insertEpochGroup("label", UNUSED_START, null, null, null).insertEpoch(input, null, UNUSED_START, UNUSED_START, null, params, null));
 
         t = new ParametersTopComponent();
         t.setTableTree(new DummyTableTree());
