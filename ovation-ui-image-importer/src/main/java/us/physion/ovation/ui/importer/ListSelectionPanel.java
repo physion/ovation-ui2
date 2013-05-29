@@ -5,14 +5,15 @@
 package us.physion.ovation.ui.importer;
 
 import java.awt.Component;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import javax.swing.*;
+import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.*;
 import org.openide.util.ChangeSupport;
+import us.physion.ovation.ui.importer.ListSelectionPanel.CheckboxTableModel.CheckboxElement;
+import us.physion.ovation.ui.interfaces.ZebraTable;
 
 /**
  *
@@ -20,8 +21,9 @@ import org.openide.util.ChangeSupport;
  */
 public class ListSelectionPanel extends javax.swing.JPanel {
 
-    private CheckboxListModel listModel;
+    private CheckboxTableModel tableModel;
     private ChangeSupport cs;
+    private String name;
 
     /**
      * Creates new form ListSelectionPanel
@@ -29,30 +31,79 @@ public class ListSelectionPanel extends javax.swing.JPanel {
     public ListSelectionPanel(ChangeSupport cs, String label, String name) {
         this.cs = cs;
         initComponents();
+        jTable1.setTableHeader(null);
         jLabel1.setText(label);
+        this.name = name;
     }
     
     @Override
     public String getName() {
-        return jLabel1.getText();
+        return name;
     }
     
     public void setNames(List<String> names)
     {
-        listModel = new CheckboxListModel(names);
-        jList1.setModel(listModel);
+        tableModel = new CheckboxTableModel(names);
+        jTable1.setModel(tableModel);
+        jTable1.setEnabled(true);
+        jTable1.setDefaultRenderer(Object.class, tableModel);
+        TableCellEditor tce = new TableCellEditor() {
+
+            Component c;
+            @Override
+            public Component getTableCellEditorComponent(JTable jtable, Object o, boolean bln, int row, int column) {
+                TableModel model = jtable.getModel();
+                c = ((CheckboxElement) model.getValueAt(row, column)).getPanel();
+                return c;
+            }
+
+            @Override
+            public Object getCellEditorValue() {
+                return c;
+            }
+
+            @Override
+            public boolean isCellEditable(EventObject eo) {
+                return true;
+            }
+
+            @Override
+            public boolean shouldSelectCell(EventObject eo) {
+                return true;
+            }
+
+            @Override
+            public boolean stopCellEditing() {
+                return true;
+            }
+
+            @Override
+            public void cancelCellEditing() {
+            }
+
+            @Override
+            public void addCellEditorListener(CellEditorListener cl) {
+            }
+            
+            @Override
+            public void removeCellEditorListener(CellEditorListener cl) {
+            }
+        };
+        
+       jTable1.setCellEditor(tce);
+       jTable1.setDefaultEditor(Object.class, tce);
     }
     
     Set<String> getNames()
     {
-        return listModel.getSelectedNames();
+        return tableModel.getSelectedNames();
     }
 
-    class CheckboxListModel extends AbstractListModel implements ListCellRenderer{
+    class CheckboxTableModel extends AbstractTableModel implements TableCellRenderer{
 
         List<CheckboxElement> elements;
 
-        CheckboxListModel(List<String> names) {
+        CheckboxTableModel(List<String> names) {
             super();
             elements = new ArrayList();
             for (String n : names) {
@@ -60,14 +111,6 @@ public class ListSelectionPanel extends javax.swing.JPanel {
             }
         }
 
-        public int getSize() {
-            return elements.size();
-        }
-
-        public Object getElementAt(int i) {
-            return elements.get(i);
-        }
-        
         public Set<String> getSelectedNames()
         {
             Set<String> names = new HashSet();
@@ -80,22 +123,46 @@ public class ListSelectionPanel extends javax.swing.JPanel {
         }
 
         @Override
-        public Component getListCellRendererComponent(JList jlist, Object o, int i, boolean bln, boolean bln1) {
-            if (o instanceof Component)
-                return (Component)o;
-            return new JLabel(o.toString());
+        public int getRowCount() {
+            return elements.size();
         }
 
-        class CheckboxElement extends JPanel{
+        @Override
+        public int getColumnCount() {
+            return 1;
+        }
+
+        @Override
+        public Object getValueAt(int i, int i1) {
+            return elements.get(i);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable jtable, Object o, boolean bln, boolean bln1, int row, int column) {
+            TableModel model = jtable.getModel();
+            return ((CheckboxElement)model.getValueAt(row, column)).getPanel();
+        }
+
+        class CheckboxElement{
 
             String name;
             boolean selected = true;
+            JPanel p;
 
             CheckboxElement(String name) {
                 this.name = name;
+                p = createPanel();
+            }
+            
+            JPanel createPanel()
+            {
+                JPanel panel = new JPanel();
+                panel.setEnabled(true);
+                panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
                 JCheckBox box = new JCheckBox();
-                add(box);
-                add(new JLabel(name));
+                box.setEnabled(true);
+                panel.add(box);
+                panel.add(new JLabel(name));
                 box.setSelected(selected);
                 box.addChangeListener(new ChangeListener() {
 
@@ -104,6 +171,12 @@ public class ListSelectionPanel extends javax.swing.JPanel {
                         selected = !selected;
                     }
                 });
+                return panel;
+            }
+            
+            JPanel getPanel()
+            {
+                return p;
             }
 
             boolean isSelected() {
@@ -125,33 +198,33 @@ public class ListSelectionPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList();
         jLabel1 = new javax.swing.JLabel();
-
-        jScrollPane1.setViewportView(jList1);
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTable1 = new ZebraTable();
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(ListSelectionPanel.class, "ListSelectionPanel.jLabel1.text")); // NOI18N
+
+        jScrollPane2.setViewportView(jTable1);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(jLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE))
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JList jList1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
 }
 

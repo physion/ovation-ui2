@@ -16,8 +16,10 @@ public class Installer extends ModuleInstall {
     public synchronized void restored() {
         
         if (dbc == null)
+        {
             dbc = new DatabaseConnectionProvider();
-        
+            dbc.getConnection();
+        }
         // Set the displayed version number from API marketing version
         /*if(Ovation.getVersion() != null) {
             System.setProperty("netbeans.buildnumber", Ovation.getVersion());

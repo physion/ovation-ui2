@@ -122,9 +122,9 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         final Runnable r = new Runnable() {
 
             public void run() {
-                ProgressHandle ph = ProgressHandleFactory.createHandle("Authenticating...");
+                //ProgressHandle ph = ProgressHandleFactory.createHandle("Authenticating...");
                 try {
-                    ph.start();
+                    //ph.start();
                     DataStoreCoordinator toAuthenticate = Ovation.newDataStoreCoordinator();
                     boolean succeeded = authenticateUser(toAuthenticate, null);
                     if (succeeded) {
@@ -138,7 +138,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
 
                 } finally {
                     setWaitingFlag(false);
-                     ph.finish();
+                    // ph.finish();
                 }
             }
         };
@@ -190,7 +190,8 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         BufferedImage physionIcon;
         File f = null;
         try {
-            f = new File("../branding/src/main/nbm-branding/core/core.jar/org/netbeans/core/startup/splash.gif");
+            f = new File ("installer/ovation_48x48.png");
+            //f = new File("../branding/src/main/nbm-branding/core/core.jar/org/netbeans/core/startup/splash.gif");
             physionIcon = ImageIO.read(f);
             JLabel image = new JLabel(new ImageIcon( physionIcon ));
             image.setPreferredSize(buttonPane.getPreferredSize());

@@ -107,35 +107,85 @@ public class ParameterTableModel extends DefaultTableModel {
     }
 
     @Override
-    public void setValueAt(Object val, int row, int column) {
+    public void setValueAt(Object o, int row, int column) {
 
+        if(column == 0)//setting a key
+        {
+            if (params.containsKey(o))
+            {
+                //key already exists, something weird is happening
+                return;
+            }
+            if (row >= keys.size())
+            {
+                if (o == null || ((String)o).isEmpty())
+                    return;
+                keys.add((String)o);
+                params.put((String)o, "");
+            }else{
+                if (o == null || ((String)o).isEmpty())
+                {
+                    remove(row);
+                    return;
+                }
+                String oldKey = keys.get(row);
+                Object oldValue = params.get(oldKey);
+                params.remove(oldKey);
+                params.put((String)o, oldValue);
+                keys.set(row, (String)o);
+                Collections.sort(keys);
+            }
+            
+        }else{//setting a value
+            if (row >= keys.size())
+            {
+                //this is weird. users should insert key first, then value
+                return;
+            }else{
+                //setting a value on an existing key
+                params.put(keys.get(row), o);
+                Collections.sort(keys);// we sort, in case people have added a new key value pair
+            }
+        }
+        /*
         if (row >= keys.size()) {
-            if (column == 1) {
-                if (getValueAt(row, 0).equals("")) {
-                    params.put("<empty>", val);
+            if (column == 0)
+            {
+                if(params.containsKey(o))
+                {
+                    return;
+                }
+                keys.add((String) o);
+                params.put((String) o, "");
+            }
+            else {
+                String key = (String)getValueAt(row, 0);
+                if (key.isEmpty()) {
+                    params.put("<empty>", o);
                     keys.add("<empty>");
                     Collections.sort(keys);
                 } else {
-                    params.put((String) getValueAt(row, 0), val);
+                    params.put(key, o);
                 }
 
+            } 
+        }
+        else {//modifying an existing row
+            if (column == 1) {
+                params.put((String) getValueAt(row, 0), o);
+                Collections.sort(keys);
             } else {
-                if (!params.containsKey(val)) {
-                    keys.add((String) val);
+                if (o == null || o.equals(""))
+                {
+                    remove(row);
+                    return;
                 }
-                params.put((String) val, "");
+                if (!params.containsKey(o)) {
+                    keys.add((String) o);
+                }
+                params.put((String) o, getValueAt(row, 1));
             }
-            return;
-        }
-        if (column == 1) {
-            params.put((String) getValueAt(row, 0), val);
-            Collections.sort(keys);
-        } else {
-            if (!params.containsKey(val)) {
-                keys.add((String) val);
-            }
-            params.put((String) val, getValueAt(row, 1));
-        }
+        }*/
     }
     
     public void addParameter(String key, Object value)
