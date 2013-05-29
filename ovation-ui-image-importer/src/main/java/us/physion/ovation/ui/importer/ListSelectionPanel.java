@@ -41,9 +41,10 @@ public class ListSelectionPanel extends javax.swing.JPanel {
         return name;
     }
     
-    public void setNames(List<String> names)
+    public void setNames(List<String> names, Collection<String> selectedNames)
     {
-        tableModel = new CheckboxTableModel(names);
+        
+        tableModel = new CheckboxTableModel(names, selectedNames);
         jTable1.setModel(tableModel);
         jTable1.setEnabled(true);
         jTable1.setDefaultRenderer(Object.class, tableModel);
@@ -99,18 +100,30 @@ public class ListSelectionPanel extends javax.swing.JPanel {
         return tableModel.getSelectedNames();
     }
 
-    class CheckboxTableModel extends AbstractTableModel implements TableCellRenderer{
+    class CheckboxTableModel extends DefaultTableModel implements TableCellRenderer{
 
-        List<CheckboxElement> elements;
+        List<CheckboxElement> elements = new ArrayList();
 
-        CheckboxTableModel(List<String> names) {
+        CheckboxTableModel(List<String> names, Collection<String> selectedNames) {
             super();
+            Object[][] dataVector = new Object[names.size()][1];
             elements = new ArrayList();
+            int count = 0;
             for (String n : names) {
-                elements.add(new CheckboxElement(n));
+                boolean sel = false;
+                if (selectedNames == null || selectedNames.contains(n))
+                    sel = true;
+                CheckboxElement e = new CheckboxElement(n, sel);
+                dataVector[count++][0] = e;
+                elements.add(e);
             }
+            //This is really lame. I added this call, because I had to extend a 
+            //DefaultTableModel instead of an AbstractTableModel, to get the
+            //setTableEditor functionality working. As an AbstractTableModel,
+            //the tableCellEditor I set wasn't being called
+            setDataVector(dataVector, new String[]{"Checkbox"});
         }
-
+        
         public Set<String> getSelectedNames()
         {
             Set<String> names = new HashSet();
@@ -120,21 +133,6 @@ public class ListSelectionPanel extends javax.swing.JPanel {
                     names.add(e.getName());
             }
             return names;
-        }
-
-        @Override
-        public int getRowCount() {
-            return elements.size();
-        }
-
-        @Override
-        public int getColumnCount() {
-            return 1;
-        }
-
-        @Override
-        public Object getValueAt(int i, int i1) {
-            return elements.get(i);
         }
 
         @Override
@@ -149,8 +147,9 @@ public class ListSelectionPanel extends javax.swing.JPanel {
             boolean selected = true;
             JPanel p;
 
-            CheckboxElement(String name) {
+            CheckboxElement(String name, boolean select) {
                 this.name = name;
+                this.selected = select;
                 p = createPanel();
             }
             
@@ -200,7 +199,7 @@ public class ListSelectionPanel extends javax.swing.JPanel {
 
         jLabel1 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new ZebraTable();
+        jTable1 = new javax.swing.JTable();
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(ListSelectionPanel.class, "ListSelectionPanel.jLabel1.text")); // NOI18N
 

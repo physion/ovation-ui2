@@ -46,6 +46,10 @@ public class MeasurementDetailsController extends BasicWizardPanel{
         
         MeasurementDetailsPanel c = (MeasurementDetailsPanel)getComponent();
 
+        String url = (String)m.get("url");
+        String[] pieces= url.split("/");
+        String filename = pieces[pieces.length-1];
+        c.setMeasurementName(filename);
         c.setURL(((String)m.get("url")));
         c.setUTI((String)m.get("mimeType"));
         c.setUnits((String)m.get("units"));
@@ -67,6 +71,7 @@ public class MeasurementDetailsController extends BasicWizardPanel{
         
         MeasurementDetailsPanel c = (MeasurementDetailsPanel)getComponent();
         
+        m.put("name", c.getMeasurementName());
         m.put("url", c.getURL());
         m.put("mimeType", c.getMimeType());
         m.put("units", c.getUnits());
@@ -89,9 +94,6 @@ public class MeasurementDetailsController extends BasicWizardPanel{
 
         return  (c.getURL() != null && !c.getURL().isEmpty() &&
                 c.getMimeType() != null && !c.getMimeType().isEmpty() &&
-                c.getSamplingRateUnits() != null && c.getSamplingRateUnits().length !=0 &&
-                c.getSamplingRates() != null && c.getSamplingRates().length !=0 &&
-                c.getDimensionLabels() != null && c.getDimensionLabels().length !=0 &&
-                c.getShape() != null && c.getShape().length !=0);
+                c.getMeasurementName() != null && !c.getMeasurementName().isEmpty());
     }
 }

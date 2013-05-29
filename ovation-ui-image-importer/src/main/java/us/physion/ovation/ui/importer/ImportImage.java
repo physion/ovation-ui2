@@ -94,8 +94,8 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
         List<Panel<WizardDescriptor>> panels = new ArrayList<Panel<WizardDescriptor>>();
         int epochCount = files.size();
 
-        panels.add(new EquipmentSetupController());//set equipment setup info
         panels.add(new GetImageFilesController(files));//set the files, and start/end times
+        panels.add(new EquipmentSetupController());//set equipment setup info
         panels.add(new SourceController());
 
         for (int i = 0; i < epochCount; i++) {
@@ -110,12 +110,9 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
                     "epochs;" + i + ";deviceParameters"));
             int measurementCount = files.get(i).getMeasurements().size();
             for (int j = 0; j < measurementCount; j++) {
+                panels.add(new MeasurementDetailsController(i, j));
                 panels.add(new MeasurementSourceNamesController(i, j));
                 panels.add(new MeasurementDeviceNamesController(i, j));
-                //measurement details, source names, device names
-                
-                //panels.add(new DeviceNamesController(i, j));
-                //panels.add(new MeasurementDetailsController(i, j));
             }
         }
         return panels;
@@ -154,8 +151,8 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
             Map<String, Source> input = (Map<String, Source>) epoch.get("inputSources");//set
             DateTime start = (DateTime)epoch.get("start");
             DateTime end = (DateTime)epoch.get("end");
-            Map<String, Object> protocolParameters = (Map<String, Object>)epoch.get("protocolParameters");//set
-            Map<String, Object> deviceParameters = (Map<String, Object>)epoch.get("deviceParameters");//set by which panel
+            Map<String, Object> protocolParameters = (Map<String, Object>)epoch.get("protocolParameters");
+            Map<String, Object> deviceParameters = (Map<String, Object>)epoch.get("deviceParameters");
             Map<String, Object> epochProperties = (Map<String, Object>)epoch.get("properties");
             Epoch e = eg.insertEpoch(input, null, start, end, protocol, protocolParameters, deviceParameters);
             for (String key : epochProperties.keySet())
@@ -190,41 +187,42 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
         }
 
         List<Map<String, Object>> parentEpochGroups = (List<Map<String, Object>>) wd.getProperty("parentEpochGroups");
-        for (Map<String, Object> parentEpochGroup : parentEpochGroups) {
-            Protocol protocol = null;
-            if (parentEpochGroup.containsKey("protocol")) {
-                protocol = (Protocol) parentEpochGroup.get("protocol");
-            } else if (parentEpochGroup.get("protocolName") != null && parentEpochGroup.get("protocolDocument") != null){
-                protocol = eg.getDataContext().insertProtocol((String)parentEpochGroup.get("protocolName"), (String)parentEpochGroup.get("protocolDocument"));
+        if (parentEpochGroups != null) {
+            for (Map<String, Object> parentEpochGroup : parentEpochGroups) {
+                Protocol protocol = null;
+                if (parentEpochGroup.containsKey("protocol")) {
+                    protocol = (Protocol) parentEpochGroup.get("protocol");
+                } else if (parentEpochGroup.get("protocolName") != null && parentEpochGroup.get("protocolDocument") != null) {
+                    protocol = eg.getDataContext().insertProtocol((String) parentEpochGroup.get("protocolName"), (String) parentEpochGroup.get("protocolDocument"));
+                }
+                DateTime start = (DateTime) parentEpochGroup.get("start");
+                DateTime end = (DateTime) parentEpochGroup.get("end");
+                String label = (String) parentEpochGroup.get("label");
+
+                Map<String, Object> protocolParameters = (Map<String, Object>) parentEpochGroup.get("protocolParameters");//set by wherever
+                Map<String, Object> deviceParameters = (Map<String, Object>) parentEpochGroup.get("deviceParameters");//set by which panel
+                Map<String, Object> parentEpochGroupProperties = (Map<String, Object>) parentEpochGroup.get("properties");
+                EpochGroup parent = eg.insertEpochGroup(label, start, protocol, protocolParameters, deviceParameters);
+                for (String key : parentEpochGroupProperties.keySet()) {
+                    Object val = parentEpochGroupProperties.get(key);
+                    if (val != null) {
+                        parent.addProperty(key, val);
+                    }
+                }
+                for (Map<String, Object> epochGroup : (List<Map<String, Object>>) parentEpochGroup.get("egs")) {
+                }
+                //TODO: finish prairie import
+            /*
+                 * List<Map<String, Object>> measurements = (List<Map<String,
+                 * Object>>)epoch.get("measurements"); for (Map<String, Object>
+                 * m : measurements) {
+                 * e.insertMeasurement((String)m.get("name"),
+                 * (Set<String>)m.get("sourceNames"),
+                 * (Set<String>)m.get("deviceNames"), (URL)m.get("url"),
+                 * (String)m.get("mimeType"));
             }
-            DateTime start = (DateTime)parentEpochGroup.get("start");
-            DateTime end = (DateTime)parentEpochGroup.get("end");
-            String label = (String)parentEpochGroup.get("label");
-            
-            Map<String, Object> protocolParameters = (Map<String, Object>)parentEpochGroup.get("protocolParameters");//set by wherever
-            Map<String, Object> deviceParameters = (Map<String, Object>)parentEpochGroup.get("deviceParameters");//set by which panel
-            Map<String, Object> parentEpochGroupProperties = (Map<String, Object>)parentEpochGroup.get("properties");
-            EpochGroup parent = eg.insertEpochGroup(label, start, protocol, protocolParameters, deviceParameters);
-            for (String key : parentEpochGroupProperties.keySet())
-            {
-                Object val = parentEpochGroupProperties.get(key);
-                if (val != null)
-                    parent.addProperty(key, val);
+                 */
             }
-            for(Map<String, Object> epochGroup : (List<Map<String, Object>>)parentEpochGroup.get("egs"))
-            {
-                
-            }
-            //TODO: finish prairie import
-            /*List<Map<String, Object>> measurements = (List<Map<String, Object>>)epoch.get("measurements");
-            for (Map<String, Object> m : measurements)
-            {
-                e.insertMeasurement((String)m.get("name"), 
-                        (Set<String>)m.get("sourceNames"), 
-                        (Set<String>)m.get("deviceNames"), 
-                        (URL)m.get("url"),
-                        (String)m.get("mimeType"));
-            }*/
         }
     }
 }

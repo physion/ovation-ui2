@@ -7,6 +7,7 @@ package us.physion.ovation.ui.importer;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.*;
 import javax.swing.JPanel;
 import org.openide.WizardDescriptor;
@@ -51,7 +52,13 @@ public class MeasurementDeviceNamesController extends BasicWizardPanel{
         List<String> l = Lists.newArrayList(names);
         Collections.sort(l);
         ListSelectionPanel c = (ListSelectionPanel)getComponent();
-        c.setNames(l);
+        
+        //pull selected names, if previously selected
+        List<Map<String, Object>> epochs = (List<Map<String, Object>>)data.getProperty("epochs");
+        Map<String, Object> epoch = epochs.get(epochNumber);
+        List<Map<String, Object>> measurements = (List<Map<String, Object>>)epoch.get("measurements");
+        Map<String, Object> m = measurements.get(measurementNumber);
+        c.setNames(l, (Collection<String>)m.get("deviceNames"));
     }
     @Override
     public void storeSettings(WizardDescriptor data) {

@@ -22,6 +22,7 @@ public class MeasurementDetailsPanel extends javax.swing.JPanel {
     private int[] shape;
     private String[] dimensionLabels;
     private String units;
+    private String measurementName;
     /**
      * Creates new form MeasurementDetailsPanel
      */
@@ -34,6 +35,18 @@ public class MeasurementDetailsPanel extends javax.swing.JPanel {
     @Override
     public String getName() {
         return "Measurement " + (measurementNumber +1) + ": Metadata";
+    }
+    
+    
+    public String getMeasurementName()
+    {
+        return measurementName;
+    }
+    public void setMeasurementName(String name)
+    {
+        this.measurementName = name;
+        this.nameTextField.setText(name);
+        this.nameTextField.setEditable(true);
     }
     
     public void setUnits(String units)
@@ -110,11 +123,6 @@ public class MeasurementDetailsPanel extends javax.swing.JPanel {
     
     public void setUTI(String uti)
     {   
-        if (uti == null)
-        {
-            this.utiTextField.setEditable(true);
-            return;
-        }
         this.contentType = uti;
         this.utiTextField.setText(uti);
         this.utiTextField.setEditable(true);
@@ -178,6 +186,8 @@ public class MeasurementDetailsPanel extends javax.swing.JPanel {
         samplingRateTextField = new javax.swing.JTextField();
         samplingUnitTextField1 = new javax.swing.JTextField();
         utiTextField = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        nameTextField = new javax.swing.JTextField();
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.jLabel1.text")); // NOI18N
 
@@ -257,6 +267,15 @@ public class MeasurementDetailsPanel extends javax.swing.JPanel {
             }
         });
 
+        jLabel8.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.jLabel8.text")); // NOI18N
+
+        nameTextField.setText(org.openide.util.NbBundle.getMessage(MeasurementDetailsPanel.class, "MeasurementDetailsPanel.nameTextField.text")); // NOI18N
+        nameTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                nameTextFieldKeyReleased(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -267,30 +286,40 @@ public class MeasurementDetailsPanel extends javax.swing.JPanel {
                     .add(jLabel3)
                     .add(jLabel1)
                     .add(jLabel2)
+                    .add(jLabel7)
+                    .add(jLabel8)
                     .add(jLabel4)
-                    .add(jLabel5)
-                    .add(jLabel7))
+                    .add(jLabel5))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(utiTextField)
                     .add(samplingUnitTextField1)
+                    .add(samplingRateTextField)
+                    .add(utiTextField)
                     .add(urlTextField1)
                     .add(unitsTextField)
                     .add(shapeTextField)
-                    .add(dimensionLabelTextField)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, samplingRateTextField)))
+                    .add(dimensionLabelTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 545, Short.MAX_VALUE)
+                    .add(nameTextField)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(urlTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel2))
+                    .add(jLabel8)
+                    .add(nameTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(unitsTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel1))
+                    .add(jLabel2)
+                    .add(urlTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(utiTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel7))
+                .add(9, 9, 9)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel1)
+                    .add(unitsTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(shapeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -307,11 +336,7 @@ public class MeasurementDetailsPanel extends javax.swing.JPanel {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(samplingUnitTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel5))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(utiTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel7))
-                .addContainerGap(62, Short.MAX_VALUE))
+                .add(216, 216, 216))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -372,6 +397,17 @@ public class MeasurementDetailsPanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_dimensionLabelTextFieldKeyReleased
 
+    private void nameTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nameTextFieldKeyReleased
+        String newName =  nameTextField.getText();
+        boolean newVarIsEmpty = (newName == null || newName.isEmpty());
+        boolean oldVarIsEmpty = (measurementName == null || measurementName.isEmpty());
+        
+        measurementName = newName;
+        if (newVarIsEmpty != oldVarIsEmpty) {
+            cs.fireChange();
+        }
+    }//GEN-LAST:event_nameTextFieldKeyReleased
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField dimensionLabelTextField;
     private javax.swing.JLabel jLabel1;
@@ -381,6 +417,8 @@ public class MeasurementDetailsPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JTextField nameTextField;
     private javax.swing.JTextField samplingRateTextField;
     private javax.swing.JTextField samplingUnitTextField1;
     private javax.swing.JTextField shapeTextField;
