@@ -9,19 +9,26 @@ import com.google.inject.Injector;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.prefs.Preferences;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.util.Exceptions;
 import org.openide.util.lookup.ServiceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.api.Ovation;
 import us.physion.ovation.api.OvationApiModule;
@@ -38,6 +45,7 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
 @ServiceProvider(service = ConnectionProvider.class)
 public class DatabaseConnectionProvider implements ConnectionProvider{
 
+    static Logger logger = LoggerFactory.getLogger(DatabaseConnectionProvider.class);
     private JTextField addField(JPanel form, String name, int row, boolean passwordField) {
         JTextField f;
         if (passwordField)
@@ -147,13 +155,13 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         final JDialog d = new JDialog(new JFrame(), true);
         d.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         
-        JTabbedPane tabs = new JTabbedPane(JTabbedPane.BOTTOM);
+        //JTabbedPane tabs = new JTabbedPane(JTabbedPane.BOTTOM);
         JPanel login = new JPanel();
         login.setLayout(new BoxLayout(login, BoxLayout.PAGE_AXIS));
-        tabs.addTab("Login", login);
+        //tabs.addTab("Login", login);
         
-        JPanel signUp = new JPanel();
-        tabs.addTab("Sign up", signUp);
+        //JPanel signUp = new JPanel();
+        //tabs.addTab("Sign up", signUp);
         
         //LOGIN
         //------------------------------------------------------
@@ -168,12 +176,32 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         JPanel buttonPane = new JPanel();
         //JButton cancelButton = new JButton("Cancel");
         JButton okButton = new JButton("Login");
-        buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
+        buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.PAGE_AXIS));
         buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        buttonPane.add(Box.createHorizontalGlue());
-        //buttonPane.add(cancelButton);
-        buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
         buttonPane.add(okButton);
+
+        buttonPane.add(Box.createHorizontalGlue());
+        JCheckBox cb = new JCheckBox();
+        cb.setSelected(true);
+        buttonPane.add(cb);
+        buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
+        JLabel label = new JLabel("Work offline");
+        buttonPane.add(label);
+        BufferedImage physionIcon;
+        File f = null;
+        try {
+            f = new File("../branding/src/main/nbm-branding/core/core.jar/org/netbeans/core/startup/splash.gif");
+            physionIcon = ImageIO.read(f);
+            JLabel image = new JLabel(new ImageIcon( physionIcon ));
+            image.setPreferredSize(buttonPane.getPreferredSize());
+            buttonPane.add(image);
+        }
+        catch (IOException ex) {
+            String s = "";
+            if (f != null)
+                s = " at '" + f.getAbsolutePath() + "'";
+            logger.error("Could not find Physion icon" + s);
+        }
         /*cancelButton.addActionListener(new ActionListener() {
 
             @Override
@@ -200,7 +228,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         
         //SIGN UP
         //-----------------------------------------------------------
-        JLabel header = new JLabel("New to Ovation? Sign up");
+       /* JLabel header = new JLabel("New to Ovation? Sign up");
         
         //two text fields
         JPanel s_form = new JPanel(new GridBagLayout());
@@ -232,7 +260,10 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         
         d.getContentPane().add(tabs);
         login.getRootPane().setDefaultButton(okButton);
-        
+        */
+        d.getContentPane().setBackground(Color.WHITE);
+        d.getContentPane().add(login);
+        login.getRootPane().setDefaultButton(okButton);
         //show dialog
         d.pack();
         //Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();

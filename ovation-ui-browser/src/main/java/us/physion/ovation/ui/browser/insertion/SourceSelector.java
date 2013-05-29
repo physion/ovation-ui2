@@ -157,7 +157,7 @@ public class SourceSelector extends javax.swing.JPanel {
 
     public void setSource(IEntityWrapper w)//this should be an IEntityWrapper containing a source
     {
-        if (w == null || !w.getType().equals(Source.class))
+        if (w == null || Source.class.isAssignableFrom(w.getType()))
         {
             if (selected != null)
             {

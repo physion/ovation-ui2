@@ -96,19 +96,24 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
 
         panels.add(new EquipmentSetupController());//set equipment setup info
         panels.add(new GetImageFilesController(files));//set the files, and start/end times
+        panels.add(new SourceController());
 
         for (int i = 0; i < epochCount; i++) {
             panels.add(new ProtocolController(i));//set protocol info
             panels.add(new KeyValueController(i, 
                     "Epoch " + (i+1) + ": Protocol Parameters", 
                     "Enter any relevent protocol parameters below. These parameters will be associated with Epoch " + (i+1), 
-                    "protocolParams"));
+                    "epochs;" + i + ";protocolParameters"));
             panels.add(new KeyValueController(i, 
                     "Epoch " + (i+1) + ": Device Parameters", 
                     "Enter any relevent device parameters below. These parameters will be associated with Epoch " + (i+1), 
-                    "deviceParams"));
-            int responseCount = files.get(i).getMeasurements().size();
-            for (int j = 0; j < responseCount; j++) {
+                    "epochs;" + i + ";deviceParameters"));
+            int measurementCount = files.get(i).getMeasurements().size();
+            for (int j = 0; j < measurementCount; j++) {
+                panels.add(new MeasurementSourceNamesController(i, j));
+                panels.add(new MeasurementDeviceNamesController(i, j));
+                //measurement details, source names, device names
+                
                 //panels.add(new DeviceNamesController(i, j));
                 //panels.add(new MeasurementDetailsController(i, j));
             }
@@ -146,10 +151,10 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
                 protocol = eg.getDataContext().insertProtocol((String)epoch.get("protocolName"), (String)epoch.get("protocolDocument"));
             }
             
-            Map<String, Source> input = (Map<String, Source>) epoch.get("inputSources");
+            Map<String, Source> input = (Map<String, Source>) epoch.get("inputSources");//set
             DateTime start = (DateTime)epoch.get("start");
             DateTime end = (DateTime)epoch.get("end");
-            Map<String, Object> protocolParameters = (Map<String, Object>)epoch.get("protocolParameters");//set by wherever
+            Map<String, Object> protocolParameters = (Map<String, Object>)epoch.get("protocolParameters");//set
             Map<String, Object> deviceParameters = (Map<String, Object>)epoch.get("deviceParameters");//set by which panel
             Map<String, Object> epochProperties = (Map<String, Object>)epoch.get("properties");
             Epoch e = eg.insertEpoch(input, null, start, end, protocol, protocolParameters, deviceParameters);
@@ -159,7 +164,6 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
                 if (val != null)
                     e.addProperty(key, val);
             }
-            //TODO: add imput sources -- e.addInputSource(NAME, null);
             
             List<Map<String, Object>> measurements = (List<Map<String, Object>>)epoch.get("measurements");
             for (Map<String, Object> m : measurements)

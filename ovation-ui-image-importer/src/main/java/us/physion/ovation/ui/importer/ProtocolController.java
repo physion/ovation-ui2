@@ -38,7 +38,6 @@ public class ProtocolController extends BasicWizardPanel {
         if (component == null) {
             DataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
             component = new ProtocolSelector(changeSupport, dsc);//EpochDetailsPanel
-            System.out.println("creating component");
         }
         return component;
     }

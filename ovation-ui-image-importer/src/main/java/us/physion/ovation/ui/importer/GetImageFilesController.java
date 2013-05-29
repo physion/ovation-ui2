@@ -57,6 +57,7 @@ public class GetImageFilesController extends BasicWizardPanel{
 
     @Override
     public void storeSettings(WizardDescriptor wiz) {
+        wiz.putProperty("epochs", null);
         GetImageFilesPanel c = (GetImageFilesPanel)component;
         List<FileMetadata> files = c.getFiles();
         
@@ -107,6 +108,7 @@ public class GetImageFilesController extends BasicWizardPanel{
         epoch.put("end", data.getEnd(false));
         epoch.put("properties", data.getEpochProperties());
         epoch.put("measurements", data.getMeasurements());
+        epoch.put("deviceParameters", data.getDeviceParameters());
         
         List<Map<String, Object>> epochs = (List<Map<String, Object>>)wiz.getProperty("epochs");
         if (epochs == null)

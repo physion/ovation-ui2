@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import org.openide.WizardDescriptor;
+import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.BasicWizardPanel;
 
 /**
@@ -80,9 +81,9 @@ public class KeyValueController extends BasicWizardPanel{
             }
         }
         
-        s.pop();
-        Object modifiedElement = panel.getParameters();
-        int keyIndex = keys.length-2;
+        s.pop();//old map
+        Object modifiedElement = panel.getParameters();//new map
+        int keyIndex = keys.length-1;
         while (!s.isEmpty())
         {
             o = s.pop();
@@ -90,16 +91,17 @@ public class KeyValueController extends BasicWizardPanel{
             if (o instanceof List)
             {
                 int index = Integer.parseInt(keys[keyIndex]);
-                ((List)o).remove(index);
                 ((List)o).set(index, modifiedElement);
                 modifiedElement = o;
                 keyIndex--;
 
             }else if (o instanceof Map)
             {
-                o = ((Map)o).put(keys[keyIndex], modifiedElement);
+                ((Map)o).put(keys[keyIndex], modifiedElement);
                 modifiedElement = o;
                 keyIndex--;
+            }else{
+                throw new OvationException("Invalid key name for KeyValueController");
             }
         }
         
