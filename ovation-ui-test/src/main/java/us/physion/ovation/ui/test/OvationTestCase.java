@@ -55,19 +55,14 @@ public class OvationTestCase {
     static LocalStack local_stack;
     
     @BeforeClass
-    public static void setUpClass() {
+    public static void setUpClass() throws InterruptedException, ExecutionException {
         
          local_stack = new TestUtils().makeLocalStack(new OvationApiModule(),
                                           EMAIL.replace("@", "-").replace(".", "-"),
                                           EMAIL,
                                           PASSWORD);
-         dsc = local_stack.getDataStoreCoordinator();
-         try{
-         dsc.authenticateUser(EMAIL, PASSWORD.toCharArray()).get();
-         } catch(Exception e)
-         {
-             throw new OvationException(e);
-         }
+         
+         dsc = local_stack.getAuthenticatedDataStoreCoordinator();
     }
     
     public Injector getInjector()
