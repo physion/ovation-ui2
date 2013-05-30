@@ -97,6 +97,26 @@
 			<url>s3://us.physion.maven/snapshot</url>
 		</snapshotRepository>
 	</distributionManagement>
+	
+	<dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>edu.ucar</groupId>
+                <artifactId>netcdf</artifactId>
+                <version>4.3.16</version>
+            </dependency>
+			<dependency>
+				<groupId>org.swinglabs</groupId>
+				<artifactId>swingx</artifactId>
+				<version>1.6.1</version>
+			</dependency>
+			<dependency>
+	            <groupId>junit</groupId>
+	            <artifactId>junit</artifactId>
+	            <version>4.8.1</version>
+			</dependency>
+        </dependencies>
+	</dependencyManagement>
 
 	<modules>
 		<module>branding</module>
@@ -115,7 +135,7 @@
 	</modules>
 
 	<properties>
-		<netbeans.version>RELEASE721</netbeans.version>
+		<netbeans.version>RELEASE73</netbeans.version>
 		<brandingToken>ovation</brandingToken>
 		<keystore.path>${project.parent.basedir}/cert/dev.keystore</keystore.path>
 		<keystore.type>JKS</keystore.type>

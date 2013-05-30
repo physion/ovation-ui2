@@ -41,7 +41,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.1</version>
             <scope>test</scope>
         </dependency>
 
@@ -72,6 +71,12 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-dialogs</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-awt</artifactId>
             <version>${netbeans.version}</version>
         </dependency>
 
@@ -110,6 +115,12 @@
             <artifactId>ovation-api-module</artifactId>
             <version>${ovation.api.version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.swinglabs</groupId>
+            <artifactId>swingx</artifactId>
+        </dependency>
+            
     </dependencies>
 
     <build>
