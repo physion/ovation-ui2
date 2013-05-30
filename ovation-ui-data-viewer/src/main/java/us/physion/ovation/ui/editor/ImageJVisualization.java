@@ -29,14 +29,13 @@ import us.physion.ovation.domain.Measurement;
 public class ImageJVisualization implements Visualization{
 
     JPanel panel;
-    ImageJVisualization(String url)
+    ImageJVisualization(File f)
     {
-        url = url.substring("file:".length());
         // open a file with ImageJ
         try {
             //ImageJ ij = new ImageJ();
             //Opener.setOpenUsingPlugins(true);
-            final ImagePlus imp = new Opener().openImage(url);
+            final ImagePlus imp = new Opener().openImage(f.getAbsolutePath());
             if (imp != null)
                 panel = new BufferedImagePanel(imp.getBufferedImage());
             else{
@@ -67,7 +66,7 @@ System.out.println(ex);
             {
                 panel.add(new JLabel("Unable to open image"));
             }
-            System.out.println("Unable to open image at '" + url + "'  \n" + e.getMessage());
+            System.out.println("Unable to open image at '" + f.getAbsolutePath() + "'  \n" + e.getMessage());
         }
     }
     

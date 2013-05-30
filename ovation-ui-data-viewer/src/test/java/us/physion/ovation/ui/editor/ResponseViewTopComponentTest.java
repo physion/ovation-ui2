@@ -60,7 +60,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         
         DataContext c = dsc.getContext();
         
-        factory = getInjector().getInstance(StdMeasurementFactory.class);
+        factory = getInjector().getInstance(MeasurementFactory.class);
         
         /*Project project = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
         experiment = project.insertExperiment(UNUSED_PURPOSE, UNUSED_START);

@@ -33,6 +33,7 @@ public class EntityWrapperUtilitiesTest extends OvationTestCase{
     
     @Test
     public void testCreateNodeForNodeThatAlreadyExists() {
+        String s = "";
         //TODO
     }
 /*

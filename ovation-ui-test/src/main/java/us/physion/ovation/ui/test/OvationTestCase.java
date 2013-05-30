@@ -62,7 +62,12 @@ public class OvationTestCase {
                                           EMAIL,
                                           PASSWORD);
          dsc = local_stack.getDataStoreCoordinator();
-         dsc.authenticateUser(EMAIL, PASSWORD.toCharArray());
+         try{
+         dsc.authenticateUser(EMAIL, PASSWORD.toCharArray()).get();
+         } catch(Exception e)
+         {
+             throw new OvationException(e);
+         }
     }
     
     public Injector getInjector()
@@ -71,7 +76,7 @@ public class OvationTestCase {
     }
 
     @AfterClass
-    public void tearDownClass() throws InterruptedException {
+    public static void tearDownClass() throws InterruptedException {
         if (local_stack != null) {
             local_stack.cleanUp();
         }
