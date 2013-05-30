@@ -36,6 +36,7 @@ import us.physion.ovation.couch.CouchServiceManager;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.exceptions.AuthenticationException;
+import us.physion.ovation.logging.Logging;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 /**

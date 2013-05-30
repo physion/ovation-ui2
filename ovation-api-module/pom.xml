@@ -98,6 +98,7 @@
                         <publicPackage>org.apache.commons.httpclient.*</publicPackage>
                         <publicPackage>org.apache.commons.logging</publicPackage>
                         <publicPackage>org.apache.commons.logging.impl</publicPackage>
+                        <publicPackage>org.apache.commons.io.*</publicPackage>
                         <publicPackage>org.apache.log4j.*</publicPackage>
                         <publicPackage>org.jdesktop.swingx.*</publicPackage>
                         <publicPackage>org.jdom.*</publicPackage>
@@ -115,6 +116,7 @@
                         <publicPackage>visad.jmet</publicPackage>
 			<publicPackage>javax.inject.*</publicPackage>
 			<publicPackage>com.mchange.v2.c3p0.*</publicPackage>
+                        <publicPackage>us.physion.ovation.logging.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
