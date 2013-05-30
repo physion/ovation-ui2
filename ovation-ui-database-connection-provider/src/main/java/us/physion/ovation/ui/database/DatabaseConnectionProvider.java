@@ -48,25 +48,6 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
 
     static Logger logger = LoggerFactory.getLogger(DatabaseConnectionProvider.class);
     
-    private JTextField addField(JPanel form, String name, int row, boolean passwordField) {
-        JTextField f;
-        if (passwordField)
-        {
-            f = new JPasswordField();
-        }else{
-            f = new JTextField();
-        }
-        JLabel l = new JLabel(name);
-        f.setPreferredSize(new Dimension(250, 25));
-        
-        GridBagConstraints c = new GridBagConstraints();
-        c.gridy = row;
-        form.add(l, c);
-        c.gridwidth = 2;
-        form.add(f, c);
-        
-        return f;
-    }
 
     private static class LoginModel {
         String email; 
@@ -94,6 +75,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
             return cancelled;
         }
     }
+    
     private DataStoreCoordinator dsc = null;
     private Set<ConnectionListener> connectionListeners;
     private boolean waitingForDSC = false;
@@ -104,6 +86,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         Logging.configureRootLoggerRollingAppender();
     }
 
+    @Override
     public synchronized void resetConnection()
     {
         dsc = null;
