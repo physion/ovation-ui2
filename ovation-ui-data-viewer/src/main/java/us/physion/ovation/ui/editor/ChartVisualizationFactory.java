@@ -40,7 +40,7 @@ public class ChartVisualizationFactory implements VisualizationFactory{
         ChartGroupWrapper g = new ChartGroupWrapper(new DefaultXYDataset(), data);
         g.setTitle(r.getName());
         
-        for (NumericData.Data d : data.getDataList())
+        for (NumericData.Data d : data.getData().values())
         {
             g.addXYDataset(d);
         }
@@ -52,7 +52,7 @@ public class ChartVisualizationFactory implements VisualizationFactory{
         if (NumericMeasurementUtils.isNumericMeasurement(r))
         {
             try {
-                if (NumericMeasurementUtils.getNumericData(r).get().getDataList().size() == 1);
+                if (NumericMeasurementUtils.getNumericData(r).get().getData().size() == 1);
             } catch (InterruptedException ex) {
                 return -1;
             } catch (ExecutionException ex) {

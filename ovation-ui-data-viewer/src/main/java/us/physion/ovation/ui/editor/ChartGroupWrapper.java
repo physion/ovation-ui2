@@ -43,9 +43,9 @@ class ChartGroupWrapper implements Visualization
     
     ChartGroupWrapper(DefaultXYDataset ds, NumericData data)
     {
-        NumericData.Data d = data.getDataList().get(0);
-        String xAxis = convertSamplingRateUnitsToGraphUnits(d.getSamplingRateUnits()[0]);
-        String yAxis = d.getUnits();
+        NumericData.Data d = data.getData().get(0);
+        String xAxis = convertSamplingRateUnitsToGraphUnits(d.samplingRateUnits[0]);
+        String yAxis = d.units;
         
         _ds = ds;
         _xAxis = xAxis;
@@ -86,15 +86,15 @@ class ChartGroupWrapper implements Visualization
             return;
         }
 
-        if (d.getShape().length != 1)
+        if (d.dataArray.getShape().length != 1)
         {
             logger.debug("Shape is multidimensional!");
             return;
         }
-        String datasetName = d.getName();
-        double samplingRate = d.getSamplingRates()[0];
+        String datasetName = d.name;
+        double samplingRate = d.samplingRates[0];
 
-        int[] shape = d.getShape();
+        int[] shape = d.dataArray.getShape();
         long size = 1;
         for (int dimension = 0; dimension < shape.length; dimension++) {
             size = size * shape[dimension];
@@ -107,8 +107,8 @@ class ChartGroupWrapper implements Visualization
         }
         String newName = datasetName + "-" + String.valueOf(scale + 1);
 
-        if (d.getType().equals(DataType.DOUBLE)) {
-            double[] floatingData = (double[])d.getData();
+        if (d.dataArray.getElementType().equals(DataType.DOUBLE)) {
+            double[] floatingData = (double[])d.dataArray.get1DJavaArray(Double.class);
             double[][] data = new double[2][(int) size];
 
             if (scale >= 0) {
@@ -132,8 +132,8 @@ class ChartGroupWrapper implements Visualization
                 _ds.addSeries(datasetName, data);
             }
 
-        } else if (d.getType().equals(DataType.INT)) {
-            int[] integerData = (int[])d.getData();
+        } else if (d.dataArray.getElementType().equals(DataType.INT)) {
+            int[] integerData = (int[])d.dataArray.get1DJavaArray(Integer.class);
             double[][] data = new double[(int) size][2];
 
             if (scale >= 0) {
@@ -156,7 +156,7 @@ class ChartGroupWrapper implements Visualization
                 _ds.addSeries(datasetName, data);
             }
         } else {
-            logger.debug("NumericData object has unknown type: " + d.getType());
+            logger.debug("NumericData object has unknown type: " + d.dataArray.getElementType());
         }
     }
 
@@ -170,10 +170,10 @@ class ChartGroupWrapper implements Visualization
         } catch (ExecutionException ex) {
             throw new OvationException(ex);
         }
-        if (data.getDataList().size() == 1) {
-            NumericData.Data d = data.getDataList().get(0);
-            return (d.getUnits().equals(_xAxis)
-                    && d.getSamplingRateUnits()[0].equals(_yAxis));
+        if (data.getData().size() == 1) {
+            NumericData.Data d = data.getData().get(0);
+            return (d.units.equals(_xAxis)
+                    && d.samplingRateUnits[0].equals(_yAxis));
         }
         return false;
     }
@@ -188,7 +188,8 @@ class ChartGroupWrapper implements Visualization
         {
             throw new OvationException(e.getLocalizedMessage());
         }
-        for (NumericData.Data d : data.getDataList()) {
+        for (String key : data.getData().keySet()) {
+            NumericData.Data d = data.getData().get(key);
             addXYDataset(d);
             String name = "";
             if (getTitle().startsWith(preface)) {
@@ -196,7 +197,7 @@ class ChartGroupWrapper implements Visualization
             } else {
                 name = getTitle();
             }
-            setTitle(preface + name + ", " + d.getName());
+            setTitle(preface + name + ", " + d.name);
         }
     }
 

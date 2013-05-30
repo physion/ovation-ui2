@@ -46,6 +46,13 @@
 	  <artifactId>ovation-api</artifactId>
 	  <version>${ovation.api.version}</version>
 	</dependency>
+	
+	<dependency>
+            <groupId>us.physion</groupId>
+            <artifactId>ovation-test-utils</artifactId>
+            <version>2.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
 <!--
 	<dependency>
 	  <groupId>us.physion</groupId>
@@ -81,6 +88,9 @@
                         <publicPackage>com.google.common.collect.*</publicPackage>
                         <publicPackage>com.google.common.util.concurrent.*</publicPackage>
                         <publicPackage>com.google.inject.*</publicPackage>
+			<publicPackage>com.google.common.eventbus.*</publicPackage>
+			<publicPackage>com.google.common.io.*</publicPackage>
+			<publicPackage>com.google.common.cache.*</publicPackage>
                         <publicPackage>edu.wisc.ssec.mcidas.*</publicPackage>
                         <publicPackage>edu.wisc.ssec.mcidas.adde.*</publicPackage>
                         <publicPackage>loci.formats.*</publicPackage>
@@ -103,6 +113,8 @@
 			<publicPackage>us.physion.ovation.api.*</publicPackage>
 			<publicPackage>us.physion.ovation.domain.repositories.*</publicPackage>
                         <publicPackage>visad.jmet</publicPackage>
+			<publicPackage>javax.inject.*</publicPackage>
+			<publicPackage>com.mchange.v2.c3p0.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

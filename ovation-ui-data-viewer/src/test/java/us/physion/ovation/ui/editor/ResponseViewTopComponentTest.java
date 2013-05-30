@@ -25,6 +25,8 @@ import org.openide.util.Lookup;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ServiceProvider;
+import ucar.ma2.DataType;
+import ucar.nc2.stream.NcStreamProto;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.factories.MeasurementFactory;
@@ -49,7 +51,6 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
   
     @Before
     public void setUp() {
-        super.setUp();
         
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
@@ -97,16 +98,16 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         String name = r.getName();
         NumericData.Data data;
         try {
-            data = NumericMeasurementUtils.getNumericData(r).get().getDataList().get(0);
+            data = NumericMeasurementUtils.getNumericData(r).get().getData().get(0);
         } catch (InterruptedException ex) {
             throw new OvationException(ex.getLocalizedMessage());
         } catch (ExecutionException ex) {
             throw new OvationException(ex.getLocalizedMessage());
         }
-        double samplingRate = data.getSamplingRates()[0];
-        String samplingUnit = data.getSamplingRateUnits()[0];
-        String units = data.getUnits();
-        double[] d = (double[])data.getData();
+        double samplingRate = data.samplingRates[0];
+        String samplingUnit = data.samplingRateUnits[0];
+        String units = data.units;
+        double[] d = (double[])data.dataArray.get1DJavaArray(Double.class);
         
         Collection entities = Sets.newHashSet(new TestEntityWrapper(dsc, r));
         List<Visualization> chartWrappers= t.updateEntitySelection(entities);
@@ -143,16 +144,16 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         String name = r.getName();
         NumericData.Data data;
         try {
-            data = NumericMeasurementUtils.getNumericData(r).get().getDataList().get(0);
+            data = NumericMeasurementUtils.getNumericData(r).get().getData().get(0);
         } catch (InterruptedException ex) {
             throw new OvationException(ex.getLocalizedMessage());
         } catch (ExecutionException ex) {
             throw new OvationException(ex.getLocalizedMessage());
         }
-        double samplingRate = data.getSamplingRates()[0];
-        String samplingUnit = data.getSamplingRateUnits()[0];
-        String units = data.getUnits();
-        double[] d = (double[])data.getData();
+        double samplingRate = data.samplingRates[0];
+        String samplingUnit = data.samplingRateUnits[0];
+        String units = data.units;
+        double[] d = (double[])data.dataArray.get1DJavaArray(Double.class);
         
         Collection entities = Sets.newHashSet(r);
         
