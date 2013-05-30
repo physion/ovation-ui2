@@ -45,16 +45,17 @@ import us.physion.ovation.test.util.*;
 public class OvationTestCase {
 
     public OvationTestCase() {
+        
     }
-    public DataStoreCoordinator dsc;
+    public static DataStoreCoordinator dsc;
     public final static String EMAIL = "email@email.com";
     public final static String PASSWORD = "password";
     public final static String UNUSED_KEY = "UNUSED KEY";
     
-    LocalStack local_stack;
+    static LocalStack local_stack;
     
     @BeforeClass
-    public void setUpClass() {
+    public static void setUpClass() {
         
          local_stack = new TestUtils().makeLocalStack(new OvationApiModule(),
                                           EMAIL.replace("@", "-").replace(".", "-"),
