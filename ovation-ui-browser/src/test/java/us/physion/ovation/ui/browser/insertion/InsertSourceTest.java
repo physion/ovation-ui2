@@ -36,14 +36,17 @@ public class InsertSourceTest extends OvationTestCase
     public void testWizardFinished()
     {
         String label = "label";
+        String identifier = "id";
        
         WizardDescriptor d = new WizardDescriptor(new InsertEntityIterator(null));
         d.putProperty("source.label", label);
+        d.putProperty("source.identifier", identifier);
         
         new InsertSource().wizardFinished(d, dsc, null);
         
-        Source s = dsc.getContext().getTopLevelSources().iterator().next();
+        Source s = ctx.getTopLevelSources().iterator().next();
         TestCase.assertEquals(s.getLabel(), label);
+        TestCase.assertEquals(s.getIdentifier(), identifier);
     }
     
     //Panel 1 methods

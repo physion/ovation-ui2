@@ -120,6 +120,7 @@ public class SourceSelector extends javax.swing.JPanel {
     }
     public SourceSelector(ChangeSupport changeSupport, IEntityWrapper source, DataContext ctx) {
         initComponents();
+        selected = null;
         this.cs = changeSupport;
         this.ctx = ctx;
         //TODO: find the relative paths
@@ -173,11 +174,9 @@ public class SourceSelector extends javax.swing.JPanel {
 
     public void setSource(IEntityWrapper w)//this should be an IEntityWrapper containing a source
     {
-        System.out.println("Setting source to null");
         if (w == null )
         {
             setNoSource();
-            System.out.println("Successfully set source to null");
         }else if(!Source.class.isAssignableFrom(w.getType()))
         {
             setNoSource();
