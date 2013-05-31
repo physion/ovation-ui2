@@ -64,8 +64,8 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         String uti = "unknown-uti";
         
         DataContext c = dsc.getContext();
-        project = new TestEntityWrapper(dsc, c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
-        source = new TestEntityWrapper(dsc, c.insertSource("source", "2983"));
+        project = new TestEntityWrapper(ctx, c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
+        source = new TestEntityWrapper(ctx, c.insertSource("source", "2983"));
         Project p = (Project)project.getEntity();
         p.addProperty("color", "yellow");
         p.addProperty("size", 10.5);

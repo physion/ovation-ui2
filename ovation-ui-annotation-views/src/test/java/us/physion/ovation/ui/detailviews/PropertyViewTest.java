@@ -65,8 +65,8 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
         String uti = "unknown-uti";
         
         DataContext c = dsc.getContext();
-        project = new TestEntityWrapper(dsc, c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
-        source = new TestEntityWrapper(dsc, c.insertSource("source", "10010"));
+        project = new TestEntityWrapper(ctx, c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
+        source = new TestEntityWrapper(ctx, c.insertSource("source", "10010"));
         Project p = (Project)project.getEntity();
         p.addProperty("color", "yellow");
         p.addProperty("size", 10.5);
@@ -75,8 +75,8 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
         s.addProperty("birthday", "6/23/1988");
         
         User newUser = null;
-        user1 = new TestEntityWrapper(dsc, c.getAuthenticatedUser());
-        user2 = new TestEntityWrapper(dsc, newUser);
+        user1 = new TestEntityWrapper(ctx, c.getAuthenticatedUser());
+        user2 = new TestEntityWrapper(ctx, newUser);
         userURIs = new HashSet();
         userURIs.add(user1.getURI());
         userURIs.add(user2.getURI());

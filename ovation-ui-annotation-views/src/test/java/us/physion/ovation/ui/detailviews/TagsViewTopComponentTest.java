@@ -38,12 +38,12 @@ public class TagsViewTopComponentTest extends OvationTestCase{
         
         DataContext c = dsc.getContext();
         Project p = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
-        project = new TestEntityWrapper(dsc, p);
+        project = new TestEntityWrapper(ctx, p);
         p.addTag("tag1");
         p.addTag("tag2");
         
         Project p2 = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
-        project2 = project = new TestEntityWrapper(dsc, p);
+        project2 = project = new TestEntityWrapper(ctx, p);
         p2.addTag("tag1");
         p2.addTag("another tag");
         

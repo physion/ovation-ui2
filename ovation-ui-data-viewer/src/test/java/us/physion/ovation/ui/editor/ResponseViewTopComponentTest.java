@@ -29,7 +29,9 @@ import ucar.ma2.DataType;
 import ucar.nc2.stream.NcStreamProto;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.*;
+import us.physion.ovation.domain.factories.EpochFactory;
 import us.physion.ovation.domain.factories.MeasurementFactory;
+import us.physion.ovation.domain.impl.StdEpochFactory;
 import us.physion.ovation.domain.impl.StdMeasurementFactory;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.editor.ResponseViewTopComponent;
@@ -43,26 +45,24 @@ import us.physion.ovation.values.NumericData;
  */
 public class ResponseViewTopComponentTest extends OvationTestCase{
     
-    Experiment experiment;
-    Epoch epoch;
     MeasurementFactory factory;
     
     ResponseViewTopComponent t;
   
     @Before
     public void setUp() {
+        super.setUp();
+
+        factory = getInjector().getInstance(StdMeasurementFactory.class);
+
         
-        String UNUSED_NAME = "name";
+        /*String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
         DateTime UNUSED_START = new DateTime(0);
         DateTime UNUSED_END = new DateTime(1);
         String UNUSED_LABEL = "label";
         
-        DataContext c = dsc.getContext();
-        
-        factory = getInjector().getInstance(MeasurementFactory.class);
-        
-        /*Project project = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
+        Project project = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
         experiment = project.insertExperiment(UNUSED_PURPOSE, UNUSED_START);
 
         EpochGroup group = experiment.insertEpochGroup(UNUSED_LABEL, UNUSED_START, null, null, null);
@@ -82,11 +82,26 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         }
         data.addData("data-name", d, "units", 10.5, "Hz");
         String name = "name";
-        Set<String> sourceNames = null;
-        Set<String> devices = null; 
-        Measurement r = factory.createNumericMeasurement(dsc.getContext(), name, UUID.randomUUID(), sourceNames, devices, data);
+        Set<String> sourceNames = Sets.newHashSet("subject");
+        Set<String> devices = Sets.newHashSet("device"); 
+        Measurement r = factory.createNumericMeasurement(ctx, name, UUID.randomUUID(), sourceNames, devices, data);
         //NumericMeasurement r = epoch.insertNumericMeasurement(name, sourceNames, devices, data);
         return r;
+    }
+    private Epoch makeEpoch()
+    {
+        String UNUSED_NAME = "name";
+        String UNUSED_PURPOSE = "purpose";
+        DateTime UNUSED_START = new DateTime(0);
+        DateTime UNUSED_END = new DateTime(1);
+        String UNUSED_LABEL = "label";
+        
+        Project project = ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
+        Experiment experiment = project.insertExperiment(UNUSED_PURPOSE, UNUSED_START);
+
+        EpochGroup group = experiment.insertEpochGroup(UNUSED_LABEL, UNUSED_START, null, null, null);
+
+        return group.insertEpoch(UNUSED_START, UNUSED_END, null, null, null);
     }
 
     @Test
@@ -95,21 +110,19 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         
         Measurement r = makeNumericMeasurement();
         
-        String name = r.getName();
         NumericData.Data data;
         try {
-            data = NumericMeasurementUtils.getNumericData(r).get().getData().get(0);
-        } catch (InterruptedException ex) {
-            throw new OvationException(ex.getLocalizedMessage());
-        } catch (ExecutionException ex) {
+            data = NumericMeasurementUtils.getNumericData(r).get().getData().values().iterator().next();
+        } catch (Exception ex) {
             throw new OvationException(ex.getLocalizedMessage());
         }
+        String name = data.name;
         double samplingRate = data.samplingRates[0];
         String samplingUnit = data.samplingRateUnits[0];
         String units = data.units;
         double[] d = (double[])data.dataArray.get1DJavaArray(Double.class);
         
-        Collection entities = Sets.newHashSet(new TestEntityWrapper(dsc, r));
+        Collection entities = Sets.newHashSet(new TestEntityWrapper(ctx, r));
         List<Visualization> chartWrappers= t.updateEntitySelection(entities);
         
         assertEquals(chartWrappers.size(), entities.size());
@@ -141,15 +154,15 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
     {
         Measurement r = makeNumericMeasurement();
         
-        String name = r.getName();
         NumericData.Data data;
         try {
-            data = NumericMeasurementUtils.getNumericData(r).get().getData().get(0);
+            data = NumericMeasurementUtils.getNumericData(r).get().getData().values().iterator().next();
         } catch (InterruptedException ex) {
             throw new OvationException(ex.getLocalizedMessage());
         } catch (ExecutionException ex) {
             throw new OvationException(ex.getLocalizedMessage());
         }
+        String name = data.name;
         double samplingRate = data.samplingRates[0];
         String samplingUnit = data.samplingRateUnits[0];
         String units = data.units;
@@ -175,14 +188,28 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
     @Test
     public void testGraphsMultipleSelectedEntitiesWithSharedUnits()
     {
+        t = new ResponseViewTopComponent();
         Collection entities = new HashSet();
         NumericData nd1 = new NumericData();
-        String units = "units";
-        String dimensionLabel = "dimension label";
-        double samplingRate = 3;
-        String samplingRateUnits = "Hz";
-
-        entities.add(new TestEntityWrapper(dsc, epoch));
+        double[] d = new double[10000];
+        for (int i=0; i< d.length; ++i)
+        {
+            d[i] = i;
+        }
+        nd1.addData("double-data", d, "units", 10.5, "Hz");
+        
+        NumericData nd2 = new NumericData();
+        int[] in = new int[10000];
+        for (int i=0; i< d.length; ++i)
+        {
+            in[i] = i;
+        }
+        nd2.addData("int-data", in, "units", 10.5, "Hz");
+        Epoch epoch = makeEpoch();
+        epoch.insertNumericMeasurement("double-data", null, null, nd1);
+        epoch.insertNumericMeasurement("int-data", null, null, nd2);
+        
+        entities.add(new TestEntityWrapper(ctx, epoch));
         
         Collection<Visualization> chartWrappers= t.updateEntitySelection(entities);
         
@@ -200,38 +227,39 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         }
         
         assertEquals(series.size(), 2);
-        //assertTrue(series.contains(dev1.getName()));
-        //assertTrue(series.contains(dev2.getName()));
+        assertTrue(series.contains("double-data"));
+        assertTrue(series.contains("int-data"));
     }
     
     @Test
     public void testGraphsMultipleSelectedEntitiesWithoutSharedUnits()
     {
-        /*ResponseViewTopComponent t = new ResponseViewTopComponent();
-        //assertNotNull(Lookup.getDefault().lookup(ConnectionProvider.class));
+        t = new ResponseViewTopComponent();
         Collection entities = new HashSet();
-        ExternalDevice dev1 = experiment.externalDevice("device-name", "manufacturer");
-        ExternalDevice dev2 = experiment.externalDevice("second-device-name", "manufacturer");
+        NumericData nd1 = new NumericData();
         double[] d = new double[10000];
         for (int i=0; i< d.length; ++i)
         {
             d[i] = i;
         }
-        NumericData data = new NumericData(d);
-        String units = "units";
-        String dimensionLabel = "dimension label";
-        double samplingRate = 3;
-        String samplingRateUnits = "Hz";
-        String dataUTI = Response.NUMERIC_DATA_UTI;
-        Response r1 = epoch.insertResponse(dev1, new HashMap(), data, units, dimensionLabel, samplingRate, samplingRateUnits, dataUTI);
-        Response r2 = epoch.insertResponse(dev2, new HashMap(), data, "other-units", dimensionLabel, samplingRate, samplingRateUnits, dataUTI);
-
-        entities.add(new TestEntityWrapper(dsc, r1));
-        entities.add(new TestEntityWrapper(dsc, r2));
+        nd1.addData("double-data", d, "units", 10.5, "Hz");
+        
+        NumericData nd2 = new NumericData();
+        int[] in = new int[10000];
+        for (int i=0; i< d.length; ++i)
+        {
+            in[i] = i;
+        }
+        nd2.addData("int-data", in, "units2", 10.5, "Hz2");
+        Epoch epoch = makeEpoch();
+        epoch.insertNumericMeasurement("double-data", null, null, nd1);
+        epoch.insertNumericMeasurement("int-data", null, null, nd2);
+        
+        entities.add(new TestEntityWrapper(ctx, epoch));
         
         Collection<Visualization> chartWrappers= t.updateEntitySelection(entities);
         
-        assertEquals(chartWrappers.size(), entities.size());
+        assertEquals(2, chartWrappers.size());
         
         Set<String> series = new HashSet();
         for (Visualization w : chartWrappers)
@@ -243,11 +271,9 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
             }
         }
         
-        assertEquals(series.size(),  entities.size());
-        assertTrue(series.contains(dev1.getName()));
-        assertTrue(series.contains(dev2.getName()));
-        * 
-        */
+        assertEquals(series.size(), 2);
+        assertTrue(series.contains("double-data"));
+        assertTrue(series.contains("int-data"));
     }
     
     @Test 

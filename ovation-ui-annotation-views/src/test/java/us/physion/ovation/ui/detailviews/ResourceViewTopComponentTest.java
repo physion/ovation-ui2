@@ -48,9 +48,8 @@ public class ResourceViewTopComponentTest extends OvationTestCase{
         byte[] data = {1, 2, 3, 4, 5};
         String uti = "unknown-uti";
         
-        DataContext c = dsc.getContext();
-        project = new TestEntityWrapper(dsc, c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
-        source = new TestEntityWrapper(dsc, c.insertSource("source", "1002"));
+        project = new TestEntityWrapper(ctx, ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
+        source = new TestEntityWrapper(ctx, ctx.insertSource("source", "1002"));
         /*Resource r1 = ((Project)project.getEntity()).addResource("resource 1", new URI("www.google.com"), uti);
         rw1 = new DummyResourceWrapper(dsc, r1, new URI(project.getURI()));
         Resource r2 = source.getEntity().addResource(uti, "resource 2", data);

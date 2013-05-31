@@ -66,11 +66,11 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         Map<String, Source> input = new HashMap();
         input.put("subject", source);
         
-        e1 = new TestEntityWrapper(dsc, p.insertExperiment("purpose", UNUSED_START).insertEpochGroup("label", UNUSED_START, null, null, null).insertEpoch(input, null, UNUSED_START, UNUSED_START, null, params, null));
+        e1 = new TestEntityWrapper(ctx, p.insertExperiment("purpose", UNUSED_START).insertEpochGroup("label", UNUSED_START, null, null, null).insertEpoch(input, null, UNUSED_START, UNUSED_START, null, params, null));
         params = new HashMap();
         params.put("id", 4);
         params.put("birthday", "6/23/1988");
-        e2 = new TestEntityWrapper(dsc, p.insertExperiment("purpose", UNUSED_START).insertEpochGroup("label", UNUSED_START, null, null, null).insertEpoch(input, null, UNUSED_START, UNUSED_START, null, params, null));
+        e2 = new TestEntityWrapper(ctx, p.insertExperiment("purpose", UNUSED_START).insertEpochGroup("label", UNUSED_START, null, null, null).insertEpoch(input, null, UNUSED_START, UNUSED_START, null, params, null));
 
         t = new ParametersTopComponent();
         t.setTableTree(new DummyTableTree());
@@ -135,8 +135,8 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         e = ((Epoch)e2.getEntity());
         deviceParameters.put("one", 2);
         Measurement r2 = e.insertNumericMeasurement("name", new HashSet<String>(), new HashSet<String>(), data);
-        entitySet.add(new TestEntityWrapper(dsc, r1));
-        entitySet.add(new TestEntityWrapper(dsc, r2));
+        entitySet.add(new TestEntityWrapper(ctx, r1));
+        entitySet.add(new TestEntityWrapper(ctx, r2));
 
         List<TableTreeKey> params = t.setEntities(entitySet);
         

@@ -53,6 +53,7 @@ public class OvationTestCase {
     public final static String UNUSED_KEY = "UNUSED KEY";
     
     static LocalStack local_stack;
+    public DataContext ctx;
     
     @BeforeClass
     public static void setUpClass() throws InterruptedException, ExecutionException {
@@ -63,6 +64,12 @@ public class OvationTestCase {
                                           PASSWORD);
          
          dsc = local_stack.getAuthenticatedDataStoreCoordinator();
+    }
+    
+    @Before
+    public void setUp()
+    {
+        ctx = dsc.getContext();
     }
     
     public Injector getInjector()

@@ -52,7 +52,7 @@ public class InsertProjectTest extends OvationTestCase
         
         new InsertProject().wizardFinished(d, dsc, null);
         
-        Project p = (Project)(dsc.getContext().getProjects().iterator().next());
+        Project p = (Project)(ctx.getProjects().iterator().next());
         TestCase.assertEquals(p.getName(), name);
         TestCase.assertEquals(p.getPurpose(), purpose);
         TestCase.assertEquals(p.getStart(), start);
@@ -117,7 +117,6 @@ public class InsertProjectTest extends OvationTestCase
         String name = "name";
         String purpose = "purpose";
         DateTime start = new DateTime(0);
-        DateTime end = new DateTime(1);
         
         WizardDescriptor d = new WizardDescriptor(new InsertEntityIterator(null));
         
@@ -125,7 +124,6 @@ public class InsertProjectTest extends OvationTestCase
         TestCase.assertTrue(((String)d.getProperty("project.name")).isEmpty());
         TestCase.assertTrue(((String)d.getProperty("project.purpose")).isEmpty());
         TestCase.assertNull(d.getProperty("project.start"));
-        TestCase.assertNull(d.getProperty("project.end"));
         
         panel.setProjectName(name);
         panel.setPurpose(purpose);
@@ -134,7 +132,6 @@ public class InsertProjectTest extends OvationTestCase
         TestCase.assertEquals(d.getProperty("project.name"), name);
         TestCase.assertEquals(d.getProperty("project.purpose"), purpose);
         TestCase.assertEquals(d.getProperty("project.start"), start);
-        TestCase.assertEquals(d.getProperty("project.end"), end);
         
     }
     private class DummyPanel1 extends InsertProjectWizardPanel1

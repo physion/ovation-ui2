@@ -43,7 +43,7 @@ class ChartGroupWrapper implements Visualization
     
     ChartGroupWrapper(DefaultXYDataset ds, NumericData data)
     {
-        NumericData.Data d = data.getData().get(0);
+        NumericData.Data d = data.getData().values().iterator().next();
         String xAxis = convertSamplingRateUnitsToGraphUnits(d.samplingRateUnits[0]);
         String yAxis = d.units;
         
@@ -107,7 +107,7 @@ class ChartGroupWrapper implements Visualization
         }
         String newName = datasetName + "-" + String.valueOf(scale + 1);
 
-        if (d.dataArray.getElementType().equals(DataType.DOUBLE)) {
+        if (d.dataArray.getElementType().getSimpleName().equals("double")) {
             double[] floatingData = (double[])d.dataArray.get1DJavaArray(Double.class);
             double[][] data = new double[2][(int) size];
 
@@ -132,9 +132,9 @@ class ChartGroupWrapper implements Visualization
                 _ds.addSeries(datasetName, data);
             }
 
-        } else if (d.dataArray.getElementType().equals(DataType.INT)) {
+        } else if (d.dataArray.getElementType().getSimpleName().equals("int")) {
             int[] integerData = (int[])d.dataArray.get1DJavaArray(Integer.class);
-            double[][] data = new double[(int) size][2];
+            double[][] data = new double[2][(int) size];
 
             if (scale >= 0) {
                 for (int i = 0; i < (int) size; ++i) {
@@ -171,9 +171,9 @@ class ChartGroupWrapper implements Visualization
             throw new OvationException(ex);
         }
         if (data.getData().size() == 1) {
-            NumericData.Data d = data.getData().get(0);
-            return (d.units.equals(_xAxis)
-                    && d.samplingRateUnits[0].equals(_yAxis));
+            NumericData.Data d = data.getData().values().iterator().next();
+            return (d.units.equals(_yAxis)
+                    && convertSamplingRateUnitsToGraphUnits(d.samplingRateUnits[0]).equals(_xAxis));
         }
         return false;
     }
@@ -188,8 +188,7 @@ class ChartGroupWrapper implements Visualization
         {
             throw new OvationException(e.getLocalizedMessage());
         }
-        for (String key : data.getData().keySet()) {
-            NumericData.Data d = data.getData().get(key);
+        for (NumericData.Data d : data.getData().values()) {
             addXYDataset(d);
             String name = "";
             if (getTitle().startsWith(preface)) {

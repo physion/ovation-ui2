@@ -48,8 +48,8 @@ public class InsertExperimentTest extends OvationTestCase
         d.putProperty("experiment.start", start);
         d.putProperty("experiment.end", end);
         
-        Project p = dsc.getContext().insertProject("name", "purpose", new DateTime(0));
-        IEntityWrapper w = new TestEntityWrapper(dsc, p);
+        Project p = ctx.insertProject("name", "purpose", new DateTime(0));
+        IEntityWrapper w = new TestEntityWrapper(ctx, p);
         new InsertExperiment().wizardFinished(d, dsc, w);
         
         Experiment ex = p.getExperiments().iterator().next();
@@ -107,21 +107,18 @@ public class InsertExperimentTest extends OvationTestCase
         
         String purpose = "purpose";
         DateTime start = new DateTime(0);
-        DateTime end = new DateTime(1);
         
         WizardDescriptor d = new WizardDescriptor(new InsertEntityIterator(null));
         
         p.storeSettings(d);
         TestCase.assertTrue(((String)d.getProperty("experiment.purpose")).isEmpty());
         TestCase.assertNull(d.getProperty("experiment.start"));
-        TestCase.assertNull(d.getProperty("experiment.end"));
         
         panel.setPurpose(purpose);
         panel.setStart(start);
         p.storeSettings(d);
         TestCase.assertEquals(d.getProperty("experiment.purpose"), purpose);
         TestCase.assertEquals(d.getProperty("experiment.start"), start);
-        TestCase.assertEquals(d.getProperty("experiment.end"), end);
         
     }
     private class DummyPanel1 extends InsertExperimentWizardPanel1

@@ -28,6 +28,7 @@ import org.openide.util.Cancellable;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.AnnotatableEntity;
 import us.physion.ovation.domain.Source;
@@ -54,10 +55,10 @@ public class SourceSelector extends javax.swing.JPanel {
 
     
     ChangeSupport cs;
-    private DataStoreCoordinator dsc;
+    private DataContext ctx;
     private void resetSources() {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Sources");
-        for (Source s : dsc.getContext().getTopLevelSources())
+        for (Source s : ctx.getTopLevelSources())
         {
             if (!s.getParentSources().iterator().hasNext())
             {
@@ -115,12 +116,12 @@ public class SourceSelector extends javax.swing.JPanel {
      * Creates new form SourceSelector
      */
     public SourceSelector(ChangeSupport changeSupport, IEntityWrapper source) {
-        this(changeSupport, source, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection());
+        this(changeSupport, source, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection().getContext());
     }
-    public SourceSelector(ChangeSupport changeSupport, IEntityWrapper source, DataStoreCoordinator dsc) {
+    public SourceSelector(ChangeSupport changeSupport, IEntityWrapper source, DataContext ctx) {
         initComponents();
         this.cs = changeSupport;
-        this.dsc = dsc;
+        this.ctx = ctx;
         //TODO: find the relative paths
         resetButton.setIcon(new ImageIcon("/Users/huecotanks/Ovation/ui/ovation-ui/Browser/src/us/physion/ovation/ui/browser/reset-query24.png"));
         runQueryButton.setIcon(new ImageIcon("/Users/huecotanks/Ovation/ui/ovation-ui/QueryTools/src/us/physion/ovation/query/query24.png"));
@@ -154,12 +155,10 @@ public class SourceSelector extends javax.swing.JPanel {
         resetSources();
         
     }
-
-    public void setSource(IEntityWrapper w)//this should be an IEntityWrapper containing a source
+    
+    private void setNoSource()
     {
-        if (w == null || Source.class.isAssignableFrom(w.getType()))
-        {
-            if (selected != null)
+        if (selected != null)
             {
                 selected = null;
                 cs.fireChange();
@@ -170,6 +169,18 @@ public class SourceSelector extends javax.swing.JPanel {
                     }
                 });
             }
+    }
+
+    public void setSource(IEntityWrapper w)//this should be an IEntityWrapper containing a source
+    {
+        System.out.println("Setting source to null");
+        if (w == null )
+        {
+            setNoSource();
+            System.out.println("Successfully set source to null");
+        }else if(!Source.class.isAssignableFrom(w.getType()))
+        {
+            setNoSource();
         }
         else {
             selected = w;
@@ -178,7 +189,7 @@ public class SourceSelector extends javax.swing.JPanel {
 
                 public void run() {
                     ArrayList<TableTreeKey> keys = new ArrayList<TableTreeKey>();
-                    for (User u :dsc.getContext().getUsers())
+                    for (User u : ctx.getUsers())
                     {
                         if (!((AnnotatableEntity)selected.getEntity()).getUserProperties(u).isEmpty())
                         {
