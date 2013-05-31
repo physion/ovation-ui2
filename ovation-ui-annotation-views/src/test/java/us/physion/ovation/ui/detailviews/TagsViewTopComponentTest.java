@@ -26,27 +26,19 @@ import us.physion.ovation.ui.test.OvationTestCase;
  * @author huecotanks
  */
 public class TagsViewTopComponentTest extends OvationTestCase{
-    private TestEntityWrapper project;
-    private TestEntityWrapper project2;
     
     @Before
     public void setUp() {
-
+        super.setUp();
+        
+    }
+    
+    private Project makeProject()
+    {
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
         DateTime UNUSED_START = new DateTime(0);
-        
-        DataContext c = dsc.getContext();
-        Project p = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
-        project = new TestEntityWrapper(ctx, p);
-        p.addTag("tag1");
-        p.addTag("tag2");
-        
-        Project p2 = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
-        project2 = project = new TestEntityWrapper(ctx, p);
-        p2.addTag("tag1");
-        p2.addTag("another tag");
-        
+        return ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
     }
     
     @Test
@@ -54,18 +46,26 @@ public class TagsViewTopComponentTest extends OvationTestCase{
     {
         TagsViewTopComponent t = new TagsViewTopComponent();
         Set entitySet = new HashSet();
-        entitySet.add(project);
-        entitySet.add(project2);
+        
+        Project project = makeProject();
+        project.addTag("tag1");
+        project.addTag("tag2");
+        entitySet.add(new TestEntityWrapper(ctx, project));
+
+        Project project2 = makeProject();
+        project.addTag("tag1");
+        project.addTag("another tag");
+        entitySet.add(new TestEntityWrapper(ctx, project2));
         
         //both projects are selected
         List<TableTreeKey> tagSets = t.update(entitySet, dsc);
         List<String> myTagsFromUserNode = ((TagsSet)tagSets.get(0)).getTags();
         Set<String> mytags = new HashSet();
-        for (String tag : ((Taggable)project.getEntity()).getUserTags(dsc.getContext().getAuthenticatedUser()))
+        for (String tag : project.getUserTags(dsc.getContext().getAuthenticatedUser()))
         {
             mytags.add(tag);
         }
-        for (String tag : ((Taggable)project2.getEntity()).getUserTags(dsc.getContext().getAuthenticatedUser()))
+        for (String tag : project2.getUserTags(dsc.getContext().getAuthenticatedUser()))
         {
             mytags.add(tag);
         }
@@ -81,7 +81,7 @@ public class TagsViewTopComponentTest extends OvationTestCase{
         entitySet.add(project);
         myTagsFromUserNode = ((TagsSet)t.update(entitySet, dsc).get(0)).getTags();
         mytags = new HashSet<String>();
-        for (String tag : ((Taggable)project.getEntity()).getTags().values())
+        for (String tag : project.getTags().values())
         {
             mytags.add(tag);
         }
@@ -103,18 +103,26 @@ public class TagsViewTopComponentTest extends OvationTestCase{
      {
         TagsViewTopComponent t = new TagsViewTopComponent();
         Set entitySet = new HashSet();
-        entitySet.add(project);
-        entitySet.add(project2);
+        
+        Project project = makeProject();
+        project.addTag("tag1");
+        project.addTag("tag2");
+        entitySet.add(new TestEntityWrapper(ctx, project));
+
+        Project project2 = makeProject();
+        project.addTag("tag1");
+        project.addTag("another tag");
+        entitySet.add(new TestEntityWrapper(ctx, project2));
         
         //both projects are selected
         List<TableTreeKey> tagSets = t.update(entitySet, dsc);
         List<String> myTagsFromUserNode = ((TagsSet)tagSets.get(0)).getTags();
         Set<String> mytags = new HashSet();
-        for (String tag : ((Taggable)project.getEntity()).getUserTags(dsc.getContext().getAuthenticatedUser()))
+        for (String tag : project.getUserTags(dsc.getContext().getAuthenticatedUser()))
         {
             mytags.add(tag);
         }
-        for (String tag : ((Taggable)project2.getEntity()).getUserTags(dsc.getContext().getAuthenticatedUser()))
+        for (String tag : project2.getUserTags(dsc.getContext().getAuthenticatedUser()))
         {
             mytags.add(tag);
         }

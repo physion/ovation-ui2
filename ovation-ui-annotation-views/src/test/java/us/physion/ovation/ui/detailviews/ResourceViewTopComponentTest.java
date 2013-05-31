@@ -41,12 +41,11 @@ public class ResourceViewTopComponentTest extends OvationTestCase{
     
     @Before
     public void setUp() {
+        super.setUp();
 
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
         DateTime UNUSED_START = new DateTime(0);
-        byte[] data = {1, 2, 3, 4, 5};
-        String uti = "unknown-uti";
         
         project = new TestEntityWrapper(ctx, ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
         source = new TestEntityWrapper(ctx, ctx.insertSource("source", "1002"));

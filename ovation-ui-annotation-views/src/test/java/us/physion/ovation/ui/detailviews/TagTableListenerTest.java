@@ -28,31 +28,26 @@ import us.physion.ovation.ui.test.OvationTestCase;
  * @author jackie
  */
 public class TagTableListenerTest extends OvationTestCase{
-    private TestEntityWrapper project;
-    private TestEntityWrapper project2;
     private MockResizableTree mockTree;
     private EditableTable editableTable;
     
     @Before
     public void setUp() {
+        super.setUp();
 
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
         DateTime UNUSED_START = new DateTime(0);
         
-        DataContext c = dsc.getContext();
-        Project p = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
-        project = new TestEntityWrapper(ctx, p);
-        p.addTag("tag1");
-        p.addTag("tag2");
-        
-        Project p2 = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
-        project2  = new TestEntityWrapper(ctx, p);
-        p2.addTag("tag1");
-        p2.addTag("another tag");
-        
         mockTree = new MockResizableTree();
-        
+    }
+    
+    private Project makeProject()
+    {
+        String UNUSED_NAME = "name";
+        String UNUSED_PURPOSE = "purpose";
+        DateTime UNUSED_START = new DateTime(0);
+        return ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
     }
     
     @Test
@@ -61,14 +56,22 @@ public class TagTableListenerTest extends OvationTestCase{
         String newTag1 = "something";
         String newTag2 = "something2";
         Set<String> uris = new HashSet();
-        uris.add(project.getURI());
-        uris.add(project2.getURI());
+        Project project = makeProject();
+        
+        project.addTag("tag1");
+        project.addTag("tag2");
+        uris.add(project.getURI().toString());
+        
+        Project project2 = makeProject();
+        project.addTag("tag1");
+        project.addTag("another tag");
+        uris.add(project2.getURI().toString());
         
         TestTreeKey key = new TestTreeKey(dsc, uris);
         EditableTableModel m = createTableModel(key, uris);
         for (String uri : uris)
         {
-            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
+            Taggable eb = (Taggable)ctx.getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, false);
             assertContainsTag(newTag2, eb, false);
         }
@@ -95,8 +98,16 @@ public class TagTableListenerTest extends OvationTestCase{
         String oldTag2 = "something old2";
         String newTag2 = "something new2";
         Set<String> uris = new HashSet();
-        uris.add(project.getURI());
-        uris.add(project2.getURI());
+        
+        Project project = makeProject();
+        project.addTag("tag1");
+        project.addTag("tag2");
+        uris.add(project.getURI().toString());
+        
+        Project project2 = makeProject();
+        project.addTag("tag1");
+        project.addTag("another tag");
+        uris.add(project2.getURI().toString());
         
         TestTreeKey key = new TestTreeKey(dsc, uris);
         EditableTableModel m = createTableModel(key, uris);
@@ -134,8 +145,16 @@ public class TagTableListenerTest extends OvationTestCase{
     {
         String newTag = "something";
         Set<String> uris = new HashSet();
-        uris.add(project.getURI());
-        uris.add(project2.getURI());
+        
+        Project project = makeProject();
+        project.addTag("tag1");
+        project.addTag("tag2");
+        uris.add(project.getURI().toString());
+        
+        Project project2 = makeProject();
+        project.addTag("tag1");
+        project.addTag("another tag");
+        uris.add(project2.getURI().toString());
         
         TestTreeKey key = new TestTreeKey(dsc, uris);
         EditableTableModel m = createTableModel(key, uris);
@@ -162,8 +181,16 @@ public class TagTableListenerTest extends OvationTestCase{
         //remove tag1 and tag2 from both projects
         
         Set<String> uris = new HashSet();
-        uris.add(project.getURI());
-        uris.add(project2.getURI());
+        
+        Project project = makeProject();
+        project.addTag("tag1");
+        project.addTag("tag2");
+        uris.add(project.getURI().toString());
+        
+        Project project2 = makeProject();
+        project.addTag("tag1");
+        project.addTag("another tag");
+        uris.add(project2.getURI().toString());
         
         String newTag1 = "something";
         String newTag2 = "something2";

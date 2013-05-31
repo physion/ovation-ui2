@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.detailviews;
 
+import com.google.common.collect.Sets;
 import java.util.*;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -37,8 +38,6 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         
     private Lookup l;
     InstanceContent ic;
-    private TestEntityWrapper e1;
-    private TestEntityWrapper e2;
     private ParametersTopComponent t;
     
     public ParameterViewTest() {
@@ -47,36 +46,40 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
     }
     
     public void setUp() {
-
+        super.setUp();
+        t = new ParametersTopComponent();
+        t.setTableTree(new DummyTableTree());
+        ic.add(this);
+    }
+    
+    private Epoch createEpochWithProtocolParameters(Map<String, Object> params)
+    {
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
         DateTime UNUSED_START = new DateTime(0);
-        byte[] data = {1, 2, 3, 4, 5};
-        String uti = "unknown-uti";
-        
-        
-        
-        DataContext c = dsc.getContext();
-        Source source = c.insertSource("source", "1");
-        Project p = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
-        HashMap params = new HashMap();
-        params.put("color", "yellow");
-        params.put("size", 10.5);
+        Source source = ctx.insertSource("source", "1");
+        Project p = ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
         
         Map<String, Source> input = new HashMap();
         input.put("subject", source);
         
-        e1 = new TestEntityWrapper(ctx, p.insertExperiment("purpose", UNUSED_START).insertEpochGroup("label", UNUSED_START, null, null, null).insertEpoch(input, null, UNUSED_START, UNUSED_START, null, params, null));
-        params = new HashMap();
-        params.put("id", 4);
-        params.put("birthday", "6/23/1988");
-        e2 = new TestEntityWrapper(ctx, p.insertExperiment("purpose", UNUSED_START).insertEpochGroup("label", UNUSED_START, null, null, null).insertEpoch(input, null, UNUSED_START, UNUSED_START, null, params, null));
-
-        t = new ParametersTopComponent();
-        t.setTableTree(new DummyTableTree());
-        ic.add(this);
-
-        Lookup.getDefault().lookup(ConnectionProvider.class);
+        return p.insertExperiment("purpose", UNUSED_START).insertEpochGroup("label", UNUSED_START, null, null, null).insertEpoch(input, null, UNUSED_START, UNUSED_START, null, params, null);
+        
+    }
+    
+    private Epoch createEpochWithDeviceParameters(Map<String, Object> params)
+    {
+        String UNUSED_NAME = "name";
+        String UNUSED_PURPOSE = "purpose";
+        DateTime UNUSED_START = new DateTime(0);
+        Source source = ctx.insertSource("source", "1");
+        Project p = ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
+        
+        Map<String, Source> input = new HashMap();
+        input.put("subject", source);
+        
+        return p.insertExperiment("purpose", UNUSED_START).insertEpochGroup("label", UNUSED_START, null, null, null).insertEpoch(input, null, UNUSED_START, UNUSED_START, null, null, params);
+        
     }
     
     /*TODO: test this somewhere
@@ -100,16 +103,22 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
     }*/
     
     @Test
-    public void testGetsParametersAppropriatelyForEpochs()
+    public void testGetsProtocolParametersAppropriatelyForEpochs()
     {
         Set<IEntityWrapper> entitySet = new HashSet<IEntityWrapper>();
-       
-        entitySet.add(e1);
-        entitySet.add(e2);
+        
+        Map<String, Object> epochParams = new HashMap();
+        epochParams.put("thing1", "thing2");
+        entitySet.add(new TestEntityWrapper(ctx, createEpochWithProtocolParameters(epochParams)));
+        
+        epochParams.put("thing1", "thing4");
+        epochParams.put("thing3", "thing4");
+        entitySet.add(new TestEntityWrapper(ctx, createEpochWithProtocolParameters(epochParams)));
+        
         List<TableTreeKey> params = t.setEntities(entitySet);
         
-        assertEquals(params.size(), 1);
-        assertTrue(params.get(0) instanceof ParameterSet);
+        assertEquals(params.size(), 2);
+        assertTrue(params.get(1) instanceof ParameterSet);
         ParameterSet protocolParams = (ParameterSet)params.get(0);
         assertEquals(protocolParams.getDisplayName(), "Protocol Parameters");
         assertEquals(protocolParams.isEditable(), false);
@@ -123,69 +132,69 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
     }
     
     @Test
-    public void testGetsParametersAppropriatelyForResponses()
+    public void testGetsDeviceParametersAppropriatelyForEpochs()
     {
         Set<IEntityWrapper> entitySet = new HashSet<IEntityWrapper>();
-        Epoch e = ((Epoch)e1.getEntity());
-        Map<String, Object> deviceParameters = new HashMap();
-        deviceParameters.put("one", 1);
-        deviceParameters.put("two", "fish");
-        NumericData data = new NumericData();
-        Measurement r1 = e.insertNumericMeasurement("name", new HashSet<String>(), new HashSet<String>(), data);
-        e = ((Epoch)e2.getEntity());
-        deviceParameters.put("one", 2);
-        Measurement r2 = e.insertNumericMeasurement("name", new HashSet<String>(), new HashSet<String>(), data);
-        entitySet.add(new TestEntityWrapper(ctx, r1));
-        entitySet.add(new TestEntityWrapper(ctx, r2));
-
+        
+        Map<String, Object> epochParams = new HashMap();
+        epochParams.put("thing1", "thing2");
+        entitySet.add(new TestEntityWrapper(ctx, createEpochWithDeviceParameters(epochParams)));
+        
+        epochParams.put("thing1", "thing4");
+        epochParams.put("thing3", "thing4");
+        entitySet.add(new TestEntityWrapper(ctx, createEpochWithDeviceParameters(epochParams)));
+        
         List<TableTreeKey> params = t.setEntities(entitySet);
         
-        assertEquals(params.size(), 1);
+        assertEquals(params.size(), 2);
         assertTrue(params.get(0) instanceof ParameterSet);
-        ParameterSet protocolParams = (ParameterSet)params.get(0);
-        assertEquals(protocolParams.getDisplayName(), "Device Parameters");
-        assertEquals(protocolParams.isEditable(), false);
+        ParameterSet deviceParams = (ParameterSet)params.get(0);
+        assertEquals(deviceParams.getDisplayName(), "Device Parameters");
+        assertEquals(deviceParams.isEditable(), false);
         Set<Tuple> databaseParams = new HashSet<Tuple>();
-        /*for (IEntityWrapper ew : entitySet)
+        for (IEntityWrapper ew : entitySet)
         {
-            Map<String, Object> ps = ((Measurement)ew.getEntity()).getDeviceParameters();
+            Map<String, Object> ps = ((Epoch)ew.getEntity()).getDeviceParameters();
             aggregateDatabaseParams(databaseParams, ps);
-
-        }*/
-        assertTrue(TableTreeUtils.setsEqual(TableTreeUtils.getTuples(protocolParams), databaseParams));
-    }
+        }
+        assertTrue(TableTreeUtils.setsEqual(TableTreeUtils.getTuples(deviceParams), databaseParams));
+   
+                }
     
     @Test
     public void testGetsParametersAppropriatelyForAnalysisRecords()
     {
-        /*Set<IEntityWrapper> entitySet = new HashSet<IEntityWrapper>();
-        Epoch e = ((Epoch)e1.getEntity());
-        Map<String, Object> deviceParameters = new HashMap();
-        deviceParameters.put("one", 1);
-        deviceParameters.put("two", "fish");
-        AnalysisRecord a1 = e.getEpochGroup().getExperiment().getProjects()[0].insertAnalysisRecord("name", new Epoch[]{e}, "function name", deviceParameters, "file:///URL", "revision");
-        e = ((Epoch)e2.getEntity());
-        deviceParameters.put("one", 2);
-        AnalysisRecord a2 = e.getEpochGroup().getExperiment().getProjects()[0].insertAnalysisRecord("name2", new Epoch[]{e}, "function name", deviceParameters, "file:///URL", "revision");
-        entitySet.add(new TestEntityWrapper(dsc, a1));
-        entitySet.add(new TestEntityWrapper(dsc, a2));
-       
+        Set<IEntityWrapper> entitySet = new HashSet<IEntityWrapper>();
+        
+        Protocol protocol = ctx.insertProtocol("protocol-name", "protocol-doc");
+        
+        Epoch epoch = createEpochWithProtocolParameters(new HashMap());
+        
+        Map<String, Object> analysisProtocolParams = new HashMap();
+        analysisProtocolParams.put("thing1", "thing2");
+        AnalysisRecord a1 = epoch.insertAnalysisRecord("a1", new HashSet(), new HashMap(), new HashSet(), protocol, analysisProtocolParams);
+        entitySet.add(new TestEntityWrapper(ctx, a1));
+        
+        analysisProtocolParams.put("thing1", "thing4");
+        analysisProtocolParams.put("thing3", "thing4");
+        AnalysisRecord a2 = epoch.insertAnalysisRecord("a1", new HashSet(), new HashMap(), new HashSet(), protocol, analysisProtocolParams);
+        entitySet.add(new TestEntityWrapper(ctx, a2));
+        
         List<TableTreeKey> params = t.setEntities(entitySet);
         
         assertEquals(params.size(), 1);
         assertTrue(params.get(0) instanceof ParameterSet);
-        ParameterSet protocolParams = (ParameterSet)params.get(0);
-        assertEquals(protocolParams.getDisplayName(), "Analysis Parameters");
-        assertEquals(protocolParams.isEditable(), false);
+        ParameterSet deviceParams = (ParameterSet)params.get(0);
+        assertEquals(deviceParams.getDisplayName(), "Analysis Parameters");
+        assertEquals(deviceParams.isEditable(), false);
         Set<Tuple> databaseParams = new HashSet<Tuple>();
         for (IEntityWrapper ew : entitySet)
         {
-            //Map<String, Object> ps = ((AnalysisRecord)ew.getEntity()).getAnalysisParameters();
-            //aggregateDatabaseParams(databaseParams, ps);
-            
+            Map<String, Object> ps = ((AnalysisRecord)ew.getEntity()).getProtocolParameters();
+            aggregateDatabaseParams(databaseParams, ps);
         }
-        assertTrue(TableTreeUtils.setsEqual(TableTreeUtils.getTuples(protocolParams), databaseParams));
-    */}
+        assertTrue(TableTreeUtils.setsEqual(TableTreeUtils.getTuples(deviceParams), databaseParams));
+    }
     
     @Override
     public Lookup getLookup() {

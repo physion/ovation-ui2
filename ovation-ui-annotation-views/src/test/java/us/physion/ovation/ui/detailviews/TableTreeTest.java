@@ -55,26 +55,15 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
     
     @Before
     public void setUp() {
+        super.setUp();
         mockTree = new MockResizableTree();
 
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
         DateTime UNUSED_START = new DateTime(0);
-        byte[] data = {1, 2, 3, 4, 5};
-        String uti = "unknown-uti";
         
-        DataContext c = dsc.getContext();
-        project = new TestEntityWrapper(ctx, c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
-        source = new TestEntityWrapper(ctx, c.insertSource("source", "2983"));
-        Project p = (Project)project.getEntity();
-        p.addProperty("color", "yellow");
-        p.addProperty("size", 10.5);
-        Source s = (Source)source.getEntity();
-        s.addProperty("id", 4);
-        s.addProperty("birthday", "6/23/1988");
-        
-        p.addProperty("color", "chartreuse");
-        p.addProperty("interesting", true);
+        project = new TestEntityWrapper(ctx, ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
+        source = new TestEntityWrapper(ctx, ctx.insertSource("source", "2983"));
         
         uris = new HashSet();
         uris.add(project.getEntity().getURI().toString());
@@ -106,7 +95,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         int i=0;
         for (String uri : uris)
         {
-            AnnotatableEntity eb = (AnnotatableEntity)dsc.getContext().getObjectWithURI(uri);
+            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
             if (i++%2 == 0)
                 eb.addProperty(key1, val1);//only half of the uris have the property
         }
@@ -127,14 +116,14 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
     
         for (String uri : uris)
         {
-            AnnotatableEntity eb = (AnnotatableEntity)dsc.getContext().getObjectWithURI(uri);
+            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
             assertEquals(eb.getUserProperty(getUser(), key1), newVal1);
         }
     }
     
     public User getUser()
     {
-        return dsc.getContext().getAuthenticatedUser();
+        return ctx.getAuthenticatedUser();
     }
   
      @Test
@@ -148,7 +137,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         int i=0;
         for (String uri : uris)
         {
-            AnnotatableEntity eb = (AnnotatableEntity)dsc.getContext().getObjectWithURI(uri);
+            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
             eb.addProperty(newKey1, newVal1);
             
             if (i++%2 == 0)
@@ -173,7 +162,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
 
         for (String uri : uris)
         {
-            AnnotatableEntity eb = (AnnotatableEntity)dsc.getContext().getObjectWithURI(uri);
+            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
             assertFalse(eb.getProperties().containsKey(newKey1));
             assertFalse(eb.getProperties().containsKey(newKey2));
         }
@@ -189,7 +178,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         
         for (String uri : uris)
         {
-            AnnotatableEntity eb = (AnnotatableEntity)dsc.getContext().getObjectWithURI(uri);
+            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
             eb.addProperty(key1, val1);
         }
         
@@ -213,8 +202,8 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         
         for (String uri : uris)
         {
-            AnnotatableEntity eb = (AnnotatableEntity)dsc.getContext().getObjectWithURI(uri);
-            assertEquals(eb.getUserProperty(dsc.getContext().getAuthenticatedUser(), key).getClass(), clazz);
+            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
+            assertEquals(eb.getUserProperty(ctx.getAuthenticatedUser(), key).getClass(), clazz);
         }
     }
 

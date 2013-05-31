@@ -29,6 +29,10 @@ import us.physion.ovation.domain.AnnotatableEntity;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.User;
+import us.physion.ovation.domain.dao.EntityDao;
+import us.physion.ovation.domain.dto.EntityBase;
+import us.physion.ovation.domain.factories.UserFactory;
+import us.physion.ovation.domain.impl.StdUserFactory;
 import us.physion.ovation.ui.TableTreeKey;
 import us.physion.ovation.ui.interfaces.*;
 import us.physion.ovation.ui.test.OvationTestCase;
@@ -48,6 +52,7 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
     private TestEntityWrapper user2;
     private Set<String> userURIs;
     private PropertiesViewTopComponent tc;
+    private UserFactory userFactory;
     
     public PropertyViewTest() {
         ic = new InstanceContent();
@@ -57,16 +62,16 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
     
     @Before
     public void setUp() {
-
+        super.setUp();
+        
+        userFactory = getInjector().getInstance(StdUserFactory.class);
+        
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
         DateTime UNUSED_START = new DateTime(0);
-        byte[] data = {1, 2, 3, 4, 5};
-        String uti = "unknown-uti";
         
-        DataContext c = dsc.getContext();
-        project = new TestEntityWrapper(ctx, c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
-        source = new TestEntityWrapper(ctx, c.insertSource("source", "10010"));
+        project = new TestEntityWrapper(ctx, ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
+        source = new TestEntityWrapper(ctx, ctx.insertSource("source", "10010"));
         Project p = (Project)project.getEntity();
         p.addProperty("color", "yellow");
         p.addProperty("size", 10.5);
@@ -74,14 +79,14 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
         s.addProperty("id", 4);
         s.addProperty("birthday", "6/23/1988");
         
-        User newUser = null;
-        user1 = new TestEntityWrapper(ctx, c.getAuthenticatedUser());
+        User newUser = (User)userFactory.rehydrate(ctx, createUserDto(), new ArrayList());
+        user1 = new TestEntityWrapper(ctx, ctx.getAuthenticatedUser());
         user2 = new TestEntityWrapper(ctx, newUser);
         userURIs = new HashSet();
         userURIs.add(user1.getURI());
         userURIs.add(user2.getURI());
         
-        c.getCoordinator().authenticateUser(newUser.getEmail(), "password".toCharArray());
+        ctx.getCoordinator().authenticateUser(newUser.getEmail(), "password".toCharArray());
         p.addProperty("color", "chartreuse");
         p.addProperty("interesting", true);
         
@@ -169,6 +174,81 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
             }
         }
         return databaseProps;
+    }
+    
+    private us.physion.ovation.domain.dto.User createUserDto()
+    {
+        return new us.physion.ovation.domain.dto.User(){
+
+            @Override
+            public String getUsername() {
+                return "username"; 
+                        }
+
+            @Override
+            public String getEmail() {
+                return "email"; }
+
+            @Override
+            public char[] getPasswordHash() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public String getDigestAlgorithm() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public int getPkcs5Iterations() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public char[] getPasswordSalt() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public char[] getPasswordPepper() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public UUID getUuid() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public String getRevision() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public Set<UUID> getWriteGroups() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public List<String> getConflicts() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public Class getEntityClass() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public EntityBase.PersistentComponentUpdate getPersistentComponentsForUpdate(EntityDao entityDao) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void fetchPersistentComponents(EntityDao entityDao) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
     }
 
     @Override
