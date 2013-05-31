@@ -76,6 +76,11 @@ public class OvationTestCase {
     {
         return local_stack.getInjector();
     }
+    
+    public User createNewUser(String userName, String email, String password)
+    {
+        return local_stack.createUser(userName, email, password.toCharArray());
+    }
 
     @AfterClass
     public static void tearDownClass() throws InterruptedException {

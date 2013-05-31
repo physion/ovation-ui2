@@ -113,15 +113,8 @@ public final class PropertiesViewTopComponent extends TopComponent {
         }
     }
     
-    protected List<TableTreeKey> setEntities(Collection<? extends IEntityWrapper> entities, DataStoreCoordinator dsc)
+    protected List<TableTreeKey> setEntities(Collection<? extends IEntityWrapper> entities, DataContext c)
     {
-        DataContext c;
-        if (dsc == null) {
-            c = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection().getContext();
-        }else{
-            c = dsc.getContext();
-        }
-
         List<TableTreeKey> properties = new ArrayList<TableTreeKey>();
         Set<String> uris = new HashSet<String>();
         Set<OvationEntity> entitybases = new HashSet();

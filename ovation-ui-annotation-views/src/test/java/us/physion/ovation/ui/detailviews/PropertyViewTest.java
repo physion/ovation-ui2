@@ -5,6 +5,7 @@
 package us.physion.ovation.ui.detailviews;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.event.TableModelEvent;
@@ -33,67 +34,72 @@ import us.physion.ovation.domain.dao.EntityDao;
 import us.physion.ovation.domain.dto.EntityBase;
 import us.physion.ovation.domain.factories.UserFactory;
 import us.physion.ovation.domain.impl.StdUserFactory;
+import us.physion.ovation.domain.mixin.PropertyAnnotatable;
+import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.TableTreeKey;
 import us.physion.ovation.ui.interfaces.*;
 import us.physion.ovation.ui.test.OvationTestCase;
 
-@ServiceProvider(service = Lookup.Provider.class)
 /**
  *
  * @author huecotanks
  */
-public class PropertyViewTest extends OvationTestCase implements Lookup.Provider, ConnectionProvider{
+public class PropertyViewTest extends OvationTestCase {
     
     private Lookup l;
     InstanceContent ic;
-    private TestEntityWrapper project;
-    private TestEntityWrapper source;
-    private TestEntityWrapper user1;
-    private TestEntityWrapper user2;
+    private User user1;
+    private User user2;
     private Set<String> userURIs;
     private PropertiesViewTopComponent tc;
-    private UserFactory userFactory;
+    private int sourceCount = 0;
+
+    DataContext otherUserCtx;
     
     public PropertyViewTest() {
         ic = new InstanceContent();
         l = new AbstractLookup(ic);
     }
     
-    
     @Before
     public void setUp() {
         super.setUp();
         
-        userFactory = getInjector().getInstance(StdUserFactory.class);
+        String otherName = "new-user";
+        String otherEmail = "new-user@email.com";
+        String otherPassword = "password";
         
-        String UNUSED_NAME = "name";
-        String UNUSED_PURPOSE = "purpose";
-        DateTime UNUSED_START = new DateTime(0);
-        
-        project = new TestEntityWrapper(ctx, ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
-        source = new TestEntityWrapper(ctx, ctx.insertSource("source", "10010"));
-        Project p = (Project)project.getEntity();
-        p.addProperty("color", "yellow");
-        p.addProperty("size", 10.5);
-        Source s = (Source)source.getEntity();
-        s.addProperty("id", 4);
-        s.addProperty("birthday", "6/23/1988");
-        
-        User newUser = (User)userFactory.rehydrate(ctx, createUserDto(), new ArrayList());
-        user1 = new TestEntityWrapper(ctx, ctx.getAuthenticatedUser());
-        user2 = new TestEntityWrapper(ctx, newUser);
+        user1 = ctx.getAuthenticatedUser();
+        user2 = createNewUser(otherName, otherEmail, otherPassword);
         userURIs = new HashSet();
-        userURIs.add(user1.getURI());
-        userURIs.add(user2.getURI());
+        userURIs.add(user1.getURI().toString());
+        userURIs.add(user2.getURI().toString());
         
-        ctx.getCoordinator().authenticateUser(newUser.getEmail(), "password".toCharArray());
-        p.addProperty("color", "chartreuse");
-        p.addProperty("interesting", true);
+        DataStoreCoordinator dsc2 = getInjector().getInstance(DataStoreCoordinator.class);
+        try {
+            dsc2.authenticateUser(otherEmail, otherPassword.toCharArray()).get();
+        } catch (InterruptedException ex) {
+            throw new OvationException(ex);
+        } catch (ExecutionException ex) {
+            throw new OvationException(ex);
+        }
+        assertTrue(dsc2.isAuthenticated());
+        otherUserCtx = dsc2.getContext();
         
         ic.add(this);
 
         tc = new PropertiesViewTopComponent();
         tc.setTableTree(new DummyTableTree());
+    }
+    
+    @After
+    public void tearDown()
+    {
+        //delete the new user database created for user2
+        if (otherUserCtx != null)
+        {
+            otherUserCtx.getCoordinator().deleteDB();
+        }
     }
     
     
@@ -128,41 +134,94 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
         */
     }
     
+   
+    
     @Test
-    public void testGetsPropertiesAppropriatelyForEachUser()
+    public void testGetsPropertiesAppropriatelyForEachUser() throws InterruptedException, ExecutionException
     {
         Set<IEntityWrapper> entitySet = new HashSet<IEntityWrapper>();
        
-        entitySet.add(project);
-        entitySet.add(source);
+        Source source1 = makeSource();
+        Source source2 = makeSource();
+        UUID s1 = source1.getUuid();
+        UUID s2 = source2.getUuid();
         
-        List<TableTreeKey> properties = tc.setEntities(entitySet, dsc);
+        //add properties for user 1
+        addProperty(s1, user1, "key", "value");
+        addProperty(s2, user1, "key", "value");
+        
+        //sync down the sources, and add properties for user 2
+        otherUserCtx.getCoordinator().sync().get();
+        addProperty(s1, user2, "key", "value");
+        addProperty(s2, user2, "key2", "value2");
+       
+        ctx.getCoordinator().sync().get();
+        entitySet.add(new TestEntityWrapper(ctx, source1));
+        entitySet.add(new TestEntityWrapper(ctx, source2));
+        
+        //sanity check that everything has made it into the database as we expected
+        assertTrue(source1.getUserProperties(user1).containsKey("key"));
+        assertTrue(source1.getUserProperties(user2).containsKey("key"));
+        assertTrue(source2.getUserProperties(user1).containsKey("key"));
+        assertTrue(source2.getUserProperties(user2).containsKey("key2"));
+        
+        List<TableTreeKey> properties = tc.setEntities(entitySet, ctx);
         assertEquals(properties.size(), 2);
         
         //user1 properties
         Set<Tuple> props = TableTreeUtils.getTuples(properties.get(0));
-        Set<Tuple> databaseProps = getAggregateUserProperties(((User)user1.getEntity()), entitySet);
+        Set<Tuple> databaseProps = getAggregateUserProperties(user1, entitySet);
         assertTrue(TableTreeUtils.setsEqual(props, databaseProps));
         
         //user2 properties
         props = TableTreeUtils.getTuples(properties.get(1));
-        databaseProps = getAggregateUserProperties(((User)user2.getEntity()), entitySet);
+        databaseProps = getAggregateUserProperties(user2, entitySet);
         assertTrue(TableTreeUtils.setsEqual(props, databaseProps));
-        
     }
     
     @Test
-    public void testCantEditOtherUsersProperty()
+    public void testCantEditOtherUsersProperty() throws InterruptedException, ExecutionException
     {
         Set<IEntityWrapper> entitySet = new HashSet<IEntityWrapper>();
         
-        entitySet.add(project);
-        entitySet.add(source);
-        List<TableTreeKey> properties = tc.setEntities(entitySet, dsc);
+        Source source1 = makeSource();
+        UUID s1 = source1.getUuid();
+        addProperty(s1, user1, "key", "value");
+        
+        otherUserCtx.getCoordinator().sync().get();
+        addProperty(s1, user2, "key", "value");
+       
+        ctx.getCoordinator().sync().get();
+        
+        //sanity check that everything has made it into the database as we expected
+        assertTrue(source1.getUserProperties(user1).containsKey("key"));
+        assertTrue(source1.getUserProperties(user2).containsKey("key"));
+        
+        entitySet.add(new TestEntityWrapper(ctx, source1));
+        
+        List<TableTreeKey> properties = tc.setEntities(entitySet, ctx);
        
         assertFalse(properties.get(1).isEditable());
     }
    
+     public void addProperty(UUID obj, User user, String key, Object value)
+    {
+        if (user == user1)
+        {
+            ((PropertyAnnotatable)ctx.getObjectWithUuid(obj)).addProperty(key, value);
+        }else if (user == user2)
+        {
+            ((PropertyAnnotatable)otherUserCtx.getObjectWithUuid(obj)).addProperty(key, value);
+        }else{
+            throw new OvationException("Tried to add property by a User that doesn't exist");
+        }
+    }
+    
+    public Source makeSource()
+    {
+        return ctx.insertSource("label" + sourceCount, "identifier" + sourceCount++);
+    }
+    
     static Set<Tuple> getAggregateUserProperties(User u, Set<IEntityWrapper> entities) {
         
         Set<Tuple> databaseProps = new HashSet<Tuple>();
@@ -174,105 +233,5 @@ public class PropertyViewTest extends OvationTestCase implements Lookup.Provider
             }
         }
         return databaseProps;
-    }
-    
-    private us.physion.ovation.domain.dto.User createUserDto()
-    {
-        return new us.physion.ovation.domain.dto.User(){
-
-            @Override
-            public String getUsername() {
-                return "username"; 
-                        }
-
-            @Override
-            public String getEmail() {
-                return "email"; }
-
-            @Override
-            public char[] getPasswordHash() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public String getDigestAlgorithm() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public int getPkcs5Iterations() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public char[] getPasswordSalt() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public char[] getPasswordPepper() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public UUID getUuid() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public String getRevision() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public Set<UUID> getWriteGroups() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public List<String> getConflicts() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public Class getEntityClass() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public EntityBase.PersistentComponentUpdate getPersistentComponentsForUpdate(EntityDao entityDao) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void fetchPersistentComponents(EntityDao entityDao) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-        };
-    }
-
-    @Override
-    public DataStoreCoordinator getConnection() {
-        return dsc;
-    }
-
-    @Override
-    public void addConnectionListener(ConnectionListener cl) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void removeConnectionListener(ConnectionListener cl) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void resetConnection() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public Lookup getLookup() {
-        return l;
     }
 }
