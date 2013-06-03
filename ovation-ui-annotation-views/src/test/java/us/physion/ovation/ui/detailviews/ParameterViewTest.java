@@ -119,7 +119,7 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         
         assertEquals(params.size(), 2);
         assertTrue(params.get(1) instanceof ParameterSet);
-        ParameterSet protocolParams = (ParameterSet)params.get(0);
+        ParameterSet protocolParams = (ParameterSet)params.get(1);
         assertEquals(protocolParams.getDisplayName(), "Protocol Parameters");
         assertEquals(protocolParams.isEditable(), false);
         Set<Tuple> databaseParams = new HashSet<Tuple>();

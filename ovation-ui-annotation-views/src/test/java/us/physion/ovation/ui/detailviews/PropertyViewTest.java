@@ -134,8 +134,6 @@ public class PropertyViewTest extends OvationTestCase {
         */
     }
     
-   
-    
     @Test
     public void testGetsPropertiesAppropriatelyForEachUser() throws InterruptedException, ExecutionException
     {
@@ -146,18 +144,29 @@ public class PropertyViewTest extends OvationTestCase {
         UUID s1 = source1.getUuid();
         UUID s2 = source2.getUuid();
         
+        source1.refresh();
+        source2.refresh();
+        
         //add properties for user 1
         addProperty(s1, user1, "key", "value");
         addProperty(s2, user1, "key", "value");
         
         //sync down the sources, and add properties for user 2
-        otherUserCtx.getCoordinator().sync().get();
+        assertTrue(otherUserCtx.getCoordinator().sync().get());
         addProperty(s1, user2, "key", "value");
         addProperty(s2, user2, "key2", "value2");
        
-        ctx.getCoordinator().sync().get();
+        assertTrue(ctx.getCoordinator().sync().get());
+        
+        user1.refresh();
+        user2.refresh();
+        source1.refresh();
+        source2.refresh();
+        
         entitySet.add(new TestEntityWrapper(ctx, source1));
         entitySet.add(new TestEntityWrapper(ctx, source2));
+        
+        Thread.sleep(1000);
         
         //sanity check that everything has made it into the database as we expected
         assertTrue(source1.getUserProperties(user1).containsKey("key"));
@@ -192,6 +201,9 @@ public class PropertyViewTest extends OvationTestCase {
         addProperty(s1, user2, "key", "value");
        
         ctx.getCoordinator().sync().get();
+        source1.refresh();
+        
+        Thread.sleep(1000);
         
         //sanity check that everything has made it into the database as we expected
         assertTrue(source1.getUserProperties(user1).containsKey("key"));

@@ -187,9 +187,9 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         m.setValueAt(key1, 0, 0);
         m.setValueAt(val1, 0, 1);
       
-        assertNewValueClassIsAppropriate(key1, "6/23/1988", Timestamp.class, m);
-        assertNewValueClassIsAppropriate(key1, "6/23/1988 6:30 pm", Timestamp.class, m);
-        assertNewValueClassIsAppropriate(key1, "1", Long.class, m);
+        assertNewValueClassIsAppropriate(key1, "6/23/1988", DateTime.class, m);
+        assertNewValueClassIsAppropriate(key1, "6/23/1988 6:30 pm", DateTime.class, m);
+        assertNewValueClassIsAppropriate(key1, "1", Integer.class, m);
         assertNewValueClassIsAppropriate(key1, String.valueOf(Integer.MAX_VALUE) + "1", Long.class, m);
         assertNewValueClassIsAppropriate(key1, "1.5", Double.class, m);
         assertNewValueClassIsAppropriate(key1, "True", Boolean.class, m);

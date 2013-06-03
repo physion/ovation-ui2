@@ -78,7 +78,7 @@ public class TagsViewTopComponentTest extends OvationTestCase{
         
         //a single project is selected
         entitySet = new HashSet();
-        entitySet.add(project);
+        entitySet.add(new TestEntityWrapper(ctx, project));
         myTagsFromUserNode = ((TagsSet)t.update(entitySet, dsc).get(0)).getTags();
         mytags = new HashSet<String>();
         for (String tag : project.getTags().values())

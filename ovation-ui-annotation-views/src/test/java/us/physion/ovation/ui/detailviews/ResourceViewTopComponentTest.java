@@ -4,12 +4,14 @@
  */
 package us.physion.ovation.ui.detailviews;
 
+import com.google.common.collect.Sets;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.rmi.RMISecurityManager;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,12 +22,15 @@ import org.junit.*;
 import static org.junit.Assert.*;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Source;
+import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.TestEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
+import static us.physion.ovation.ui.test.OvationTestCase.dsc;
 import us.physion.ovation.values.Resource;
 
 /**
@@ -40,34 +45,37 @@ public class ResourceViewTopComponentTest extends OvationTestCase{
     private TestEntityWrapper source;
     
     @Before
-    public void setUp() {
+    public void setUp(){
         super.setUp();
 
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
         DateTime UNUSED_START = new DateTime(0);
-        
+        String contentType = "application/text";
+
+        File temp;
+        try {
+            //make a temp file
+            temp = File.createTempFile("temp-file-name", ".tmp");
+            temp.deleteOnExit();
+        } catch (IOException ex) {
+            throw new OvationException(ex);
+        }
+
         project = new TestEntityWrapper(ctx, ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
         source = new TestEntityWrapper(ctx, ctx.insertSource("source", "1002"));
-        /*Resource r1 = ((Project)project.getEntity()).addResource("resource 1", new URI("www.google.com"), uti);
-        rw1 = new DummyResourceWrapper(dsc, r1, new URI(project.getURI()));
-        Resource r2 = source.getEntity().addResource(uti, "resource 2", data);
-        rw2 = new DummyResourceWrapper(dsc, r2);
-        *
-        */
+        Resource r1 = ((Project) project.getEntity()).addResource("resource 1", temp.toURI(), contentType);
+        rw1 = new DummyResourceWrapper(dsc, "resource 1", r1);
+        Resource r2 = ((Source) source.getEntity()).addResource("resource 2", temp.toURI(), contentType);
+        rw2 = new DummyResourceWrapper(dsc, "resource 2", r2);
     }
-    
     
     @Test
     public void testUpdateResourcesUpdatesTheEntitiesList()
     {
-        Set<IEntityWrapper> entitySet = new HashSet<IEntityWrapper>();
-        
-        entitySet.add(project);
-        entitySet.add(source);
         ResourceViewTopComponent t = new ResourceViewTopComponent();
         assertTrue( t.getResources().isEmpty());
-        t.updateResources(entitySet);
+        t.updateResources(Sets.<IEntityWrapper>newHashSet(project, source));
         
         Set<String> nameSet = new HashSet();
         for (IResourceWrapper rw :t.getResources()){
@@ -76,9 +84,7 @@ public class ResourceViewTopComponentTest extends OvationTestCase{
         assertTrue(nameSet.contains(rw1.getName()));
         assertTrue(nameSet.contains(rw2.getName()));
         
-        entitySet = new HashSet();
-        entitySet.add(source);
-        t.updateResources(entitySet);
+        t.updateResources(Sets.<IEntityWrapper>newHashSet(source));
         List<IResourceWrapper> resources = t.getResources();
         assertTrue(resources.get(0).getName().equals(rw2.getName()));
         assertEquals(resources.size(), 1);
