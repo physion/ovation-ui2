@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -41,31 +42,31 @@
             <version>${netbeans.version}</version>
         </dependency>
 
-	<dependency>
-	  <groupId>us.physion</groupId>
-	  <artifactId>ovation-api</artifactId>
-	  <version>${ovation.api.version}</version>
-	</dependency>
-	
-	<dependency>
+        <dependency>
+            <groupId>us.physion</groupId>
+            <artifactId>ovation-api</artifactId>
+            <version>${ovation.api.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>us.physion</groupId>
             <artifactId>ovation-test-utils</artifactId>
             <version>2.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
-<!--
-	<dependency>
-	  <groupId>us.physion</groupId>
-	  <artifactId>expression-tree</artifactId>
-	  <version>2.0-SNAPSHOT</version>
-	</dependency>
--->
-	<dependency>
-	  <groupId>org.swinglabs</groupId>
-	  <artifactId>swingx</artifactId>
-	</dependency>
-        
-	<dependency>
+        <!--
+            <dependency>
+              <groupId>us.physion</groupId>
+              <artifactId>expression-tree</artifactId>
+              <version>2.0-SNAPSHOT</version>
+            </dependency>
+        -->
+        <dependency>
+            <groupId>org.swinglabs</groupId>
+            <artifactId>swingx</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>us.physion</groupId>
             <artifactId>ovation-logging</artifactId>
             <version>2.0-SNAPSHOT</version>
@@ -77,7 +78,7 @@
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
-				<artifactId>nbm-maven-plugin</artifactId>
+                <artifactId>nbm-maven-plugin</artifactId>
                 <version>${nbm.plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
@@ -88,9 +89,9 @@
                         <publicPackage>com.google.common.collect.*</publicPackage>
                         <publicPackage>com.google.common.util.concurrent.*</publicPackage>
                         <publicPackage>com.google.inject.*</publicPackage>
-			<publicPackage>com.google.common.eventbus.*</publicPackage>
-			<publicPackage>com.google.common.io.*</publicPackage>
-			<publicPackage>com.google.common.cache.*</publicPackage>
+                        <publicPackage>com.google.common.eventbus.*</publicPackage>
+                        <publicPackage>com.google.common.io.*</publicPackage>
+                        <publicPackage>com.google.common.cache.*</publicPackage>
                         <publicPackage>edu.wisc.ssec.mcidas.*</publicPackage>
                         <publicPackage>edu.wisc.ssec.mcidas.adde.*</publicPackage>
                         <publicPackage>loci.formats.*</publicPackage>
@@ -105,17 +106,17 @@
                         <publicPackage>org.joda.time.*</publicPackage>
                         <publicPackage>org.slf4j.*</publicPackage>
                         <publicPackage>ucar.ma2.*</publicPackage>
-			<publicPackage>ucar.grib.*</publicPackage>
+                        <publicPackage>ucar.grib.*</publicPackage>
                         <publicPackage>ucar.grib.grib1.*</publicPackage>
                         <publicPackage>ucar.grib.grib2.*</publicPackage>
                         <publicPackage>us.physion.cloud.*</publicPackage>
                         <publicPackage>us.physion.ovation.*</publicPackage>
-			<publicPackage>us.physion.ovation.domain.*</publicPackage>
-			<publicPackage>us.physion.ovation.api.*</publicPackage>
-			<publicPackage>us.physion.ovation.domain.repositories.*</publicPackage>
+                        <publicPackage>us.physion.ovation.domain.*</publicPackage>
+                        <publicPackage>us.physion.ovation.api.*</publicPackage>
+                        <publicPackage>us.physion.ovation.domain.repositories.*</publicPackage>
                         <publicPackage>visad.jmet</publicPackage>
-			<publicPackage>javax.inject.*</publicPackage>
-			<publicPackage>com.mchange.v2.c3p0.*</publicPackage>
+                        <publicPackage>javax.inject.*</publicPackage>
+                        <publicPackage>com.mchange.v2.c3p0.*</publicPackage>
                         <publicPackage>us.physion.ovation.logging.*</publicPackage>
                     </publicPackages>
                 </configuration>
