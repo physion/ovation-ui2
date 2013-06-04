@@ -4,91 +4,71 @@
  */
 package us.physion.ovation.ui.database;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.inject.Injector;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.prefs.Preferences;
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.protocol.Protocol;
-import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
-import org.openide.util.Exceptions;
 import org.openide.util.lookup.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.api.Ovation;
-import us.physion.ovation.api.OvationApiModule;
-import us.physion.ovation.couch.CouchServiceManager;
-import us.physion.ovation.ui.interfaces.ConnectionListener;
-import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.exceptions.AuthenticationException;
-import us.physion.ovation.logging.Logging;
+import us.physion.ovation.ui.interfaces.ConnectionListener;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.ui.interfaces.EventQueueUtilities;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 /**
- *
  * @author jackie
  */
 @ServiceProvider(service = ConnectionProvider.class)
-public class DatabaseConnectionProvider implements ConnectionProvider{
+public class DatabaseConnectionProvider implements ConnectionProvider {
 
     static Logger logger = LoggerFactory.getLogger(DatabaseConnectionProvider.class);
-    
+
 
     private static class LoginModel {
-        String email; 
-        char[] password; 
+        String email;
+        char[] password;
         boolean cancelled = true;
 
-        void setEmail(String email)
-        {
+        void setEmail(String email) {
             this.email = email;
         }
-        void setPassword(char[] pw)
-        {
+
+        void setPassword(char[] pw) {
             this.password = pw;
         }
-        char[] getPassword()
-        {
+
+        char[] getPassword() {
             return password;
         }
-        String getEmail()
-        {
+
+        String getEmail() {
             return email;
         }
-        boolean isCancelled()
-        {
+
+        boolean isCancelled() {
             return cancelled;
         }
     }
-    
+
     private DataStoreCoordinator dsc = null;
     private Set<ConnectionListener> connectionListeners;
     private boolean waitingForDSC = false;
 
     public DatabaseConnectionProvider() {
-        
+
         connectionListeners = Collections.synchronizedSet(new HashSet());
-        Logging.configureRootLoggerRollingAppender();
     }
 
     @Override
-    public synchronized void resetConnection()
-    {
+    public synchronized void resetConnection() {
         dsc = null;
         getConnection();
     }
@@ -104,7 +84,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         }
 
         final ConnectionListener[] listeners = connectionListeners.toArray(new ConnectionListener[0]);
-        
+
         final Runnable r = new Runnable() {
 
             public void run() {
@@ -128,16 +108,16 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
                 }
             }
         };
-        
+
         EventQueueUtilities.runOnEDT(r);
-        
+
         return dsc;
     }
-    
+
     private LoginModel showLoginDialog(String error) {
-        
+
         final LoginModel model = new LoginModel();
-        
+
         final LoginDialog d = new LoginDialog(new JFrame(), true);
         d.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         d.addLoginActionListener(new ActionListener() {
@@ -150,7 +130,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
                 d.dispose();
             }
         });
-        
+
         d.addCancelActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
@@ -158,12 +138,13 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
                 d.dispose();
             }
         });
-        
+
         //show dialog
         //d.setLocationRelativeTo(null);
         d.setVisible(true);
         return model;
     }
+
     private boolean authenticateUser(DataStoreCoordinator dsc, String error) {
         LoginModel m = showLoginDialog(error);
         if (!m.isCancelled()) {
@@ -175,7 +156,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
                 return authenticateUser(dsc, e.getLocalizedMessage());
             } catch (ExecutionException e) {
                 return authenticateUser(dsc, e.getLocalizedMessage());
-            } 
+            }
             //TODO: add other common errors here
         }
         return false;
@@ -198,5 +179,5 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
     public void removeConnectionListener(ConnectionListener cl) {
         connectionListeners.remove(cl);
     }
-    
+
 }
