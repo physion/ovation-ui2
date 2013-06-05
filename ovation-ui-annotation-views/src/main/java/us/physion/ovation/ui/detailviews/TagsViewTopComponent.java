@@ -127,7 +127,7 @@ public final class TagsViewTopComponent extends TopComponent {
         }
         if (!containsCurrentUser) {
             User current = c.getAuthenticatedUser();
-            tags.add(new TagsSet(current, owners.contains(current.getUuid()), true, new ArrayList<String>(), uris));
+            tags.add(new TagsSet(current, true, true, new ArrayList<String>(), uris));
         }
         
         Collections.sort(tags);
@@ -158,13 +158,13 @@ public final class TagsViewTopComponent extends TopComponent {
             {
                 m.setValueAt(tag, row++, 0);
             }
-            //((ScrollableTableTree)tagTree).resizeNode(node);
+            ((ScrollableTableTree)tagTree).resizeNode(node);
         }
     }
     
     public TagsViewTopComponent() {
         initComponents();
-        this.add(tagTree);
+        //this.add(tagTree);
         setName(Bundle.CTL_TagsViewTopComponent());
         setToolTipText(Bundle.HINT_TagsViewTopComponent());
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
@@ -183,7 +183,7 @@ public final class TagsViewTopComponent extends TopComponent {
         jSpinner1 = new javax.swing.JSpinner();
         addTagComboBox = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
-        tagTree = new ScrollableTableTree();
+        tagTree = new us.physion.ovation.ui.ScrollableTableTree();
 
         addTagComboBox.setEditable(true);
         addTagComboBox.setModel(tagComboModel);

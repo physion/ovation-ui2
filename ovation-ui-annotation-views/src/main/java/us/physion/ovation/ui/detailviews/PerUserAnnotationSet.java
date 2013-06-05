@@ -38,9 +38,8 @@ public abstract class PerUserAnnotationSet implements TableTreeKey{
 
 
     abstract protected void refreshAnnotations(User u, Iterable<OvationEntity> entities);
-
-
-        public String getID()
+        
+    public String getID()
     {
         return userURI;
     }
