@@ -17,6 +17,7 @@ import javax.swing.table.TableColumn;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.openide.util.ChangeSupport;
+import us.physion.ovation.ui.browser.insertion.DateTimePickerPanel;
 import us.physion.ovation.ui.interfaces.DatePickerUtilities;
 import us.physion.ovation.ui.interfaces.DateTimePicker;
 
@@ -25,26 +26,6 @@ import us.physion.ovation.ui.interfaces.DateTimePicker;
  * @author huecotanks
  */
 public class GetImageFilesPanel extends javax.swing.JPanel {
-    
-    private static class DateTimePickerPanel {
-
-        private DateTimePicker picker;
-        private JScrollPane pane;
-        public DateTimePickerPanel(DateTimePicker p) {
-            picker = p;
-            pane = new JScrollPane();
-            pane.setViewportView(picker);
-        }
-        
-        public DateTimePicker getPicker()
-        {
-            return picker;
-        }
-        public JScrollPane getPane()
-        {
-            return pane;
-        }
-    }
 
     private FileTableModel fileTableModel;
     class FileTableModel extends DefaultTableModel 

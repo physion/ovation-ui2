@@ -28,6 +28,10 @@ public class ResponseWrapperFactory {
                 vis = f;
             }
         }
+        if (preference == 0)
+        {
+            return new DefaultVisualizationFactory();
+        }
         return vis;
     }
 }

@@ -68,9 +68,9 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_ResponseViewAction",
 preferredID = "ResponseViewTopComponent")
 @Messages({
-    "CTL_ResponseViewAction=Measurement View",
-    "CTL_ResponseViewTopComponent=Measurement Viewer",
-    "HINT_ResponseViewTopComponent=This plots the currently selected numeric Measurement data, if any"
+    "CTL_ResponseViewAction=Selection View",
+    "CTL_ResponseViewTopComponent=Selection Viewer",
+    "HINT_ResponseViewTopComponent=Displays the current selected entity, if possible"
 })
 public final class ResponseViewTopComponent extends TopComponent {
 

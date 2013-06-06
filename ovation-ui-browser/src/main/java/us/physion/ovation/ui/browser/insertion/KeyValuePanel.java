@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package us.physion.ovation.ui.importer;
+package us.physion.ovation.ui.browser.insertion;
 
 import java.util.HashMap;
 import java.util.Map;

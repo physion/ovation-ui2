@@ -11,6 +11,11 @@ import org.openide.util.HelpCtx;
 
 public class InsertEpochGroupWizardPanel extends BasicWizardPanel {
 
+    String objectPrefix;
+    InsertEpochGroupWizardPanel(String prefix)
+    {
+        objectPrefix = prefix;
+    }
     
     @Override
     public JPanel getComponent() {
@@ -37,9 +42,10 @@ public class InsertEpochGroupWizardPanel extends BasicWizardPanel {
     @Override
     public void storeSettings(WizardDescriptor wiz) {
         InsertEpochGroupVisualPanel2 c = (InsertEpochGroupVisualPanel2)component;
-        wiz.putProperty("epochGroup.start", c.getStart());
-        wiz.putProperty("epochGroup.label", c.getLabel());
-        //wiz.putProperty("epochGroup.protocolParameters", c.getProtocolParameters());
-        //wiz.putProperty("epochGroup.deviceParameters", c.getDeviceParameters());
+        wiz.putProperty(objectPrefix + ".start", c.getStart());
+        wiz.putProperty(objectPrefix + ".label", c.getLabel());
     }
+
+    @Override
+    public void readSettings(WizardDescriptor data) {}
 }

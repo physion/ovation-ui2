@@ -12,6 +12,7 @@ import org.openide.util.Lookup;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
+import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -99,13 +100,9 @@ public class EntityWrapper implements IEntityWrapper {
                 return ((Epoch)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
             }
         }
-        else if (Measurement.class.isAssignableFrom(type))
+        else if (DataElement.class.isAssignableFrom(type))
         {
-            return ((Measurement)e).getName();
-        }
-        else if (AnalysisRecord.class.isAssignableFrom(type))
-        {
-            return ((AnalysisRecord)e).getName();
+            return ((DataElement)e).getName();
         }
         return "<no name>";
     }

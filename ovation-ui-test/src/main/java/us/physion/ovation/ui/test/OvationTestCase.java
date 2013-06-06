@@ -57,7 +57,7 @@ public class OvationTestCase {
     
     @BeforeClass
     public static void setUpClass() throws InterruptedException, ExecutionException {
-        
+        java.lang.Thread.sleep(1000);
          local_stack = new TestUtils().makeLocalStack(new OvationApiModule(),
                                           EMAIL.replace("@", "-").replace(".", "-"),
                                           EMAIL,

@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import javax.swing.AbstractAction;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
@@ -15,7 +16,9 @@ import org.openide.WizardDescriptor.Panel;
 import org.openide.nodes.Children;
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.browser.EntityChildren;
 import us.physion.ovation.ui.browser.EntityNode;
@@ -103,5 +106,35 @@ public class InsertEntity extends AbstractAction implements EntityInsertable{
     @Override
     public void wizardFinished(WizardDescriptor wiz, DataStoreCoordinator dsc, IEntityWrapper ew) {
         throw new UnsupportedOperationException("Subclasses of InsertEntity should implement the wizardFinished method");
+    }
+    
+    protected Protocol getProtocolFromProtocolSelector(DataContext context, Map<String, String> newProtocols, String selectedProtocolName, Protocol existingProtocol)
+    {
+        if (newProtocols == null)
+            return null;
+        
+        Protocol protocol = null;
+        for(String name : newProtocols.keySet())
+        {
+            String doc = newProtocols.get(name);
+            Protocol p = context.insertProtocol(
+                    name,
+                    newProtocols.get(name));
+            if (name.equals(selectedProtocolName)) 
+            {
+                protocol = p;
+            }
+        }
+        if (protocol == null)
+            return existingProtocol;
+        
+        return protocol;
+    }
+    
+    String combine(String prefix, String key)
+    {
+        if (prefix == null || prefix.isEmpty())
+            return key;
+        return prefix + "." + key;
     }
 }

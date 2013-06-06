@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.importer;
 
+import us.physion.ovation.ui.browser.insertion.KeyValueController;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -100,11 +101,11 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
 
         for (int i = 0; i < epochCount; i++) {
             panels.add(new ProtocolController(i));//set protocol info
-            panels.add(new KeyValueController(i, 
+            panels.add(new KeyValueController(
                     "Epoch " + (i+1) + ": Protocol Parameters", 
                     "Enter any relevent protocol parameters below. These parameters will be associated with Epoch " + (i+1), 
                     "epochs;" + i + ";protocolParameters"));
-            panels.add(new KeyValueController(i, 
+            panels.add(new KeyValueController(
                     "Epoch " + (i+1) + ": Device Parameters", 
                     "Enter any relevent device parameters below. These parameters will be associated with Epoch " + (i+1), 
                     "epochs;" + i + ";deviceParameters"));

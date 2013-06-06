@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.openide.util.ChangeSupport;
+import us.physion.ovation.ui.interfaces.DateTimePicker;
 
 public final class InsertEpochGroupVisualPanel2 extends JPanel{
 
@@ -35,7 +36,7 @@ public final class InsertEpochGroupVisualPanel2 extends JPanel{
 
         this.cs = cs;
         label = "";
-        startPicker = DatePickerUtilities.createDateTimePicker();
+        startPicker = DatePickers.createDateTimePicker();
         startPicker.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
@@ -45,7 +46,7 @@ public final class InsertEpochGroupVisualPanel2 extends JPanel{
             }
         });
         
-        jComboBox1.setSelectedItem(DatePickerUtilities.getID(startPicker));
+        jComboBox1.setSelectedItem(DatePickers.getID(startPicker));
         startTimePane.setViewportView(startPicker);
         start = null;
     }
@@ -117,7 +118,7 @@ public final class InsertEpochGroupVisualPanel2 extends JPanel{
         startTimePane.setBorder(null);
         startTimePane.setPreferredSize(new java.awt.Dimension(200, 30));
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(DatePickerUtilities.getTimeZoneIDs()));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(DatePickers.getTimeZoneIDs()));
         jComboBox1.setMaximumSize(new java.awt.Dimension(300, 32767));
         jComboBox1.setPreferredSize(new java.awt.Dimension(180, 30));
         jComboBox1.addActionListener(new java.awt.event.ActionListener() {

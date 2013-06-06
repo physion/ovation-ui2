@@ -47,8 +47,8 @@ public class InsertEpochGroupTest extends OvationTestCase{
         TestCase.assertEquals(panels.size(), 4);
         
         TestCase.assertTrue(panels.get(0) instanceof SelectProtocolController);
-        TestCase.assertTrue(panels.get(1) instanceof ProtocolParametersController);
-        TestCase.assertTrue(panels.get(2) instanceof DeviceParametersController);
+        TestCase.assertTrue(panels.get(1) instanceof KeyValueController);
+        TestCase.assertTrue(panels.get(2) instanceof KeyValueController);
         TestCase.assertTrue(panels.get(3) instanceof InsertEpochGroupWizardPanel);
         //TODO: test the parent's source is set appropriately, when we start using that code
     }
@@ -168,7 +168,7 @@ public class InsertEpochGroupTest extends OvationTestCase{
     {
         DummyPanel1()
         {
-            super();
+            super("epochGroup");
         }
         @Override
         public JPanel getComponent()
@@ -179,6 +179,11 @@ public class InsertEpochGroupTest extends OvationTestCase{
     
     private class DummyPanel2 extends InsertEpochGroupWizardPanel 
     {
+        DummyPanel2()
+        {
+            super("epochGroup");
+        }
+        
         @Override
         public JPanel getComponent()
         {

@@ -32,40 +32,22 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  * @author huecotanks
  */
 public class InsertEpochGroup extends InsertEntity implements EpochGroupInsertable, ExperimentInsertable {
+    String objectPrefix;
 
     public InsertEpochGroup() {
         putValue(NAME, "Insert Epoch Group...");
+        objectPrefix = "epochGroup";
     }
-
+    
     public List<WizardDescriptor.Panel<WizardDescriptor>> getPanels(IEntityWrapper parent)
     {
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
 
-        panels.add(new SelectProtocolController()); //protocol selector
-        panels.add(new ProtocolParametersController()); //protocol param
-        panels.add(new DeviceParametersController()); //device param
-        panels.add(new InsertEpochGroupWizardPanel());
+        panels.add(new SelectProtocolController(objectPrefix)); //protocol selector
+        panels.add(new KeyValueController("Add Protocol Parameters", "Add optional protocol parameters", "epochGroup.deviceParameters")); //device param
+        panels.add(new KeyValueController("Add Device Parameters", "Add optional device parameters", "epochGroup.deviceParameters")); //device param
+        panels.add(new InsertEpochGroupWizardPanel(objectPrefix));
         return panels;
-    }
-    
-    private Protocol insertProtocolsAndFindSelected(DataContext context, Map<String, String> newProtocols, String selectedProtocolName)
-    {
-        if (newProtocols == null)
-            return null;
-        
-        Protocol protocol = null;
-        for(String name : newProtocols.keySet())
-        {
-            String doc = newProtocols.get(name);
-            Protocol p = context.insertProtocol(
-                    name,
-                    newProtocols.get(name));
-            if (name.equals(selectedProtocolName)) 
-            {
-                protocol = p;
-            }
-        }
-        return protocol;
     }
     
     @Override
@@ -73,29 +55,26 @@ public class InsertEpochGroup extends InsertEntity implements EpochGroupInsertab
     {
         OvationEntity parentEntity = parent.getEntity();
         
-        Protocol protocol = insertProtocolsAndFindSelected(parentEntity.getDataContext(),
-                (Map<String, String>)wiz.getProperty("epochGroup.newProtocols"), 
-                (String)wiz.getProperty("epochGroup.protocolName"));
-        
-        if (protocol == null)
-        {
-            protocol = (Protocol)wiz.getProperty("epochGroup.protocol");
-        }
+        Protocol protocol = getProtocolFromProtocolSelector(parentEntity.getDataContext(),
+                (Map<String, String>)wiz.getProperty(combine(objectPrefix, "newProtocols")), 
+                (String)wiz.getProperty(combine(objectPrefix, "protocolName")),
+                (Protocol)wiz.getProperty(combine(objectPrefix, "protocol")));
+     
         if (parentEntity instanceof Experiment)
         {        
-            ((Experiment)parentEntity).insertEpochGroup(((String)wiz.getProperty("epochGroup.label")),
-                    ((DateTime)wiz.getProperty("epochGroup.start")),
+            ((Experiment)parentEntity).insertEpochGroup(((String)wiz.getProperty(combine(objectPrefix, "label"))),
+                    ((DateTime)wiz.getProperty(combine(objectPrefix, "start"))),
                     protocol,
-                    ((Map<String, Object>)wiz.getProperty("epochGroup.protocolParameters")),
-                    ((Map<String, Object>)wiz.getProperty("epochGroup.deviceParameters")));
+                    ((Map<String, Object>)wiz.getProperty(combine(objectPrefix, "protocolParameters"))),
+                    ((Map<String, Object>)wiz.getProperty(combine(objectPrefix, "deviceParameters"))));
         }
         else if (parentEntity instanceof EpochGroup)
         {
-            ((EpochGroup)parentEntity).insertEpochGroup((String)wiz.getProperty("epochGroup.label"),
-                    ((DateTime)wiz.getProperty("epochGroup.start")),
+            ((EpochGroup)parentEntity).insertEpochGroup((String)wiz.getProperty(combine(objectPrefix, "label")),
+                    ((DateTime)wiz.getProperty(combine(objectPrefix, "start"))),
                     protocol,
-                    ((Map<String, Object>)wiz.getProperty("epochGroup.protocolParameters")),
-                    ((Map<String, Object>)wiz.getProperty("epochGroup.deviceParameters")));
+                    ((Map<String, Object>)wiz.getProperty(combine(objectPrefix, "protocolParameters"))),
+                    ((Map<String, Object>)wiz.getProperty(combine(objectPrefix, "deviceParameters"))));
         }
     }
 }

@@ -12,33 +12,19 @@ import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.Protocol;
+import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 public class SelectProtocolController extends BasicWizardPanel {
-
-    private String epochName;
-    private String previousEpochName;
     
-    private int epochNum;
+    String objectPrefix;
     
-    public SelectProtocolController()
+    public SelectProtocolController(String objectPrefix)
     {
-        this(-1);
-    }
-  
-    public SelectProtocolController(int num)
-    {
-        epochNum = num;
-        if (num == -1)
-            epochName = "epoch";
-        else
-            epochName = "epoch" + num;
-        
-        if (num == 0)
-            previousEpochName = "epoch";
-        else
-            previousEpochName = "epoch" + (num-1);
+         if (objectPrefix == null || objectPrefix.isEmpty())
+            throw new OvationException("No object prefix set for Protocol Selector");
+         this.objectPrefix = objectPrefix;
     }
     @Override
     public JPanel getComponent() {
@@ -58,21 +44,19 @@ public class SelectProtocolController extends BasicWizardPanel {
     }
 
     @Override
-    public boolean isValid() {
-        return true;
-    }
-
-
-    @Override
     public void storeSettings(WizardDescriptor wiz) {
         Protocol protocol = ((ProtocolSelector)component).getProtocol();
         if (protocol != null)
-            wiz.putProperty("epochGroup.protocol", protocol);
+            wiz.putProperty(objectPrefix + ".protocol", protocol);
         else{
             Map<String, String> newProtocols = ((ProtocolSelector)component).getNewProtocols();
             String name = ((ProtocolSelector)component).getProtocolName();
-            wiz.putProperty("epochGroup.newProtocols", newProtocols);
-            wiz.putProperty("epochGroup.protocolName", name);
+            wiz.putProperty(objectPrefix + ".newProtocols", newProtocols);
+            wiz.putProperty(objectPrefix + ".protocolName", name);
         }
+    }
+
+    @Override
+    public void readSettings(WizardDescriptor data) {
     }
 }

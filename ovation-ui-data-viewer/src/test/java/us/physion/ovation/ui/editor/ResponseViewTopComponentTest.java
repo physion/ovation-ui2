@@ -112,7 +112,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         
         NumericData.Data data;
         try {
-            data = NumericMeasurementUtils.getNumericData(r).get().getData().values().iterator().next();
+            data = NumericDataElements.getNumericData(r).get().getData().values().iterator().next();
         } catch (Exception ex) {
             throw new OvationException(ex.getLocalizedMessage());
         }
@@ -156,7 +156,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         
         NumericData.Data data;
         try {
-            data = NumericMeasurementUtils.getNumericData(r).get().getData().values().iterator().next();
+            data = NumericDataElements.getNumericData(r).get().getData().values().iterator().next();
         } catch (InterruptedException ex) {
             throw new OvationException(ex.getLocalizedMessage());
         } catch (ExecutionException ex) {

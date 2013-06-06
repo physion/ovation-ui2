@@ -20,6 +20,7 @@ import net.imglib2.img.*;
 import net.imglib2.io.ImgOpener;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.mixin.DataElement;
 
 
 /**
@@ -76,12 +77,12 @@ System.out.println(ex);
     }
 
     @Override
-	public boolean shouldAdd(Measurement r) {
+	public boolean shouldAdd(DataElement r) {
         return false;
     }
 
     @Override
-	public void add(Measurement r) {
+	public void add(DataElement r) {
         throw new UnsupportedOperationException("Not supported for this image visualization.");
     }    
 }

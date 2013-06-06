@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.openide.util.ChangeSupport;
+import us.physion.ovation.ui.interfaces.DateTimePicker;
 
 public final class InsertProjectVisualPanel1 extends JPanel {
 
@@ -28,7 +29,7 @@ public final class InsertProjectVisualPanel1 extends JPanel {
         projectName = "";
         projectPurpose = "";
         
-        startPicker = DatePickerUtilities.createDateTimePicker();
+        startPicker = DatePickers.createDateTimePicker();
         startPicker.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
@@ -38,7 +39,7 @@ public final class InsertProjectVisualPanel1 extends JPanel {
             }
         });
         
-        startTimezoneComboBox.setSelectedItem(DatePickerUtilities.getID(startPicker));
+        startTimezoneComboBox.setSelectedItem(DatePickers.getID(startPicker));
         startPane.setViewportView(startPicker);
         
         start = null;
@@ -150,7 +151,7 @@ public final class InsertProjectVisualPanel1 extends JPanel {
         startPane.setOpaque(false);
         startPane.setPreferredSize(new java.awt.Dimension(200, 30));
 
-        startTimezoneComboBox.setModel(new javax.swing.DefaultComboBoxModel(DatePickerUtilities.getTimeZoneIDs()));
+        startTimezoneComboBox.setModel(new javax.swing.DefaultComboBoxModel(DatePickers.getTimeZoneIDs()));
         startTimezoneComboBox.setPreferredSize(new java.awt.Dimension(180, 30));
         startTimezoneComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

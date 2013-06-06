@@ -4,7 +4,7 @@
  */
 package us.physion.ovation.ui.editor;
 
-import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.mixin.DataElement;
 
 
 /**
@@ -12,6 +12,6 @@ import us.physion.ovation.domain.Measurement;
  * @author huecotanks
  */
 public interface VisualizationFactory {
-    public Visualization createVisualization(Measurement r);
-    public int getPreferenceForDataContainer(Measurement r);
+    public Visualization createVisualization(DataElement r);
+    public int getPreferenceForDataContainer(DataElement r);
 }

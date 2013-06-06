@@ -22,6 +22,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import org.openide.util.Exceptions;
 import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.mixin.DataElement;
 
 
 /**
@@ -32,7 +33,7 @@ public class DefaultImageWrapper implements Visualization{
 
     String name;
     BufferedImage img;
-    DefaultImageWrapper(Measurement r)
+    DefaultImageWrapper(DataElement r)
     {
         InputStream in = null;
         try {
@@ -69,12 +70,12 @@ public class DefaultImageWrapper implements Visualization{
     
 
     @Override
-    public boolean shouldAdd(Measurement r) {
+    public boolean shouldAdd(DataElement r) {
         return false;
     }
 
     @Override
-    public void add(Measurement r) {
+    public void add(DataElement r) {
         throw new UnsupportedOperationException("Images are currently implemented one per panel");
     }
     

@@ -5,8 +5,7 @@
 package us.physion.ovation.ui.editor;
 
 import java.awt.Component;
-import java.util.List;
-import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.mixin.DataElement;
 
 /**
  *
@@ -15,7 +14,7 @@ import us.physion.ovation.domain.Measurement;
 public interface Visualization {
     public Component generatePanel();
     
-    public boolean shouldAdd(Measurement r);
+    public boolean shouldAdd(DataElement r);
     
-    public void add(Measurement r);
+    public void add(DataElement r);
 }

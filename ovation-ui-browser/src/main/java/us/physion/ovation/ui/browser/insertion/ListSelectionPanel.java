@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package us.physion.ovation.ui.importer;
+package us.physion.ovation.ui.browser.insertion;
 
 import java.awt.Component;
 import java.util.*;
@@ -12,7 +12,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.*;
 import org.openide.util.ChangeSupport;
-import us.physion.ovation.ui.importer.ListSelectionPanel.CheckboxTableModel.CheckboxElement;
+import us.physion.ovation.ui.browser.insertion.ListSelectionPanel.CheckboxTableModel.CheckboxElement;
 import us.physion.ovation.ui.interfaces.ZebraTable;
 
 /**
@@ -95,7 +95,7 @@ public class ListSelectionPanel extends javax.swing.JPanel {
        jTable1.setDefaultEditor(Object.class, tce);
     }
     
-    Set<String> getNames()
+    public Set<String> getNames()
     {
         return tableModel.getSelectedNames();
     }

@@ -15,8 +15,8 @@ import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.browser.insertion.BasicWizardPanel;
+import us.physion.ovation.ui.browser.insertion.NamedSourceSelector;
 import us.physion.ovation.ui.browser.insertion.ProtocolSelector;
-import us.physion.ovation.ui.browser.insertion.SourceSelector;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 /**

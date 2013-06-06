@@ -16,7 +16,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import org.openide.util.Exceptions;
-import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 
 public class TabularDataWrapper implements Visualization {
@@ -26,7 +26,7 @@ public class TabularDataWrapper implements Visualization {
 
     TabularDataWrapper(){};
     
-    TabularDataWrapper(Measurement r) 
+    TabularDataWrapper(DataElement r) 
     {
         try {
             InputStream in;
@@ -84,12 +84,12 @@ public class TabularDataWrapper implements Visualization {
     }
 
     @Override
-    public boolean shouldAdd(Measurement r) {
+    public boolean shouldAdd(DataElement r) {
         return false;
     }
 
     @Override
-    public void add(Measurement r) {
+    public void add(DataElement r) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

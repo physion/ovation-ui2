@@ -14,7 +14,7 @@ import java.net.MalformedURLException;
 import java.util.concurrent.ExecutionException;
 import org.openide.util.Exceptions;
 import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 
 @ServiceProvider(service = VisualizationFactory.class)
@@ -25,7 +25,7 @@ import us.physion.ovation.exceptions.OvationException;
     public class ImageJVisualizationFactory implements VisualizationFactory{
 
     @Override
-    public Visualization createVisualization(Measurement r) {
+    public Visualization createVisualization(DataElement r) {
         try {
             return new ImageJVisualization(r.getData().get());
             /*try {
@@ -80,7 +80,7 @@ import us.physion.ovation.exceptions.OvationException;
     }
 
     @Override
-    public int getPreferenceForDataContainer(Measurement r) {
+    public int getPreferenceForDataContainer(DataElement r) {
         if (r.getDataContentType().toLowerCase().contains("tif")) {
             return 110;
         }

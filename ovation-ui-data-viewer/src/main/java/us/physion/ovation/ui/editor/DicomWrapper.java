@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.openide.util.Exceptions;
-import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.mixin.DataElement;
 
 /**
  *
@@ -28,7 +28,7 @@ public class DicomWrapper implements Visualization {
     String name;
     SourceImage src;
 
-    DicomWrapper(Measurement r) {
+    DicomWrapper(DataElement r) {
         DicomInputStream in = null;
         try {
             in = new DicomInputStream(new FileInputStream(r.getData().get()));
@@ -64,12 +64,12 @@ public class DicomWrapper implements Visualization {
     }
 
     @Override
-    public boolean shouldAdd(Measurement r) {
+    public boolean shouldAdd(DataElement r) {
         return false;
     }
 
     @Override
-    public void add(Measurement r) {
+    public void add(DataElement r) {
         throw new UnsupportedOperationException("Dicoms are not displayed in groups");
     }
     

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package us.physion.ovation.ui.importer;
+package us.physion.ovation.ui.browser.insertion;
 
 import java.awt.Component;
 import java.util.List;
@@ -22,13 +22,11 @@ public class KeyValueController extends BasicWizardPanel{
     String name;
     String description;
     String wizardDescriptorKey;
-    int epochNumber;
-    public KeyValueController(int epochNumber, String name, String description, String wizardDescriptorKey)
+    public KeyValueController(String name, String description, String wizardDescriptorKey)
     {
         this.name = name;
         this.description = description;
         this.wizardDescriptorKey = wizardDescriptorKey;
-        this.epochNumber = epochNumber;
     }
     
     @Override
@@ -58,7 +56,7 @@ public class KeyValueController extends BasicWizardPanel{
         KeyValuePanel panel = (KeyValuePanel) getComponent();
         panel.setParameters((Map<String, Object>)o);
     }
-    
+    //TODO: cleanup this logic
     @Override
     public void storeSettings(WizardDescriptor data) {
         KeyValuePanel panel = (KeyValuePanel) getComponent();

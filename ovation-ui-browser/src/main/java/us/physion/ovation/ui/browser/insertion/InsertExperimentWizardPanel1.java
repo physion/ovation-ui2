@@ -48,4 +48,8 @@ class InsertExperimentWizardPanel1 extends BasicWizardPanel {
         wiz.putProperty("experiment.purpose", purpose);
         wiz.putProperty("experiment.start", start);
     }
+
+    @Override
+    public void readSettings(WizardDescriptor data) {
+    }
 }

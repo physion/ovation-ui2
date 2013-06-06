@@ -60,10 +60,7 @@ public class SourceSelector extends javax.swing.JPanel {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Sources");
         for (Source s : ctx.getTopLevelSources())
         {
-            if (!s.getParentSources().iterator().hasNext())
-            {
-                root.add(new DefaultMutableTreeNode(new EntityWrapper(s)));
-            }
+            root.add(new DefaultMutableTreeNode(new EntityWrapper(s)));
         }
         if (!root.isLeaf()) {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) root.getFirstChild();

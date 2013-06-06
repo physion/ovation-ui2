@@ -24,6 +24,7 @@ import ovation.*;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
+import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -219,6 +220,13 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                 }
             } finally {
                 context.commitTransaction();
+            }
+        } else if(AnalysisRecord.class.isAssignableFrom(entityClass))
+        {
+            AnalysisRecord entity = (AnalysisRecord) ew.getEntity();
+            for(DataElement d : entity.getOutputs().values())
+            {
+                list.add(new EntityWrapper(d));
             }
         }
         return list;

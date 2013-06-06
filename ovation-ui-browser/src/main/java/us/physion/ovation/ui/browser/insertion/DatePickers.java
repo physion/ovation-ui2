@@ -11,12 +11,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.TimeZone;
 import org.joda.time.DateTimeZone;
+import us.physion.ovation.ui.interfaces.DateTimePicker;
 
 /**
  *
  * @author huecotanks
  */
-public class DatePickerUtilities {
+public class DatePickers {
     static String[] availableIDs;
     static DateTimePicker createDateTimePicker()
     {

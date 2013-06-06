@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 import org.openide.WizardDescriptor;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.browser.insertion.BasicWizardPanel;
-import us.physion.ovation.ui.browser.insertion.SourceSelector;
+import us.physion.ovation.ui.browser.insertion.ListSelectionPanel;
 
 /**
  *

@@ -53,4 +53,8 @@ public class InsertProjectWizardPanel1 extends BasicWizardPanel{
         wiz.putProperty("project.start", c.getStart());
         // use wiz.putProperty to remember current panel state
     }
+
+    @Override
+    public void readSettings(WizardDescriptor data) {
+    }
 }

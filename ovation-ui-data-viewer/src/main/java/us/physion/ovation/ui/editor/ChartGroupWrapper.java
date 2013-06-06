@@ -5,7 +5,6 @@
 package us.physion.ovation.ui.editor;
 
 import java.awt.Font;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -18,15 +17,12 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.ui.RectangleInsets;
-import org.openide.util.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.physion.ovation.domain.NumericDataElements;
 import us.physion.ovation.exceptions.OvationException;
-import us.physion.ovation.domain.Measurement;
-import us.physion.ovation.domain.NumericMeasurementUtils;
 import us.physion.ovation.values.NumericData;
-import us.physion.ovation.values.NumericData.Data;
-import ucar.ma2.DataType;
+import us.physion.ovation.domain.mixin.DataElement;
 
 /**
  *
@@ -161,10 +157,10 @@ class ChartGroupWrapper implements Visualization
     }
 
     @Override
-    public boolean shouldAdd(Measurement r) {
+    public boolean shouldAdd(DataElement r) {
         NumericData data;
         try {
-            data = NumericMeasurementUtils.getNumericData(r).get();
+            data = NumericDataElements.getNumericData(r).get();
         } catch (InterruptedException ex) {
             throw new OvationException(ex);
         } catch (ExecutionException ex) {
@@ -179,11 +175,11 @@ class ChartGroupWrapper implements Visualization
     }
 
     @Override
-    public void add(Measurement r) {
+    public void add(DataElement r) {
         String preface = "Aggregate responses: ";
         NumericData data;
         try{
-            data = NumericMeasurementUtils.getNumericData(r).get();
+            data = NumericDataElements.getNumericData(r).get();
         } catch (Exception e)
         {
             throw new OvationException(e.getLocalizedMessage());
