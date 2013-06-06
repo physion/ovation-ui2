@@ -176,6 +176,10 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
             for (EpochGroup eg : entity.getEpochGroups()) {
                 list.add(new EntityWrapper(eg));
             }
+            for (Epoch e : entity.getEpochs())
+            {
+                list.add(new EntityWrapper(e));
+            }
             return list;
         } else if (EpochGroup.class.isAssignableFrom(entityClass)) {
             EpochGroup entity = (EpochGroup) ew.getEntity();
