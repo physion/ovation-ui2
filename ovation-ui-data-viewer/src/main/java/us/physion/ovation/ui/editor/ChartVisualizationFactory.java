@@ -4,13 +4,14 @@
  */
 package us.physion.ovation.ui.editor;
 
-import java.util.concurrent.ExecutionException;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.NumericDataElements;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.values.NumericData;
+
+import java.util.concurrent.ExecutionException;
 
 @ServiceProvider(service = VisualizationFactory.class)
 /**
@@ -34,10 +35,10 @@ public class ChartVisualizationFactory implements VisualizationFactory{
             } catch (ExecutionException ex) {
                 throw new OvationException(ex.getMessage());
             }
-        
+
         ChartGroupWrapper g = new ChartGroupWrapper(new DefaultXYDataset(), data);
         g.setTitle(r.getName());
-        
+
         for (NumericData.Data d : data.getData().values())
         {
             g.addXYDataset(d);

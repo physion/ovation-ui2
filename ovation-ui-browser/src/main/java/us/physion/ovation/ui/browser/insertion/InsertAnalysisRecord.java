@@ -4,16 +4,7 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
-import java.awt.event.ActionEvent;
-import java.text.MessageFormat;
-import java.util.*;
-import javax.swing.AbstractAction;
-import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
-import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
-import org.openide.util.lookup.ServiceProvider;
-import org.openide.util.lookup.ServiceProviders;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
@@ -77,7 +68,7 @@ public class InsertAnalysisRecord extends InsertEntity implements ProjectInserta
         }
 
     }
-    
+
     @Override
     public int getPosition() {
         return 300;

@@ -5,20 +5,20 @@
 package us.physion.ovation.ui.database;
 
 import org.openide.modules.ModuleInstall;
-import org.openide.util.Lookup;
+import us.physion.ovation.logging.Logging;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import us.physion.ovation.api.Ovation;
 
 public class Installer extends ModuleInstall {
 
     private ConnectionProvider dbc;
     @Override
     public synchronized void restored() {
-        
+
         if (dbc == null)
         {
+            Logging.configureRootLoggerRollingAppender();
             dbc = new DatabaseConnectionProvider();
-            dbc.getConnection();
+//            dbc.getConnection();
         }
         // Set the displayed version number from API marketing version
         /*if(Ovation.getVersion() != null) {

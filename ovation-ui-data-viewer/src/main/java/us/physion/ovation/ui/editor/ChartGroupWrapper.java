@@ -4,11 +4,6 @@
  */
 package us.physion.ovation.ui.editor;
 
-import java.awt.Font;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -36,13 +31,13 @@ class ChartGroupWrapper implements Visualization
     String _yAxis;
     String _title;
     Map<String, Integer> dsCardinality;
-    
+
     ChartGroupWrapper(DefaultXYDataset ds, NumericData data)
     {
         NumericData.Data d = data.getData().values().iterator().next();
         String xAxis = convertSamplingRateUnitsToGraphUnits(d.samplingRateUnits[0]);
         String yAxis = d.units;
-        
+
         _ds = ds;
         _xAxis = xAxis;
         _yAxis = yAxis;
@@ -53,7 +48,7 @@ class ChartGroupWrapper implements Visualization
     String getYAxis() { return _yAxis;}
     void setTitle(String s) {_title = s;}
     String getTitle() {return _title;}
-    
+
     ChartPanel generateChartPanel()
     {
         JFreeChart chart = ChartFactory.createXYLineChart(getTitle(), getXAxis(), getYAxis(), getDataset(), PlotOrientation.VERTICAL, true, true, true);
@@ -66,17 +61,17 @@ class ChartGroupWrapper implements Visualization
         plot.getRangeAxis().setLabelFont(new Font("Times New Roman", 1, 15));//new Font("timesnewroman", Font.LAYOUT_LEFT_TO_RIGHT, 15));
         return p;
     }
-    
+
     private TextTitle convertTitle(String s)
     {
         return new TextTitle(s, new Font("Times New Roman", 1, 20));
     }
-    
+
     public JPanel generatePanel()
     {
         return generateChartPanel();
     }
-    
+
     protected void addXYDataset(NumericData.Data d) {
         if (d == null) {
             return;
