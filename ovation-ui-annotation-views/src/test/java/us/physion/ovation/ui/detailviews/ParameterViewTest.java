@@ -4,30 +4,28 @@
  */
 package us.physion.ovation.ui.detailviews;
 
-import com.google.common.collect.Sets;
-import java.util.*;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
+import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
-import org.junit.*;
-import org.openide.util.Exceptions;
+import org.junit.Test;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ServiceProvider;
-import ovation.*;
-import us.physion.ovation.ui.interfaces.*;
-import org.junit.AfterClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.BeforeClass;
-import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
-import us.physion.ovation.ui.*;
+import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.ui.ScrollableTableTree;
+import us.physion.ovation.ui.TableTreeKey;
+import us.physion.ovation.ui.interfaces.ConnectionListener;
+import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.ui.interfaces.IEntityWrapper;
+import us.physion.ovation.ui.interfaces.TestEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
-import us.physion.ovation.values.NumericData;
+
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @ServiceProvider(service = Lookup.Provider.class)
 /**
@@ -35,23 +33,23 @@ import us.physion.ovation.values.NumericData;
  * @author huecotanks
  */
 public class ParameterViewTest extends OvationTestCase implements Lookup.Provider, ConnectionProvider{
-        
+
     private Lookup l;
     InstanceContent ic;
     private ParametersTopComponent t;
-    
+
     public ParameterViewTest() {
         ic = new InstanceContent();
         l = new AbstractLookup(ic);
     }
-    
+
     public void setUp() {
         super.setUp();
         t = new ParametersTopComponent();
         t.setTableTree(new DummyTableTree());
         ic.add(this);
     }
-    
+
     private Epoch createEpochWithProtocolParameters(Map<String, Object> params)
     {
         String UNUSED_NAME = "name";
@@ -59,14 +57,14 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         DateTime UNUSED_START = new DateTime(0);
         Source source = ctx.insertSource("source", "1");
         Project p = ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
-        
+
         Map<String, Source> input = new HashMap();
         input.put("subject", source);
-        
+
         return p.insertExperiment("purpose", UNUSED_START).insertEpochGroup("label", UNUSED_START, null, null, null).insertEpoch(input, null, UNUSED_START, UNUSED_START, null, params, null);
-        
+
     }
-    
+
     private Epoch createEpochWithDeviceParameters(Map<String, Object> params)
     {
         String UNUSED_NAME = "name";
@@ -74,14 +72,14 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         DateTime UNUSED_START = new DateTime(0);
         Source source = ctx.insertSource("source", "1");
         Project p = ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
-        
+
         Map<String, Source> input = new HashMap();
         input.put("subject", source);
-        
+
         return p.insertExperiment("purpose", UNUSED_START).insertEpochGroup("label", UNUSED_START, null, null, null).insertEpoch(input, null, UNUSED_START, UNUSED_START, null, null, params);
-        
+
     }
-    
+
     /*TODO: test this somewhere
      * @Test
     public void testGetsProperTreeNodeStructure() throws InterruptedException {
@@ -101,22 +99,22 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         assertTrue(((DefaultMutableTreeNode) currentUserNode.getChildAt(0)) instanceof TableNode);
         assertEquals(currentUserNode.getChildCount(), 1);
     }*/
-    
+
     @Test
     public void testGetsProtocolParametersAppropriatelyForEpochs()
     {
         Set<IEntityWrapper> entitySet = new HashSet<IEntityWrapper>();
-        
+
         Map<String, Object> epochParams = new HashMap();
         epochParams.put("thing1", "thing2");
         entitySet.add(new TestEntityWrapper(ctx, createEpochWithProtocolParameters(epochParams)));
-        
+
         epochParams.put("thing1", "thing4");
         epochParams.put("thing3", "thing4");
         entitySet.add(new TestEntityWrapper(ctx, createEpochWithProtocolParameters(epochParams)));
-        
+
         List<TableTreeKey> params = t.setEntities(entitySet);
-        
+
         assertEquals(params.size(), 2);
         assertTrue(params.get(1) instanceof ParameterSet);
         ParameterSet protocolParams = (ParameterSet)params.get(1);
@@ -130,22 +128,22 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         }
         assertTrue(TableTreeUtils.setsEqual(TableTreeUtils.getTuples(protocolParams), databaseParams));
     }
-    
+
     @Test
     public void testGetsDeviceParametersAppropriatelyForEpochs()
     {
         Set<IEntityWrapper> entitySet = new HashSet<IEntityWrapper>();
-        
+
         Map<String, Object> epochParams = new HashMap();
         epochParams.put("thing1", "thing2");
         entitySet.add(new TestEntityWrapper(ctx, createEpochWithDeviceParameters(epochParams)));
-        
+
         epochParams.put("thing1", "thing4");
         epochParams.put("thing3", "thing4");
         entitySet.add(new TestEntityWrapper(ctx, createEpochWithDeviceParameters(epochParams)));
-        
+
         List<TableTreeKey> params = t.setEntities(entitySet);
-        
+
         assertEquals(params.size(), 2);
         assertTrue(params.get(0) instanceof ParameterSet);
         ParameterSet deviceParams = (ParameterSet)params.get(0);
@@ -158,30 +156,30 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
             aggregateDatabaseParams(databaseParams, ps);
         }
         assertTrue(TableTreeUtils.setsEqual(TableTreeUtils.getTuples(deviceParams), databaseParams));
-   
+
                 }
-    
+
     @Test
     public void testGetsParametersAppropriatelyForAnalysisRecords()
     {
         Set<IEntityWrapper> entitySet = new HashSet<IEntityWrapper>();
-        
+
         Protocol protocol = ctx.insertProtocol("protocol-name", "protocol-doc");
-        
+
         Epoch epoch = createEpochWithProtocolParameters(new HashMap());
-        
+
         Map<String, Object> analysisProtocolParams = new HashMap();
         analysisProtocolParams.put("thing1", "thing2");
-        AnalysisRecord a1 = epoch.insertAnalysisRecord("a1", new HashSet(), new HashMap(), new HashSet(), protocol, analysisProtocolParams);
+        AnalysisRecord a1 = epoch.insertAnalysisRecord("a1", Maps.<String,DataElement>newHashMap(), protocol, analysisProtocolParams);
         entitySet.add(new TestEntityWrapper(ctx, a1));
-        
+
         analysisProtocolParams.put("thing1", "thing4");
         analysisProtocolParams.put("thing3", "thing4");
-        AnalysisRecord a2 = epoch.insertAnalysisRecord("a1", new HashSet(), new HashMap(), new HashSet(), protocol, analysisProtocolParams);
+        AnalysisRecord a2 = epoch.insertAnalysisRecord("a1", Maps.<String,DataElement>newHashMap(), protocol, analysisProtocolParams);
         entitySet.add(new TestEntityWrapper(ctx, a2));
-        
+
         List<TableTreeKey> params = t.setEntities(entitySet);
-        
+
         assertEquals(params.size(), 1);
         assertTrue(params.get(0) instanceof ParameterSet);
         ParameterSet deviceParams = (ParameterSet)params.get(0);
@@ -195,7 +193,7 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         }
         assertTrue(TableTreeUtils.setsEqual(TableTreeUtils.getTuples(deviceParams), databaseParams));
     }
-    
+
     @Override
     public Lookup getLookup() {
         return l;
@@ -217,7 +215,7 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
     }
 
         static Set<Tuple> getAggregateUserProperties(User u, Set<IEntityWrapper> entities) {
-        
+
         Set<Tuple> databaseProps = new HashSet<Tuple>();
         for (IEntityWrapper ew : entities) {
             Map<String, Object> props = ((AnnotatableEntity)ew.getEntity()).getUserProperties(u);
@@ -240,13 +238,13 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
                     s2.remove(t2);
                     break;
                 }
-            }    
-                
+            }
+
         }
         assertTrue(s2.isEmpty());
         //assertTrue(s1.containsAll(s2));
     }
-    
+
     Set<Tuple> getPropertiesByKey(String key, Set<Tuple> props)
     {
         Set<Tuple> result = new HashSet<Tuple>();
@@ -259,18 +257,18 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
         }
         return result;
     }
-    
+
     private Set<Tuple> getProperties(ScrollableTableTree t, String userURI) {
         Set<Tuple> properties = new HashSet<Tuple>();
         TableTreeKey k = t.getTableKey(userURI);
         if (k == null)
         {
             return properties;
-        }    
-        
+        }
+
         if (!(k instanceof ParameterSet))
             throw new RuntimeException("Wrong type!");
-        
+
         Object[][] data = ((ParameterSet)k).getData();
         //DefaultTableModel m = ((DefaultTableModel) ((TableInTreeCellRenderer) t.getTree().getCellRenderer()).getTableModel(k));
         for (int i  = 0; i < data.length; ++i)

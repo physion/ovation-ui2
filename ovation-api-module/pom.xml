@@ -41,43 +41,44 @@
             <version>${netbeans.version}</version>
         </dependency>
 
-	<dependency>
-	  <groupId>us.physion</groupId>
-	  <artifactId>ovation-api</artifactId>
-	  <version>${ovation.api.version}</version>
-	</dependency>
-	
-	<dependency>
+        <dependency>
             <groupId>us.physion</groupId>
-            <artifactId>ovation-test-utils</artifactId>
-            <version>2.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-<!--
-	<dependency>
-	  <groupId>us.physion</groupId>
-	  <artifactId>expression-tree</artifactId>
-	  <version>2.0-SNAPSHOT</version>
-	</dependency>
--->
-	<dependency>
-	  <groupId>org.swinglabs</groupId>
-	  <artifactId>swingx</artifactId>
-	  <version>0.9.2</version>
-	</dependency>
-	<dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.0.7</version>
+            <artifactId>ovation-api</artifactId>
+            <version>${ovation.api.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>us.physion</groupId>
+            <artifactId>ovation-test-utils</artifactId>
+            <version>${ovation.api.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>us.physion</groupId>
+            <artifactId>ovation-logging</artifactId>
+            <version>${ovation.api.version}</version>
+        </dependency>
+
+        <!--
+            <dependency>
+              <groupId>us.physion</groupId>
+              <artifactId>expression-tree</artifactId>
+              <version>2.0-SNAPSHOT</version>
+            </dependency>
+        -->
+        <dependency>
+            <groupId>org.swinglabs</groupId>
+            <artifactId>swingx</artifactId>
+            <version>0.9.2</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
-				<artifactId>nbm-maven-plugin</artifactId>
+                <artifactId>nbm-maven-plugin</artifactId>
                 <version>${nbm.plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
@@ -88,9 +89,9 @@
                         <publicPackage>com.google.common.collect.*</publicPackage>
                         <publicPackage>com.google.common.util.concurrent.*</publicPackage>
                         <publicPackage>com.google.inject.*</publicPackage>
-			<publicPackage>com.google.common.eventbus.*</publicPackage>
-			<publicPackage>com.google.common.io.*</publicPackage>
-			<publicPackage>com.google.common.cache.*</publicPackage>
+                        <publicPackage>com.google.common.eventbus.*</publicPackage>
+                        <publicPackage>com.google.common.io.*</publicPackage>
+                        <publicPackage>com.google.common.cache.*</publicPackage>
                         <publicPackage>edu.wisc.ssec.mcidas.*</publicPackage>
                         <publicPackage>edu.wisc.ssec.mcidas.adde.*</publicPackage>
                         <publicPackage>loci.formats.*</publicPackage>
@@ -98,23 +99,25 @@
                         <publicPackage>org.apache.commons.httpclient.*</publicPackage>
                         <publicPackage>org.apache.commons.logging</publicPackage>
                         <publicPackage>org.apache.commons.logging.impl</publicPackage>
+                        <publicPackage>org.apache.commons.io.*</publicPackage>
                         <publicPackage>org.apache.log4j.*</publicPackage>
                         <publicPackage>org.jdesktop.swingx.*</publicPackage>
                         <publicPackage>org.jdom.*</publicPackage>
                         <publicPackage>org.joda.time.*</publicPackage>
                         <publicPackage>org.slf4j.*</publicPackage>
                         <publicPackage>ucar.ma2.*</publicPackage>
-			<publicPackage>ucar.grib.*</publicPackage>
+                        <publicPackage>ucar.grib.*</publicPackage>
                         <publicPackage>ucar.grib.grib1.*</publicPackage>
                         <publicPackage>ucar.grib.grib2.*</publicPackage>
                         <publicPackage>us.physion.cloud.*</publicPackage>
                         <publicPackage>us.physion.ovation.*</publicPackage>
-			<publicPackage>us.physion.ovation.domain.*</publicPackage>
-			<publicPackage>us.physion.ovation.api.*</publicPackage>
-			<publicPackage>us.physion.ovation.domain.repositories.*</publicPackage>
+                        <publicPackage>us.physion.ovation.domain.*</publicPackage>
+                        <publicPackage>us.physion.ovation.api.*</publicPackage>
+                        <publicPackage>us.physion.ovation.domain.repositories.*</publicPackage>
+                        <publicPackage>us.physion.ovation.logging.*</publicPackage>
                         <publicPackage>visad.jmet</publicPackage>
-			<publicPackage>javax.inject.*</publicPackage>
-			<publicPackage>com.mchange.v2.c3p0.*</publicPackage>
+                        <publicPackage>javax.inject.*</publicPackage>
+                        <publicPackage>com.mchange.v2.c3p0.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
