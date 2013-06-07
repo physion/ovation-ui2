@@ -5,18 +5,21 @@
 package us.physion.ovation.ui.browser.insertion;
 
 import org.openide.WizardDescriptor;
+import org.openide.util.lookup.ServiceProvider;
+import org.openide.util.lookup.ServiceProviders;
 import us.physion.ovation.DataStoreCoordinator;
-import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.domain.mixin.DataElement;
-import us.physion.ovation.ui.interfaces.EpochGroupInsertable;
 import us.physion.ovation.ui.interfaces.EpochInsertable;
-import us.physion.ovation.ui.interfaces.ExperimentInsertable;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ProjectInsertable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @ServiceProviders(value={
     @ServiceProvider(service=ProjectInsertable.class),
