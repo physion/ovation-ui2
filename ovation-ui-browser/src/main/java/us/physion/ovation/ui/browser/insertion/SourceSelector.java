@@ -113,7 +113,7 @@ public class SourceSelector extends javax.swing.JPanel {
      * Creates new form SourceSelector
      */
     public SourceSelector(ChangeSupport changeSupport, IEntityWrapper source) {
-        this(changeSupport, source, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection().getContext());
+        this(changeSupport, source, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
     }
     public SourceSelector(ChangeSupport changeSupport, IEntityWrapper source, DataContext ctx) {
         initComponents();

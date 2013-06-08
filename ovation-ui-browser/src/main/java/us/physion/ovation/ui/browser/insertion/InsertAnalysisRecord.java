@@ -4,7 +4,13 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.openide.WizardDescriptor;
+import org.openide.util.lookup.ServiceProvider;
+import org.openide.util.lookup.ServiceProviders;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
@@ -47,7 +53,7 @@ public class InsertAnalysisRecord extends InsertEntity implements ProjectInserta
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wiz, DataStoreCoordinator dsc, IEntityWrapper parent)
+    public void wizardFinished(WizardDescriptor wiz, DataContext c, IEntityWrapper parent)
     {
         OvationEntity parentEntity = parent.getEntity();
         Protocol protocol = getProtocolFromProtocolSelector(parentEntity.getDataContext(),

@@ -41,6 +41,7 @@ import org.openide.util.Lookup;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.ServiceProvider;
 import ovation.*;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.exceptions.OvationException;
@@ -120,7 +121,7 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wd, DataStoreCoordinator dsc, IEntityWrapper iew) {
+    public void wizardFinished(WizardDescriptor wd, DataContext c, IEntityWrapper iew) {
         EpochGroup eg = ((EpochGroup)iew.getEntity());
         Experiment exp = eg.getExperiment();
         

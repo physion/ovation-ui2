@@ -10,11 +10,10 @@ import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
-import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 public class SelectProtocolController extends BasicWizardPanel {
     
@@ -29,8 +28,8 @@ public class SelectProtocolController extends BasicWizardPanel {
     @Override
     public JPanel getComponent() {
         if (component == null) {
-            DataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
-            component = new ProtocolSelector(changeSupport, dsc);//Protocol
+            DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+            component = new ProtocolSelector(changeSupport, ctx);//Protocol
         }
         return component;
     }

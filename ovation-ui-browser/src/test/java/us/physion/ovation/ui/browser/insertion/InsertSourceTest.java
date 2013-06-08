@@ -42,7 +42,7 @@ public class InsertSourceTest extends OvationTestCase
         d.putProperty("source.label", label);
         d.putProperty("source.identifier", identifier);
         
-        new InsertSource().wizardFinished(d, dsc, null);
+        new InsertSource().wizardFinished(d, ctx, null);
         
         Source s = ctx.getTopLevelSources().iterator().next();
         TestCase.assertEquals(s.getLabel(), label);

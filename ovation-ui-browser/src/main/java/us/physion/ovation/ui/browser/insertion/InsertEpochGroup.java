@@ -51,7 +51,7 @@ public class InsertEpochGroup extends InsertEntity implements EpochGroupInsertab
     }
     
     @Override
-    public void wizardFinished(WizardDescriptor wiz, DataStoreCoordinator dsc, IEntityWrapper parent)
+    public void wizardFinished(WizardDescriptor wiz, DataContext c, IEntityWrapper parent)
     {
         OvationEntity parentEntity = parent.getEntity();
         

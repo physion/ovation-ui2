@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.AnnotatableEntity;
 import us.physion.ovation.domain.User;
@@ -50,7 +51,7 @@ class PerUserPropertySet implements TableTreeKey {
     }
 
     @Override
-    public void refresh(DataStoreCoordinator dsc) {
+    public void refresh(DataContext c) {
     }
 
     @Override

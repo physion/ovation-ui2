@@ -74,7 +74,7 @@ public final class TagsViewTopComponent extends TopComponent {
         EventQueueUtilities.runOffEDT(new Runnable() {
             @Override
             public void run() {
-                updateTagList(tagList, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection());
+                updateTagList(tagList);
             }
         });
     }
@@ -82,22 +82,18 @@ public final class TagsViewTopComponent extends TopComponent {
     protected void update()
     {
         entities = global.allInstances();
-        ConnectionProvider cp = Lookup.getDefault().lookup(ConnectionProvider.class);
-        cp.getConnection().getContext(); //getContext
         EventQueueUtilities.runOffEDT(new Runnable()
         {
             @Override
             public void run()
             {
-                update(entities, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection());
+                update(entities, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
             }
         });
     }
 
-    protected List<TableTreeKey> update(Collection<? extends IEntityWrapper> entities, DataStoreCoordinator dsc)
+    protected List<TableTreeKey> update(Collection<? extends IEntityWrapper> entities, DataContext c)
     {
-        DataContext c = dsc.getContext();
-
         ArrayList<TableTreeKey> tags = new ArrayList<TableTreeKey>();
         Set<String> uris = new HashSet<String>();
         Set<OvationEntity> entitybases = new HashSet();
@@ -142,7 +138,7 @@ public final class TagsViewTopComponent extends TopComponent {
         return c.getAuthenticatedUser().getUuid().equals(u.getUuid());
     }
 
-    protected void updateTagList(String[] newTags, DataStoreCoordinator dsc)
+    protected void updateTagList(String[] newTags)
     {
         JTree tree = ((ScrollableTableTree) tagTree).getTree();
         DefaultMutableTreeNode n = (DefaultMutableTreeNode)((DefaultTreeModel)tree.getModel()).getRoot();
@@ -227,8 +223,6 @@ public final class TagsViewTopComponent extends TopComponent {
         if (evt.getActionCommand().equals("comboBoxEdited"))
         {
             //add tag
-            ConnectionProvider cp = Lookup.getDefault().lookup(ConnectionProvider.class);
-            cp.getConnection().getContext(); //getContext
             String tags = addTagComboBox.getSelectedItem().toString();
             addTags(entities, tags);
             tagComboModel.removeAllElements();

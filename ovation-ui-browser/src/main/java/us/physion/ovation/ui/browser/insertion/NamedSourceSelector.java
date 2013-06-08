@@ -41,23 +41,21 @@ import us.physion.ovation.ui.interfaces.ParameterTableModel;
  */
 public class NamedSourceSelector extends javax.swing.JPanel {
     ChangeSupport cs;
-    private DataStoreCoordinator dsc;
     private DataContext context;
     
     JTree sourcesTree;
     ParameterTableModel tableModel; 
     
      public NamedSourceSelector(ChangeSupport cs) {
-         this(cs, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection());
+         this(cs, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
      }
     
     /**
      * Creates new form NamedSourceSelector
      */
-    public NamedSourceSelector(ChangeSupport cs, DataStoreCoordinator dsc) {
+    public NamedSourceSelector(ChangeSupport cs, DataContext c) {
         this.cs = cs;
-        this.dsc = dsc;
-        this.context = dsc.getContext();
+        this.context = c;
         tableModel = new ParameterTableModel(false);//doesnt have the extra row for ui editing
         tableModel.setColumnNames(new String[]{"Name", "Source"});
         tableModel.setEditableFunction(new Function<Point, Boolean>() {
@@ -146,7 +144,7 @@ public class NamedSourceSelector extends javax.swing.JPanel {
 
     private void resetSources() {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Sources");
-        for (Source s : dsc.getContext().getTopLevelSources())
+        for (Source s : context.getTopLevelSources())
         {
             if (!s.getParentSources().iterator().hasNext())
             {

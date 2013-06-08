@@ -50,7 +50,7 @@ public class InsertExperimentTest extends OvationTestCase
         
         Project p = ctx.insertProject("name", "purpose", new DateTime(0));
         IEntityWrapper w = new TestEntityWrapper(ctx, p);
-        new InsertExperiment().wizardFinished(d, dsc, w);
+        new InsertExperiment().wizardFinished(d, ctx, w);
         
         Experiment ex = p.getExperiments().iterator().next();
         TestCase.assertEquals(ex.getPurpose(), purpose);

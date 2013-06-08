@@ -30,7 +30,6 @@ public class ProtocolSelector extends javax.swing.JPanel {
     DefaultListModel listModel;
     
     ChangeSupport cs;
-    private DataStoreCoordinator dsc;
     private DataContext context;
     
     List<Protocol> protocols;
@@ -44,10 +43,9 @@ public class ProtocolSelector extends javax.swing.JPanel {
     /**
      * Creates new form ProtocolSelector
      */
-    public ProtocolSelector(ChangeSupport cs, DataStoreCoordinator dsc) {
+    public ProtocolSelector(ChangeSupport cs, DataContext ctx) {
         this.cs = cs;
-        this.dsc = dsc;
-        this.context = dsc.getContext();
+        this.context = ctx;
         initComponents();
         newProtocols = new HashMap<String, String>();
         listModel = new DefaultListModel();

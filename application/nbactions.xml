@@ -11,8 +11,8 @@
         <action>
             <actionName>build</actionName>
             <goals>
-                <goal>install</goal>
-                <goal>-DskipTests</goal>
+                <goal>nbm:cluster-app</goal>
+                
             </goals>
         </action>
         <action>

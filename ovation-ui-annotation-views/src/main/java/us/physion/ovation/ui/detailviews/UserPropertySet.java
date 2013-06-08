@@ -59,7 +59,7 @@ class UserPropertySet extends PerUserAnnotationSet {
     public TableModelListener createTableModelListener(us.physion.ovation.ui.ScrollableTableTree t, us.physion.ovation.ui.TableNode n) {
         if (isEditable())
         {
-            return new PropertyTableModelListener(uris, (ExpandableJTree)t.getTree(), n, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection());
+            return new PropertyTableModelListener(uris, (ExpandableJTree)t.getTree(), n, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
         }
         return null;
     }

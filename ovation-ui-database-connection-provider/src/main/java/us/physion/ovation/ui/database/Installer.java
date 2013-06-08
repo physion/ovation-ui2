@@ -18,7 +18,6 @@ public class Installer extends ModuleInstall {
         {
             Logging.configureRootLoggerRollingAppender();
             dbc = new DatabaseConnectionProvider();
-//            dbc.getConnection();
         }
         // Set the displayed version number from API marketing version
         /*if(Ovation.getVersion() != null) {

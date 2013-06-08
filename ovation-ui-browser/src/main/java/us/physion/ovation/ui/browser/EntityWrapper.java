@@ -4,9 +4,6 @@
  */
 package us.physion.ovation.ui.browser;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.Callable;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import us.physion.ovation.DataContext;
@@ -45,12 +42,11 @@ public class EntityWrapper implements IEntityWrapper {
     public OvationEntity getEntity(){
         OvationEntity b = null;
         try{
-            DataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
-            if (dsc == null)
+            DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+            if (c == null)
             {
                 return null;
             }
-            DataContext c = dsc.getContext();
             b = c.getObjectWithURI(uri);
         
         } catch (RuntimeException e)

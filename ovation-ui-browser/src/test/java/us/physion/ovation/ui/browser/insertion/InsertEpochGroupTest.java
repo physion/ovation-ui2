@@ -70,7 +70,7 @@ public class InsertEpochGroupTest extends OvationTestCase{
         Experiment e = ctx.insertProject("name", "purpose", start).insertExperiment("purpose", start);
         IEntityWrapper parent = new TestEntityWrapper(ctx, e);
         
-        new InsertEpochGroup().wizardFinished(d, dsc, parent);
+        new InsertEpochGroup().wizardFinished(d, ctx, parent);
         
         EpochGroup eg = e.getEpochGroups().iterator().next();
         TestCase.assertEquals(eg.getLabel(), label);
@@ -89,7 +89,7 @@ public class InsertEpochGroupTest extends OvationTestCase{
         EpochGroup e = ctx.insertProject("name", "purpose", start).insertExperiment("purpose", start).insertEpochGroup("different-label", start, null, null, null);
         IEntityWrapper parent = new TestEntityWrapper(ctx, e);
         
-        new InsertEpochGroup().wizardFinished(d, dsc, parent);
+        new InsertEpochGroup().wizardFinished(d, ctx, parent);
         
         EpochGroup eg = e.getEpochGroups().iterator().next();
         TestCase.assertEquals(eg.getLabel(), label);

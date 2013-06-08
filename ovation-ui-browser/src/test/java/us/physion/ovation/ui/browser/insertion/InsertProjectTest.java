@@ -50,7 +50,7 @@ public class InsertProjectTest extends OvationTestCase
         d.putProperty("project.purpose", purpose);
         d.putProperty("project.start", start);
         
-        new InsertProject().wizardFinished(d, dsc, null);
+        new InsertProject().wizardFinished(d, ctx, null);
         
         Project p = (Project)(ctx.getProjects().iterator().next());
         TestCase.assertEquals(p.getName(), name);

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import org.openide.WizardDescriptor;
 import org.openide.util.Lookup;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.ui.browser.insertion.ProtocolSelector;
@@ -36,8 +37,8 @@ public class ProtocolController extends BasicWizardPanel {
     @Override
     public Component getComponent() {
         if (component == null) {
-            DataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
-            component = new ProtocolSelector(changeSupport, dsc);//EpochDetailsPanel
+            DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+            component = new ProtocolSelector(changeSupport, ctx);//EpochDetailsPanel
         }
         return component;
     }

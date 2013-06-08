@@ -38,7 +38,7 @@ public final class LoginLogout extends AbstractAction {// implements Presenter.T
         if (cp == null)
         {
             cp = new DatabaseConnectionProvider();
-            cp.getConnection();
+            cp.getDefaultContext();
         }else {
             cp.resetConnection();
         }

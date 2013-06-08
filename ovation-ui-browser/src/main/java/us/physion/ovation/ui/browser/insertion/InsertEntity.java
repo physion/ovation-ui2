@@ -39,7 +39,7 @@ public class InsertEntity extends AbstractAction implements EntityInsertable{
         wiz.setTitleFormat(new MessageFormat("{0} ({1})"));
         wiz.setTitle("Insert Entity");
         if (DialogDisplayer.getDefault().notify(wiz) == WizardDescriptor.FINISH_OPTION) {
-            wizardFinished(wiz, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection(), parent);
+            wizardFinished(wiz, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext(), parent);
             ResettableNode node = getEntityNode();
             if (node == null)
             {
@@ -104,7 +104,7 @@ public class InsertEntity extends AbstractAction implements EntityInsertable{
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wiz, DataStoreCoordinator dsc, IEntityWrapper ew) {
+    public void wizardFinished(WizardDescriptor wiz, DataContext c, IEntityWrapper ew) {
         throw new UnsupportedOperationException("Subclasses of InsertEntity should implement the wizardFinished method");
     }
     

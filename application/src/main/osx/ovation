@@ -83,6 +83,8 @@ case "`uname`" in
 	        --jdkhome '"$JAVA6"' \
 	        -J-Dcom.apple.mrj.application.apple.menu.about.name='Ovation' \
 	        -J-Xdock:name='Ovation' \
+		-J-XX:PermSize=256m \
+		-J-XX:MaxPermSize=512m \
 	        '"-J-Xdock:icon=$progdir/../../$APPNAME.icns"' \
 	        --clusters '"$clusters"' \
 	        --userdir '"${userdir}"' \

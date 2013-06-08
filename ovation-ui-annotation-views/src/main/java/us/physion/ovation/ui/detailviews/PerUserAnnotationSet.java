@@ -91,8 +91,7 @@ public abstract class PerUserAnnotationSet implements TableTreeKey{
         return s;
     }
 
-    public void refresh(DataStoreCoordinator dsc) {
-        final DataContext c = dsc.getContext();
+    public void refresh(final DataContext c) {
         User u = (User)c.getObjectWithURI(getID());
 
         Iterable<OvationEntity> entities = Iterables.transform(uris, new Function<String, OvationEntity>() {

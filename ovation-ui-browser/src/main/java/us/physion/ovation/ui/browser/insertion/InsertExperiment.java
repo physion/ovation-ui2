@@ -15,6 +15,7 @@ import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.ui.interfaces.ProjectInsertable;
@@ -40,7 +41,7 @@ public class InsertExperiment extends InsertEntity implements ProjectInsertable{
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wiz, DataStoreCoordinator dsc, IEntityWrapper parent)
+    public void wizardFinished(WizardDescriptor wiz, DataContext c, IEntityWrapper parent)
     {
         ((Project)parent.getEntity()).insertExperiment(((String)wiz.getProperty("experiment.purpose")), 
                 ((DateTime)wiz.getProperty("experiment.start"))); 

@@ -10,6 +10,7 @@ import javax.swing.table.DefaultTableModel;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import ovation.*;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.AnnotatableEntity;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -22,7 +23,7 @@ import us.physion.ovation.ui.detailviews.NoteValue;
  */
 class NotesTableModel extends DefaultTableModel {
 
-    DataStoreCoordinator dsc;
+    DataContext context;
     List<NoteValue> notes;
 
     NotesTableModel() {
@@ -30,8 +31,8 @@ class NotesTableModel extends DefaultTableModel {
         notes = new ArrayList<NoteValue>();
     }
 
-    public void setDSC(DataStoreCoordinator dsc) {
-        this.dsc = dsc;
+    public void setContext(DataContext ctx) {
+        this.context = ctx;
     }
 
     public void setEntities(Collection<? extends IEntityWrapper> entities) {

@@ -134,13 +134,11 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
         EventQueueUtilities.runOffEDT(new Runnable() {
             @Override
             public void run() {
-                
                 //manually set size of the containing scrollpane, since the table has resized
                 JScrollPane sp = ((JScrollPane) table.getParent().getParent());
                 sp.setSize(sp.getPreferredSize());
                 EditableTable.this.setSize(EditableTable.this.getPreferredSize());
                 table.getSelectionModel().setSelectionInterval(table.getRowCount() - 1, table.getRowCount() - 1);
-                
             }
         });
     }

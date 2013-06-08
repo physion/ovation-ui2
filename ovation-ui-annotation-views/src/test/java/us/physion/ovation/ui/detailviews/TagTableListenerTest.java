@@ -255,7 +255,7 @@ public class TagTableListenerTest extends OvationTestCase{
         
         TableNode n = new TableNode(key);
         n.setPanel(editableTable);
-        TagTableModelListener listener = new TagTableModelListener(uris, mockTree, n, dsc);
+        TagTableModelListener listener = new TagTableModelListener(uris, mockTree, n, ctx);
         table.setModel(m);
         m.addTableModelListener(listener);
         return m;
@@ -270,7 +270,7 @@ public class TagTableListenerTest extends OvationTestCase{
         @Override
         public TableModelListener createTableModelListener(ScrollableTableTree t, TableNode n) {
             if (isEditable()) {
-                return new TagTableModelListener(uris, (ExpandableJTree) t.getTree(), n, dsc);
+                return new TagTableModelListener(uris, (ExpandableJTree) t.getTree(), n, ctx);
             }
             return null;
         }

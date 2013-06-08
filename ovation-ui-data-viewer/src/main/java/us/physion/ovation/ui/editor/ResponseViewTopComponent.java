@@ -20,9 +20,11 @@ import java.util.*;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import javax.swing.*;
+import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -49,6 +51,7 @@ import org.openide.explorer.view.BeanTreeView;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.ui.interfaces.ClickableCellEditor;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -99,11 +102,13 @@ public final class ResponseViewTopComponent extends TopComponent {
 
     private void initTopComponent() {
         initComponents();
-        setName("Measurements");//Bundle.CTL_ResponseViewTopComponent());
-        setToolTipText("Displays the selected measurements");//Bundle.HINT_ResponseViewTopComponent());
+        
+        setName("Data Viewer");//Bundle.CTL_ResponseViewTopComponent());
+        setToolTipText("Displays the selected DataElements");//Bundle.HINT_ResponseViewTopComponent());
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         global.addLookupListener(listener);
         jTable1.setDefaultRenderer(ResponsePanel.class, cellRenderer);
+        jTable1.setDefaultEditor(ResponsePanel.class, new ClickableCellEditor(cellRenderer));
         cellRenderer.setTable(jTable1);
         jTable1.setVisible(true);
         responseListPane.setVisible(true);
@@ -213,14 +218,6 @@ public final class ResponseViewTopComponent extends TopComponent {
                 responseGroups.add(ResponseWrapperFactory.create(rw).createVisualization(rw));
             }
         }
-        
-        //FOR TESTING --- DELETE
-        /*String[] columnNames = new String[] {"Column 1" ," Column 2"};
-        String[][] data = new String[][] {{"1", "2"},{"3", "4"}};
-        TabularDataWrapper tdw = new TabularDataWrapper();
-        tdw.tabularData = data;
-        tdw.columnNames = columnNames;
-        responseGroups.add(tdw);*/
         
         EventQueueUtilities.runOnEDT(updateChartRunnable(responseGroups));
         return responseGroups;

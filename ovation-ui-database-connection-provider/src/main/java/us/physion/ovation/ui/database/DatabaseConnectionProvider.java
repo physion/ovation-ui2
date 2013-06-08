@@ -29,6 +29,7 @@ import org.openide.util.Exceptions;
 import org.openide.util.lookup.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.api.Ovation;
 import us.physion.ovation.api.OvationApiModule;
@@ -66,6 +67,11 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         return f;
     }
 
+    @Override
+    public DataContext getNewContext() {
+        return context.getCoordinator().getContext();
+    }
+
     private static class LoginModel {
         String email; 
         String password; 
@@ -92,9 +98,9 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
             return cancelled;
         }
     }
-    private DataStoreCoordinator dsc = null;
+    private DataContext context = null;
     private Set<ConnectionListener> connectionListeners;
-    private boolean waitingForDSC = false;
+    private boolean waitingForContext = false;
 
     public DatabaseConnectionProvider() {
         
@@ -103,16 +109,16 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
 
     public synchronized void resetConnection()
     {
-        dsc = null;
-        getConnection();
+        context = null;
+        getDefaultContext();
     }
 
     @Override
-    public DataStoreCoordinator getConnection() {
+    public DataContext getDefaultContext() {
 
         synchronized (this) {
-            if (waitingForDSC || dsc != null) {
-                return dsc;
+            if (waitingForContext || context != null) {
+                return context;
             }
             setWaitingFlag(true);
         }
@@ -122,30 +128,30 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         final Runnable r = new Runnable() {
 
             public void run() {
-                //ProgressHandle ph = ProgressHandleFactory.createHandle("Authenticating...");
+                ProgressHandle ph = ProgressHandleFactory.createHandle("Authenticating...");
                 try {
-                    //ph.start();
+                    ph.start();
                     DataStoreCoordinator toAuthenticate = Ovation.newDataStoreCoordinator();
                     boolean succeeded = authenticateUser(toAuthenticate, null);
                     if (succeeded) {
-                        setDsc(toAuthenticate);
+                        setContext(toAuthenticate.getContext());
                         setWaitingFlag(false);
 
                         for (ConnectionListener l : listeners) {
-                            l.propertyChange(new PropertyChangeEvent(toAuthenticate, "ovation.connectionChanged", 0, 1));
+                            l.propertyChange(new PropertyChangeEvent(context, "ovation.connectionChanged", 0, 1));
                         }
                     }
 
                 } finally {
                     setWaitingFlag(false);
-                    // ph.finish();
+                    ph.finish();
                 }
             }
         };
         
         EventQueueUtilities.runOnEDT(r);
         
-        return dsc;
+        return context;
     }
     
     private LoginModel showLoginDialog(String error) {
@@ -289,12 +295,12 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         return false;
     }
 
-    private synchronized void setDsc(DataStoreCoordinator the_dsc) {
-        dsc = the_dsc;
+    private synchronized void setContext(DataContext context) {
+        this.context = context;
     }
 
     private synchronized void setWaitingFlag(boolean b) {
-        waitingForDSC = b;
+        waitingForContext = b;
     }
 
     @Override

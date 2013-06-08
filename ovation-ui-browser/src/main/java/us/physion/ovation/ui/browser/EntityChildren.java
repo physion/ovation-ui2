@@ -39,12 +39,12 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
     EntityWrapper parent;
     boolean projectView;
-    DataStoreCoordinator dsc;
+    DataContext c;
 
-    EntityChildren(EntityWrapper e, boolean pView, DataStoreCoordinator theDSC) {
+    EntityChildren(EntityWrapper e, boolean pView, DataContext context) {
         parent = e;
         projectView = pView;
-        dsc = theDSC;
+        c = context;
         //if its per user, we create 
         if (e instanceof PerUserEntityWrapper)
         {
@@ -60,7 +60,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
             @Override
             public Children call() throws Exception {
-                return new EntityChildren(key, projectView, dsc);
+                return new EntityChildren(key, projectView, c);
             }
         };
     }
@@ -103,12 +103,11 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
     
     protected void createKeys() {
         
-        if (dsc == null)
-            dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
-        if (dsc == null) {
+        if (c == null)
+            c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+        if (c == null) {
             return;
         }
-        DataContext c = dsc.getContext();
         
         if (parent == null) {
             List<EntityWrapper> list = new LinkedList<EntityWrapper>();
@@ -131,7 +130,6 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
     protected List<EntityWrapper> createKeysForEntity(DataContext c, EntityWrapper ew) {
 
-        DataContext context = dsc.getContext();
         List<EntityWrapper> list = new LinkedList<EntityWrapper>();
         Class entityClass = ew.getType();
         if (projectView) {
@@ -189,17 +187,17 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                 list.add(new EntityWrapper(eg));
             }
             
-            context.beginTransaction();
+            c.beginTransaction();//we wrap these in a transaction, because there may be a lot of epochs
             try {
                 for (Epoch e : entity.getEpochs()) {
                     list.add(new EntityWrapper(e));
                 }
             } finally{
-                context.commitTransaction();
+                c.commitTransaction();
             }
             return list;
         } else if (Epoch.class.isAssignableFrom(entityClass)) {
-            context.beginTransaction();
+            c.beginTransaction();//we wrap this in a transaction, because there may be a lot of epochs
             try {
                 Epoch entity = (Epoch) ew.getEntity();
                 for (Measurement m : entity.getMeasurements()) {
@@ -219,7 +217,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                         list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));    
                 }
             } finally {
-                context.commitTransaction();
+                c.commitTransaction();
             }
         } else if(AnalysisRecord.class.isAssignableFrom(entityClass))
         {

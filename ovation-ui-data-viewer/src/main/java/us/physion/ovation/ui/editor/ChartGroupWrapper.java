@@ -4,6 +4,11 @@
  */
 package us.physion.ovation.ui.editor;
 
+import java.awt.Font;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;

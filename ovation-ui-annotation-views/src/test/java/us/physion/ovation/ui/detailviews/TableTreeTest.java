@@ -213,11 +213,6 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
     }
 
     @Override
-    public DataStoreCoordinator getConnection() {
-        return dsc;
-    }
-
-    @Override
     public void addConnectionListener(ConnectionListener cl) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -231,6 +226,16 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
     public void resetConnection() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public DataContext getDefaultContext() {
+       return ctx;
+    }
+
+    @Override
+    public DataContext getNewContext() {
+        return ctx.getCoordinator().getContext();
+    }
     
     private class TestTreeKey extends UserPropertySet {
 
@@ -241,7 +246,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         @Override
         public TableModelListener createTableModelListener(ScrollableTableTree t, TableNode n) {
             if (isEditable()) {
-                return new PropertyTableModelListener(uris, (ExpandableJTree) t.getTree(), n, dsc);
+                return new PropertyTableModelListener(uris, (ExpandableJTree) t.getTree(), n, ctx);
             }
             return null;
         }
@@ -255,7 +260,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         
         TableNode n = new TableNode(key);
         n.setPanel(editableTable);
-        PropertyTableModelListener listener = new PropertyTableModelListener(uris, mockTree, n, dsc);
+        PropertyTableModelListener listener = new PropertyTableModelListener(uris, mockTree, n, ctx);
         table.setModel(m);
         m.addTableModelListener(listener);
         return m;

@@ -27,6 +27,8 @@ public class DefaultDisplayPanel extends javax.swing.JPanel {
         initComponents();
         d = data;
         elementName.setText(data.getName());
+        messageLabel.setText("Cannot display data of type '" + data.getDataContentType() + "'");
+        openButton.setEnabled(true);
     }
 
     /**
@@ -40,7 +42,7 @@ public class DefaultDisplayPanel extends javax.swing.JPanel {
 
         openButton = new javax.swing.JButton();
         elementName = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
+        messageLabel = new javax.swing.JLabel();
 
         org.openide.awt.Mnemonics.setLocalizedText(openButton, org.openide.util.NbBundle.getMessage(DefaultDisplayPanel.class, "DefaultDisplayPanel.openButton.text")); // NOI18N
         openButton.addActionListener(new java.awt.event.ActionListener() {
@@ -52,26 +54,19 @@ public class DefaultDisplayPanel extends javax.swing.JPanel {
         elementName.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         org.openide.awt.Mnemonics.setLocalizedText(elementName, org.openide.util.NbBundle.getMessage(DefaultDisplayPanel.class, "DefaultDisplayPanel.elementName.text")); // NOI18N
 
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(DefaultDisplayPanel.class, "DefaultDisplayPanel.jLabel1.text")); // NOI18N
+        messageLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        org.openide.awt.Mnemonics.setLocalizedText(messageLabel, org.openide.util.NbBundle.getMessage(DefaultDisplayPanel.class, "DefaultDisplayPanel.messageLabel.text")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(73, 73, 73)
-                .add(openButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 299, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(12, 12, 12)
-                        .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(elementName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap())
+                .add(95, 95, 95)
+                .add(openButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 257, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(96, Short.MAX_VALUE))
+            .add(messageLabel)
+            .add(elementName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -79,10 +74,10 @@ public class DefaultDisplayPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .add(elementName)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(messageLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(18, 18, 18)
-                .add(openButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 68, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(21, Short.MAX_VALUE))
+                .add(openButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 40, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(49, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -111,7 +106,7 @@ public class DefaultDisplayPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel elementName;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel messageLabel;
     private javax.swing.JButton openButton;
     // End of variables declaration//GEN-END:variables
 }

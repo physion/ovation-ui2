@@ -26,6 +26,7 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import us.physion.ovation.DataContext;
 
 @ServiceProvider(service = Lookup.Provider.class)
 /**
@@ -198,12 +199,7 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
     public Lookup getLookup() {
         return l;
     }
-
-    @Override
-    public DataStoreCoordinator getConnection() {
-        return dsc;
-    }
-
+  
     @Override
     public void addConnectionListener(ConnectionListener cl) {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -298,5 +294,15 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
                     databaseParams.add(new Tuple(key, ps.get(key)));
                 }
             }
+    }
+
+    @Override
+    public DataContext getDefaultContext() {
+       return ctx;
+    }
+
+    @Override
+    public DataContext getNewContext() {
+       return ctx.getCoordinator().getContext();
     }
 }

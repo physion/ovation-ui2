@@ -13,6 +13,7 @@ import org.joda.time.DateTime;
 import org.openide.WizardDescriptor;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.util.lookup.ServiceProviders;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochContainer;
@@ -53,7 +54,7 @@ public class InsertChildSource extends InsertEntity implements SourceInsertable{
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wiz, DataStoreCoordinator dsc, IEntityWrapper parent)
+    public void wizardFinished(WizardDescriptor wiz, DataContext c, IEntityWrapper parent)
     {
         Source parentEntity = (Source)parent.getEntity();
         
