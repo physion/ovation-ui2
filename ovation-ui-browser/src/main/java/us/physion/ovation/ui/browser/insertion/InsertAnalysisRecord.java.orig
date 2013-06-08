@@ -10,7 +10,10 @@ import java.util.Map;
 import org.openide.WizardDescriptor;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.util.lookup.ServiceProviders;
+<<<<<<< HEAD
 import us.physion.ovation.DataContext;
+=======
+>>>>>>> c25c2a4170d7a47afcb30ec7113352e3c88a8f5d
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.OvationEntity;
