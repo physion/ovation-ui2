@@ -90,7 +90,8 @@ public final class PropertiesViewTopComponent extends TopComponent {
     
     public void update(final Collection<? extends IEntityWrapper> entities)
     {
-        setEntities(entities, null);
+        DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+        setEntities(entities, c);
         
         if (entities.size() > 1) {
             EventQueueUtilities.runOnEDT(new Runnable() {
@@ -152,7 +153,7 @@ public final class PropertiesViewTopComponent extends TopComponent {
         }
         if (!containsCurrentUser) {
             User current = c.getAuthenticatedUser();
-            properties.add(new UserPropertySet(current, owners.contains(current.getUuid()), true, new HashMap<String, Object>(), uris));
+            properties.add(new UserPropertySet(current, true, true, new HashMap<String, Object>(), uris));
         }
         
         Collections.sort(properties);
