@@ -17,6 +17,7 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import org.slf4j.LoggerFactory;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -25,7 +26,7 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
         category = "Edit",
         id = "us.physion.ovation.ui.browser.Sync")
 @ActionRegistration(
-        iconBase = "us/physion/ovation/ui/browser/reset-query.png",//"us/physion/ovation/ui/browser/1370882217_new_24_converted.png",
+        iconBase = "us/physion/ovation/ui/browser/sync.png",
         displayName = "#CTL_Sync")
 @ActionReferences({
     @ActionReference(path = "Menu/Tools", position = 1300),
@@ -37,10 +38,11 @@ public final class Sync implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        EventQueueUtilities.runOnEDT(new Runnable() {
+        EventQueueUtilities.runOffEDT(new Runnable() {
 
             @Override
             public void run() {
+                LoggerFactory.getLogger(Sync.class).debug("Syncing data from cloud...");
                 final ProgressHandle ph = ProgressHandleFactory.createHandle("Syncing data from cloud...");
                 ph.start();
                 ListenableFuture<Boolean> l = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext().getCoordinator().sync();

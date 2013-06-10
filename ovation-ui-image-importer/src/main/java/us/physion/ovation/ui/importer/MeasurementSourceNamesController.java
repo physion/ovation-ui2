@@ -29,7 +29,7 @@ public class MeasurementSourceNamesController extends BasicWizardPanel{
     }
     
     @Override
-    public JPanel getComponent() {
+    public Component getComponent() {
         if (component == null) {
             component = new ListSelectionPanel(changeSupport, 
                     "Select sources for this measurement", 

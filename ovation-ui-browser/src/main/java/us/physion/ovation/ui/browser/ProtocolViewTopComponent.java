@@ -4,10 +4,29 @@
  */
 package us.physion.ovation.ui.browser;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Vector;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListDataListener;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -17,7 +36,9 @@ import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Protocol;
+import static us.physion.ovation.ui.browser.BrowserUtilities.cn;
 import us.physion.ovation.ui.browser.insertion.ProtocolSelector;
+import us.physion.ovation.ui.interfaces.ConnectionListener;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 /**
@@ -43,8 +64,18 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
 })
 public final class ProtocolViewTopComponent extends TopComponent {
 
-    private ChangeSupport changeSupport;
     private DataContext ctx;
+    DefaultComboBoxModel model;
+    
+    
+    protected ConnectionListener cn = new ConnectionListener(new Runnable(){
+
+            @Override
+            public void run() {
+                resetProtocols(Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
+            }
+            
+        });
     
     public ProtocolViewTopComponent()
     {
@@ -52,42 +83,49 @@ public final class ProtocolViewTopComponent extends TopComponent {
     }
     
     public ProtocolViewTopComponent(DataContext context) {
+        super();
         this.ctx = context;
-        changeSupport = new ChangeSupport(this);
-        changeSupport.addChangeListener(new ChangeListener() {
-
-            @Override
-            public void stateChanged(ChangeEvent ce) {
-                //if new protocol was added, add protocol, and remove it from the list
-                boolean somethingChanged = false;
-                Map<String, String> newProtocols = ((ProtocolSelector) jPanel1).getNewProtocols();
-                for (String name : newProtocols.keySet())
-                {
-                    ctx.insertProtocol(name, newProtocols.get(name));
-                    somethingChanged = true;
-                }
-                
-                
-                Map<UUID, String> editedProtocols = ((ProtocolSelector) jPanel1).getEditedProtocols();
-                for (UUID id : editedProtocols.keySet())
-                {
-                    //TODO uncomment
-                    //((Protocol)ctx.getObjectWithUuid(id)).setProtocolDocument(editedProtocols.get(id));
-                    somethingChanged = true;
-                }
-                
-                if(somethingChanged)
-                {
-                    ((ProtocolSelector) jPanel1).resetProtocols();
-                }
-                
-            }
-        });
+        ConnectionProvider cp = Lookup.getDefault().lookup(ConnectionProvider.class);
+        cp.addConnectionListener(cn);
+        
         initComponents();
-        jPanel1.setVisible(true);
+        jTextField1.setEditable(false);
+        jTextField2.setEditable(false);
+        jTextField3.setEditable(false);
+        jTextArea1.setEditable(false);
+        
         setName(Bundle.CTL_ProtocolViewTopComponent());
         setToolTipText(Bundle.HINT_ProtocolViewTopComponent());
+        
+        resetProtocols(context);
+        model = new DefaultComboBoxModel(protocols.toArray());
+        jComboBox1.setRenderer(new DefaultListCellRenderer() {
 
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                return super.getListCellRendererComponent(list, ((Protocol)value).getName(), index, isSelected, cellHasFocus);
+            }
+        });
+        jComboBox1.setModel(model);
+    }
+    
+    List<Protocol> protocols;
+    
+    public void resetProtocols()
+    {
+        resetProtocols(Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
+    }
+    public void resetProtocols(DataContext context)
+    {
+         protocols = Lists.newArrayList(context.getProtocols());
+         Collections.sort(protocols, new Comparator<Protocol>() {
+
+             @Override
+             public int compare(Protocol o1, Protocol o2) {
+                 return o1.getName().compareTo(o2.getName());
+             }
+         });
+         
     }
 
     /**
@@ -98,37 +136,138 @@ public final class ProtocolViewTopComponent extends TopComponent {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jComboBox1 = new javax.swing.JComboBox();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        jTextField2 = new javax.swing.JTextField();
+        jTextField3 = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jPanel1 = new ProtocolSelector(changeSupport, ctx, false, true);
+        jTextArea1 = new javax.swing.JTextArea();
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 396, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 326, Short.MAX_VALUE)
-        );
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox1ActionPerformed(evt);
+            }
+        });
 
-        jScrollPane1.setViewportView(jPanel1);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ProtocolViewTopComponent.class, "ProtocolViewTopComponent.jLabel1.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(ProtocolViewTopComponent.class, "ProtocolViewTopComponent.jLabel2.text")); // NOI18N
+
+        jTextField1.setText(org.openide.util.NbBundle.getMessage(ProtocolViewTopComponent.class, "ProtocolViewTopComponent.jTextField1.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(ProtocolViewTopComponent.class, "ProtocolViewTopComponent.jLabel3.text")); // NOI18N
+
+        jTextField2.setText(org.openide.util.NbBundle.getMessage(ProtocolViewTopComponent.class, "ProtocolViewTopComponent.jTextField2.text")); // NOI18N
+
+        jTextField3.setText(org.openide.util.NbBundle.getMessage(ProtocolViewTopComponent.class, "ProtocolViewTopComponent.jTextField3.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(ProtocolViewTopComponent.class, "ProtocolViewTopComponent.jLabel4.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(ProtocolViewTopComponent.class, "ProtocolViewTopComponent.jLabel5.text")); // NOI18N
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jLabel1)
+                        .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel5))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
+                    .addComponent(jTextField1)
+                    .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jTextField2)
+                    .addComponent(jTextField3))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel5)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+        Protocol selected = ((Protocol)((JComboBox)evt.getSource()).getSelectedItem());
+        
+        String functionName = selected.getFunctionName();
+        if (functionName == null || functionName.isEmpty())
+        {
+            jTextField1.setText("N/A");
+            jTextField1.setForeground(Color.DARK_GRAY);
+        }
+        else{
+            jTextField1.setText(functionName);
+        }
+        
+        String scmUrl = selected.getScmUrl();
+        if (scmUrl == null || scmUrl.isEmpty())
+        {
+            jTextField2.setText("N/A");
+            jTextField2.setForeground(Color.DARK_GRAY);
+        }
+        else{
+            jTextField2.setText(scmUrl);
+        }
+        
+        String scmRevision = selected.getScmRevision();
+        if (scmRevision == null || scmRevision.isEmpty())
+        {
+            jTextField3.setText("N/A");
+            jTextField3.setForeground(Color.DARK_GRAY);
+        }
+        else{
+            jTextField3.setText(scmRevision);
+        }
+        jTextArea1.setText(selected.getProtocolDocument());
+    }//GEN-LAST:event_jComboBox1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField jTextField3;
     // End of variables declaration//GEN-END:variables
     @Override
     public void componentOpened() {

@@ -31,7 +31,7 @@ public class SourceController extends BasicWizardPanel {
     }
     
     @Override
-    public JPanel getComponent() {
+    public Component getComponent() {
         if (component == null) {
             component = new NamedSourceSelector(changeSupport);
         }

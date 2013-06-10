@@ -8,6 +8,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.awt.Component;
 import java.util.*;
 import javax.swing.JPanel;
 import org.openide.WizardDescriptor;
@@ -30,7 +31,7 @@ public class MeasurementDeviceNamesController extends BasicWizardPanel{
     }
     
     @Override
-    public JPanel getComponent() {
+    public Component getComponent() {
         if (component == null) {
             component = new ListSelectionPanel(changeSupport, 
                     "Select devices for this measurement",

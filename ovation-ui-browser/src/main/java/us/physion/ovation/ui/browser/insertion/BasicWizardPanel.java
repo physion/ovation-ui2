@@ -24,7 +24,7 @@ abstract public class BasicWizardPanel implements WizardDescriptor.Panel<WizardD
      * The visual component that displays this panel. If you need to access the
      * component from this class, just use getComponent().
      */
-    protected JPanel component;
+    protected Component component;
 
     // Get the visual component for the panel. In this template, the component
     // is kept separate. This can be more efficient: if the wizard is created

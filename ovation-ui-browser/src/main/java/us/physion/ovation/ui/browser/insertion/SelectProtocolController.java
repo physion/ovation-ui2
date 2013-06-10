@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
+import java.awt.Component;
 import java.util.Map;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeListener;
@@ -26,10 +27,10 @@ public class SelectProtocolController extends BasicWizardPanel {
          this.objectPrefix = objectPrefix;
     }
     @Override
-    public JPanel getComponent() {
+    public Component getComponent() {
         if (component == null) {
             DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
-            component = new ProtocolSelector(changeSupport, ctx, true, false);//Protocol
+            component = new ProtocolSelector(changeSupport, ctx, true);//Protocol
         }
         return component;
     }

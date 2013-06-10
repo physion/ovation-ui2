@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
+import java.awt.Component;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
@@ -18,7 +19,7 @@ public class InsertEpochGroupWizardPanel extends BasicWizardPanel {
     }
     
     @Override
-    public JPanel getComponent() {
+    public Component getComponent() {
         if (component == null) {
             component = new InsertEpochGroupVisualPanel2(changeSupport);
         }

@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
+import java.awt.Component;
 import javax.swing.JPanel;
 import org.joda.time.DateTime;
 import org.openide.WizardDescriptor;
@@ -17,7 +18,7 @@ import org.openide.util.HelpCtx;
 class InsertExperimentWizardPanel1 extends BasicWizardPanel {
 
     @Override
-    public JPanel getComponent() {
+    public Component getComponent() {
         if (component == null) {
             component = new InsertExperimentVisualPanel1(changeSupport);
         }

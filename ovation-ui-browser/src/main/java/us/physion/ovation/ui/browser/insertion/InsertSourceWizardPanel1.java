@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
+import java.awt.Component;
 import javax.swing.JPanel;
 import org.openide.WizardDescriptor;
 import org.openide.WizardDescriptor.Panel;
@@ -17,7 +18,7 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 class InsertSourceWizardPanel1 extends BasicWizardPanel
 {
     @Override
-    public JPanel getComponent() {
+    public Component getComponent() {
         if (component == null) {
             component = new InsertSourceVisualPanel1(changeSupport);
         }
