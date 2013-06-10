@@ -24,7 +24,7 @@ import org.openide.util.Utilities;
 import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.NewType;
 import org.openide.util.datatransfer.PasteType;
-import ovation.*;
+import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.interfaces.*;
 
 /**
@@ -35,7 +35,7 @@ public class EntityNode extends AbstractNode implements ResettableNode{
 
     private Action[] actionList;
     private IEntityWrapper parent;
-    private static Map<Class, Class> insertableMap = createMap();
+    private static Map<String, Class> insertableMap = createMap();
         
     public EntityNode(Children c, Lookup l, IEntityWrapper parent) {
         super (c, l);
@@ -77,7 +77,7 @@ public class EntityNode extends AbstractNode implements ResettableNode{
            }
            else{
                Class entityClass = parent.getType();
-               Class insertableClass = insertableMap.get(entityClass);
+               Class insertableClass = insertableMap.get(entityClass.getSimpleName());
                if (insertableClass == null)
                {
                    actionList = new Action[0];
@@ -92,16 +92,15 @@ public class EntityNode extends AbstractNode implements ResettableNode{
         return actionList;
     }
 
-    private static Map<Class, Class> createMap() {
-        Map<Class, Class> insertables = new HashMap<Class, Class>();
-        insertables.put(Project.class, ProjectInsertable.class);
-        insertables.put(Source.class, SourceInsertable.class);
-        insertables.put(Experiment.class, ExperimentInsertable.class);
-        insertables.put(EpochGroup.class, EpochGroupInsertable.class);
-        insertables.put(Epoch.class, EpochInsertable.class);
-        insertables.put(Response.class, ResponseInsertable.class);
-        insertables.put(Stimulus.class, StimulusInsertable.class);
-        insertables.put(DerivedResponse.class, DerivedResponseInsertable.class);
+    private static Map<String, Class> createMap() {
+        Map<String, Class> insertables = new HashMap<String, Class>();
+        insertables.put(Project.class.getSimpleName(), ProjectInsertable.class);
+        insertables.put(Source.class.getSimpleName(), SourceInsertable.class);
+        insertables.put(Experiment.class.getSimpleName(), ExperimentInsertable.class);
+        insertables.put(EpochGroup.class.getSimpleName(), EpochGroupInsertable.class);
+        insertables.put(Epoch.class.getSimpleName(), EpochInsertable.class);
+        insertables.put(Measurement.class.getSimpleName(), ResponseInsertable.class);
+        insertables.put(AnalysisRecord.class.getSimpleName(), DerivedResponseInsertable.class);
         return insertables;
     }
    

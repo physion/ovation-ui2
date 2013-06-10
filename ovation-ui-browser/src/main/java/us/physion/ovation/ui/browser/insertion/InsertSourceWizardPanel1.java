@@ -4,11 +4,11 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
+import java.awt.Component;
 import javax.swing.JPanel;
 import org.openide.WizardDescriptor;
 import org.openide.WizardDescriptor.Panel;
 import org.openide.util.HelpCtx;
-import ovation.Source;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /**
@@ -18,7 +18,7 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 class InsertSourceWizardPanel1 extends BasicWizardPanel
 {
     @Override
-    public JPanel getComponent() {
+    public Component getComponent() {
         if (component == null) {
             component = new InsertSourceVisualPanel1(changeSupport);
         }
@@ -44,5 +44,12 @@ class InsertSourceWizardPanel1 extends BasicWizardPanel
     public void storeSettings(WizardDescriptor wiz) {
         String label = ((InsertSourceVisualPanel1)component).getLabel();
         wiz.putProperty("source.label", label);
+        
+        String id = ((InsertSourceVisualPanel1)component).getIdentifier();
+        wiz.putProperty("source.identifier", id);
+    }
+
+    @Override
+    public void readSettings(WizardDescriptor data) {
     }
 }

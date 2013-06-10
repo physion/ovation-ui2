@@ -4,8 +4,7 @@
  */
 package us.physion.ovation.ui.browser;
 
-import com.physion.ebuilder.ExpressionBuilder;
-import com.physion.ebuilder.expression.ExpressionTree;
+//import com.sun.source.tree.ExpressionTree;
 import java.awt.EventQueue;
 import java.io.IOException;
 import java.util.*;
@@ -24,8 +23,7 @@ import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.IEntityBase;
+import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.ExpressionTreeProvider;
@@ -82,8 +80,8 @@ public class BrowserUtilities{
                     @Override
                     public void run() {
                         browserMap.clear();
-                        ExpressionTree result = Lookup.getDefault().lookup(ExpressionTreeProvider.class).getExpressionTree();
-                        setTrees(result);
+                        //ExpressionTree result = Lookup.getDefault().lookup(ExpressionTreeProvider.class).getExpressionTree();
+                        //setTrees(result);
                     }
                 });
                 etp.addQueryListener(ql);
@@ -130,8 +128,9 @@ public class BrowserUtilities{
     {
         e.setRootContext(new EntityNode(new EntityChildren(null, projectView, null), null));
     }
-    
-    protected static void setTrees(final ExpressionTree result)
+
+    //TODO: uncomment when we have query capabiliites
+    /*protected static void setTrees(final ExpressionTree result)
     {
         if (result == null)
             return;
@@ -143,11 +142,12 @@ public class BrowserUtilities{
             mgrs.add(em);
         }
         
-        final IAuthenticatedDataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
+        final DataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
         Iterator itr = dsc.getContext().query(result);
         
         EntityWrapperUtilities.createNodesFromQuery(mgrs, itr);
-    }
+        
+    }*/
 
     public static void runOnEDT(Runnable r)
     {

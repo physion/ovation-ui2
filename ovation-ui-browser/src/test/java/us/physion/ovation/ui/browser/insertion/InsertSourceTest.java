@@ -8,17 +8,13 @@ import junit.framework.TestCase;
 import org.junit.*;
 import org.openide.WizardDescriptor;
 import org.openide.util.ChangeSupport;
-import ovation.LogLevel;
-import ovation.Ovation;
-import ovation.Source;
-import us.physion.ovation.ui.browser.BrowserTestManager;
 import us.physion.ovation.ui.test.OvationTestCase;
-import us.physion.ovation.ui.test.TestManager;
 
 import javax.swing.*;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.List;
+import us.physion.ovation.domain.Source;
 
 /**
  *
@@ -26,43 +22,6 @@ import java.util.List;
  */
 public class InsertSourceTest extends OvationTestCase
 {
-    static TestManager mgr = new BrowserTestManager();
-    
-    public InsertSourceTest() {
-        setTestManager(mgr); //this is because there are static and non-static methods that need to use the test manager
-    }
-    
-    @BeforeClass
-    public static void setUpClass()
-    {
-        Ovation.enableLogging(LogLevel.ALL);
-        AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
-
-            public Boolean run() {
-                OvationTestCase.setUpDatabase(mgr, 2);
-                return true;
-            }
-        });
-        
-    }
-    
-    @Before
-    public void setUp() {
-        dsc = setUpTest();
-    }
-    
-    
-    @After
-    public void tearDown()
-    {
-        tearDownTest();
-    }
-    
-     @AfterClass
-    public static void tearDownClass() throws Exception {
-        OvationTestCase.tearDownDatabase(mgr);
-    }
-
     //InsertEntity action methods
     @Test
     public void testGetPanels() {
@@ -77,14 +36,17 @@ public class InsertSourceTest extends OvationTestCase
     public void testWizardFinished()
     {
         String label = "label";
+        String identifier = "id";
        
         WizardDescriptor d = new WizardDescriptor(new InsertEntityIterator(null));
         d.putProperty("source.label", label);
+        d.putProperty("source.identifier", identifier);
         
-        new InsertSource().wizardFinished(d, dsc, null);
+        new InsertSource().wizardFinished(d, ctx, null);
         
-        Source s = dsc.getContext().getSources()[0];
+        Source s = ctx.getTopLevelSources().iterator().next();
         TestCase.assertEquals(s.getLabel(), label);
+        TestCase.assertEquals(s.getIdentifier(), identifier);
     }
     
     //Panel 1 methods
@@ -133,6 +95,7 @@ public class InsertSourceTest extends OvationTestCase
         p.storeSettings(d);
         TestCase.assertEquals(d.getProperty("source.label"), label);
     }
+    
     private class DummyPanel1 extends InsertSourceWizardPanel1
     {
         DummyPanel1()

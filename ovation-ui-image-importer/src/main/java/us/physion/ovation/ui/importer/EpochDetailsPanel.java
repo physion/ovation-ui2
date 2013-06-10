@@ -16,6 +16,7 @@ import javax.swing.table.TableCellRenderer;
 import org.openide.util.ChangeSupport;
 import us.physion.ovation.ui.interfaces.BasicWizardPanel;
 import us.physion.ovation.ui.interfaces.DatePickerUtilities;
+import us.physion.ovation.ui.interfaces.ParameterTableModel;
 
 /**
  *

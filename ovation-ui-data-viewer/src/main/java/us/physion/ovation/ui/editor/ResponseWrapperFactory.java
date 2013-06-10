@@ -7,14 +7,14 @@ package us.physion.ovation.ui.editor;
 import java.util.Collection;
 import javax.imageio.ImageIO;
 import org.openide.util.Lookup;
-import ovation.Response;
+import us.physion.ovation.domain.Measurement;
 
 /**
  *
  * @author huecotanks
  */
 public class ResponseWrapperFactory {
-    public static VisualizationFactory create(Response r)
+    public static VisualizationFactory create(Measurement r)
     {
         Collection<? extends VisualizationFactory> factories = Lookup.getDefault().lookupAll(VisualizationFactory.class);
         int preference = 0;
@@ -27,6 +27,10 @@ public class ResponseWrapperFactory {
                 preference = factoryPref;
                 vis = f;
             }
+        }
+        if (preference == 0)
+        {
+            return new DefaultVisualizationFactory();
         }
         return vis;
     }

@@ -4,7 +4,8 @@
  */
 package us.physion.ovation.ui.interfaces;
 
-import ovation.IEntityBase;
+import us.physion.ovation.domain.OvationEntity;
+
 /**
  *
  * @author huecotanks
@@ -13,7 +14,9 @@ public interface IEntityWrapper {
 
     String getDisplayName();
 
-    IEntityBase getEntity();
+    OvationEntity getEntity();
+    
+    <T extends OvationEntity> T getEntity(Class<T> clazz);
 
     Class getType();
 

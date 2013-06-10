@@ -15,119 +15,39 @@ import org.joda.time.DateTime;
 import org.junit.*;
 import org.openide.util.Exceptions;
 import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.mixin.Taggable;
+import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.TestEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
-import us.physion.ovation.ui.test.TestManager;
 
 /**
  *
  * @author jackie
  */
 public class TagTableListenerTest extends OvationTestCase{
-    private TestEntityWrapper project;
-    private TestEntityWrapper project2;
     private MockResizableTree mockTree;
-    
-    static TestManager mgr = new SelectionViewTestManager();
-    
-    public TagTableListenerTest() {
-        setTestManager(mgr); 
-    }
-    
-    @BeforeClass
-    public static void setUpClass()
-    {
-        OvationTestCase.setUpDatabase(mgr, 6);
-    }
+    private EditableTable editableTable;
     
     @Before
     public void setUp() {
-        dsc = setUpTest();
+        super.setUp();
 
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
         DateTime UNUSED_START = new DateTime(0);
         
-        DataContext c = dsc.getContext();
-        Project p = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
-        project = new TestEntityWrapper(dsc, p);
-        p.addTag("tag1");
-        p.addTag("tag2");
-        
-        Project p2 = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
-        project2 = project = new TestEntityWrapper(dsc, p);
-        p2.addTag("tag1");
-        p2.addTag("another tag");
-        
         mockTree = new MockResizableTree();
-        
     }
     
-    @After
-    public void tearDown()
+    private Project makeProject()
     {
-        tearDownTest();
-    }
-    
-     @AfterClass
-    public static void tearDownClass() throws Exception {
-        OvationTestCase.tearDownDatabase(mgr);
-    }
-
-    @Test
-    public void testTableChanged()
-    {   
-        Set<String> uris = new HashSet();
-        uris.add(project.getURI());
-        uris.add(project2.getURI());
-        
-        DataContext c = dsc.getContext();
-        
-        List<String> oldTags = new ArrayList<String>();
-        
-        TagsSet key = new TagsSet(c.currentAuthenticatedUser(), true, true, oldTags, uris);
-        TreeNode node = new TableNode(key);
-        //TagTableModelListener l = new TagTableModelListener(uris, mockTree, node, dsc);
-        //l.addBlankRow();
-    }
-    
-    
-    @Test
-    public void testAddNewBlankRow()
-    {
-    }
-    
-    @Test
-    public void testAddNewTagToTableModelAndDatabase()
-    {
-        String newTag = "something";
-        Set<String> uris = new HashSet();
-        uris.add(project.getURI());
-        uris.add(project2.getURI());
-        
-        TestTreeKey key = new TestTreeKey(dsc, uris);
-  
-        DefaultTableModel m = (DefaultTableModel)key.createTableModel();
-      
-        TestCase.assertEquals(m.getRowCount(), 0);
-        
-        JTable table = new JTable();
-        EditableTable t = new EditableTable(table, new DummyTableTree());
-        TableNode n = new TableNode(key);
-        n.setPanel(t);
-        TagTableModelListener listener = new TagTableModelListener(uris, mockTree, n, dsc);
-        table.setModel(m);
-        m.addTableModelListener(listener);
-        
-        addTag(t, newTag, 0, m, listener);       
-        
-        for (String uri : uris)
-        {
-            ITaggableEntityBase eb = (ITaggableEntityBase)dsc.getContext().objectWithURI(uri);
-            assertContainsTag(newTag, eb, true);
-        }
-        
-        TestCase.assertEquals(m.getValueAt(0, 0), newTag);
+        String UNUSED_NAME = "name";
+        String UNUSED_PURPOSE = "purpose";
+        DateTime UNUSED_START = new DateTime(0);
+        return ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
     }
     
     @Test
@@ -136,29 +56,32 @@ public class TagTableListenerTest extends OvationTestCase{
         String newTag1 = "something";
         String newTag2 = "something2";
         Set<String> uris = new HashSet();
-        uris.add(project.getURI());
-        uris.add(project2.getURI());
+        Project project = makeProject();
+        
+        project.addTag("tag1");
+        project.addTag("tag2");
+        uris.add(project.getURI().toString());
+        
+        Project project2 = makeProject();
+        project.addTag("tag1");
+        project.addTag("another tag");
+        uris.add(project2.getURI().toString());
         
         TestTreeKey key = new TestTreeKey(dsc, uris);
-  
-        DefaultTableModel m = (DefaultTableModel)key.createTableModel();
-      
-        TestCase.assertEquals(m.getRowCount(), 0);
+        EditableTableModel m = createTableModel(key, uris);
+        for (String uri : uris)
+        {
+            Taggable eb = (Taggable)ctx.getObjectWithURI(uri);
+            assertContainsTag(newTag1, eb, false);
+            assertContainsTag(newTag2, eb, false);
+        }
         
-        JTable table = new JTable();
-        EditableTable t = new EditableTable(table, new DummyTableTree());
-        TableNode n = new TableNode(key);
-        n.setPanel(t);
-        TagTableModelListener listener = new TagTableModelListener(uris, mockTree, n, dsc);
-        table.setModel(m);
-        m.addTableModelListener(listener);
-        
-        addTag(t, newTag1, 0, m, listener);
-        addTag(t, newTag2, 1, m, listener);
+        m.setValueAt(newTag1, 0, 0);
+        m.setValueAt(newTag2, 1, 0);
         
         for (String uri : uris)
         {
-            ITaggableEntityBase eb = (ITaggableEntityBase)dsc.getContext().objectWithURI(uri);
+            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, true);
             assertContainsTag(newTag2, eb, true);
         }
@@ -168,101 +91,45 @@ public class TagTableListenerTest extends OvationTestCase{
     }
     
     @Test
-    public void testEditTagModifiesTableModelAndDatabase()
-    {
-        String oldTag = "something old";
-        String newTag = "something new";
-        Set<String> uris = new HashSet();
-        uris.add(project.getURI());
-        uris.add(project2.getURI());
-        
-        TestTreeKey key = new TestTreeKey(dsc, uris);
-  
-        DefaultTableModel m = (DefaultTableModel)key.createTableModel();
-      
-        TestCase.assertEquals(m.getRowCount(), 0);
-        
-        JTable table = new JTable();
-        EditableTable t = new EditableTable(table, new DummyTableTree());
-        TableNode n = new TableNode(key);
-        n.setPanel(t);
-        TagTableModelListener listener = new TagTableModelListener(uris, mockTree, n, dsc);
-        table.setModel(m);
-        m.addTableModelListener(listener);
-        
-        addTag(t, oldTag, 0, m, listener);
-        
-        //edit tag
-        m.setValueAt(newTag, 0, 0);
-        TableModelEvent event = new TableModelEvent(m, 0, 0, 0, TableModelEvent.UPDATE);
-        listener.tableChanged(event);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        
-        for (String uri : uris)
-        {
-            ITaggableEntityBase eb = (ITaggableEntityBase)dsc.getContext().objectWithURI(uri);
-            assertContainsTag(newTag, eb, true);
-            assertContainsTag(oldTag, eb, false);
-        }
-        
-        TestCase.assertEquals(m.getValueAt(0, 0), newTag);
-    }
-    
-    @Test
-    public void testAddEditMultipleTagsModifiesTableModelAndDatabase()
+    public void testEditMultipleTagsModifiesTableModelAndDatabase()
     {
         String oldTag1 = "something old1";
         String newTag1 = "something new1";
         String oldTag2 = "something old2";
         String newTag2 = "something new2";
         Set<String> uris = new HashSet();
-        uris.add(project.getURI());
-        uris.add(project2.getURI());
+        
+        Project project = makeProject();
+        project.addTag("tag1");
+        project.addTag("tag2");
+        uris.add(project.getURI().toString());
+        
+        Project project2 = makeProject();
+        project.addTag("tag1");
+        project.addTag("another tag");
+        uris.add(project2.getURI().toString());
         
         TestTreeKey key = new TestTreeKey(dsc, uris);
-  
-        DefaultTableModel m = (DefaultTableModel)key.createTableModel();
-      
-        TestCase.assertEquals(m.getRowCount(), 0);
+        EditableTableModel m = createTableModel(key, uris);
         
-        JTable table = new JTable();
-        EditableTable t = new EditableTable(table, new DummyTableTree());
-        TableNode n = new TableNode(key);
-        n.setPanel(t);
-        TagTableModelListener listener = new TagTableModelListener(uris, mockTree, n, dsc);
-        table.setModel(m);
-        m.addTableModelListener(listener);
-        
-        addTag(t, oldTag1, 0, m, listener);
-        addTag(t, oldTag2, 1, m, listener);
-        
-        //edit tag
-        m.setValueAt(newTag1, 0, 0);
-        TableModelEvent event = new TableModelEvent(m, 0, 0, 0, TableModelEvent.UPDATE);
-        listener.tableChanged(event);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        
-        //edit tag
-        m.setValueAt(newTag2, 1, 0);
-        event = new TableModelEvent(m, 1, 1, 0, TableModelEvent.UPDATE);
-        listener.tableChanged(event);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        m.setValueAt(oldTag1, 0, 0);
+        m.setValueAt(oldTag2, 1, 0);
         
         for (String uri : uris)
         {
-            ITaggableEntityBase eb = (ITaggableEntityBase)dsc.getContext().objectWithURI(uri);
+            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
+            assertContainsTag(newTag1, eb, false);
+            assertContainsTag(oldTag1, eb, true);
+            assertContainsTag(newTag2, eb, false);
+            assertContainsTag(oldTag2, eb, true);
+        }
+        
+        m.setValueAt(newTag1, 0, 0);
+        m.setValueAt(newTag2, 1, 0);
+
+        for (String uri : uris)
+        {
+            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, true);
             assertContainsTag(oldTag1, eb, false);
             assertContainsTag(newTag2, eb, true);
@@ -278,56 +145,61 @@ public class TagTableListenerTest extends OvationTestCase{
     {
         String newTag = "something";
         Set<String> uris = new HashSet();
-        uris.add(project.getURI());
-        uris.add(project2.getURI());
+        
+        Project project = makeProject();
+        project.addTag("tag1");
+        project.addTag("tag2");
+        uris.add(project.getURI().toString());
+        
+        Project project2 = makeProject();
+        project.addTag("tag1");
+        project.addTag("another tag");
+        uris.add(project2.getURI().toString());
         
         TestTreeKey key = new TestTreeKey(dsc, uris);
-  
-        DefaultTableModel m = (DefaultTableModel)key.createTableModel();
-      
-        TestCase.assertEquals(m.getRowCount(), 0);
-        
-        JTable table = new JTable();
-        EditableTable t = new EditableTable(table, new DummyTableTree());
-        TableNode n = new TableNode(key);
-        n.setPanel(t);
-        TagTableModelListener listener = new TagTableModelListener(uris, mockTree, n, dsc);
-        table.setModel(m);
-        m.addTableModelListener(listener);
-        
-        addTag(t, newTag, 0, m, listener);
+        EditableTableModel m = createTableModel(key, uris);
+        m.setValueAt(newTag, 0, 0);
         
         //edit tag
         m.setValueAt("", 0, 0);
-        TableModelEvent event = new TableModelEvent(m, 0, 0, 0, TableModelEvent.UPDATE);
-        listener.tableChanged(event);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-       
+
         for (String uri : uris)
         {
-            ITaggableEntityBase eb = (ITaggableEntityBase)dsc.getContext().objectWithURI(uri);
+            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
             assertContainsTag(newTag, eb, true);
         }
+        TestCase.assertEquals(m.getValueAt(0, 0), newTag);
     }
     
     @Test
     public void testUpdatesDatabaseAndTableModelWithRowDeletion()
     {
+        //Test:
+        //project1 contains tag1, tag2, tag3
+        //project2 contains tag1, tag3
+        //removing rows 0, 1 should 
+        //remove tag1 and tag2 from both projects
+        
         Set<String> uris = new HashSet();
-        uris.add(project.getURI());
-        uris.add(project2.getURI());
+        
+        Project project = makeProject();
+        project.addTag("tag1");
+        project.addTag("tag2");
+        uris.add(project.getURI().toString());
+        
+        Project project2 = makeProject();
+        project.addTag("tag1");
+        project.addTag("another tag");
+        uris.add(project2.getURI().toString());
         
         String newTag1 = "something";
         String newTag2 = "something2";
+        String newTag3= "something3";
         
         int i=0;
         for (String uri : uris)
         {
-            ITaggableEntityBase eb = (ITaggableEntityBase)dsc.getContext().objectWithURI(uri);
+            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
             eb.addTag(newTag1);
             assertContainsTag(newTag1, eb, true);
 
@@ -335,78 +207,70 @@ public class TagTableListenerTest extends OvationTestCase{
                 eb.addTag(newTag2);//only some uris have the second tag
                 assertContainsTag(newTag2, eb, true);
             }
+            eb.addTag(newTag3);
+            assertContainsTag(newTag3, eb, true);
         }
         
         TestTreeKey key = new TestTreeKey(dsc, uris);
-  
-        final DefaultTableModel m = new DefaultTableModel();
-        m.setDataVector(new Object[][]{new Object[]{newTag1}, new Object[]{newTag2}}, new Object[]{"Value"});
+        final EditableTableModel m = createTableModel(key, uris);
+        m.setValueAt(newTag1, 0, 0);
+        m.setValueAt(newTag2, 1, 0);
+        m.setValueAt(newTag3, 2, 0);
       
-        TestCase.assertEquals(m.getRowCount(), 2);
         TestCase.assertEquals(m.getValueAt(0, 0), newTag1);
         TestCase.assertEquals(m.getValueAt(1, 0), newTag2);
+        TestCase.assertEquals(m.getValueAt(2, 0), newTag3);
         
-        JTable table = new JTable();
-        EditableTable t = new EditableTable(table, new DummyTableTree());
-        TableNode n = new TableNode(key);
-        n.setPanel(t);
-        TagTableModelListener listener = new TagTableModelListener(uris, mockTree, n, dsc);
-        table.setModel(m);
-        m.addTableModelListener(listener);
-        
-        t.deleteRows(new int[] {0, 1});
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        editableTable.deleteRows(new int[] {0, 1});
         
         for (String uri : uris)
         {
-            ITaggableEntityBase eb = (ITaggableEntityBase)dsc.getContext().objectWithURI(uri);
+            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, false);
             assertContainsTag(newTag2, eb, false);
+            assertContainsTag(newTag3, eb, true);
+            
+            TestCase.assertEquals(m.getValueAt(0, 0), newTag3);
         }
-        
-        int rowCount = m.getRowCount();
-        TestCase.assertEquals(rowCount, 0);
     }
 
-    private void addTag(EditableTable t, String newTag, int row, DefaultTableModel m, TagTableModelListener listener)
-    {
-        t.addBlankRow();
-        m.setValueAt(newTag, row, 0);
-        TableModelEvent event = new TableModelEvent(m, row, row, 0, TableModelEvent.UPDATE);
-        listener.tableChanged(event);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }
-    
-    private void assertContainsTag(String t, ITaggableEntityBase eb, boolean b) {
+    private void assertContainsTag(String t, Taggable eb, boolean b) {
         boolean contains = false;
-        for (String tag : eb.getMyTags())
+        for (String tag : eb.getUserTags(dsc.getContext().getAuthenticatedUser()))
         {
             if (t.equals(tag))
             {
                 contains = true;
             }
         }
-        TestCase.assertEquals(contains, b);
+        TestCase.assertEquals(b, contains);
+    }
+
+    private EditableTableModel createTableModel(TestTreeKey key, Set<String> uris) {
+        EditableTableModel m = (EditableTableModel)key.createTableModel();
+
+        JTable table = new JTable();
+        editableTable = new EditableTable(table, new DummyTableTree());
+        m.setTable(table);
+        
+        TableNode n = new TableNode(key);
+        n.setPanel(editableTable);
+        TagTableModelListener listener = new TagTableModelListener(uris, mockTree, n, ctx);
+        table.setModel(m);
+        m.addTableModelListener(listener);
+        return m;
     }
     
     private class TestTreeKey extends TagsSet {
 
-        public TestTreeKey(IAuthenticatedDataStoreCoordinator dsc, Set<String> uris) {
-            super(dsc.getContext().currentAuthenticatedUser(), true, true , new ArrayList<String>(), uris);
+        public TestTreeKey(DataStoreCoordinator dsc, Set<String> uris) {
+            super(dsc.getContext().getAuthenticatedUser(), true, true , new ArrayList<String>(), uris);
         }
         
         @Override
         public TableModelListener createTableModelListener(ScrollableTableTree t, TableNode n) {
             if (isEditable()) {
-                return new TagTableModelListener(uris, (ExpandableJTree) t.getTree(), n, dsc);
+                return new TagTableModelListener(uris, (ExpandableJTree) t.getTree(), n, ctx);
             }
             return null;
         }

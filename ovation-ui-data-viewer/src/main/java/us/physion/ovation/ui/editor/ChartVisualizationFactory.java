@@ -6,7 +6,12 @@ package us.physion.ovation.ui.editor;
 
 import org.jfree.data.xy.DefaultXYDataset;
 import org.openide.util.lookup.ServiceProvider;
-import ovation.Response;
+import us.physion.ovation.domain.NumericDataElements;
+import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.exceptions.OvationException;
+import us.physion.ovation.values.NumericData;
+
+import java.util.concurrent.ExecutionException;
 
 @ServiceProvider(service = VisualizationFactory.class)
 /**
@@ -16,21 +21,44 @@ import ovation.Response;
 public class ChartVisualizationFactory implements VisualizationFactory{
 
    @Override
-    public Visualization createVisualization(Response r) {
-       ChartWrapper cw = new ChartWrapper(r);
-        ChartGroupWrapper g = new ChartGroupWrapper(new DefaultXYDataset(), cw.xunits, cw.yunits);
-        g.setTitle(cw.getName());
-        g.addXYDataset(cw);
+    public Visualization createVisualization(DataElement r) {
+       
+        if (!NumericDataElements.isNumeric(r))
+        {
+            throw new OvationException("Can only plot Numeric data with the ChartVisualization plugin");
+        }
+        NumericData data;
+            try {
+                data = NumericDataElements.getNumericData(r).get();
+            } catch (InterruptedException ex) {
+                throw new OvationException(ex.getMessage());
+            } catch (ExecutionException ex) {
+                throw new OvationException(ex.getMessage());
+            }
+
+        ChartGroupWrapper g = new ChartGroupWrapper(new DefaultXYDataset(), data);
+        g.setTitle(r.getName());
+
+        for (NumericData.Data d : data.getData().values())
+        {
+            g.addXYDataset(d);
+        }
         return g;
     }
 
     @Override
-    public int getPreferenceForDataContainer(Response r) {
-        if (r.getUTI().equals(Response.NUMERIC_DATA_UTI) && r.getShape().length == 1)
+    public int getPreferenceForDataContainer(DataElement r) {
+        if (NumericDataElements.isNumeric(r))
         {
-            return 100;
+            try {
+                if (NumericDataElements.getNumericData(r).get().getData().size() == 1);
+            } catch (InterruptedException ex) {
+                return -1;
+            } catch (ExecutionException ex) {
+                return -1;
+            }
+                return 100;
         }
         return -1;
     }
-    
 }

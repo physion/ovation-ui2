@@ -4,6 +4,9 @@
  */
 package us.physion.ovation.ui.detailviews;
 
+import us.physion.ovation.ui.ResizableTree;
+import us.physion.ovation.ui.TableNode;
+
 /**
  *
  * @author jackie

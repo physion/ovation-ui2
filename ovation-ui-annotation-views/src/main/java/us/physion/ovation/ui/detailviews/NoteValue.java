@@ -7,9 +7,6 @@ package us.physion.ovation.ui.detailviews;
 import java.sql.Timestamp;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import ovation.IAnnotation;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.TimelineAnnotation;
 
 /**
  *
@@ -21,7 +18,8 @@ public class NoteValue implements Comparable<NoteValue> {
     String uri;
     DateTime timestamp;
 
-    public NoteValue(IAnnotation ann) {
+    /*public NoteValue(IAnnotation ann) {
+        
         uri = ann.getURIString();
         text = ann.getText();
         Timestamp ts = (Timestamp) (ann.getMyProperty("ovation_timestamp"));
@@ -58,5 +56,10 @@ public class NoteValue implements Comparable<NoteValue> {
         if (ts != null && timezone != null && !timezone.isEmpty()) {
             timestamp = new DateTime(ts, DateTimeZone.forID(timezone));
         }
+    }*/
+
+    @Override
+    public int compareTo(NoteValue t) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

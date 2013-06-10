@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import javax.swing.AbstractAction;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
@@ -15,16 +16,13 @@ import org.openide.WizardDescriptor.Panel;
 import org.openide.nodes.Children;
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
-import ovation.IAuthenticatedDataStoreCoordinator;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.browser.EntityChildren;
 import us.physion.ovation.ui.browser.EntityNode;
-import us.physion.ovation.ui.browser.moveme.EntityInsertable;
-import us.physion.ovation.ui.browser.moveme.ProjectInsertable;
-import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import us.physion.ovation.ui.interfaces.IEntityWrapper;
-import us.physion.ovation.ui.interfaces.ResetBrowser;
-import us.physion.ovation.ui.interfaces.ResettableNode;
+import us.physion.ovation.ui.interfaces.*;
 
 /**
  *
@@ -41,12 +39,11 @@ public class InsertEntity extends AbstractAction implements EntityInsertable{
         wiz.setTitleFormat(new MessageFormat("{0} ({1})"));
         wiz.setTitle("Insert Entity");
         if (DialogDisplayer.getDefault().notify(wiz) == WizardDescriptor.FINISH_OPTION) {
-            wizardFinished(wiz, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection(), parent);
+            wizardFinished(wiz, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext(), parent);
             ResettableNode node = getEntityNode();
             if (node == null)
             {
                 //we've just inserted a root Source or Project, so reset the entire view for now?
-       
                 Collection<? extends ResetBrowser> entities = Utilities.actionsGlobalContext().lookupResult(ResetBrowser.class).allInstances();
                 if (entities.size() == 1) {
                     ResetBrowser b = entities.iterator().next();
@@ -107,7 +104,37 @@ public class InsertEntity extends AbstractAction implements EntityInsertable{
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wiz, IAuthenticatedDataStoreCoordinator dsc, IEntityWrapper ew) {
+    public void wizardFinished(WizardDescriptor wiz, DataContext c, IEntityWrapper ew) {
         throw new UnsupportedOperationException("Subclasses of InsertEntity should implement the wizardFinished method");
+    }
+    
+    protected Protocol getProtocolFromProtocolSelector(DataContext context, Map<String, String> newProtocols, String selectedProtocolName, Protocol existingProtocol)
+    {
+        if (newProtocols == null)
+            return null;
+        
+        Protocol protocol = null;
+        for(String name : newProtocols.keySet())
+        {
+            String doc = newProtocols.get(name);
+            Protocol p = context.insertProtocol(
+                    name,
+                    newProtocols.get(name));
+            if (name.equals(selectedProtocolName)) 
+            {
+                protocol = p;
+            }
+        }
+        if (protocol == null)
+            return existingProtocol;
+        
+        return protocol;
+    }
+    
+    String combine(String prefix, String key)
+    {
+        if (prefix == null || prefix.isEmpty())
+            return key;
+        return prefix + "." + key;
     }
 }

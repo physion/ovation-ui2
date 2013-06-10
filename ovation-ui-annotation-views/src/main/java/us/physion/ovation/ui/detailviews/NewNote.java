@@ -24,10 +24,7 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.windows.TopComponent;
-import ovation.IAnnotatableEntityBase;
-import ovation.IAnnotation;
-import ovation.ITimelineElement;
-import ovation.Note;
+import us.physion.ovation.domain.AnnotatableEntity;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 @ActionID(category = "Tools",
@@ -42,7 +39,7 @@ public final class NewNote implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         //Lookup entities
-        Collection<? extends IEntityWrapper> entities = Utilities.actionsGlobalContext().lookupAll(IEntityWrapper.class);
+        /*Collection<? extends IEntityWrapper> entities = Utilities.actionsGlobalContext().lookupAll(IEntityWrapper.class);
         NotesTopComponent component = Lookup.getDefault().lookup(NotesTopComponent.class);
         if (entities.isEmpty() && component != null && component.getEntities() != null)
         {
@@ -51,7 +48,7 @@ public final class NewNote implements ActionListener {
         boolean annotatable = false;
         for (IEntityWrapper ent : entities)
         {
-            if (IAnnotatableEntityBase.class.isAssignableFrom(ent.getType()))
+            if (AnnotatableEntity.class.isAssignableFrom(ent.getType()))
             {
                 annotatable = true;
             }
@@ -85,6 +82,6 @@ public final class NewNote implements ActionListener {
                     }
                 }
             }
-        }
+        }*/
     }
 }

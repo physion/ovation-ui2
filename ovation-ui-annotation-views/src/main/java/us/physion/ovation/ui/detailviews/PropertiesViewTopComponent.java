@@ -17,13 +17,17 @@ import org.openide.util.LookupListener;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
-import ovation.DataContext;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.IEntityBase;
-import ovation.User;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.AnnotatableEntity;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.User;
+import us.physion.ovation.domain.mixin.Owned;
+import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
+
 
 /**
  * Top component which displays something.
@@ -74,19 +78,20 @@ public final class PropertiesViewTopComponent extends TopComponent {
         });
     }
     
-    public ScrollableTableTree getTableTree()
+    public us.physion.ovation.ui.ScrollableTableTree getTableTree()
     {
-        return (ScrollableTableTree)jScrollPane1;
+        return (us.physion.ovation.ui.ScrollableTableTree)jScrollPane1;
     }        
        
-    protected void setTableTree(ScrollableTableTree t)
+    protected void setTableTree(us.physion.ovation.ui.ScrollableTableTree t)
     {
         jScrollPane1 = t;
     }
     
     public void update(final Collection<? extends IEntityWrapper> entities)
     {
-        setEntities(entities, null);
+        DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+        setEntities(entities, c);
         
         if (entities.size() > 1) {
             EventQueueUtilities.runOnEDT(new Runnable() {
@@ -109,37 +114,33 @@ public final class PropertiesViewTopComponent extends TopComponent {
         }
     }
     
-    protected ArrayList<TableTreeKey> setEntities(Collection<? extends IEntityWrapper> entities, IAuthenticatedDataStoreCoordinator dsc)
+    protected List<TableTreeKey> setEntities(Collection<? extends IEntityWrapper> entities, DataContext c)
     {
-        DataContext c;
-        if (dsc == null) {
-            c = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection().getContext();
-        }else{
-            c = dsc.getContext();
-        }
-
-        ArrayList<TableTreeKey> properties = new ArrayList<TableTreeKey>();
+        List<TableTreeKey> properties = new ArrayList<TableTreeKey>();
         Set<String> uris = new HashSet<String>();
-        Set<IEntityBase> entitybases = new HashSet();
+        Set<OvationEntity> entitybases = new HashSet();
         Set<String> owners = new HashSet();
         for (IEntityWrapper w : entities) {
-            IEntityBase e = w.getEntity();
+            OvationEntity e = w.getEntity();
             entitybases.add(e);
-            uris.add(e.getURIString());
-            owners.add(e.getOwner().getUuid());
+            uris.add(e.getURI().toString());
+            if (e instanceof Owned)
+            {
+                owners.add(((Owned)e).getOwner().getUuid().toString());
+            }
         }
 
-        String currentUserUUID = c.currentAuthenticatedUser().getUuid();
-        Iterator<User> users = c.getUsersIterator();
+        String currentUserUUID = c.getAuthenticatedUser().getUuid().toString();
         boolean containsCurrentUser = false;//current user's property table should always exist, even if there are no properties
-        while (users.hasNext()) {
-            User u = users.next();
+        
+        for (User u : c.getUsers()) {
             Map<String, Object> userProps = new HashMap();
-            for (IEntityBase e : entitybases) {
-                userProps.putAll(e.getUserProperties(u));
+            for (OvationEntity e : entitybases) {
+                if (e instanceof AnnotatableEntity)
+                    userProps.putAll(((AnnotatableEntity)e).getUserProperties(u));
             }
             if (!userProps.isEmpty()) {
-                String uuid = u.getUuid();
+                String uuid = u.getUuid().toString();
                 UserPropertySet propertySet;
                 if (currentUserUUID.equals(uuid)) {
                     containsCurrentUser = true;
@@ -151,8 +152,8 @@ public final class PropertiesViewTopComponent extends TopComponent {
             }
         }
         if (!containsCurrentUser) {
-            User current = c.currentAuthenticatedUser();
-            properties.add(new UserPropertySet(current, owners.contains(current.getUuid()), true, new HashMap<String, Object>(), uris));
+            User current = c.getAuthenticatedUser();
+            properties.add(new UserPropertySet(current, true, true, new HashMap<String, Object>(), uris));
         }
         
         Collections.sort(properties);
@@ -185,7 +186,7 @@ public final class PropertiesViewTopComponent extends TopComponent {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new ScrollableTableTree();
+        jScrollPane1 = new us.physion.ovation.ui.ScrollableTableTree();
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

@@ -4,93 +4,88 @@
  */
 package us.physion.ovation.ui.test;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.inject.*;
+import com.google.inject.name.Names;
+import com.google.inject.util.Modules;
 import java.io.File;
-import java.net.InetAddress;
-import java.util.HashSet;
-import java.util.Set;
-import org.joda.time.DateTime;
+import java.io.IOException;
+import java.net.*;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.*;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.database.DatabaseManager;
 import static org.junit.Assert.*;
-import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.FileService;
+import us.physion.ovation.OvationWebApi;
+import us.physion.ovation.api.*;
+import us.physion.ovation.couch.CouchServiceManager;
+import us.physion.ovation.couch.OvationCouchModule;
+import us.physion.ovation.domain.Group;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.User;
+import us.physion.ovation.domain.dao.EntityDao;
+import us.physion.ovation.domain.dto.EntityBase;
+import us.physion.ovation.exceptions.OvationException;
+import us.physion.ovation.exceptions.UserAccessException;
+import us.physion.ovation.validation.ValidationResult;
+import us.physion.ovation.api.OvationApiModule;
+import us.physion.ovation.test.util.*;
 /**
  *
  * @author huecotanks
  */
 public class OvationTestCase {
 
-    public OvationTestCase() { }
-    private TestManager tm;
-    public IAuthenticatedDataStoreCoordinator dsc;
-
-    public void setTestManager(TestManager mgr)
+    public OvationTestCase() {
+        
+    }
+    public static DataStoreCoordinator dsc;
+    public final static String EMAIL = "email@email.com";
+    public final static String PASSWORD = "password";
+    public final static String UNUSED_KEY = "UNUSED KEY";
+    
+    static LocalStack local_stack;
+    public DataContext ctx;
+    
+    @BeforeClass
+    public static void setUpClass() throws InterruptedException, ExecutionException {
+        java.lang.Thread.sleep(1000);
+         local_stack = new TestUtils().makeLocalStack(new OvationApiModule(),
+                                          EMAIL.replace("@", "-").replace(".", "-"),
+                                          EMAIL,
+                                          PASSWORD);
+         
+         dsc = local_stack.getAuthenticatedDataStoreCoordinator();
+    }
+    
+    @Before
+    public void setUp()
     {
-	tm = mgr;
+        ctx = dsc.getContext();
+    }
+    
+    public Injector getInjector()
+    {
+        return local_stack.getInjector();
+    }
+    
+    public User createNewUser(String userName, String email, String password)
+    {
+        return local_stack.createUser(userName, email, password.toCharArray());
     }
 
-    
-   public static void setUpDatabase(TestManager tm, int defaultID) {
-
-        File f = new File(tm.getConnectionFile());
-        if (!f.exists()) {
-            String lockServer = System.getProperty("OVATION_LOCK_SERVER");
-            if(lockServer == null) {
-		try{
-		    lockServer = InetAddress.getLocalHost().getHostName();
-            	} catch (java.net.UnknownHostException e){
-		    lockServer = "127.0.0.1";
-		}
-	    }
-            
-            String nodeFdIdString = System.getProperty("NODE_FDID");
-	    if (nodeFdIdString == null)
-	    {
-		nodeFdIdString = System.getenv("NODE_FDID");
-	    }
-	    if (nodeFdIdString == null)
-	    {
-		nodeFdIdString = "0";
-	    }
-	    int nodeFdId = Integer.parseInt(nodeFdIdString);
-
-
-            String jobFdIdString = System.getProperty("JOB_FDID");
-	    if (jobFdIdString == null)
-	    {
-		jobFdIdString = System.getenv("JOB_FDID");
-	    }
-	    int jobFdId = defaultID;
-	    if (jobFdIdString != null)
-	    {
-	        jobFdId = Integer.parseInt(jobFdIdString);
-	    }
-            
-            DatabaseManager.createLocalDatabase(tm.getConnectionFile(), lockServer, nodeFdId + jobFdId);
+    @AfterClass
+    public static void tearDownClass() throws InterruptedException {
+        if (local_stack != null) {
+            local_stack.cleanUp();
         }
-
     }
-    public static void tearDownDatabase(TestManager tm) throws Exception {
-        DatabaseManager.deleteLocalDatabase(tm.getConnectionFile());
-    }
-
-    
-    public IAuthenticatedDataStoreCoordinator setUpTest() {
-        IAuthenticatedDataStoreCoordinator dsc = null;
-	try {
-            dsc = tm.setupDatabase();
-        } catch (Exception e) {
-	    System.err.println(e.getMessage());
-            tearDownTest();
-            fail(e.getMessage());
-        }
-
-        Ovation.enableLogging(LogLevel.DEBUG);
-	return dsc;
-    }
-
-    public void tearDownTest() {
-        tm.tearDownDatabase();
-    }
-    
 }

@@ -5,6 +5,10 @@
 package us.physion.ovation.ui.interfaces;
 
 import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /**
@@ -13,15 +17,14 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  */
 public class TestEntityWrapper implements IEntityWrapper{
 
-    IAuthenticatedDataStoreCoordinator dsc; 
+    DataContext ctx;
     String uri;
     String displayName;
     Class type;
-    public TestEntityWrapper(IAuthenticatedDataStoreCoordinator dsc, IEntityBase e)
+    public TestEntityWrapper(DataContext ctx, OvationEntity e)
     {
-        this.dsc = dsc;
-        dsc.getContext();
-        uri = e.getURIString();
+        this.ctx = ctx;
+        uri = e.getURI().toString();
         type = e.getClass();
         displayName = inferDisplayName(e);
     }
@@ -31,8 +34,8 @@ public class TestEntityWrapper implements IEntityWrapper{
     }
 
     @Override
-    public IEntityBase getEntity() {
-        return dsc.getContext().objectWithURI(uri);
+    public OvationEntity getEntity() {
+        return ctx.getObjectWithURI(uri);
     }
 
     @Override
@@ -46,7 +49,7 @@ public class TestEntityWrapper implements IEntityWrapper{
     }
     
     //TODO: call this on some static method in our iterfaces jar
-    protected String inferDisplayName(IEntityBase e)
+    protected String inferDisplayName(OvationEntity e)
     {
         Class type = e.getClass();
         if (type.isAssignableFrom(Source.class))
@@ -58,7 +61,7 @@ public class TestEntityWrapper implements IEntityWrapper{
             return ((Project)e).getName();
         }else if (type.isAssignableFrom(Experiment.class))
         {
-            return ((Experiment)e).getStartTime().toString("MM/dd/yyyy-hh:mm:ss");
+            return ((Experiment)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
         }
         else if (type.isAssignableFrom(EpochGroup.class))
         {
@@ -66,25 +69,22 @@ public class TestEntityWrapper implements IEntityWrapper{
         }
         else if (type.isAssignableFrom(Epoch.class))
         {
-            return ((Epoch)e).getProtocolID();
+            return ((Epoch)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
         }
-        else if (type.isAssignableFrom(Response.class))
+        else if (type.isAssignableFrom(Measurement.class))
         {
-            return ((Response)e).getExternalDevice().getName();
-        }
-        else if (type.isAssignableFrom(Stimulus.class))
-        {
-            return ((Stimulus)e).getExternalDevice().getName();
-        }
-        else if (type.isAssignableFrom(DerivedResponse.class))
-        {
-            return ((DerivedResponse)e).getName();
+            return ((Measurement)e).getName();
         }
         else if (type.isAssignableFrom(AnalysisRecord.class))
         {
             return ((AnalysisRecord)e).getName();
         }
         return "<no name>";
+    }
+
+    @Override
+    public <T extends OvationEntity> T getEntity(Class<T> clazz) {
+        return (T)getEntity();
     }
     
 }

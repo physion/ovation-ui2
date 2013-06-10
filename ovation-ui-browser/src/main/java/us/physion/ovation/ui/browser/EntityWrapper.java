@@ -4,12 +4,12 @@
  */
 package us.physion.ovation.ui.browser;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.Callable;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
-import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.*;
+import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -23,9 +23,9 @@ public class EntityWrapper implements IEntityWrapper {
     private Class type;
     private String displayName;
     
-    public EntityWrapper(IEntityBase e)
+    public EntityWrapper(OvationEntity e)
     {
-        uri = e.getURIString();
+        uri = e.getURI().toString();
         type = e.getClass();
         displayName = EntityWrapper.inferDisplayName(e);
     }
@@ -39,16 +39,15 @@ public class EntityWrapper implements IEntityWrapper {
     }
     
     @Override
-    public IEntityBase getEntity(){
-        IEntityBase b = null;
+    public OvationEntity getEntity(){
+        OvationEntity b = null;
         try{
-            IAuthenticatedDataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
-            if (dsc == null)
+            DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+            if (c == null)
             {
                 return null;
             }
-            DataContext c = dsc.getContext();
-            b = c.objectWithURI(uri);
+            b = c.getObjectWithURI(uri);
         
         } catch (RuntimeException e)
         {
@@ -72,43 +71,44 @@ public class EntityWrapper implements IEntityWrapper {
     @Override
     public Class getType() { return type;}
 
-    public static String inferDisplayName(IEntityBase e) {
+    public static String inferDisplayName(OvationEntity e) {
 	Class type = e.getClass();
-        if (type.isAssignableFrom(Source.class))
+        if (Source.class.isAssignableFrom(type))
         {
             return ((Source)e).getLabel();
         }
-        else if (type.isAssignableFrom(Project.class))
+        else if (Project.class.isAssignableFrom(type))
         {
             return ((Project)e).getName();
-        }else if (type.isAssignableFrom(Experiment.class))
+        }else if (Experiment.class.isAssignableFrom(type))
         {
-            return ((Experiment)e).getStartTime().toString("MM/dd/yyyy-hh:mm:ss");
+            return ((Experiment)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
         }
-        else if (type.isAssignableFrom(EpochGroup.class))
+        else if (EpochGroup.class.isAssignableFrom(type))
         {
             return ((EpochGroup)e).getLabel();
         }
-        else if (type.isAssignableFrom(Epoch.class))
+        else if (Epoch.class.isAssignableFrom(type))
         {
-            return ((Epoch)e).getProtocolID();
+            if (((Epoch)e).getProtocol() != null)
+                return ((Epoch)e).getProtocol().getName();
+            else{
+                return ((Epoch)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
+            }
         }
-        else if (type.isAssignableFrom(Response.class) || type.isAssignableFrom(URLResponse.class) )
+        else if (DataElement.class.isAssignableFrom(type))
         {
-            return ((Response)e).getExternalDevice().getName();
-        }
-        else if (type.isAssignableFrom(Stimulus.class))
-        {
-            return ((Stimulus)e).getExternalDevice().getName();
-        }
-        else if (type.isAssignableFrom(DerivedResponse.class))
-        {
-            return ((DerivedResponse)e).getName();
-        }
-        else if (type.isAssignableFrom(AnalysisRecord.class))
-        {
-            return ((AnalysisRecord)e).getName();
+            return ((DataElement)e).getName();
         }
         return "<no name>";
+    }
+
+    @Override
+    public <T extends OvationEntity> T getEntity(Class<T> clazz) {
+        if (clazz.isAssignableFrom(getType()))
+        {
+            return (T)getEntity();
+        }
+        return null;
     }
 }

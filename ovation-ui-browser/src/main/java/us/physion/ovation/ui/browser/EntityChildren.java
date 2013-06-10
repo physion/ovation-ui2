@@ -4,7 +4,9 @@
  */
 package us.physion.ovation.ui.browser;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
@@ -19,6 +21,10 @@ import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.*;
+import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -33,12 +39,13 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
     EntityWrapper parent;
     boolean projectView;
-    IAuthenticatedDataStoreCoordinator dsc;
+    DataContext c;
 
-    EntityChildren(EntityWrapper e, boolean pView, IAuthenticatedDataStoreCoordinator theDSC) {
+    EntityChildren(EntityWrapper e, boolean pView, DataContext context) {
         parent = e;
         projectView = pView;
-        dsc = theDSC;
+        c = context;
+        //if its per user, we create 
         if (e instanceof PerUserEntityWrapper)
         {
             setKeys(((PerUserEntityWrapper)e).getChildren());
@@ -53,14 +60,14 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
             @Override
             public Children call() throws Exception {
-                return new EntityChildren(key, projectView, dsc);
+                return new EntityChildren(key, projectView, c);
             }
         };
     }
 
     @Override
-    protected Node[] createNodes(final EntityWrapper key) {
-
+    protected Node[] createNodes(final EntityWrapper key) 
+    {
         return new Node[]{EntityWrapperUtilities.createNode(key, Children.createLazy(getChildrenCallable(key)))};
     }
 
@@ -96,26 +103,21 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
     
     protected void createKeys() {
         
-        if (dsc == null)
-            dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
-        if (dsc == null) {
+        if (c == null)
+            c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+        if (c == null) {
             return;
         }
-        DataContext c = dsc.getContext();
         
         if (parent == null) {
             List<EntityWrapper> list = new LinkedList<EntityWrapper>();
             //case root node: add entityWrapper for each project
             if (projectView) {
                 for (Project p : c.getProjects()) {
-                    p.getURIString();
                     list.add(new EntityWrapper(p));
                 }
             } else {
-                Iterator<Source> itr = c.query(Source.class, "isNull(parent)");
-                while (itr.hasNext()) {
-                    Source s = itr.next();
-                    s.getURIString();
+                for (Source s : c.getTopLevelSources()) {
                     list.add(new EntityWrapper(s));
                 }
             }
@@ -128,94 +130,101 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
     protected List<EntityWrapper> createKeysForEntity(DataContext c, EntityWrapper ew) {
 
-        DataContext context = dsc.getContext();
         List<EntityWrapper> list = new LinkedList<EntityWrapper>();
         Class entityClass = ew.getType();
         if (projectView) {
-            if (entityClass.isAssignableFrom(Project.class)) {
+            if (Project.class.isAssignableFrom(entityClass)) {
                 Project entity = (Project) ew.getEntity();
-                for (Experiment e : entity.getExperiments()) {
+                for (Experiment e : entity.getExperiments())
+                {
                     list.add(new EntityWrapper(e));
                 }
-                String currentUser = c.currentAuthenticatedUser().getUsername();
+                String currentUser = c.getAuthenticatedUser().getUsername();
 
-                Iterator<User> userItr = c.getUsersIterator();
-                while (userItr.hasNext()) {
-                    User user = userItr.next();
-                    String username = user.getUsername();
-                    Iterator<AnalysisRecord> itr = entity.getAnalysisRecordIterable(user).iterator();
-                    if (itr.hasNext()) {
-                        List<EntityWrapper> l = new LinkedList();
-                        while (itr.hasNext()) {
-                            l.add(new EntityWrapper(itr.next()));
-                        }
-                        list.add(new PerUserEntityWrapper(username, user.getURIString(), l));
-                    }
+                for (User user : c.getUsers()) {
+                    List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
+                            new Function<AnalysisRecord, EntityWrapper>() {
+
+                                @Override
+                                public EntityWrapper apply(AnalysisRecord f) {
+                                    return new EntityWrapper(f);
+                                }
+                            }));
+                    if (l.size() > 0)
+                        list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));
+                    
                 }
 
                 return list;
             }
         } else {
-            if (entityClass.isAssignableFrom(Source.class)) {
+            if (Source.class.isAssignableFrom(entityClass)) {
                 Source entity = (Source) ew.getEntity();
-                for (Source e : entity.getChildren()) {
+                for (Source e : entity.getChildrenSources()) {
                     list.add(new EntityWrapper(e));
                 }
-                for (Experiment e : entity.getExperiments()) {
+                for (Epoch e : entity.getEpochs()) {
                     list.add(new EntityWrapper(e));
                 }
                 return list;
             }
         }
-        if (entityClass.isAssignableFrom(Experiment.class)) {
+        if (Experiment.class.isAssignableFrom(entityClass)) {
             Experiment entity = (Experiment) ew.getEntity();
 
             for (EpochGroup eg : entity.getEpochGroups()) {
                 list.add(new EntityWrapper(eg));
             }
+            for (Epoch e : entity.getEpochs())
+            {
+                list.add(new EntityWrapper(e));
+            }
             return list;
-        } else if (entityClass.isAssignableFrom(EpochGroup.class)) {
+        } else if (EpochGroup.class.isAssignableFrom(entityClass)) {
             EpochGroup entity = (EpochGroup) ew.getEntity();
 
-            for (EpochGroup eg : entity.getChildren()) {
+            for (EpochGroup eg : entity.getEpochGroups()) {
                 list.add(new EntityWrapper(eg));
             }
             
-            context.beginTransaction();
+            c.beginTransaction();//we wrap these in a transaction, because there may be a lot of epochs
             try {
                 for (Epoch e : entity.getEpochs()) {
                     list.add(new EntityWrapper(e));
                 }
             } finally{
-                context.commitTransaction();
+                c.commitTransaction();
             }
             return list;
-        } else if (entityClass.isAssignableFrom(Epoch.class)) {
-            context.beginTransaction();
+        } else if (Epoch.class.isAssignableFrom(entityClass)) {
+            c.beginTransaction();//we wrap this in a transaction, because there may be a lot of epochs
             try {
                 Epoch entity = (Epoch) ew.getEntity();
-                for (Stimulus s : entity.getStimulusIterable()) {
-                    list.add(new EntityWrapper(s));
-                }
-                for (Response r : entity.getResponseIterable()) {
-                    list.add(new EntityWrapper(r));
+                for (Measurement m : entity.getMeasurements()) {
+                    list.add(new EntityWrapper(m));
                 }
 
-                Iterator<User> userItr = c.getUsersIterator();
-                while (userItr.hasNext()) {
-                    User user = userItr.next();
-                    String username = user.getUsername();
-                    Iterator<DerivedResponse> itr = entity.getDerivedResponseIterable(user).iterator();
-                    if (itr.hasNext()) {
-                        List<EntityWrapper> l = new LinkedList();
-                        while (itr.hasNext()) {
-                            l.add(new EntityWrapper(itr.next()));
-                        }
-                        list.add(new PerUserEntityWrapper(username, user.getURIString(), l));
-                    }
+                for (User user : c.getUsers()) {
+                    List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
+                            new Function<AnalysisRecord, EntityWrapper>() {
+
+                                @Override
+                                public EntityWrapper apply(AnalysisRecord f) {
+                                    return new EntityWrapper(f);
+                                }
+                            }));
+                    if (l.size() > 0)
+                        list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));    
                 }
             } finally {
-                context.commitTransaction();
+                c.commitTransaction();
+            }
+        } else if(AnalysisRecord.class.isAssignableFrom(entityClass))
+        {
+            AnalysisRecord entity = (AnalysisRecord) ew.getEntity();
+            for(DataElement d : entity.getOutputs().values())
+            {
+                list.add(new EntityWrapper(d));
             }
         }
         return list;

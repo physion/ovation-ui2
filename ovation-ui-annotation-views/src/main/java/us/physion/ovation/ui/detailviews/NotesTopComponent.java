@@ -25,8 +25,8 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ServiceProvider;
-import ovation.IAnnotation;
-import ovation.IAuthenticatedDataStoreCoordinator;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
@@ -98,10 +98,10 @@ public final class NotesTopComponent extends TopComponent {
         global.addLookupListener(listener);
     }
 
-    public void addNote(IAnnotation ann)
+    /*public void addNote(IAnnotation ann)
     {
         notesModel.addNote(ann);
-    }
+    }*/
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -204,13 +204,13 @@ public final class NotesTopComponent extends TopComponent {
     public void update()
     {
         Collection<? extends IEntityWrapper> entities = global.allInstances();
-        update(Lookup.getDefault().lookup(ConnectionProvider.class).getConnection(), entities);
+        update(Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext(), entities);
     }
     
-    public void update(IAuthenticatedDataStoreCoordinator dsc, Collection<? extends IEntityWrapper> entities)
+    public void update(DataContext c, Collection<? extends IEntityWrapper> entities)
     {
         this.entities = entities;
-        notesModel.setDSC(dsc);
+        notesModel.setContext(c);
         setEntities(entities);
     }
     

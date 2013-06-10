@@ -12,6 +12,10 @@ import org.openide.util.NbBundle.Messages;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import org.openide.util.Lookup;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.DataStoreCoordinator;
 
 @ActionID(category = "Edit",
 id = "us.physion.ovation.ui.database.LogoutAction")
@@ -26,6 +30,7 @@ displayName = "#CTL_LogoutAction")
 public final class LogoutAction implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
-        // TODO implement action body
+        DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+        ctx.getCoordinator().logout();
     }
 }

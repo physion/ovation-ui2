@@ -17,6 +17,12 @@ import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
 import ovation.*;
+import us.physion.ovation.domain.AnalysisRecord;
+import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.Protocol;
+import us.physion.ovation.domain.mixin.ProcedureElement;
+import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -75,22 +81,15 @@ public final class ParametersTopComponent extends TopComponent {
         Map<String, Map<String, Object>> tables = new HashMap<String, Map<String, Object>>();
         for (IEntityWrapper ew : entities)
         {
-            IEntityBase eb = ew.getEntity();
-            if (eb instanceof Epoch)
-            {
-                addParams(tables, "Protocol Parameters", ((Epoch)eb).getProtocolParameters());
-            }
-            if (eb instanceof Stimulus)
-            {
-               addParams(tables, "Stimulus Parameters", ((Stimulus)eb).getStimulusParameters());
-            }
-            if (eb instanceof IIOBase)
-            {
-                addParams(tables, "Device Parameters", ((IIOBase)eb).getDeviceParameters());
-            }
+            OvationEntity eb = ew.getEntity();
             if (eb instanceof AnalysisRecord)
             {
-                addParams(tables, "Analysis Parameters", ((AnalysisRecord)eb).getAnalysisParameters());
+                addParams(tables, "Analysis Parameters", ((AnalysisRecord)eb).getProtocolParameters());
+            }
+            else if (eb instanceof ProcedureElement)
+            {
+                addParams(tables, "Device Parameters", ((ProcedureElement)eb).getDeviceParameters());
+                addParams(tables, "Protocol Parameters", ((ProcedureElement)eb).getProtocolParameters());
             }
         }
         ArrayList<TableTreeKey> tableKeys = new ArrayList<TableTreeKey>();

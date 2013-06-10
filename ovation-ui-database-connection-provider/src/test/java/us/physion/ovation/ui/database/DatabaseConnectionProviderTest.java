@@ -11,22 +11,14 @@ import java.util.Map;
 import org.junit.*;
 import static org.junit.Assert.*;
 import org.openide.util.Exceptions;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.LogLevel;
-import ovation.Ovation;
-import ovation.database.DatabaseManager;
-import us.physion.ovation.ui.test.TestManager;
 import us.physion.ovation.ui.interfaces.IUpgradeDB;
-import us.physion.ovation.ui.test.OvationTestCase;
 
 /**
  *
  * @author huecotanks
  */
-public class DatabaseConnectionProviderTest extends OvationTestCase {
+public class DatabaseConnectionProviderTest {//extends OvationTestCase {
     
-    static TestManager mgr = new DBConnectionTestManager();
-
     private class DummyDialog implements CancellableDialog {
 
         boolean cancelled = false;
@@ -41,29 +33,6 @@ public class DatabaseConnectionProviderTest extends OvationTestCase {
         public void showDialog(){}
     }
     public DatabaseConnectionProviderTest() {
-        setTestManager(mgr); //this is because there are static and non-static methods that need to use the test manager
-    }
-    
-    @BeforeClass
-    public static void setUpClass()
-    {
-        OvationTestCase.setUpDatabase(mgr, 3);
-    }
-    
-    @Before
-    public void setUp() {
-       dsc = setUpTest();
-    }
-    
-    @After
-    public void tearDown()
-    {
-        tearDownTest();
-    }
-    
-     @AfterClass
-    public static void tearDownClass() throws Exception {
-        OvationTestCase.tearDownDatabase(mgr);
     }
     
     @Test

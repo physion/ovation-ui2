@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Sets;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.DicomInputStream;
 import com.pixelmed.display.SingleImagePanel;
@@ -19,9 +20,11 @@ import java.util.*;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import javax.swing.*;
+import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -44,17 +47,11 @@ import org.openide.util.LookupListener;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
-import ovation.*;
-import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import org.jfree.data.*;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.general.Dataset;
-import org.jfree.data.xy.DefaultXYDataset;
-import org.jfree.ui.RectangleInsets;
-import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
-import org.openide.util.*;
+import org.slf4j.LoggerFactory;
+import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.ui.interfaces.ClickableCellEditor;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -74,9 +71,9 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_ResponseViewAction",
 preferredID = "ResponseViewTopComponent")
 @Messages({
-    "CTL_ResponseViewAction=Response View",
-    "CTL_ResponseViewTopComponent=Response Viewer",
-    "HINT_ResponseViewTopComponent=This plots the currently selected numeric Response data"
+    "CTL_ResponseViewAction=Selection View",
+    "CTL_ResponseViewTopComponent=Selection Viewer",
+    "HINT_ResponseViewTopComponent=Displays the current selected entity, if possible"
 })
 public final class ResponseViewTopComponent extends TopComponent {
 
@@ -105,11 +102,13 @@ public final class ResponseViewTopComponent extends TopComponent {
 
     private void initTopComponent() {
         initComponents();
-        setName(Bundle.CTL_ResponseViewTopComponent());
-        setToolTipText(Bundle.HINT_ResponseViewTopComponent());
+        
+        setName("Data Viewer");//Bundle.CTL_ResponseViewTopComponent());
+        setToolTipText("Displays the selected DataElements");//Bundle.HINT_ResponseViewTopComponent());
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         global.addLookupListener(listener);
         jTable1.setDefaultRenderer(ResponsePanel.class, cellRenderer);
+        jTable1.setDefaultEditor(ResponsePanel.class, new ClickableCellEditor(cellRenderer));
         cellRenderer.setTable(jTable1);
         jTable1.setVisible(true);
         responseListPane.setVisible(true);
@@ -181,30 +180,31 @@ public final class ResponseViewTopComponent extends TopComponent {
         if (updateEntitySelection != null && !updateEntitySelection.isDone())
         {
             updateEntitySelection.cancel(true);
-            Ovation.getLogger().debug("Cancelled other thread");
+            LoggerFactory.getLogger(ResponseViewTopComponent.class).debug("Cancelled other thread");
         }
         updateEntitySelection = EventQueueUtilities.runOffEDT(r);
     }
 
     protected List<Visualization> updateEntitySelection(Collection<? extends IEntityWrapper> entities) {
         
-        LinkedList<Response> responseList = new LinkedList<Response>();
+        LinkedList<Measurement> responseList = new LinkedList<Measurement>();
 
-        for (IEntityWrapper ew : entities) {
-            if (ew.getType().isAssignableFrom(Epoch.class)) {
+        Iterator i = entities.iterator();
+        while(i.hasNext())
+        {
+            IEntityWrapper ew = (IEntityWrapper)i.next();
+            if (Epoch.class.isAssignableFrom(ew.getType())) {
                 Epoch epoch = (Epoch) (ew.getEntity());//getEntity gets the context for the given thread
-                for (String name : epoch.getResponseNames()) {
-                    responseList.add(epoch.getResponse(name));
-                }
+                responseList.addAll(Sets.newHashSet(epoch.getMeasurements()));
 
-            } else if (ew.getType().isAssignableFrom(Response.class) || ew.getType().isAssignableFrom(URLResponse.class)) {
-                responseList.add((Response)ew.getEntity());
+            } else if (Measurement.class.isAssignableFrom(ew.getType())) {
+                responseList.add((Measurement)ew.getEntity());
             }
         }
 
         List<Visualization> responseGroups = new LinkedList<Visualization>();
 
-        for (Response rw : responseList) {
+        for (Measurement rw : responseList) {
             boolean added = false;
             for (Visualization group : responseGroups) {
                 if (group.shouldAdd(rw)) {
@@ -218,14 +218,6 @@ public final class ResponseViewTopComponent extends TopComponent {
                 responseGroups.add(ResponseWrapperFactory.create(rw).createVisualization(rw));
             }
         }
-        
-        //FOR TESTING --- DELETE
-        /*String[] columnNames = new String[] {"Column 1" ," Column 2"};
-        String[][] data = new String[][] {{"1", "2"},{"3", "4"}};
-        TabularDataWrapper tdw = new TabularDataWrapper();
-        tdw.tabularData = data;
-        tdw.columnNames = columnNames;
-        responseGroups.add(tdw);*/
         
         EventQueueUtilities.runOnEDT(updateChartRunnable(responseGroups));
         return responseGroups;

@@ -4,8 +4,6 @@
  */
 package us.physion.ovation.ui.database;
 
-import com.objy.db.DatabaseNotFoundException;
-import com.objy.db.DatabaseOpenException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.*;
@@ -15,7 +13,11 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import ovation.*;
-import ovation.database.DatabaseManager;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.User;
+import us.physion.ovation.exceptions.AuthenticationException;
+import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IUpgradeDB;
 import us.physion.ovation.ui.interfaces.UpdateInfo;
@@ -31,7 +33,7 @@ class DBConnectionManager {
     CancellableDialog shouldRun;
     
     boolean cancelled = false;
-    IAuthenticatedDataStoreCoordinator dsc;
+    DataStoreCoordinator dsc;
     public void setConnectionDialog(ConnectionDialog d)
     {
         connectionDialog = d;
@@ -57,7 +59,7 @@ class DBConnectionManager {
          return cancelled;
     }
 
-    public IAuthenticatedDataStoreCoordinator getDataStoreCoordinator()
+    public DataStoreCoordinator getDataStoreCoordinator()
     {
         return dsc;
     }
@@ -77,16 +79,31 @@ class DBConnectionManager {
 
                 boolean authenticated = false;
                 try {
-                    authenticated = c.authenticateUser(username, password);
+                    Iterable<User> users = c.getRepository().getWithUsername(username);
+                    if (!users.iterator().hasNext())
+                        connectionDialog.showErrors(new AuthenticationException("No user with username '" + username), c.getCoordinator());   
+                    
+                    for (User u : users)
+                    {
+                        try {
+                            if (c.getCoordinator().authenticateUser(u.getEmail(), password.toCharArray()).get()) {
+                                authenticated = true;
+                                break;
+                            }
+                        } catch(Exception e)
+                        {
+                            //pass
+                        }
+                    }
                 } catch (Exception ex) {
                     connectionDialog.showErrors(ex, c.getCoordinator());
                     return;
                 }
                 if (!authenticated) {
-                    connectionDialog.showErrors(new UserAuthenticationException(), c.getCoordinator());
+                    connectionDialog.showErrors(new AuthenticationException("Username and password didn't match"), c.getCoordinator());
                     return;
                 }
-                dsc = c.getAuthenticatedDataStoreCoordinator();
+                dsc = c.getCoordinator();
                 cancelled = false;
                 
                 connectionDialog.disposeOnEDT();
@@ -101,7 +118,7 @@ class DBConnectionManager {
     }
      protected DataContext getContextFromConnectionFile(String connectionFile, String username, String password)
     {
-        DataStoreCoordinator dsc = null;
+        /*DataStoreCoordinator dsc = null;
         DataContext c = null;
         try {
             dsc = DataStoreCoordinator.coordinatorWithConnectionFile(connectionFile);
@@ -232,6 +249,9 @@ class DBConnectionManager {
             return c;
         }
         return c;
+        *
+        */
+        return null;
     }
     
     protected boolean shouldRunUpdater(int databaseVersion, int apiVersion)
@@ -261,7 +281,7 @@ class DBConnectionManager {
     
     protected boolean runUpdater(final IUpgradeDB tool, CancellableDialog inProgress)
     {
-        inProgress.showDialog();
+        /*inProgress.showDialog();
         try{
             tool.start();
         } catch (DatabaseIsUpgradingException e)
@@ -280,7 +300,8 @@ class DBConnectionManager {
         }
         else{
             return true;
-        }
+        }*/
+        return true;
     }
     class UpdateComparator implements Comparator<UpdateInfo>
     {

@@ -4,15 +4,15 @@
  */
 package us.physion.ovation.ui.importer;
 
+import us.physion.ovation.ui.browser.insertion.KeyValueController;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -36,10 +36,15 @@ import loci.formats.ome.OMEXMLMetadata;
 import loci.formats.services.OMEXMLService;
 import org.joda.time.DateTime;
 import org.openide.DialogDisplayer;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.ServiceProvider;
 import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.*;
+import us.physion.ovation.exceptions.OvationException;
 
 @ServiceProvider(service = EpochGroupInsertable.class)
 /**
@@ -60,8 +65,8 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
     }
     
     @Override
-    public void actionPerformed(ActionEvent ae) {
-        
+    public void actionPerformed(ActionEvent ae) 
+    {
         setFiles();
         super.actionPerformed(ae);
     }
@@ -89,93 +94,136 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
     @Override
     public List<Panel<WizardDescriptor>> getPanels(IEntityWrapper iew) {
         List<Panel<WizardDescriptor>> panels = new ArrayList<Panel<WizardDescriptor>>();
-        GetImageFilesController c = new GetImageFilesController(files);
         int epochCount = files.size();
-        
-        panels.add(c);
-        for (int i = 0; i < epochCount; i++) {
-            panels.add(new EpochDetailsController(i));
 
-            int responseCount = files.get(i).getResponses().size();
-            for (int j = 0; j < responseCount; j++) {
-                panels.add(new DeviceDetailsController(i, j));
-                panels.add(new ResponseDetailsController(i, j));
+        panels.add(new GetImageFilesController(files));//set the files, and start/end times
+        panels.add(new EquipmentSetupController());//set equipment setup info
+        panels.add(new SourceController());
+
+        for (int i = 0; i < epochCount; i++) {
+            panels.add(new ProtocolController(i));//set protocol info
+            panels.add(new KeyValueController(
+                    "Epoch " + (i+1) + ": Protocol Parameters", 
+                    "Enter any relevent protocol parameters below. These parameters will be associated with Epoch " + (i+1), 
+                    "epochs;" + i + ";protocolParameters"));
+            panels.add(new KeyValueController(
+                    "Epoch " + (i+1) + ": Device Parameters", 
+                    "Enter any relevent device parameters below. These parameters will be associated with Epoch " + (i+1), 
+                    "epochs;" + i + ";deviceParameters"));
+            int measurementCount = files.get(i).getMeasurements().size();
+            for (int j = 0; j < measurementCount; j++) {
+                panels.add(new MeasurementDetailsController(i, j));
+                panels.add(new MeasurementSourceNamesController(i, j));
+                panels.add(new MeasurementDeviceNamesController(i, j));
             }
         }
         return panels;
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wd, ovation.IAuthenticatedDataStoreCoordinator dsc, IEntityWrapper iew) {
+    public void wizardFinished(WizardDescriptor wd, DataContext c, IEntityWrapper iew) {
         EpochGroup eg = ((EpochGroup)iew.getEntity());
         Experiment exp = eg.getExperiment();
         
-        Map<String, Map<String, Object>> devices = (Map<String, Map<String, Object>>) wd.getProperty("devices");
-        for (String deviceName : devices.keySet()) {
-            Map<String, Object> device = devices.get(deviceName);
-            //name, manufacturer, properties
-            ExternalDevice dev = exp.externalDevice((String) device.get("name"),
-                    (String) device.get("manufacturer"));
-            Map<String, Object> properties = (Map<String, Object>) device.get("properties");
-            for (String key : properties.keySet()) {
-                Object val = properties.get(key);
-                if (val != null)
-                    dev.addProperty(key, val);
+        Map<String, Object> equipmentSetup = (Map<String, Object>) wd.getProperty("equipmentSetup");
+        EquipmentSetup es = exp.getEquipmentSetup();
+        
+        if (es == null)
+        {
+            exp.setEquipmentSetup(equipmentSetup);
+        }else{
+            for (String key : equipmentSetup.keySet())
+            {
+                es.addDeviceDetail(key, equipmentSetup.get(key));
             }
         }
-
-        int i =0;
-        for (;;)
+        
+        List<Map<String, Object>> epochs = (List<Map<String, Object>>) wd.getProperty("epochs");
+        
+        for (Map<String, Object> epoch : epochs)
         {
-            String epochName = "epoch" + String.valueOf(i++);
-            
-            String protocolID = (String)wd.getProperty(epochName + ".protocolID");
-            if (protocolID == null)
+            Protocol protocol = null;
+            if (epoch.containsKey("protocol"))
             {
-                break;//no more epochs
+                protocol = (Protocol)epoch.get("protocol");
+            }else if (epoch.get("protocolName") != null && epoch.get("protocolDocument") != null){
+                protocol = eg.getDataContext().insertProtocol((String)epoch.get("protocolName"), (String)epoch.get("protocolDocument"));
             }
-            Map<String, Object> protocolParameters = (Map<String, Object>) wd.getProperty(epochName + ".protocolParameters");            
-            DateTime start = (DateTime) wd.getProperty(epochName + ".start");
-            DateTime end = (DateTime) wd.getProperty(epochName + ".end");
-            Map<String, Object> epochProperties = (Map<String, Object>) wd.getProperty(epochName + ".properties");
-
-            Epoch e = eg.insertEpoch(start, end, protocolID, protocolParameters);
+            
+            Map<String, Source> input = (Map<String, Source>) epoch.get("inputSources");//set
+            DateTime start = (DateTime)epoch.get("start");
+            DateTime end = (DateTime)epoch.get("end");
+            Map<String, Object> protocolParameters = (Map<String, Object>)epoch.get("protocolParameters");
+            Map<String, Object> deviceParameters = (Map<String, Object>)epoch.get("deviceParameters");
+            Map<String, Object> epochProperties = (Map<String, Object>)epoch.get("properties");
+            Epoch e = eg.insertEpoch(input, null, start, end, protocol, protocolParameters, deviceParameters);
             for (String key : epochProperties.keySet())
             {
                 Object val = epochProperties.get(key);
                 if (val != null)
                     e.addProperty(key, val);
             }
-
-            int j = 0;
-            for (;;) {
-                String responseName = epochName + ".response" + j;
-                j++;
-                String deviceName = (String) wd.getProperty(responseName + ".device.name");
-                if (deviceName == null) {
-                    break;
+            
+            List<Map<String, Object>> measurements = (List<Map<String, Object>>)epoch.get("measurements");
+            for (Map<String, Object> m : measurements)
+            {
+                Measurement measurement;
+                try {
+                    measurement = e.insertMeasurement((String) m.get("name"),//needs to be set
+                            (Set<String>) m.get("sourceNames"),//set by sourceSelector? 
+                            (Set<String>) m.get("deviceNames"),// needs to be set
+                            new URL((String) m.get("url")),
+                            (String) m.get("mimeType"));
+                } catch (MalformedURLException ex) {
+                    throw new OvationException(ex);
                 }
-                String deviceManufacturer = (String)wd.getProperty(responseName + ".device.manufacturer");    
-                Map<String, Object> deviceParameters = (Map<String, Object>) wd.getProperty(responseName + ".device.parameters");
-                String url = (String) wd.getProperty(responseName + ".url");
-                long[] shape = (long[]) wd.getProperty(responseName + ".shape");
-                NumericDataType type = (NumericDataType) wd.getProperty(responseName + ".dataType");
-                String units = (String) wd.getProperty(responseName + ".units");
-                String[] dimensionLabels = (String[]) wd.getProperty(responseName + ".dimensionLabels");
-                double[] samplingRates = (double[]) wd.getProperty(responseName + ".samplingRates");
-                String[] samplingRateUnits = (String[]) wd.getProperty(responseName + ".samplingRateUnits");
-                String uti = (String) wd.getProperty(responseName + ".uti");
 
-                Response r = e.insertURLResponse(exp.externalDevice(deviceName, deviceManufacturer),
-                        deviceParameters,
-                        url,
-                        shape,
-                        type,
-                        units,
-                        dimensionLabels,
-                        samplingRates,
-                        samplingRateUnits,
-                        uti);
+                Map<String, Object> measurementProperties = (Map<String, Object>)m.get("properties");
+                for (String key : measurementProperties.keySet()) {
+                    Object val = measurementProperties.get(key);
+                    if (val != null) {
+                        measurement.addProperty(key, val);
+                    }
+                }
+            }
+        }
+
+        List<Map<String, Object>> parentEpochGroups = (List<Map<String, Object>>) wd.getProperty("parentEpochGroups");
+        if (parentEpochGroups != null) {
+            for (Map<String, Object> parentEpochGroup : parentEpochGroups) {
+                Protocol protocol = null;
+                if (parentEpochGroup.containsKey("protocol")) {
+                    protocol = (Protocol) parentEpochGroup.get("protocol");
+                } else if (parentEpochGroup.get("protocolName") != null && parentEpochGroup.get("protocolDocument") != null) {
+                    protocol = eg.getDataContext().insertProtocol((String) parentEpochGroup.get("protocolName"), (String) parentEpochGroup.get("protocolDocument"));
+                }
+                DateTime start = (DateTime) parentEpochGroup.get("start");
+                DateTime end = (DateTime) parentEpochGroup.get("end");
+                String label = (String) parentEpochGroup.get("label");
+
+                Map<String, Object> protocolParameters = (Map<String, Object>) parentEpochGroup.get("protocolParameters");//set by wherever
+                Map<String, Object> deviceParameters = (Map<String, Object>) parentEpochGroup.get("deviceParameters");//set by which panel
+                Map<String, Object> parentEpochGroupProperties = (Map<String, Object>) parentEpochGroup.get("properties");
+                EpochGroup parent = eg.insertEpochGroup(label, start, protocol, protocolParameters, deviceParameters);
+                for (String key : parentEpochGroupProperties.keySet()) {
+                    Object val = parentEpochGroupProperties.get(key);
+                    if (val != null) {
+                        parent.addProperty(key, val);
+                    }
+                }
+                for (Map<String, Object> epochGroup : (List<Map<String, Object>>) parentEpochGroup.get("egs")) {
+                }
+                //TODO: finish prairie import
+            /*
+                 * List<Map<String, Object>> measurements = (List<Map<String,
+                 * Object>>)epoch.get("measurements"); for (Map<String, Object>
+                 * m : measurements) {
+                 * e.insertMeasurement((String)m.get("name"),
+                 * (Set<String>)m.get("sourceNames"),
+                 * (Set<String>)m.get("deviceNames"), (URL)m.get("url"),
+                 * (String)m.get("mimeType"));
+            }
+                 */
             }
         }
     }

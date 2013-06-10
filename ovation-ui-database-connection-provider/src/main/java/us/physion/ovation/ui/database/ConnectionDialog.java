@@ -4,7 +4,8 @@
  */
 package us.physion.ovation.ui.database;
 
-import ovation.DataStoreCoordinator;
+import us.physion.ovation.DataStoreCoordinator;
+
 
 /**
  *

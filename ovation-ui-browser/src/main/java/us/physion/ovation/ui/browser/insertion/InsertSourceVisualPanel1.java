@@ -14,6 +14,7 @@ public class InsertSourceVisualPanel1 extends javax.swing.JPanel {
 
     private ChangeSupport cs;
     private String label;
+    private String identifier;
     /**
      * Creates new form InsertSourceVisualPanel1
      */
@@ -21,6 +22,7 @@ public class InsertSourceVisualPanel1 extends javax.swing.JPanel {
         initComponents();
         cs = changeSupport;
         label = "";
+        identifier = "";
     }
     
     public String getLabel()
@@ -28,12 +30,27 @@ public class InsertSourceVisualPanel1 extends javax.swing.JPanel {
         return label;
     }
     
-    protected void setLabel(String l)
+    public String getIdentifier()
+    {
+        return identifier;
+    }
+    
+    protected void setLabel(String newLabel)
     {
         boolean fireChange = true;
-        if (label.isEmpty() == l.isEmpty())
+        if (label.isEmpty() == newLabel.isEmpty())
             fireChange = false;
-        label = l;
+        label = newLabel;
+        if (fireChange)
+            cs.fireChange();
+    }
+    
+    protected void setIdentifier(String newID)
+    {
+        boolean fireChange = true;
+        if (identifier.isEmpty() == newID.isEmpty())
+            fireChange = false;
+        identifier = newID;
         if (fireChange)
             cs.fireChange();
     }
@@ -55,10 +72,17 @@ public class InsertSourceVisualPanel1 extends javax.swing.JPanel {
 
         jLabel1 = new javax.swing.JLabel();
         labelTextField = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
 
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(InsertSourceVisualPanel1.class, "InsertSourceVisualPanel1.jLabel1.text")); // NOI18N
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(InsertSourceVisualPanel1.class, "InsertSourceVisualPanel1.jLabel1.text_1")); // NOI18N
 
-        labelTextField.setText(org.openide.util.NbBundle.getMessage(InsertSourceVisualPanel1.class, "InsertSourceVisualPanel1.labelTextField.text")); // NOI18N
+        labelTextField.setText(org.openide.util.NbBundle.getMessage(InsertSourceVisualPanel1.class, "InsertSourceVisualPanel1.labelTextField.text_1")); // NOI18N
+        labelTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                labelTextFieldActionPerformed(evt);
+            }
+        });
         labelTextField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 labelTextFieldKeyTyped(evt);
@@ -68,14 +92,27 @@ public class InsertSourceVisualPanel1 extends javax.swing.JPanel {
             }
         });
 
+        jLabel2.setText(org.openide.util.NbBundle.getMessage(InsertSourceVisualPanel1.class, "InsertSourceVisualPanel1.jLabel2.text")); // NOI18N
+
+        jTextField1.setText(org.openide.util.NbBundle.getMessage(InsertSourceVisualPanel1.class, "InsertSourceVisualPanel1.jTextField1.text")); // NOI18N
+        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField1KeyReleased(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(jLabel1)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel1)
+                    .add(jLabel2))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(labelTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(labelTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 545, Short.MAX_VALUE)
+                    .add(jTextField1)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -83,7 +120,11 @@ public class InsertSourceVisualPanel1 extends javax.swing.JPanel {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
                     .add(labelTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(0, 272, Short.MAX_VALUE))
+                .add(8, 8, 8)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel2)
+                    .add(jTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(0, 236, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -94,8 +135,18 @@ public class InsertSourceVisualPanel1 extends javax.swing.JPanel {
         setLabel(labelTextField.getText());
     }//GEN-LAST:event_labelTextFieldKeyReleased
 
+    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
+        setIdentifier(jTextField1.getText());
+    }//GEN-LAST:event_jTextField1KeyReleased
+
+    private void labelTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_labelTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_labelTextFieldActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField labelTextField;
     // End of variables declaration//GEN-END:variables
 }

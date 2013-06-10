@@ -4,16 +4,20 @@
  */
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Lists;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.DicomInputStream;
 import com.pixelmed.display.SingleImagePanel;
 import com.pixelmed.display.SourceImage;
 import java.awt.Component;
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.openide.util.Exceptions;
-import ovation.Response;
-import ovation.URLResponse;
+import us.physion.ovation.domain.mixin.DataElement;
 
 /**
  *
@@ -24,16 +28,18 @@ public class DicomWrapper implements Visualization {
     String name;
     SourceImage src;
 
-    DicomWrapper(Response r) {
+    DicomWrapper(DataElement r) {
         DicomInputStream in = null;
         try {
-            if (r instanceof URLResponse)
-                in = new DicomInputStream(r.getDataStream());
-            else{
-                in = new DicomInputStream(new ByteArrayInputStream(r.getDataBytes()));
-            }
+            in = new DicomInputStream(new FileInputStream(r.getData().get()));
             src = new SourceImage(in);
-            this.name = r.getExternalDevice().getName();
+            this.name = r.getName();
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+            throw new RuntimeException(ex.getLocalizedMessage());
+        } catch (ExecutionException ex) {
+            Exceptions.printStackTrace(ex);
+            throw new RuntimeException(ex.getLocalizedMessage());
         } catch (DicomException ex) {
             Exceptions.printStackTrace(ex);
             throw new RuntimeException(ex.getLocalizedMessage());
@@ -54,17 +60,16 @@ public class DicomWrapper implements Visualization {
 
     @Override
     public Component generatePanel() {
-        ImagePanel p = new ImagePanel(name, new SingleImagePanel(src));
-        return p;
+        return new ImagePanel(name, new SingleImagePanel(src));
     }
 
     @Override
-    public boolean shouldAdd(Response r) {
+    public boolean shouldAdd(DataElement r) {
         return false;
     }
 
     @Override
-    public void add(Response r) {
+    public void add(DataElement r) {
         throw new UnsupportedOperationException("Dicoms are not displayed in groups");
     }
     

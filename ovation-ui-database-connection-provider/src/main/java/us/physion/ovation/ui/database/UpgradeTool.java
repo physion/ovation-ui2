@@ -4,8 +4,6 @@
  */
 package us.physion.ovation.ui.database;
 
-import com.objy.db.DatabaseNotFoundException;
-import com.objy.db.DatabaseOpenException;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -21,11 +19,9 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import org.openide.ErrorManager;
 import org.openide.util.Exceptions;
-import ovation.DataStoreCoordinator;
-import ovation.DatabaseIsUpgradingException;
-import ovation.LogLevel;
-import ovation.Ovation;
-import ovation.OvationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.ui.database.UpdateJarStep;
 import us.physion.ovation.ui.database.UpdateSchemaStep;
 
@@ -55,7 +51,6 @@ public class UpgradeTool implements IUpgradeDB {
     public UpgradeTool(List<UpdateInfo> updates, String connectionFile, String username, String password, IUpdateUI ui) {
         this(updates, connectionFile, username, password);
         uiUpdater = ui;
-        Ovation.enableLogging(LogLevel.DEBUG);
     }
 
     public static boolean isWindows() {
@@ -83,7 +78,7 @@ public class UpgradeTool implements IUpgradeDB {
     }
 
     public void start() {
-        DataStoreCoordinator dsc = null;
+        /*DataStoreCoordinator dsc = null;
         try {
             dsc = DataStoreCoordinator.coordinatorWithConnectionFile(connectionFile, "UPGRADE");
         } catch (DatabaseOpenException ex) {
@@ -112,6 +107,8 @@ public class UpgradeTool implements IUpgradeDB {
             }
         }
         start(connectionFile, username, password);
+        * 
+        */
     }
     
     public void forceUpdate()
@@ -120,7 +117,7 @@ public class UpgradeTool implements IUpgradeDB {
     }
 
     public void start(String connectionFile, String username, String password) {
-        if (System.getSecurityManager() == null) {
+        /*if (System.getSecurityManager() == null) {
             System.setSecurityManager(new RMISecurityManager());
         }
         
@@ -254,19 +251,10 @@ public class UpgradeTool implements IUpgradeDB {
             }
             throw new OvationException(e.getMessage(), e);
         }
+        * 
+        */
     }
   
-    private void updateEnvironment(File pluginDir, String objyLib, ProcessBuilder pb) {
-        Map env = pb.environment();
-        env.put("OO_PLUGIN_SPEC_DIR", pluginDir.getAbsolutePath());
-        env.put("DYLD_LIBRARY_PATH", pluginDir.getAbsolutePath() + ":" + objyLib+ ":$DYLD_LIBRARY_PATH");
-        env.put("LD_LIBRARY_PATH", pluginDir.getAbsolutePath() + ":" + objyLib+ ":$LD_LIBRARY_PATH");
-
-        if(isWindows()) {
-            env.put("PATH", env.get("PATH") + ";" + pluginDir.getAbsolutePath() + ";" + objyLib);
-        }
-    }
-
     private void update(int percent, String text)
     {
         if (uiUpdater == null)
@@ -312,7 +300,7 @@ public class UpgradeTool implements IUpgradeDB {
     //TODO: why can't I use commandUtilities here, netbeans?
     private void runCommand(ProcessBuilder pb)
     {
-        try {
+        /*try {
             Process p = pb.start();
 
             InputStreamHandler inputHandler = new InputStreamHandler(new InputStreamReader(p.getInputStream()));
@@ -336,6 +324,8 @@ public class UpgradeTool implements IUpgradeDB {
         } catch (IOException e) {
             throw new OvationException("Communication with sub-process lost: " + e.getLocalizedMessage());
         }
+        * 
+        */
     }
     
     class InputStreamHandler extends Thread {
@@ -363,7 +353,7 @@ public class UpgradeTool implements IUpgradeDB {
                     getCaptureBuffer().append((char) nextChar);
                 }
             } catch (IOException e) {
-                Ovation.getLogger().error(e.getLocalizedMessage());
+                LoggerFactory.getLogger(UpgradeTool.class).error(e.getLocalizedMessage());
             }
         }
     }

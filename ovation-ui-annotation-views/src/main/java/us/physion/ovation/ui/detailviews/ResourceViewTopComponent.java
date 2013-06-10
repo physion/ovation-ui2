@@ -8,7 +8,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -18,16 +21,17 @@ import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
-import org.openide.util.Lookup;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
+import org.openide.util.*;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
-import org.openide.util.Utilities;
 import ovation.*;
+import us.physion.ovation.domain.AnnotatableEntity;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
+import us.physion.ovation.values.Resource;
 
 /**
  * Top component which displays something.
@@ -121,7 +125,8 @@ public final class ResourceViewTopComponent extends TopComponent {
     
     protected void editResource(IResourceWrapper rw)
     {
-        if (!editedSet.contains(rw)) {
+        //TODO: enable editing when the API catches up
+        /*if (!editedSet.contains(rw)) {
             Resource r = rw.getEntity();
             try{
                 r.edit();
@@ -135,7 +140,7 @@ public final class ResourceViewTopComponent extends TopComponent {
             editedSet.add(rw);
             
             setSavedButtonEnabled(true);
-        }
+        }*/
     }
     
     protected void setSavedButtonEnabled(final boolean enable)
@@ -152,12 +157,14 @@ public final class ResourceViewTopComponent extends TopComponent {
     
     protected void closeEditedResourceFiles()
     {
-        for (IResourceWrapper rw : editedSet)
+        //TODO: close edited files when API catches up
+        /*for (IResourceWrapper rw : editedSet)
         {
             rw.getEntity().releaseLocalFile();
         }
         editedSet = new HashSet();
         setSavedButtonEnabled(false);
+        */
     }
 
     protected void updateResources()
@@ -177,12 +184,16 @@ public final class ResourceViewTopComponent extends TopComponent {
         List<IResourceWrapper> resources = new LinkedList();
         for (IEntityWrapper e: entities)
         {
-            for (Resource r : e.getEntity().getResourcesIterable())
-            {
-                resources.add(new ResourceWrapper(r));
+            if (AnnotatableEntity.class.isAssignableFrom(e.getType())) {
+                AnnotatableEntity entity = (AnnotatableEntity)e.getEntity();
+                for (String name : entity.getResourceNames()) {
+                    resources.add(new ResourceWrapper(name, entity.getResource(name), entity.getURI()));
+                }
             }
         }
         
+        //TODO: remove from edited set
+        /*
         LinkedList<IResourceWrapper> toRemove = new LinkedList();
         for (IResourceWrapper rw : editedSet)
         {
@@ -198,6 +209,8 @@ public final class ResourceViewTopComponent extends TopComponent {
             editedSet.remove(rw);
             rw.getEntity().releaseLocalFile();
         }
+        * 
+        */
         
         listModel.setResources(resources);
 
@@ -299,10 +312,10 @@ public final class ResourceViewTopComponent extends TopComponent {
         });
     }//GEN-LAST:event_removeResourceButtonActionPerformed
 
+    //TODO: save button should work when the API catches up
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
-        final Object[] rws = resourceList.getSelectedValues();
+        /*final Object[] rws = resourceList.getSelectedValues();
         EventQueueUtilities.runOffEDT(new Runnable() {
-
             @Override
             public void run() {
                 for (Object rw : rws) {
@@ -312,7 +325,7 @@ public final class ResourceViewTopComponent extends TopComponent {
                     }
                 }
             }
-        });
+        });*/
     }//GEN-LAST:event_saveButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -346,18 +359,22 @@ public final class ResourceViewTopComponent extends TopComponent {
         // TODO read your settings according to their version
     }
 
+    //TODO: when API caatches up 
     protected void removeResources(Object[] selectedValues, Collection<? extends IEntityWrapper> entities) {
-        for (Object o :selectedValues)
+        /*for (Object o :selectedValues)
         {
             if (o instanceof IResourceWrapper) {
                 String rName = ((IResourceWrapper) o).getName();
                 for (IEntityWrapper e : entities) {
-                    IEntityBase eb = e.getEntity();
-                    for (String name : eb.getResourceNames()) {
-                        if (name.equals(rName)) {
-                            Resource r = eb.getResource(name);
-                            if (r.canWrite()) {
-                                eb.removeResource(r);
+                    if (AnnotatableEntity.class.isAssignableFrom(e.getType()))
+                    {
+                        AnnotatableEntity eb = (AnnotatableEntity)e.getEntity();
+                        for (String name : eb.getResourceNames()) {
+                            if (name.equals(rName)) {
+                                Resource r = eb.getResource(name);
+                                if (r.canWrite()) {
+                                    eb.removeResource(r);
+                                }
                             }
                         }
                     }
@@ -365,6 +382,8 @@ public final class ResourceViewTopComponent extends TopComponent {
             }
         }
         updateResources(entities);// don't regrab entities from the current TopComponent
+        * 
+        */
     }
     
     protected boolean saveButtonIsEnabled()
@@ -380,12 +399,17 @@ public final class ResourceViewTopComponent extends TopComponent {
     protected void addResource(Collection<? extends IEntityWrapper> entities, String path)
     {
         Resource r = null;
+        String name = new File(path).getName();
 
         for (IEntityWrapper e : entities) {
-            r = e.getEntity().addResource(Response.NUMERIC_DATA_UTI, path);
-        }
-        if (r != null) {
-            listModel.addResource(new ResourceWrapper(r));
+            AnnotatableEntity entity = e.getEntity(AnnotatableEntity.class);
+            try {
+                r = entity.addResource(name, new URI(path), "application/txt");
+                listModel.addResource(new ResourceWrapper(name, r, entity.getURI()));
+            } catch (URISyntaxException ex) {
+                Exceptions.printStackTrace(ex);
+                throw new OvationException("Invalid path. " + ex.getLocalizedMessage());
+            }
         }
     }
 

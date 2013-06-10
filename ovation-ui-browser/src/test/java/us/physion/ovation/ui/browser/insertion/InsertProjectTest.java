@@ -17,8 +17,7 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
 import org.openide.util.ChangeSupport;
 import ovation.*;
-import us.physion.ovation.ui.test.TestManager;
-import us.physion.ovation.ui.browser.BrowserTestManager;
+import us.physion.ovation.domain.Project;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
 import us.physion.ovation.ui.interfaces.TestEntityWrapper;
@@ -29,42 +28,6 @@ import us.physion.ovation.ui.interfaces.TestEntityWrapper;
  */
 public class InsertProjectTest extends OvationTestCase
 {
-    static TestManager mgr = new BrowserTestManager();
-    public InsertProjectTest() {
-        setTestManager(mgr); //this is because there are static and non-static methods that need to use the test manager
-    }
-    
-    @BeforeClass
-    public static void setUpClass()
-    {
-        Ovation.enableLogging(LogLevel.ALL);
-        AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
-
-            public Boolean run() {
-                OvationTestCase.setUpDatabase(mgr, 2);
-                return true;
-            }
-        });
-        
-    }
-    
-    @Before
-    public void setUp() {
-        dsc = setUpTest();
-    }
-    
-    
-    @After
-    public void tearDown()
-    {
-        tearDownTest();
-    }
-    
-     @AfterClass
-    public static void tearDownClass() throws Exception {
-        OvationTestCase.tearDownDatabase(mgr);
-    }
-
     //InsertEntity action methods
     @Test
     public void testGetPanels() {
@@ -81,21 +44,18 @@ public class InsertProjectTest extends OvationTestCase
         String name = "name";
         String purpose = "purpose";
         DateTime start = new DateTime(0);
-        DateTime end = new DateTime(1);
        
         WizardDescriptor d = new WizardDescriptor(new InsertEntityIterator(null));
         d.putProperty("project.name", name);
         d.putProperty("project.purpose", purpose);
         d.putProperty("project.start", start);
-        d.putProperty("project.end", end);
         
-        new InsertProject().wizardFinished(d, dsc, null);
+        new InsertProject().wizardFinished(d, ctx, null);
         
-        Project p = dsc.getContext().getProjects()[0];
+        Project p = (Project)(ctx.getProjects().iterator().next());
         TestCase.assertEquals(p.getName(), name);
         TestCase.assertEquals(p.getPurpose(), purpose);
-        TestCase.assertEquals(p.getStartTime(), start);
-        TestCase.assertEquals(p.getEndTime(), end);
+        TestCase.assertEquals(p.getStart(), start);
     }
     
     //Panel 1 methods
@@ -133,20 +93,12 @@ public class InsertProjectTest extends OvationTestCase
         panel.setStart(start);
         TestCase.assertTrue(l.getStateChanged());
         l.resetStateChanged();
-        panel.setEnd(end);
-        TestCase.assertTrue(l.getStateChanged());
-        l.resetStateChanged();
         TestCase.assertTrue(p.isValid());
         
         panel.setStart(null);
         TestCase.assertFalse(p.isValid());
         
-        panel.setStart(new DateTime(3));
-        panel.setEnd(new DateTime(0));
-        TestCase.assertFalse(p.isValid());// startTime > endTime
-        
         panel.setStart(start);
-        panel.setEnd(end);
         panel.setProjectName("");
         TestCase.assertFalse(p.isValid());
         
@@ -165,25 +117,21 @@ public class InsertProjectTest extends OvationTestCase
         String name = "name";
         String purpose = "purpose";
         DateTime start = new DateTime(0);
-        DateTime end = new DateTime(1);
         
         WizardDescriptor d = new WizardDescriptor(new InsertEntityIterator(null));
         
         p.storeSettings(d);
         TestCase.assertTrue(((String)d.getProperty("project.name")).isEmpty());
         TestCase.assertTrue(((String)d.getProperty("project.purpose")).isEmpty());
-        TestCase.assertFalse(d.getProperty("project.start").equals(start));
-        TestCase.assertFalse(d.getProperty("project.end").equals(end));
+        TestCase.assertNull(d.getProperty("project.start"));
         
         panel.setProjectName(name);
         panel.setPurpose(purpose);
         panel.setStart(start);
-        panel.setEnd(end);
         p.storeSettings(d);
         TestCase.assertEquals(d.getProperty("project.name"), name);
         TestCase.assertEquals(d.getProperty("project.purpose"), purpose);
         TestCase.assertEquals(d.getProperty("project.start"), start);
-        TestCase.assertEquals(d.getProperty("project.end"), end);
         
     }
     private class DummyPanel1 extends InsertProjectWizardPanel1

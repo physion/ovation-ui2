@@ -6,8 +6,10 @@ package us.physion.ovation.ui.editor;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JComponent;
 import javax.swing.JTable;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import org.jfree.chart.ChartPanel;
 
@@ -47,13 +49,13 @@ public class ResponseCellRenderer implements TableCellRenderer{
             else{
                 height = heights[row];
             }
-            System.out.println("Old row height "+ table.getRowHeight());
+            //System.out.println("Old row height "+ table.getRowHeight());
             if (table.getRowHeight(row)  != height)
             {
                 table.setRowHeight(row, height);
             }
             //table.setRowHeight(row, height);
-            System.out.println("New row height: " + height);
+            //System.out.println("New row height: " + height);
             panel.setSize(new Dimension(table.getWidth() / table.getColumnCount(), table.getRowHeight(row)));
         }
         return panel;

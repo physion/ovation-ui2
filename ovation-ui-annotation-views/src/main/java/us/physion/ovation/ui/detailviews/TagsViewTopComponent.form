@@ -70,7 +70,7 @@
     </Component>
     <Container class="javax.swing.JScrollPane" name="tagTree">
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new ScrollableTableTree()"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new us.physion.ovation.ui.ScrollableTableTree()"/>
       </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>

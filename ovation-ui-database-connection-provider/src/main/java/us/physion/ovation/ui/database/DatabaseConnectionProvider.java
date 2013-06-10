@@ -4,140 +4,303 @@
  */
 package us.physion.ovation.ui.database;
 
-import java.awt.EventQueue;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.inject.Injector;
+import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.*;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.prefs.Preferences;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.event.EventListenerList;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
-import org.openide.util.lookup.ProxyLookup;
 import org.openide.util.lookup.ServiceProvider;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.LogLevel;
-import ovation.Ovation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.api.Ovation;
+import us.physion.ovation.api.OvationApiModule;
+import us.physion.ovation.couch.CouchServiceManager;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
-import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
+import us.physion.ovation.exceptions.AuthenticationException;
+import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
-@ServiceProvider(service = ConnectionProvider.class)
 /**
  *
- * @author huecotanks
+ * @author jackie
  */
-public class DatabaseConnectionProvider implements ConnectionProvider {
+@ServiceProvider(service = ConnectionProvider.class)
+public class DatabaseConnectionProvider implements ConnectionProvider{
 
-    private IAuthenticatedDataStoreCoordinator dsc = null;
+    static Logger logger = LoggerFactory.getLogger(DatabaseConnectionProvider.class);
+    private JTextField addField(JPanel form, String name, int row, boolean passwordField) {
+        JTextField f;
+        if (passwordField)
+        {
+            f = new JPasswordField();
+        }else{
+            f = new JTextField();
+        }
+        JLabel l = new JLabel(name);
+        f.setPreferredSize(new Dimension(250, 25));
+        
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridy = row;
+        form.add(l, c);
+        c.gridwidth = 2;
+        form.add(f, c);
+        
+        return f;
+    }
+
+    @Override
+    public DataContext getNewContext() {
+        return context.getCoordinator().getContext();
+    }
+
+    private static class LoginModel {
+        String email; 
+        String password; 
+        boolean cancelled = true;
+
+        void setEmail(String email)
+        {
+            this.email = email;
+        }
+        void setPassword(String pw)
+        {
+            this.password = pw;
+        }
+        String getPassword()
+        {
+            return password;
+        }
+        String getEmail()
+        {
+            return email;
+        }
+        boolean isCancelled()
+        {
+            return cancelled;
+        }
+    }
+    private DataContext context = null;
     private Set<ConnectionListener> connectionListeners;
-    private boolean waitingForDSC = false;
+    private boolean waitingForContext = false;
 
     public DatabaseConnectionProvider() {
-
-        Ovation.enableLogging(LogLevel.DEBUG);
+        
         connectionListeners = Collections.synchronizedSet(new HashSet());
     }
 
     public synchronized void resetConnection()
     {
-        dsc = null;
-        getConnection();
+        context = null;
+        getDefaultContext();
     }
 
     @Override
-    public IAuthenticatedDataStoreCoordinator getConnection() {
+    public DataContext getDefaultContext() {
 
         synchronized (this) {
-            if (waitingForDSC || dsc != null) {
-                return dsc;
+            if (waitingForContext || context != null) {
+                return context;
             }
             setWaitingFlag(true);
         }
 
         final ConnectionListener[] listeners = connectionListeners.toArray(new ConnectionListener[0]);
-
-        Runnable r = new Runnable() {
+        
+        final Runnable r = new Runnable() {
 
             public void run() {
-
-                /*
-                 * try {
-                 * UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                 * /* for (javax.swing.UIManager.LookAndFeelInfo info :
-                 * javax.swing.UIManager.getInstalledLookAndFeels()) { if
-                 * ("Nimbus".equals(info.getName())) {
-                 * javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                 * break; } }
-                 */
-
-                /*
-                 * } catch (ClassNotFoundException ex) {
-                 * java.util.logging.Logger.getLogger(DBConnectionDialog.class.getName()).log(java.util.logging.Level.SEVERE,
-                 * null, ex); } catch (InstantiationException ex) {
-                 * java.util.logging.Logger.getLogger(DBConnectionDialog.class.getName()).log(java.util.logging.Level.SEVERE,
-                 * null, ex); } catch (IllegalAccessException ex) {
-                 * java.util.logging.Logger.getLogger(DBConnectionDialog.class.getName()).log(java.util.logging.Level.SEVERE,
-                 * null, ex); } catch
-                 * (javax.swing.UnsupportedLookAndFeelException ex) {
-                 * java.util.logging.Logger.getLogger(DBConnectionDialog.class.getName()).log(java.util.logging.Level.SEVERE,
-                 * null, ex);
-                }
-                 */
-
+                ProgressHandle ph = ProgressHandleFactory.createHandle("Authenticating...");
                 try {
-                    //If licensing information is not set in the java preferences, set it now
-                    Preferences p = Preferences.userNodeForPackage(Ovation.class);
-                    if (p.get("ovation_license_licenseText", null) == null)
-                    {
-                        LicenseInfoDialog licenseDialog = new LicenseInfoDialog();
-                        licenseDialog.showDialog();
-                        p.put("ovation_license_institution", licenseDialog.getInstitution());
-                        p.put("ovation_license_lab", licenseDialog.getLab());
-                        p.put("ovation_license_licenseText", licenseDialog.getLicenseText());
-                    }
-                    
-                    DBConnectionDialog dialog = new DBConnectionDialog();
-                    DBConnectionManager manager = new DBConnectionManager();
-                    dialog.setConnectionManager(manager);
-                    manager.setConnectionDialog(dialog);
-                    manager.showDialog();
-                    if (!manager.dialogCancelled())
-                    {
-                        setDsc(manager.getDataStoreCoordinator());
+                    ph.start();
+                    DataStoreCoordinator toAuthenticate = Ovation.newDataStoreCoordinator();
+                    boolean succeeded = authenticateUser(toAuthenticate, null);
+                    if (succeeded) {
+                        setContext(toAuthenticate.getContext());
                         setWaitingFlag(false);
 
-                        for (PropertyChangeListener l : listeners) {
-                            dialog.addPropertyChangeListener(l);
+                        for (ConnectionListener l : listeners) {
+                            l.propertyChange(new PropertyChangeEvent(context, "ovation.connectionChanged", 0, 1));
                         }
-                        dialog.firePropertyChange("ovation.connectionChanged", 0, 1);
                     }
+
                 } finally {
                     setWaitingFlag(false);
+                    ph.finish();
                 }
             }
         };
-
+        
         EventQueueUtilities.runOnEDT(r);
+        
+        return context;
+    }
+    
+    private LoginModel showLoginDialog(String error) {
+        
+        final LoginModel model = new LoginModel();
+        
+        final JDialog d = new JDialog(new JFrame(), true);
+        d.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        
+        //JTabbedPane tabs = new JTabbedPane(JTabbedPane.BOTTOM);
+        JPanel login = new JPanel();
+        login.setLayout(new BoxLayout(login, BoxLayout.PAGE_AXIS));
+        //tabs.addTab("Login", login);
+        
+        //JPanel signUp = new JPanel();
+        //tabs.addTab("Sign up", signUp);
+        
+        //LOGIN
+        //------------------------------------------------------
+        //TODO: header if the error is not null
+        
+        //two text fields
+        JPanel form = new JPanel(new GridBagLayout());
+        final JTextField emailTB = addField(form, "Email: ", 0, false);
+        final JTextField passwordTB = addField(form, "Password: ", 1, true);
+        
+        //Cancel/Ok buttons
+        JPanel buttonPane = new JPanel();
+        //JButton cancelButton = new JButton("Cancel");
+        JButton okButton = new JButton("Login");
+        buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.PAGE_AXIS));
+        buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        buttonPane.add(okButton);
 
-        return dsc;
+        buttonPane.add(Box.createHorizontalGlue());
+        JCheckBox cb = new JCheckBox();
+        cb.setSelected(true);
+        buttonPane.add(cb);
+        buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
+        JLabel label = new JLabel("Work offline");
+        buttonPane.add(label);
+        BufferedImage physionIcon;
+        File f = null;
+        try {
+            f = new File ("installer/ovation_48x48.png");
+            //f = new File("../branding/src/main/nbm-branding/core/core.jar/org/netbeans/core/startup/splash.gif");
+            physionIcon = ImageIO.read(f);
+            JLabel image = new JLabel(new ImageIcon( physionIcon ));
+            image.setPreferredSize(buttonPane.getPreferredSize());
+            buttonPane.add(image);
+        }
+        catch (IOException ex) {
+            String s = "";
+            if (f != null)
+                s = " at '" + f.getAbsolutePath() + "'";
+            logger.error("Could not find Physion icon" + s);
+        }
+        /*cancelButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                model.cancelled = true;
+                d.dispose();
+            }
+        });
+        *
+        */
+        okButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                model.setEmail(emailTB.getText());
+                model.setPassword(passwordTB.getText());
+                model.cancelled = false;
+                d.dispose();
+            }
+        });
+               
+        login.add(form, BorderLayout.CENTER);
+        login.add(buttonPane, BorderLayout.PAGE_END);
+        
+        //SIGN UP
+        //-----------------------------------------------------------
+       /* JLabel header = new JLabel("New to Ovation? Sign up");
+        
+        //two text fields
+        JPanel s_form = new JPanel(new GridBagLayout());
+        final JTextField nameTB = addField(s_form, "Name: ", 0, false);
+        final JTextField s_emailTB = addField(s_form, "Email: ", 1, false);
+        final JTextField s_passwordTB = addField(s_form, "Password: ", 2, true);
+        
+        JPanel s_buttonPane = new JPanel();
+        JButton signUpButton = new JButton("Sign Up");
+        s_buttonPane.setLayout(new BoxLayout(s_buttonPane, BoxLayout.LINE_AXIS));
+        s_buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        s_buttonPane.add(signUpButton);
+        
+        signUpButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                //sign up through the website
+                //when that's completed, 
+                model.setEmail(s_emailTB.getText());
+                model.setPassword(s_passwordTB.getText());
+                model.cancelled = false;
+                d.dispose();
+            }
+        });
+        signUp.add(header, BorderLayout.PAGE_START);
+        signUp.add(s_form, BorderLayout.CENTER);
+        signUp.add(s_buttonPane, BorderLayout.PAGE_END);
+        
+        d.getContentPane().add(tabs);
+        login.getRootPane().setDefaultButton(okButton);
+        */
+        d.getContentPane().setBackground(Color.WHITE);
+        d.getContentPane().add(login);
+        login.getRootPane().setDefaultButton(okButton);
+        //show dialog
+        d.pack();
+        //Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        d.setLocationRelativeTo(null);
+        d.setVisible(true);
+        return model;
+    }
+    private boolean authenticateUser(DataStoreCoordinator dsc, String error) {
+        LoginModel m = showLoginDialog(error);
+        if (!m.isCancelled()) {
+            try {
+                return dsc.authenticateUser(m.getEmail(), m.getPassword().toCharArray()).get();
+            } catch (AuthenticationException e) {
+                return authenticateUser(dsc, e.getLocalizedMessage());
+            } catch (InterruptedException e) {
+                return authenticateUser(dsc, e.getLocalizedMessage());
+            } catch (ExecutionException e) {
+                return authenticateUser(dsc, e.getLocalizedMessage());
+            } 
+            //TODO: add other common errors here
+        }
+        return false;
     }
 
-    private synchronized void setDsc(IAuthenticatedDataStoreCoordinator the_dsc) {
-        dsc = the_dsc;
+    private synchronized void setContext(DataContext context) {
+        this.context = context;
     }
 
     private synchronized void setWaitingFlag(boolean b) {
-        waitingForDSC = b;
+        waitingForContext = b;
     }
 
     @Override
@@ -149,6 +312,5 @@ public class DatabaseConnectionProvider implements ConnectionProvider {
     public void removeConnectionListener(ConnectionListener cl) {
         connectionListeners.remove(cl);
     }
-
     
 }

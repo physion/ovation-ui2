@@ -4,20 +4,22 @@
  */
 package us.physion.ovation.ui.detailviews;
 
+import java.net.URI;
 import org.openide.util.Lookup;
-import ovation.DataContext;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.Resource;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.values.Resource;
 
 public class ResourceWrapper implements IResourceWrapper {
 
+    String entityUri;
     String uri;
     String name;
 
-    public ResourceWrapper(Resource r) {
-        uri = r.getURIString();
-        name = r.getName();
+    public ResourceWrapper(String name, Resource r, URI entityUri) {
+        uri = r.getDataUri().toString();
+        this.entityUri = entityUri.toString();
+        this.name = name;
     }
 
     @Override
@@ -32,10 +34,9 @@ public class ResourceWrapper implements IResourceWrapper {
 
     @Override
     public Resource getEntity() {
-        IAuthenticatedDataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
-        DataContext c = dsc.getContext();
+        DataContext c  = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
 
-        return (Resource) c.objectWithURI(uri);
+        return (Resource) c.getObjectWithURI(entityUri);
     }
 
     @Override

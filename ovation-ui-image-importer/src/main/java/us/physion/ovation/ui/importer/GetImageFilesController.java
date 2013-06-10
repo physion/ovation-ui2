@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.importer;
 
+import com.google.common.collect.Lists;
 import java.awt.Component;
 import java.io.File;
 import java.net.MalformedURLException;
@@ -13,10 +14,6 @@ import loci.formats.meta.MetadataRetrieve;
 import org.openide.WizardDescriptor;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
-import ovation.ExternalDevice;
-import ovation.NumericDataFormat;
-import ovation.NumericDataType;
-import ovation.OvationException;
 import us.physion.ovation.ui.interfaces.BasicWizardPanel;
 
 /**
@@ -60,6 +57,7 @@ public class GetImageFilesController extends BasicWizardPanel{
 
     @Override
     public void storeSettings(WizardDescriptor wiz) {
+        wiz.putProperty("epochs", null);
         GetImageFilesPanel c = (GetImageFilesPanel)component;
         List<FileMetadata> files = c.getFiles();
         
@@ -104,42 +102,36 @@ public class GetImageFilesController extends BasicWizardPanel{
     }
 
     private void importSingleEpoch(WizardDescriptor wiz, FileMetadata data, int i) {
-        String epochName = "epoch" + i;
-        wiz.putProperty(epochName + ".start", data.getStart());
-        wiz.putProperty(epochName + ".end", data.getEnd(false));
-
-        wiz.putProperty(epochName + ".properties", data.getEpochProperties());
-
-        for (Map<String, Object> response : data.getResponses()) {
-            String responseName = epochName + "." + (String) response.get("name");
-            response.remove("name");
-            for (String key : response.keySet()) {
-                wiz.putProperty(responseName + "." + key, response.get(key));
-            }
+        Map<String, Object> epoch = new HashMap();
+        epoch.put("name", "epoch" + i);
+        epoch.put("start", data.getStart());
+        epoch.put("end", data.getEnd(false));
+        epoch.put("properties", data.getEpochProperties());
+        epoch.put("measurements", data.getMeasurements());
+        epoch.put("deviceParameters", data.getDeviceParameters());
+        
+        List<Map<String, Object>> epochs = (List<Map<String, Object>>)wiz.getProperty("epochs");
+        if (epochs == null)
+        {
+            epochs = Lists.newLinkedList();
         }
+        epochs.add(epoch);
+        wiz.putProperty("epochs", epochs);
     }
 
     private void importMultipleEpochs(WizardDescriptor wiz, FileMetadata data, int i) {
         Map<String, Object> parentEpochGroup = data.getParentEpochGroup();
-        if (parentEpochGroup != null)
+        parentEpochGroup.put("number", i);
+        parentEpochGroup.put("start", data.getStart());
+        parentEpochGroup.put("end", data.getEnd(false));
+        parentEpochGroup.put("epoch.properties", data.getEpochProperties());//TODO: maybe FileMetadata should do this?
+        
+        List<Map<String, Object>> parentEpochGroups = (List<Map<String, Object>>)wiz.getProperty("parentEpochGroups");
+        if (parentEpochGroups == null)
         {
-            wiz.putProperty("parentEpochGroup.start", data.getStart());
-            wiz.putProperty("parentEpochGroup.end", data.getEnd(false));
-            wiz.putProperty("parentEpochGroup.label", parentEpochGroup.get("label"));
-            
-            int count = 0;
-            for (;;)
-            {
-                String eg = "epochGroup" + count++;
-                if (parentEpochGroup.containsKey(eg))
-                {
-                    wiz.putProperty("parentEpochGroup."+ eg, parentEpochGroup.get(eg));
-                }else{
-                    break;
-                }
-            }
+            parentEpochGroups = Lists.newLinkedList();
         }
-        wiz.putProperty("epoch.properties", data.getEpochProperties());
-        wiz.putProperty("responses", data.getResponses());
+        parentEpochGroups.add(parentEpochGroup);
+        wiz.putProperty("parentEpochGroups", parentEpochGroups);
     }
 }

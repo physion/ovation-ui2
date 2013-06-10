@@ -4,7 +4,7 @@
  */
 package us.physion.ovation.ui.interfaces;
 
-import ovation.IAuthenticatedDataStoreCoordinator;
+import us.physion.ovation.DataContext;
 
 /**
  *
@@ -12,7 +12,8 @@ import ovation.IAuthenticatedDataStoreCoordinator;
  */
 public interface ConnectionProvider {
     
-    public IAuthenticatedDataStoreCoordinator getConnection();
+    public DataContext getDefaultContext();
+    public DataContext getNewContext();
     public void addConnectionListener(ConnectionListener cl);
     public void removeConnectionListener(ConnectionListener cl);
     public void resetConnection();

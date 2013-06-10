@@ -1,14 +1,8 @@
 package ovation;
 
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.DataStoreCoordinator;
-import ovation.UserAuthenticationException;
-import ovation.OvationException;
-import ovation.DataContext;
-import com.objy.db.DatabaseOpenException;
-import com.objy.db.DatabaseNotFoundException;
-import ovation.Ovation;
 import java.rmi.Naming;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.ui.interfaces.*;
 
 
@@ -18,7 +12,7 @@ public class Updater {
 	throw new UnsupportedOperationException("Subclasses of the Updater should override the runUpdate method");
     }
     
-    public void runMain(String[] args)
+    /*public void runMain(String[] args)
     {
 	if (args.length !=3) 
 	{
@@ -59,5 +53,7 @@ public class Updater {
 
 	runUpdate(context, pu);
     }
+    * 
+    */
 
 }

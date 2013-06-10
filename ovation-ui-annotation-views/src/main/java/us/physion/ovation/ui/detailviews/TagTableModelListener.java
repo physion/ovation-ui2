@@ -19,6 +19,11 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.openide.util.Lookup;
 import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.mixin.Taggable;
+import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
@@ -30,10 +35,10 @@ class TagTableModelListener implements EditableTableModelListener {
 
     Set<String> uris;
     ResizableTree tree;
-    IAuthenticatedDataStoreCoordinator dsc;
     TableNode node;
-    public TagTableModelListener(Set<String> uriSet, ResizableTree expandableJTree, TableNode n, IAuthenticatedDataStoreCoordinator connection) {
-        this.dsc = connection;
+    DataContext c;
+    public TagTableModelListener(Set<String> uriSet, ResizableTree expandableJTree, TableNode n, DataContext connection) {
+        this.c = connection;
         uris = uriSet;
         this.tree = expandableJTree;
         this.node = n;
@@ -41,27 +46,65 @@ class TagTableModelListener implements EditableTableModelListener {
 
     @Override
     public void tableChanged(TableModelEvent tme) {
-        DefaultTableModel t = (DefaultTableModel)tme.getSource();
+        
+        EditableTableModel t = (EditableTableModel)tme.getSource();
+        int firstRow = tme.getFirstRow();
+        int lastRow = tme.getLastRow();
                          
-        if (tme.getType() == TableModelEvent.INSERT)
+       if (tme.getType() == TableModelEvent.UPDATE || tme.getType() == TableModelEvent.INSERT)
         {
+            List<String> old = new ArrayList<String>();
+            List<String> newTags = new ArrayList<String>();
+            for (int i = firstRow; i <= lastRow; i++) {
+                String key = (String) t.getValueAt(i, 0);
+                if (key == null || key.isEmpty())
+                    continue;
+                String oldKey = t.getOldKey(i);
+                if (oldKey != null)
+                {
+                    old.add(oldKey);
+                    t.removeOldKey(i);
+                }
+                newTags.add(key);
+            }
+            if (tme.getType() == TableModelEvent.INSERT) {
+                EditableTable p = (EditableTable) node.getPanel();
+                p.resize();
+                tree.resizeNode(node);//this resizes the tree cell that contains the editable table that just deleted a row
+            }
+            final List<String> tags = newTags;
+            final List<String> oldTags = old;
             EventQueueUtilities.runOffEDT(new Runnable() {
+
                 @Override
                 public void run() {
-                    tree.resizeNode(node);
+                    
+                    for (String tag: oldTags)
+                    {
+                        for (String uri : uris) {
+                            OvationEntity eb = c.getObjectWithURI(uri);
+                            if (eb instanceof Taggable)
+                            {
+                                if (tag != null && !tag.isEmpty()) {
+                                    ((Taggable) eb).removeTag(tag.trim());
+                                }
+                            }
+                        }
+                    }
+                    for (String tag: tags)
+                    {
+                        for (String uri : uris) {
+                            OvationEntity eb = c.getObjectWithURI(uri);
+                            if (eb instanceof Taggable) {
+                                if (tag != null && !tag.isEmpty()) {
+                                    ((Taggable) eb).addTag(tag.trim());
+                                }
+                            }
+                        }
+                    }
+                    node.reset(c);
                 }
             });
-
-        } else if (tme.getType() == TableModelEvent.UPDATE)
-        {
-            Set<String> tags = new HashSet();
-            for (int i = 0; i < t.getRowCount(); i++) {
-                String tag = (String) t.getValueAt(i, 0);
-                if (tag != null && !tag.isEmpty())
-                    tags.add(tag);
-            }
-
-            updateTagList(tags, uris, node, dsc);
         }
     }
     //TODO: move these methods out into the other class
@@ -70,7 +113,7 @@ class TagTableModelListener implements EditableTableModelListener {
         return ((TagsSet) node.getUserObject()).getTags();
     }
     
-    protected static void updateTagList(final Set<String> newTags, final Set<String> uris, final TableNode node, final IAuthenticatedDataStoreCoordinator dsc)
+    protected static void updateTagList(final Set<String> newTags, final Set<String> uris, final TableNode node, final DataStoreCoordinator dsc)
     {
         if (newTags.isEmpty()) {
             return;
@@ -92,34 +135,33 @@ class TagTableModelListener implements EditableTableModelListener {
                     }
                 }
                 for (String uri : uris) {
-                    IEntityBase eb = c.objectWithURI(uri);
-                    if (eb instanceof ITaggableEntityBase) {
+                    OvationEntity eb = c.getObjectWithURI(uri);
+                    if (eb instanceof Taggable) {
                         for (String tag : newTags) {
                             if (tag != null && !tag.isEmpty()) {
-                                ((ITaggableEntityBase) eb).addTag(tag.trim());
+                                ((Taggable) eb).addTag(tag.trim());
                             }
                         }
                         for (String tag : toRemove) {
                             if (tag != null && !tag.isEmpty()) {
-                                ((ITaggableEntityBase) eb).removeTag(tag.trim());
+                                ((Taggable) eb).removeTag(tag.trim());
                             }
                         }
                     }
                 }
-                node.reset(dsc);
+                node.reset(c);
             }
         });
     }
 
-    public void deleteRows(final DefaultTableModel model, final int[] rowsToRemove) {
+    public void deleteRows(final DefaultTableModel model, int[] rowsToRemove) {
         
+        Arrays.sort(rowsToRemove);
+        final int[] rows = rowsToRemove;
         EventQueueUtilities.runOffEDT(new Runnable() {
 
             @Override
             public void run() {
-
-                Arrays.sort(rowsToRemove);
-                final int[] rows = rowsToRemove;
 
                 Set<String> tags = new HashSet<String>();
                 for (int i = rows.length - 1; i >= 0; i--) {
@@ -128,44 +170,29 @@ class TagTableModelListener implements EditableTableModelListener {
 
                 final Set<String> toRemove = tags;
 
-                DataContext c = dsc.getContext();
                 for (String tag : toRemove) {
                     for (String uri : uris) {
-                        IEntityBase eb = c.objectWithURI(uri);
-                        if (eb instanceof ITaggableEntityBase)
+                        OvationEntity eb = c.getObjectWithURI(uri);
+                        if (eb instanceof Taggable)
                         {
-                            ((ITaggableEntityBase)eb).removeTag(tag);
+                            ((Taggable)eb).removeTag(tag);
                         }
                     }
                 }
-                node.reset(dsc);
+                node.reset(c);
 
                 //remove rows and resize
                 EventQueueUtilities.runOnEDT(new Runnable() {
 
                     @Override
                     public void run() {
-                        
-                        Object[][] data = new Object[model.getRowCount() - rows.length][1];
-                        int j = 0;
-                        for (int i = 0; i< model.getRowCount(); i++)
-                        {
-                            if (j != rows.length && rows[j] == i)
-                            {
-                                j++;
-                            }
-                            else{
-                                data[i-j][0] = model.getValueAt(i, 0);
-                            }
+                        for (int i = rows.length - 1; i >= 0; i--) {
+                            model.removeRow(rows[i]);
                         }
-                        model.setDataVector(data, new Object[]{"Value"});
                         EditableTable p = (EditableTable)node.getPanel();
-                        JScrollPane sp = p.getScrollPane();
-                        if (sp != null)
-                            sp.setSize(sp.getPreferredSize());
-                        p.setSize(p.getPreferredSize());
+                        p.resize();
                         tree.resizeNode(node);//this resizes the tree cell that contains the editable table that just deleted a row
-                    }
+                   }
                 });
             }
         });

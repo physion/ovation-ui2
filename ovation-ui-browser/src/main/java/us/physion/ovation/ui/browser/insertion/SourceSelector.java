@@ -4,8 +4,8 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
-import com.physion.ebuilder.ExpressionBuilder;
-import com.physion.ebuilder.expression.ExpressionTree;
+import us.physion.ovation.ui.TableTreeKey;
+import us.physion.ovation.ui.ScrollableTableTree;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -28,10 +28,11 @@ import org.openide.util.Cancellable;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.IEntityBase;
-import ovation.Source;
-import ovation.User;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.AnnotatableEntity;
+import us.physion.ovation.domain.Source;
+import us.physion.ovation.domain.User;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.browser.ResetQueryAction;
@@ -54,22 +55,18 @@ public class SourceSelector extends javax.swing.JPanel {
 
     
     ChangeSupport cs;
-    private IAuthenticatedDataStoreCoordinator dsc;
+    private DataContext ctx;
     private void resetSources() {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Sources");
-        for (Source s : dsc.getContext().getSources())
+        for (Source s : ctx.getTopLevelSources())
         {
-            if (s.getParent() == null)
-            {
-                root.add(new DefaultMutableTreeNode(new EntityWrapper(s)));
-            }
+            root.add(new DefaultMutableTreeNode(new EntityWrapper(s)));
         }
         if (!root.isLeaf()) {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) root.getFirstChild();
             while ((node = node.getNextNode()) != null) {
                 Source s = ((Source) ((IEntityWrapper) node.getUserObject()).getEntity());
-                Source[] children = s.getChildren();
-                for (Source child : children) {
+                for (Source child : s.getChildrenSources()) {
                     node.add(new DefaultMutableTreeNode(new EntityWrapper(child)));
                 }
             }
@@ -116,12 +113,13 @@ public class SourceSelector extends javax.swing.JPanel {
      * Creates new form SourceSelector
      */
     public SourceSelector(ChangeSupport changeSupport, IEntityWrapper source) {
-        this(changeSupport, source, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection());
+        this(changeSupport, source, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
     }
-    public SourceSelector(ChangeSupport changeSupport, IEntityWrapper source, IAuthenticatedDataStoreCoordinator dsc) {
+    public SourceSelector(ChangeSupport changeSupport, IEntityWrapper source, DataContext ctx) {
         initComponents();
+        selected = null;
         this.cs = changeSupport;
-        this.dsc = dsc;
+        this.ctx = ctx;
         //TODO: find the relative paths
         resetButton.setIcon(new ImageIcon("/Users/huecotanks/Ovation/ui/ovation-ui/Browser/src/us/physion/ovation/ui/browser/reset-query24.png"));
         runQueryButton.setIcon(new ImageIcon("/Users/huecotanks/Ovation/ui/ovation-ui/QueryTools/src/us/physion/ovation/query/query24.png"));
@@ -155,12 +153,10 @@ public class SourceSelector extends javax.swing.JPanel {
         resetSources();
         
     }
-
-    public void setSource(IEntityWrapper w)//this should be an IEntityWrapper containing a source
+    
+    private void setNoSource()
     {
-        if (w == null || !w.getType().equals(Source.class))
-        {
-            if (selected != null)
+        if (selected != null)
             {
                 selected = null;
                 cs.fireChange();
@@ -171,6 +167,16 @@ public class SourceSelector extends javax.swing.JPanel {
                     }
                 });
             }
+    }
+
+    public void setSource(IEntityWrapper w)//this should be an IEntityWrapper containing a source
+    {
+        if (w == null )
+        {
+            setNoSource();
+        }else if(!Source.class.isAssignableFrom(w.getType()))
+        {
+            setNoSource();
         }
         else {
             selected = w;
@@ -179,13 +185,9 @@ public class SourceSelector extends javax.swing.JPanel {
 
                 public void run() {
                     ArrayList<TableTreeKey> keys = new ArrayList<TableTreeKey>();
-                    Iterator<User> itr = dsc.getContext().getUsersIterator();
-                    while(itr.hasNext())
+                    for (User u : ctx.getUsers())
                     {
-                    
-                        User u = itr.next();
-
-                        if (!selected.getEntity().getUserProperties(u).isEmpty())
+                        if (!((AnnotatableEntity)selected.getEntity()).getUserProperties(u).isEmpty())
                         {
                             keys.add(new PerUserPropertySet(u, selected));
                         }
@@ -281,7 +283,7 @@ public class SourceSelector extends javax.swing.JPanel {
     }//GEN-LAST:event_resetButtonActionPerformed
 
     private void runQueryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runQueryButtonActionPerformed
-        final ExpressionTreeProvider etp = Lookup.getDefault().lookup(ExpressionTreeProvider.class);
+        /*final ExpressionTreeProvider etp = Lookup.getDefault().lookup(ExpressionTreeProvider.class);
         ExpressionTree et = etp.getExpressionTree();
         
         final ExpressionTree result = ExpressionBuilder.editExpression(et).expressionTree;
@@ -328,7 +330,7 @@ public class SourceSelector extends javax.swing.JPanel {
                 root.add(new DefaultMutableTreeNode("<None>"));
                 ((DefaultTreeModel)sourcesTree.getModel()).setRoot(root);
             }
-        });
+        });*/
     }//GEN-LAST:event_runQueryButtonActionPerformed
 
     private void sourcesTreeMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sourcesTreeMouseReleased

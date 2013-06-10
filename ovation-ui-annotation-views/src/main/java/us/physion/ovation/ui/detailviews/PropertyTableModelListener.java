@@ -26,10 +26,11 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.openide.util.Lookup;
-import ovation.DataContext;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.IEntityBase;
-import ovation.Ovation;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.AnnotatableEntity;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
@@ -37,23 +38,20 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
  *
  * @author huecotanks
  */
-class PropertyTableModelListener implements EditableTableModelListener{
+class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableModelListener{
 
     ResizableTree tree;
     Set<String> uris;
-    IAuthenticatedDataStoreCoordinator dsc;
+    DataContext c;
     TableNode node;
     public PropertyTableModelListener(Set<String> uriSet, ResizableTree tree, TableNode node) {
-        this.dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
-        uris = uriSet;
-        this.tree = tree;
-        this.node = node;
+        this(uriSet, tree, node, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
     }
 
     // this contructor is used in unit tests
     public PropertyTableModelListener(Set<String> uriSet, ResizableTree tree, TableNode node,
-            IAuthenticatedDataStoreCoordinator dsc) {
-        this.dsc = dsc;
+            DataContext ctx) {
+        this.c = ctx;
         uris = uriSet;
         this.tree = tree;
         this.node = node;
@@ -61,46 +59,56 @@ class PropertyTableModelListener implements EditableTableModelListener{
 
     @Override
     public void tableChanged(TableModelEvent tme) {
-        DefaultTableModel t = (DefaultTableModel)tme.getSource();
+        EditableTableModel t = (EditableTableModel)tme.getSource();
         int firstRow = tme.getFirstRow();
         int lastRow = tme.getLastRow();
                          
-        if (tme.getType() == TableModelEvent.INSERT)
+       if (tme.getType() == TableModelEvent.UPDATE || tme.getType() == TableModelEvent.INSERT)
         {
-            EventQueueUtilities.runOffEDT(new Runnable() {
-
-                @Override
-                public void run() {
-                    tree.resizeNode(node);
-                }
-            });
-
-        } else if (tme.getType() == TableModelEvent.UPDATE)
-        {
+            List<String> old = new ArrayList<String>();
             Map<String, Object> newProperties = new HashMap<String, Object>();
-            
             for (int i = firstRow; i <= lastRow; i++) {
                 String key = (String) t.getValueAt(i, 0);
                 if (key == null || key.isEmpty())
                     continue;
+                String oldKey = t.getOldKey(i);
+                if (oldKey != null)
+                {
+                    old.add(oldKey);
+                    t.removeOldKey(i);
+                }
                 Object value = t.getValueAt(i, 1);
                 newProperties.put(key, value);
             }
+            if (tme.getType() == TableModelEvent.INSERT) {
+                EditableTable p = (EditableTable) node.getPanel();
+                p.resize();
+                tree.resizeNode(node);//this resizes the tree cell that contains the editable table that just deleted a row
+            }
             final Map<String, Object> props = newProperties;
+            final List<String> oldKeys = old;
             EventQueueUtilities.runOffEDT(new Runnable() {
 
                 @Override
                 public void run() {
                     
-                    DataContext c = dsc.getContext();
+                    for (String key: oldKeys)
+                    {
+                        for (String uri : uris) {
+                            OvationEntity eb = c.getObjectWithURI(uri);
+                            if (eb instanceof AnnotatableEntity)
+                                ((AnnotatableEntity)eb).removeProperty(key);
+                        }
+                    }
                     for (String key: props.keySet())
                     {
                         for (String uri : uris) {
-                            IEntityBase eb = c.objectWithURI(uri);
-                            parseAndAdd(eb, key, props.get(key));
+                            OvationEntity eb = c.getObjectWithURI(uri);
+                            if (eb instanceof AnnotatableEntity)
+                                parseAndAdd((AnnotatableEntity)eb, key, props.get(key));
                         }
                     }
-                    node.reset(dsc);
+                    node.reset(c);
                 }
             });
         }
@@ -114,21 +122,24 @@ class PropertyTableModelListener implements EditableTableModelListener{
 
             @Override
             public void run() {
-                DataContext c = dsc.getContext();
                 for (int i = rows.length - 1; i >= 0; i--) {
                     String key = (String) model.getValueAt(rows[i], 0);
                     final Object value = model.getValueAt(rows[i], 1);
 
                     for (String uri : uris) {
-                        IEntityBase eb = c.objectWithURI(uri);
-                        Map<String, Object> properties = eb.getMyProperties();
-                        if (properties.containsKey(key) && properties.get(key).equals(value)) {
-                            eb.removeProperty(key);
+                        OvationEntity entity = c.getObjectWithURI(uri);
+                        if (entity instanceof AnnotatableEntity)
+                        {
+                            AnnotatableEntity eb = (AnnotatableEntity) entity;
+                            Map<String, Object> properties = eb.getUserProperties(c.getAuthenticatedUser());
+                            if (properties.containsKey(key) && properties.get(key).equals(value)) {
+                                eb.removeProperty(key);
+                            }
                         }
                     }
 
                 }
-                node.reset(dsc);
+                node.reset(c);
                 EventQueueUtilities.runOnEDT(new Runnable() {
 
                     @Override
@@ -137,10 +148,7 @@ class PropertyTableModelListener implements EditableTableModelListener{
                             model.removeRow(rows[i]);
                         }
                         EditableTable p = (EditableTable)node.getPanel();
-                        JScrollPane sp = p.getScrollPane();
-                        if (sp != null)
-                            sp.setSize(sp.getPreferredSize());
-                        p.setSize(p.getPreferredSize());
+                        p.resize();
                         tree.resizeNode(node);//this resizes the tree cell that contains the editable table that just deleted a row
                     }
                 });
@@ -148,8 +156,12 @@ class PropertyTableModelListener implements EditableTableModelListener{
         });
     }
 
-    void parseAndAdd(IEntityBase eb, String key, Object value)
+    void parseAndAdd(AnnotatableEntity eb, String key, Object value)
     {
+        if (value == null){
+            eb.addProperty(key, "");
+            return;
+        }
         if (value instanceof String) {
             String s = (String) value;
             try {
