@@ -67,7 +67,7 @@ public class TagTableListenerTest extends OvationTestCase{
         project.addTag("another tag");
         uris.add(project2.getURI().toString());
         
-        TestTreeKey key = new TestTreeKey(dsc, uris);
+        TestTreeKey key = new TestTreeKey(ctx, uris);
         EditableTableModel m = createTableModel(key, uris);
         for (String uri : uris)
         {
@@ -109,7 +109,7 @@ public class TagTableListenerTest extends OvationTestCase{
         project.addTag("another tag");
         uris.add(project2.getURI().toString());
         
-        TestTreeKey key = new TestTreeKey(dsc, uris);
+        TestTreeKey key = new TestTreeKey(ctx, uris);
         EditableTableModel m = createTableModel(key, uris);
         
         m.setValueAt(oldTag1, 0, 0);
@@ -117,7 +117,7 @@ public class TagTableListenerTest extends OvationTestCase{
         
         for (String uri : uris)
         {
-            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
+            Taggable eb = (Taggable)ctx.getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, false);
             assertContainsTag(oldTag1, eb, true);
             assertContainsTag(newTag2, eb, false);
@@ -129,7 +129,7 @@ public class TagTableListenerTest extends OvationTestCase{
 
         for (String uri : uris)
         {
-            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
+            Taggable eb = (Taggable)ctx.getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, true);
             assertContainsTag(oldTag1, eb, false);
             assertContainsTag(newTag2, eb, true);
@@ -156,7 +156,7 @@ public class TagTableListenerTest extends OvationTestCase{
         project.addTag("another tag");
         uris.add(project2.getURI().toString());
         
-        TestTreeKey key = new TestTreeKey(dsc, uris);
+        TestTreeKey key = new TestTreeKey(ctx, uris);
         EditableTableModel m = createTableModel(key, uris);
         m.setValueAt(newTag, 0, 0);
         
@@ -165,14 +165,14 @@ public class TagTableListenerTest extends OvationTestCase{
 
         for (String uri : uris)
         {
-            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
+            Taggable eb = (Taggable)ctx.getObjectWithURI(uri);
             assertContainsTag(newTag, eb, true);
         }
         TestCase.assertEquals(m.getValueAt(0, 0), newTag);
     }
     
     @Test
-    public void testUpdatesDatabaseAndTableModelWithRowDeletion()
+    public void testUpdatesDatabaseAndTableModelWithRowDeletion() throws InterruptedException
     {
         //Test:
         //project1 contains tag1, tag2, tag3
@@ -199,7 +199,7 @@ public class TagTableListenerTest extends OvationTestCase{
         int i=0;
         for (String uri : uris)
         {
-            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
+            Taggable eb = (Taggable)ctx.getObjectWithURI(uri);
             eb.addTag(newTag1);
             assertContainsTag(newTag1, eb, true);
 
@@ -211,7 +211,7 @@ public class TagTableListenerTest extends OvationTestCase{
             assertContainsTag(newTag3, eb, true);
         }
         
-        TestTreeKey key = new TestTreeKey(dsc, uris);
+        TestTreeKey key = new TestTreeKey(ctx, uris);
         final EditableTableModel m = createTableModel(key, uris);
         m.setValueAt(newTag1, 0, 0);
         m.setValueAt(newTag2, 1, 0);
@@ -223,9 +223,11 @@ public class TagTableListenerTest extends OvationTestCase{
         
         editableTable.deleteRows(new int[] {0, 1});
         
+        Thread.sleep(3000);
+        
         for (String uri : uris)
         {
-            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
+            Taggable eb = (Taggable)ctx.getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, false);
             assertContainsTag(newTag2, eb, false);
             assertContainsTag(newTag3, eb, true);
@@ -236,7 +238,7 @@ public class TagTableListenerTest extends OvationTestCase{
 
     private void assertContainsTag(String t, Taggable eb, boolean b) {
         boolean contains = false;
-        for (String tag : eb.getUserTags(dsc.getContext().getAuthenticatedUser()))
+        for (String tag : eb.getUserTags(ctx.getAuthenticatedUser()))
         {
             if (t.equals(tag))
             {
@@ -263,8 +265,8 @@ public class TagTableListenerTest extends OvationTestCase{
     
     private class TestTreeKey extends TagsSet {
 
-        public TestTreeKey(DataStoreCoordinator dsc, Set<String> uris) {
-            super(dsc.getContext().getAuthenticatedUser(), true, true , new ArrayList<String>(), uris);
+        public TestTreeKey(DataContext ctx, Set<String> uris) {
+            super(ctx.getAuthenticatedUser(), true, true , new ArrayList<String>(), uris);
         }
         
         @Override

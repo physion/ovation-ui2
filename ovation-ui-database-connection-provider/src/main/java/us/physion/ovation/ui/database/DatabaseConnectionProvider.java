@@ -4,36 +4,26 @@
  */
 package us.physion.ovation.ui.database;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.inject.Injector;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.prefs.Preferences;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.protocol.Protocol;
+import javax.swing.border.EmptyBorder;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import org.openide.util.Exceptions;
 import org.openide.util.lookup.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.api.Ovation;
-import us.physion.ovation.api.OvationApiModule;
-import us.physion.ovation.couch.CouchServiceManager;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.exceptions.AuthenticationException;
@@ -141,7 +131,6 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
                             l.propertyChange(new PropertyChangeEvent(context, "ovation.connectionChanged", 0, 1));
                         }
                     }
-
                 } finally {
                     setWaitingFlag(false);
                     ph.finish();
@@ -161,9 +150,30 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         final JDialog d = new JDialog(new JFrame(), true);
         d.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         
-        //JTabbedPane tabs = new JTabbedPane(JTabbedPane.BOTTOM);
+        
         JPanel login = new JPanel();
+        login.setAlignmentX(Component.LEFT_ALIGNMENT);
+        login.setBorder(new EmptyBorder(15, 15, 15, 15));
         login.setLayout(new BoxLayout(login, BoxLayout.PAGE_AXIS));
+        
+        BufferedImage physionIcon;
+        File f = null;
+        try {
+            f = new File ("installer/ovation_48x48.png");
+            physionIcon = ImageIO.read(f);
+            JLabel image = new JLabel(new ImageIcon( physionIcon ));
+            //login.add(Box.createHorizontalGlue());
+            login.add(image, Component.LEFT_ALIGNMENT);
+            image.setAlignmentX(Component.LEFT_ALIGNMENT);
+            login.add(Box.createRigidArea(new Dimension(0,5)));
+        }
+        catch (IOException ex) {
+            String s = "";
+            if (f != null)
+                s = " at '" + f.getAbsolutePath() + "'";
+            logger.error("Could not find Physion icon" + s);
+        }
+        
         //tabs.addTab("Login", login);
         
         //JPanel signUp = new JPanel();
@@ -184,41 +194,8 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         JButton okButton = new JButton("Login");
         buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.PAGE_AXIS));
         buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        buttonPane.add(okButton);
+        buttonPane.add(okButton, Component.RIGHT_ALIGNMENT);
 
-        buttonPane.add(Box.createHorizontalGlue());
-        JCheckBox cb = new JCheckBox();
-        cb.setSelected(true);
-        buttonPane.add(cb);
-        buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
-        JLabel label = new JLabel("Work offline");
-        buttonPane.add(label);
-        BufferedImage physionIcon;
-        File f = null;
-        try {
-            f = new File ("installer/ovation_48x48.png");
-            //f = new File("../branding/src/main/nbm-branding/core/core.jar/org/netbeans/core/startup/splash.gif");
-            physionIcon = ImageIO.read(f);
-            JLabel image = new JLabel(new ImageIcon( physionIcon ));
-            image.setPreferredSize(buttonPane.getPreferredSize());
-            buttonPane.add(image);
-        }
-        catch (IOException ex) {
-            String s = "";
-            if (f != null)
-                s = " at '" + f.getAbsolutePath() + "'";
-            logger.error("Could not find Physion icon" + s);
-        }
-        /*cancelButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                model.cancelled = true;
-                d.dispose();
-            }
-        });
-        *
-        */
         okButton.addActionListener(new ActionListener() {
 
             @Override
@@ -312,5 +289,4 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
     public void removeConnectionListener(ConnectionListener cl) {
         connectionListeners.remove(cl);
     }
-    
 }

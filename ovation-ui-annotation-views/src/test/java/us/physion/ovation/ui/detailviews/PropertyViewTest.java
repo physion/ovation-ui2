@@ -77,7 +77,7 @@ public class PropertyViewTest extends OvationTestCase {
         
         DataStoreCoordinator dsc2 = getInjector().getInstance(DataStoreCoordinator.class);
         try {
-            dsc2.authenticateUser(otherEmail, otherPassword.toCharArray()).get();
+            assertTrue(dsc2.authenticateUser(otherEmail, otherPassword.toCharArray()).get());
         } catch (InterruptedException ex) {
             throw new OvationException(ex);
         } catch (ExecutionException ex) {
@@ -166,13 +166,14 @@ public class PropertyViewTest extends OvationTestCase {
         entitySet.add(new TestEntityWrapper(ctx, source1));
         entitySet.add(new TestEntityWrapper(ctx, source2));
         
-        Thread.sleep(1000);
+        Thread.sleep(5000);
         
+        User u2 = (User)ctx.getObjectWithUuid(user2.getUuid());
         //sanity check that everything has made it into the database as we expected
         assertTrue(source1.getUserProperties(user1).containsKey("key"));
-        assertTrue(source1.getUserProperties(user2).containsKey("key"));
+        assertTrue(source1.getUserProperties(u2).containsKey("key"));
         assertTrue(source2.getUserProperties(user1).containsKey("key"));
-        assertTrue(source2.getUserProperties(user2).containsKey("key2"));
+        assertTrue(source2.getUserProperties(u2).containsKey("key2"));
         
         List<TableTreeKey> properties = tc.setEntities(entitySet, ctx);
         assertEquals(properties.size(), 2);
@@ -184,7 +185,7 @@ public class PropertyViewTest extends OvationTestCase {
         
         //user2 properties
         props = TableTreeUtils.getTuples(properties.get(1));
-        databaseProps = getAggregateUserProperties(user2, entitySet);
+        databaseProps = getAggregateUserProperties(u2, entitySet);
         assertTrue(TableTreeUtils.setsEqual(props, databaseProps));
     }
     

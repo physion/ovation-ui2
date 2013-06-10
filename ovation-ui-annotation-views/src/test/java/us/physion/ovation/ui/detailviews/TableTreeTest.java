@@ -127,7 +127,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
     }
   
      @Test
-    public void testUpdatesDatabaseAndTableModelWithRowDeletion()
+    public void testUpdatesDatabaseAndTableModelWithRowDeletion() throws InterruptedException
     {
         String newKey1 = "something";
         String newVal1 = "else";
@@ -159,6 +159,8 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         assertEquals(m.getValueAt(1, 1), newVal2);
         
         editableTable.deleteRows(new int[] {0, 1});
+        
+        Thread.sleep(3000);
 
         for (String uri : uris)
         {
@@ -167,7 +169,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
             assertFalse(eb.getProperties().containsKey(newKey2));
         }
         
-        assertEquals(m.getRowCount(), 1);
+        assertEquals(1, m.getRowCount());
     }
      
     @Test
