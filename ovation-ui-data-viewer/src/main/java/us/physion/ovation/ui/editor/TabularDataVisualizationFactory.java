@@ -39,5 +39,4 @@ public class TabularDataVisualizationFactory implements VisualizationFactory {
         }
         return -1;
     }
-    
 }

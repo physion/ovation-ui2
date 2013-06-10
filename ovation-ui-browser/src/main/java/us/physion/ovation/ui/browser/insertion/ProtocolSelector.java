@@ -9,17 +9,20 @@ import java.awt.event.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import javax.swing.DefaultListModel;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.openide.util.ChangeSupport;
+import org.openide.util.Lookup;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.browser.EntityWrapper;
+import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 /**
  *
@@ -35,31 +38,34 @@ public class ProtocolSelector extends javax.swing.JPanel {
     List<Protocol> protocols;
     
     Map<String, String> newProtocols;
+    Map<UUID, String> editedProtocols;
+    boolean noneSelectable;
+    boolean allowEditExistingProtocols;
     
     @Override
     public String getName() {
         return "Select an existing Protocol, or create your own";
     }
+    
+    public ProtocolSelector(ChangeSupport cs, boolean noneSelectable, boolean allowEditExistingProtocols)
+    {
+        this(cs, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext(), noneSelectable, allowEditExistingProtocols);
+    }
+
     /**
      * Creates new form ProtocolSelector
      */
-    public ProtocolSelector(ChangeSupport cs, DataContext ctx) {
+    public ProtocolSelector(ChangeSupport cs, DataContext ctx, boolean noneSelectable, boolean allowEdit) {
+        this.noneSelectable = noneSelectable;
+        this.allowEditExistingProtocols = allowEdit;
         this.cs = cs;
         this.context = ctx;
         initComponents();
-        newProtocols = new HashMap<String, String>();
-        listModel = new DefaultListModel();
-        jList1.setModel(listModel);
         jList1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        
         this.jSplitPane1.setDividerLocation(170);
+
+        resetProtocols();
         
-        protocols = Lists.newArrayList(context.getProtocols());
-        for (Protocol p : protocols)
-        {
-            listModel.addElement(p.getName());
-        }
-        listModel.addElement("<none>");
         jList1.addListSelectionListener(new ListSelectionListener() {
 
             @Override
@@ -79,7 +85,8 @@ public class ProtocolSelector extends javax.swing.JPanel {
                     }
                 }else{
                     jTextArea1.setText(selected.getProtocolDocument());
-                    jTextArea1.setEditable(false);
+                    jTextArea1.setEditable(allowEditExistingProtocols && 
+                            context.getAuthenticatedUser().equals(selected.getOwner()));
                 }
             }
         });
@@ -91,8 +98,10 @@ public class ProtocolSelector extends javax.swing.JPanel {
                 String protocolName = jTextField1.getText();
                 if (protocolName == null || protocolName.isEmpty())
                     return;
-                addProtocol(protocolName);
+                addToNewProtocolList(protocolName);
                 jTextField1.setText("");
+                //TODO: uncomment
+                //ProtocolSelector.this.cs.fireChange();
             }
         });
         
@@ -109,13 +118,38 @@ public class ProtocolSelector extends javax.swing.JPanel {
             @Override
             public void keyReleased(KeyEvent ke) {
                 if (jTextArea1.isEditable()) {
-                    String name = (String) listModel.get(jList1.getSelectedIndex());
-                    if (newProtocols.containsKey(name)) {
-                        newProtocols.put(name, jTextArea1.getText());
+                    Protocol selected = getProtocol();
+                    if (selected == null) {
+                        String name = (String) listModel.get(jList1.getSelectedIndex());
+                        if (newProtocols.containsKey(name)) {
+                            newProtocols.put(name, jTextArea1.getText());
+                        }
+                    } else {
+                        editedProtocols.put(selected.getUuid(), jTextArea1.getText());
                     }
+                    ProtocolSelector.this.cs.fireChange();
                 }
             }
         });
+    }
+    
+    public void resetProtocols()
+    {
+        newProtocols = new HashMap<String, String>();
+        editedProtocols = new HashMap<UUID, String>();
+        DefaultListModel newModel = new DefaultListModel();
+        
+        protocols = Lists.newArrayList(context.getProtocols());
+        for (Protocol p : protocols)
+        {
+            newModel.addElement(p.getName());
+        }
+        if (noneSelectable)
+            newModel.addElement("<none>");
+
+        jList1.setModel(newModel);
+        listModel = newModel;
+
     }
     
     public Protocol getProtocol()
@@ -126,7 +160,7 @@ public class ProtocolSelector extends javax.swing.JPanel {
         return null;
     }
     
-    protected void addProtocol(String name)
+    protected void addToNewProtocolList(String name)
     {
         listModel.add(listModel.size() -1, name);
         newProtocols.put(name, "");
@@ -135,6 +169,11 @@ public class ProtocolSelector extends javax.swing.JPanel {
     public Map<String, String> getNewProtocols()
     {
         return newProtocols;
+    }
+    
+    public Map<UUID, String> getEditedProtocols()
+    {
+        return editedProtocols;
     }
     
     public String getProtocolName()
@@ -210,7 +249,7 @@ public class ProtocolSelector extends javax.swing.JPanel {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)
+                    .add(jTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(addProtocolButton)))
         );
     }// </editor-fold>//GEN-END:initComponents

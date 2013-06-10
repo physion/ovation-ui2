@@ -29,7 +29,7 @@ public class SelectProtocolController extends BasicWizardPanel {
     public JPanel getComponent() {
         if (component == null) {
             DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
-            component = new ProtocolSelector(changeSupport, ctx);//Protocol
+            component = new ProtocolSelector(changeSupport, ctx, true, false);//Protocol
         }
         return component;
     }

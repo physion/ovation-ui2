@@ -38,7 +38,7 @@ public class ProtocolController extends BasicWizardPanel {
     public Component getComponent() {
         if (component == null) {
             DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
-            component = new ProtocolSelector(changeSupport, ctx);//EpochDetailsPanel
+            component = new ProtocolSelector(changeSupport, ctx, true, false);//EpochDetailsPanel
         }
         return component;
     }

@@ -42,7 +42,14 @@
             <version>${netbeans.version}</version>
         </dependency>
 
-        <dependency>
+	<dependency>
+          <groupId>org.netbeans.api</groupId>
+          <artifactId>org-netbeans-api-progress</artifactId>
+	  <version>${netbeans.version}</version>
+	  <type>jar</type>
+        </dependency>
+        
+	<dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-api-module</artifactId>
             <version>${ovation.api.version}</version>
