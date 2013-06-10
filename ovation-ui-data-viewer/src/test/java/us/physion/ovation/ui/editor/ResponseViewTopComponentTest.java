@@ -32,29 +32,26 @@ import static org.junit.Assert.assertTrue;
  */
 public class ResponseViewTopComponentTest extends OvationTestCase{
 
-    MeasurementFactory factory;
-
     ResponseViewTopComponent t;
+    
+    private Epoch epoch;
 
     @Before
     public void setUp() {
         super.setUp();
 
-        factory = getInjector().getInstance(StdMeasurementFactory.class);
-
-
-        /*String UNUSED_NAME = "name";
+        String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
         DateTime UNUSED_START = new DateTime(0);
         DateTime UNUSED_END = new DateTime(1);
         String UNUSED_LABEL = "label";
 
-        Project project = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
-        experiment = project.insertExperiment(UNUSED_PURPOSE, UNUSED_START);
+        Project project = ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
+        Experiment experiment = project.insertExperiment(UNUSED_PURPOSE, UNUSED_START);
 
         EpochGroup group = experiment.insertEpochGroup(UNUSED_LABEL, UNUSED_START, null, null, null);
 
-        epoch = group.insertEpoch(UNUSED_START, UNUSED_END, null, null, null);*/
+        Epoch epoch = group.insertEpoch(UNUSED_START, UNUSED_END, null, null, null);
         //t = new ResponseViewTopComponent();
         //assertNotNull(Lookup.getDefault().lookup(ConnectionProvider.class));
     }
@@ -71,8 +68,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         String name = "name";
         Set<String> sourceNames = Sets.newHashSet("subject");
         Set<String> devices = Sets.newHashSet("device");
-        Measurement r = factory.createNumericMeasurement(ctx, name, UUID.randomUUID(), sourceNames, devices, data);
-        //NumericMeasurement r = epoch.insertNumericMeasurement(name, sourceNames, devices, data);
+        Measurement r = epoch.insertNumericMeasurement(name, sourceNames, devices, data);
         return r;
     }
     private Epoch makeEpoch()
