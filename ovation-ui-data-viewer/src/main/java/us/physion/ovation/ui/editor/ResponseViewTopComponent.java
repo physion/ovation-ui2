@@ -49,8 +49,11 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
 import org.openide.explorer.view.BeanTreeView;
 import org.slf4j.LoggerFactory;
+import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.mixin.DataElementContainer;
 import us.physion.ovation.ui.interfaces.ClickableCellEditor;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
@@ -187,24 +190,31 @@ public final class ResponseViewTopComponent extends TopComponent {
 
     protected List<Visualization> updateEntitySelection(Collection<? extends IEntityWrapper> entities) {
         
-        LinkedList<Measurement> responseList = new LinkedList<Measurement>();
+        LinkedList<DataElement> responseList = new LinkedList<DataElement>();
 
         Iterator i = entities.iterator();
         while(i.hasNext())
         {
             IEntityWrapper ew = (IEntityWrapper)i.next();
-            if (Epoch.class.isAssignableFrom(ew.getType())) {
-                Epoch epoch = (Epoch) (ew.getEntity());//getEntity gets the context for the given thread
-                responseList.addAll(Sets.newHashSet(epoch.getMeasurements()));
+            if (DataElementContainer.class.isAssignableFrom(ew.getType())) {
+                DataElementContainer container = (DataElementContainer) (ew.getEntity());//getEntity gets the context for the given thread
+                responseList.addAll(Sets.newHashSet(container.getDataElements().values()));
+                
+                if (container instanceof Epoch)
+                {
+                    for (AnalysisRecord a : ((Epoch)container).getAnalysisRecords()) {
+                        responseList.addAll(Sets.newHashSet(a.getOutputs().values()));
+                    }
+                }
 
-            } else if (Measurement.class.isAssignableFrom(ew.getType())) {
-                responseList.add((Measurement)ew.getEntity());
+            } else if (DataElement.class.isAssignableFrom(ew.getType())) {
+                responseList.add((DataElement)ew.getEntity());
             }
         }
 
         List<Visualization> responseGroups = new LinkedList<Visualization>();
 
-        for (Measurement rw : responseList) {
+        for (DataElement rw : responseList) {
             boolean added = false;
             for (Visualization group : responseGroups) {
                 if (group.shouldAdd(rw)) {

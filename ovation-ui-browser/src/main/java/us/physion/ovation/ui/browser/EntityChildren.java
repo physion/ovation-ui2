@@ -39,12 +39,10 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
     EntityWrapper parent;
     boolean projectView;
-    DataContext c;
 
-    EntityChildren(EntityWrapper e, boolean pView, DataContext context) {
+    EntityChildren(EntityWrapper e, boolean pView) {
         parent = e;
         projectView = pView;
-        c = context;
         //if its per user, we create 
         if (e instanceof PerUserEntityWrapper)
         {
@@ -60,7 +58,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
             @Override
             public Children call() throws Exception {
-                return new EntityChildren(key, projectView, c);
+                return new EntityChildren(key, projectView);
             }
         };
     }
@@ -103,8 +101,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
     
     protected void createKeys() {
         
-        if (c == null)
-            c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+        DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
         if (c == null) {
             return;
         }

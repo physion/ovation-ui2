@@ -49,8 +49,10 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         f.setPreferredSize(new Dimension(250, 25));
         
         GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.WEST;
         c.gridy = row;
         form.add(l, c);
+        c.fill = GridBagConstraints.BOTH;
         c.gridwidth = 2;
         form.add(f, c);
         
@@ -150,11 +152,11 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         final JDialog d = new JDialog(new JFrame(), true);
         d.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         
-        
         JPanel login = new JPanel();
         login.setAlignmentX(Component.LEFT_ALIGNMENT);
         login.setBorder(new EmptyBorder(15, 15, 15, 15));
-        login.setLayout(new BoxLayout(login, BoxLayout.PAGE_AXIS));
+        login.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
         
         BufferedImage physionIcon;
         File f = null;
@@ -162,10 +164,13 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
             f = new File ("installer/ovation_48x48.png");
             physionIcon = ImageIO.read(f);
             JLabel image = new JLabel(new ImageIcon( physionIcon ));
-            //login.add(Box.createHorizontalGlue());
-            login.add(image, Component.LEFT_ALIGNMENT);
+            c.gridx = 0;
+            c.gridy = 0;
+            c.gridwidth = 1;
+            c.anchor = GridBagConstraints.WEST;
+            c.insets = new Insets(0, 0, 15, 15);
+            login.add(image, c);
             image.setAlignmentX(Component.LEFT_ALIGNMENT);
-            login.add(Box.createRigidArea(new Dimension(0,5)));
         }
         catch (IOException ex) {
             String s = "";
@@ -184,17 +189,20 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         //TODO: header if the error is not null
         
         //two text fields
-        JPanel form = new JPanel(new GridBagLayout());
-        final JTextField emailTB = addField(form, "Email: ", 0, false);
-        final JTextField passwordTB = addField(form, "Password: ", 1, true);
+        final JTextField emailTB = addField(login, "Email: ", 1, false);
+        final JTextField passwordTB = addField(login, "Password: ", 2, true);
         
         //Cancel/Ok buttons
-        JPanel buttonPane = new JPanel();
         //JButton cancelButton = new JButton("Cancel");
         JButton okButton = new JButton("Login");
-        buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.PAGE_AXIS));
-        buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        buttonPane.add(okButton, Component.RIGHT_ALIGNMENT);
+        //okButton.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
+        c = new GridBagConstraints();
+        c.gridx = 2;
+        c.gridy = 3;
+        c.gridwidth = 1;
+        c.anchor = GridBagConstraints.EAST;
+        c.insets = new Insets(15, 0, 0, 0);
+        login.add(okButton, c);
 
         okButton.addActionListener(new ActionListener() {
 
@@ -207,9 +215,6 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
             }
         });
                
-        login.add(form, BorderLayout.CENTER);
-        login.add(buttonPane, BorderLayout.PAGE_END);
-        
         //SIGN UP
         //-----------------------------------------------------------
        /* JLabel header = new JLabel("New to Ovation? Sign up");

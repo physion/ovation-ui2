@@ -39,6 +39,7 @@ public class TabularDataWrapper implements Visualization {
             String line = s.nextLine();
             columnNames = line.split(",");
             int lineCount=0; 
+            //TODO: there must better way to do this!
             while (s.hasNextLine())
             {
                 line = s.nextLine();

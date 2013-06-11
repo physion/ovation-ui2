@@ -44,7 +44,7 @@ public class QueryChildren extends Children.Keys<IEntityWrapper> {
         Set<Stack<IEntityWrapper>> childPaths = pathMap.get(child.getURI());
         if (childPaths == null || childPaths.isEmpty())
         {
-            children = new EntityChildren((EntityWrapper)child, projectView, null);
+            children = new EntityChildren((EntityWrapper)child, projectView);
         }else{
             children = new QueryChildren(childPaths, projectView);
         }

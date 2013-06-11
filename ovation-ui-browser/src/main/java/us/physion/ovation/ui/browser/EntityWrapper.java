@@ -99,6 +99,9 @@ public class EntityWrapper implements IEntityWrapper {
         else if (DataElement.class.isAssignableFrom(type))
         {
             return ((DataElement)e).getName();
+        } else if (AnalysisRecord.class.isAssignableFrom(type))
+        {
+            return ((AnalysisRecord)e).getName();
         }
         return "<no name>";
     }

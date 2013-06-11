@@ -87,7 +87,7 @@ public class BrowserUtilities{
                 etp.addQueryListener(ql);
             }
         }
-        em.setRootContext(new EntityNode(new EntityChildren(null, projectView, null), null));
+        em.setRootContext(new EntityNode(new EntityChildren(null, projectView), null));
         resetView(em, projectView);
     }
     
@@ -95,7 +95,7 @@ public class BrowserUtilities{
     {
         browserMap.clear();
         for (ExplorerManager mgr : registeredViewManagers.keySet()) {
-            mgr.setRootContext(new EntityNode(new EntityChildren(null, registeredViewManagers.get(mgr), null), null));
+            mgr.setRootContext(new EntityNode(new EntityChildren(null, registeredViewManagers.get(mgr)), null));
         }
     }
     
@@ -126,7 +126,7 @@ public class BrowserUtilities{
 
     protected static void resetView(ExplorerManager e, boolean projectView)
     {
-        e.setRootContext(new EntityNode(new EntityChildren(null, projectView, null), null));
+        e.setRootContext(new EntityNode(new EntityChildren(null, projectView), null));
     }
 
     //TODO: uncomment when we have query capabiliites
