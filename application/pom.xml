@@ -1,462 +1,460 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>us.physion</groupId>
-		<artifactId>ovation-ui-parent</artifactId>
-		<version>2.0-SNAPSHOT</version>
-	</parent>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>us.physion</groupId>
+        <artifactId>ovation-ui-parent</artifactId>
+        <version>2.0-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>ovation-ui-app</artifactId>
-	<packaging>nbm-application</packaging>
+    <artifactId>ovation-ui-app</artifactId>
+    <packaging>nbm-application</packaging>
 
-	<name>ovation-ui-app</name>
+    <name>ovation-ui-app</name>
 
-	<properties>
-	        <netbeans.version>RELEASE721</netbeans.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<netbeans.run.params.ide/>
-		<netbeans.run.params>${netbeans.run.params.ide}</netbeans.run.params>
-		<all.clusters>${project.build.directory}/${brandingToken}</all.clusters>
-		<ovation.release.repository.id>s3-release-repository</ovation.release.repository.id>
-		<ovation.release.repository.url>s3://us.physion.maven/release</ovation.release.repository.url>
-		<physion.codesign.identity>3rd Party Mac Developer Application: Physion Consulting LLC</physion.codesign.identity>
-		<ovation.updates.site>${project.build.directory}/netbeans_site</ovation.updates.site>
-		<ovation.updates.repository.path>ovation</ovation.updates.repository.path>
-		<ovation.updates.repository.url>s3://us.physion.maven/updates</ovation.updates.repository.url>
-		<ovation.updates.repository.id>s3-updates-repository</ovation.updates.repository.id>
-		<ovation.appbundle.name>Ovation</ovation.appbundle.name>
-	</properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <netbeans.run.params.ide/>
+        <netbeans.run.params>${netbeans.run.params.ide}</netbeans.run.params>
+        <all.clusters>${project.build.directory}/${brandingToken}</all.clusters>
+        <ovation.release.repository.id>s3-release-repository</ovation.release.repository.id>
+        <ovation.release.repository.url>s3://us.physion.maven/release</ovation.release.repository.url>
+        <physion.codesign.identity>3rd Party Mac Developer Application: Physion Consulting LLC</physion.codesign.identity>
+        <ovation.updates.site>${project.build.directory}/netbeans_site</ovation.updates.site>
+        <ovation.updates.repository.path>ovation</ovation.updates.repository.path>
+        <ovation.updates.repository.url>s3://us.physion.maven/updates</ovation.updates.repository.url>
+        <ovation.updates.repository.id>s3-updates-repository</ovation.updates.repository.id>
+        <ovation.appbundle.name>Ovation</ovation.appbundle.name>
+    </properties>
 
-	<dependencies>
-	        <dependency>
-		        <groupId>org.netbeans.api</groupId>
-			<artifactId>org-netbeans-modules-jellytools-platform</artifactId>
-			<version>${netbeans.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.netbeans.cluster</groupId>
-			<artifactId>platform</artifactId>
-			<version>${netbeans.version}</version>
-			<type>pom</type>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>ovation-ui-branding</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<!-- NbModuleSuite functional in RELEASE70 or later: -->
-		<dependency>
-			<groupId>org.netbeans.api</groupId>
-			<artifactId>org-netbeans-modules-nbjunit</artifactId>
-			<version>${netbeans.version}</version>
-			<scope>test</scope>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-jellytools-platform</artifactId>
+            <version>${netbeans.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.cluster</groupId>
+            <artifactId>platform</artifactId>
+            <version>${netbeans.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-ui-branding</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- NbModuleSuite functional in RELEASE70 or later: -->
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-nbjunit</artifactId>
+            <version>${netbeans.version}</version>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>ovation-ui-database-connection-provider</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-        
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>ovation-api-module</artifactId>
-			<version>${ovation.api.version}</version>
-		</dependency>
-        
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>ovation-ui-common-interfaces</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>ovation-ui-imagej</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>ovation-ui-browser</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>ovation-ui-data-viewer</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>scrollable-table-tree</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>ovation-ui-annotation-views</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>ovation-ui-image-importer</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>ovation-ui-query</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-ui-database-connection-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-	<build>
-		<plugins>
-			
-			<!-- Disable zip except in deployment, set the final location of ovation.conf -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>nbm-maven-plugin</artifactId>
-				<version>${nbm.plugin.version}</version>
-				<configuration>
-					<!-- setup ovation.conf for the final product -->
-					<etcConfFile>${basedir}/target/${brandingToken}.conf</etcConfFile>
-				</configuration>
-				<executions>
-					<execution>
-						<id>default-standalone-zip</id>
-						<phase>package</phase>       
-					</execution>
-				</executions>
-			</plugin>
-			
-			<!-- Copy ressources ovation.conf and Info.plist with filtering (replacing 'project.version' by the actual version) -->
-			<plugin> 
-				<artifactId>maven-resources-plugin</artifactId> 
-				<executions> 
-					<execution> 
-						<id>generate-app-conf-file</id> 
-						<phase>generate-resources</phase> 
-						<goals> 
-							<goal>copy-resources</goal> 
-						</goals> 
-						<configuration> 
-							<outputDirectory>${basedir}/target/</outputDirectory> 
-							<resources> 
-								<resource> 
-									<directory>src/main/resources</directory> 
-									<includes> 
-										<include>${brandingToken}.conf</include>
-										<include>Info.plist</include>
-									</includes> 
-									<filtering>true</filtering> 
-								</resource> 
-							</resources>
-							<escapeString>\</escapeString>
-						</configuration> 
-					</execution> 
-				</executions> 
-			</plugin>
-		</plugins>
-	</build>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-api-module</artifactId>
+            <version>${ovation.api.version}</version>
+        </dependency>
 
-	<profiles>
-		<!-- The deployment profile is built for daily releases. It builds the standalone 
-		zip and the autoupdate site. It can be used with deploy-dmg to include the dmg as well. -->
-		<profile>
-			<id>deployment</id>
-						
-			<build>
-				<plugins>
-					
-					<!-- NBM Plugin settings. Enable the zip, installer and autoupdate generation -->
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>nbm-maven-plugin</artifactId>
-						
-						<configuration>
-							<installerLicenseFile>../licenses/license-GPL.txt</installerLicenseFile>
-							<installerOsLinux>true</installerOsLinux>
-							<installerOsMacosx>false</installerOsMacosx>
-							<installerOsWindows>true</installerOsWindows>
-							<installerOsSolaris>false</installerOsSolaris>
-							<templateFile>${basedir}/installer/template.xml</templateFile>
-							<userSettings>
-								<nbi.icon.file>${basedir}/installer/ovation_48x48.png</nbi.icon.file>
-								<nbi.dock.icon.file>${basedir}/src/main/osx/ovation.icns</nbi.dock.icon.file>
-							</userSettings>
-						</configuration>
-						
-						<executions>
-							<execution>
-								<id>default-standalone-zip</id>
-								<phase>package</phase>       
-							</execution>
-							
-							<execution>
-								<id>autoupdate</id>
-								<goals>
-									<goal>autoupdate</goal>
-								</goals>
-							</execution>
-							
-							<execution>
-								<id>extra</id>
-								<goals>
-									<goal>build-installers</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-                    
-					<!-- Permits NbModuleSuite to be run in integration-test phase: -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<configuration>
-							<systemPropertyVariables>
-								<all.clusters>${all.clusters}</all.clusters>
-								<branding.token>${brandingToken}</branding.token>
-							</systemPropertyVariables>
-						</configuration>
-					</plugin>
-                    
-					<!-- Avoid jar goal -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-jar-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>none</phase>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		
-		<!-- Profile used along with the deployment profile to upload the update site -->
-		<profile>
-			<id>upload-updates</id>
-			<build>
-				<plugins>
-					<!-- Upload the autoupdate site automatically -->
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>wagon-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>upload-jar-to-folder</id>
-								<phase>deploy</phase>
-								<goals>
-									<goal>upload</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<fromDir>${ovation.updates.site}</fromDir>
-							<includes>*</includes>
-							<url>${ovation.updates.repository.url}</url>
-							<toDir>${ovation.updates.repository.path}</toDir>
-							<serverId>${ovation.updates.repository.id}</serverId>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		
-		<!-- Profile used along with deployment to create the dmg archive -->
-		<profile>
-			<id>create-dmg</id>
-			<build>
-				<plugins>
-                    
-					<!-- Create the Mac OS X application bundle and dmg file -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<version>1.7</version>
-						<executions>
-							<execution>
-								<id>create-app-bundle</id>
-								
-								<phase>package</phase> 
-								
-								<goals>
-									<goal>run</goal>
-								</goals>
-								
-								<configuration>
-									<target>
-										<echo message="Building OS X app bundle ${line.separator}"/>
-										
-										<delete includeEmptyDirs="true" failonerror="false">
-											<fileset dir="${project.build.directory}/${ovation.appbundle.name}.app"/>
-										</delete>
-                                
-										<mkdir dir="${project.build.directory}/${ovation.appbundle.name}.app"/>
-										<mkdir dir="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS"/>
-                                        
-										<copy todir="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}">
-											<fileset dir="${project.build.directory}/${brandingToken}"/>
-										</copy>
-                                
-										<copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}.icns" file="${basedir}/src/main/osx/${brandingToken}.icns" />
-										<copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Info.plist" file="${project.build.directory}/Info.plist"/>
-                                
-										<!-- At this point we could copy the modified ovation launcher -->
-										<!-- <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" file="${basedir}/src/main/osx/${brandingToken}" /> -->
-										<copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Info.plist" file="${project.build.directory}/Info.plist"/>
-										
-										<!-- <chmod file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" perm="ugo+rx"/> -->
-                                
-										<symlink link="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS/ovation" resource="../Resources/${brandingToken}/bin/${brandingToken}" failonerror="false" />
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-ui-common-interfaces</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-ui-imagej</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-ui-browser</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-ui-data-viewer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>scrollable-table-tree</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-ui-annotation-views</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-ui-image-importer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-ui-query</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
-										<echo message="Signing app bundle ${line.separator}"/>
-										<exec dir="${project.build.directory}" os="Mac OS X" executable="codesign">
-											<arg value="-fs"/> 
-											<arg value="${physion.codesign.identity}"/> 
-											<arg value="-v"/> 
-											<arg value="${ovation.appbundle.name}.app"/> 
-										</exec>
-                                        
-										<echo message="Creating DMG ${line.separator}"/>
-										<exec dir="${project.build.directory}" os="Mac OS X" executable="hdiutil">
-											<arg value="create"/> 
-											<arg value="-noanyowners"/> 
-											<arg value="-imagekey"/> 
-											<arg value="zlib-level=9"/> 
-											<arg value="-srcfolder"/> 
-											<arg value="${ovation.appbundle.name}.app"/> 
-											<arg value="${project.artifactId}-${project.version}.dmg"/>
-										</exec>
+    <build>
+        <plugins>
 
-										<exec dir="${project.build.directory}" os="Linux" executable="mkisofs">
-											<arg value="-V"/> 
-											<arg value="${ovation.appbundle.name}"/>
-											<arg value="-U"/>
-											<arg value="-D"/>
-											<arg value="-l"/>
-											<arg value="-allow-multidot"/>
-											<arg value="-max-iso9660-filenames"/>
-											<arg value="-relaxed-filenames"/>
-											<arg value="-no-iso-translate"/>
-											<arg value="-r"/>
-											<arg value="-o"/>
-											<arg value="${project.artifactId}-${project.version}.dmg"/>
-											<arg value="-root"/>
-											<arg value="${ovation.appbundle.name}.app"/>
-											<arg value="${ovation.appbundle.name}.app"/>
-										</exec>
-									</target>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-			
-		<!-- Profile used along with deployment to attach the dmg archive -->
-		<profile>
-			<id>deploy-dmg</id>
-			<build>
-				<plugins>
-					<!-- Attach the final DMG for deployment -->
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>build-helper-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>attach-dmg</id>
-								<phase>pre-integration-test</phase>
-								<goals>
-									<goal>attach-artifact</goal>
-								</goals>
-								<configuration>
-									<artifacts>
-										<artifact>
-											<file>${project.build.directory}/${project.artifactId}-${project.version}.dmg</file>
-											<type>dmg</type>
-										</artifact>
-									</artifacts>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>   
-				</plugins>
-			</build>
-		</profile>
-			
-		<!-- Profile activated for macos release. Need to be called with profile deploy-dmg. -->
-		<profile>
-			<id>release-macos</id>
-			<build>
-				<plugins>
-					<!-- Deploy dmg artifact -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-deploy-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>deploy</phase>
-								<goals>
-									<goal>deploy-file</goal>
-								</goals>
-								<configuration>
-									<packaging>dmg</packaging>
-									<generatePom>false</generatePom>
-									<repositoryId>${ovation.release.repository.id}</repositoryId>
-									<url>${ovation.release.repository.url}</url>
-									<artifactId>${project.artifactId}</artifactId>
-									<groupId>${project.groupId}</groupId>
-									<version>${project.version}</version>
-									<file>${project.build.directory}/${project.artifactId}-${project.version}.dmg</file>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
-	
-	<repositories>
-		<repository>  
-			<id>s3-release-repository</id>  
-			<name>S3 Release Repository</name>  
-			<url>s3://us.physion.maven/release</url>  
-			<releases>  
-				<enabled>true</enabled>  
-			</releases>  
-			<snapshots>  
-				<enabled>false</enabled>  
-			</snapshots>  
-		</repository>
-		<repository>  
-			<id>s3-snapshot-repository</id>  
-			<name>S3 Snapshot Repository</name>  
-			<url>s3://us.physion.maven/snapshot</url>  
-			<releases>  
-				<enabled>false</enabled>  
-			</releases>  
-			<snapshots>  
-				<enabled>true</enabled>  
-			</snapshots>  
-		</repository>  
-		
-		<repository>  
-			<id>s3-updates-repository</id>  
-			<name>S3 Updates Repository</name>  
-			<url>s3://us.physion.maven/updates</url>  
-			<releases>  
-				<enabled>true</enabled>  
-			</releases>  
-			<snapshots>  
-				<enabled>false</enabled>  
-			</snapshots>  
-		</repository>  
-	</repositories>
+            <!-- Disable zip except in deployment, set the final location of ovation.conf -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <version>${nbm.plugin.version}</version>
+                <configuration>
+                    <!-- setup ovation.conf for the final product -->
+                    <etcConfFile>${basedir}/target/${brandingToken}.conf</etcConfFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-standalone-zip</id>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Copy ressources ovation.conf and Info.plist with filtering (replacing 'project.version' by the actual version) -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-app-conf-file</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <includes>
+                                        <include>${brandingToken}.conf</include>
+                                        <include>Info.plist</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                            <escapeString>\</escapeString>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <!-- The deployment profile is built for daily releases. It builds the standalone
+        zip and the autoupdate site. It can be used with deploy-dmg to include the dmg as well. -->
+        <profile>
+            <id>deployment</id>
+
+            <build>
+                <plugins>
+
+                    <!-- NBM Plugin settings. Enable the zip, installer and autoupdate generation -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>nbm-maven-plugin</artifactId>
+
+                        <configuration>
+                            <installerLicenseFile>../licenses/license-GPL.txt</installerLicenseFile>
+                            <installerOsLinux>true</installerOsLinux>
+                            <installerOsMacosx>false</installerOsMacosx>
+                            <installerOsWindows>true</installerOsWindows>
+                            <installerOsSolaris>false</installerOsSolaris>
+                            <templateFile>${basedir}/installer/template.xml</templateFile>
+                            <userSettings>
+                                <nbi.icon.file>${basedir}/installer/ovation_48x48.png</nbi.icon.file>
+                                <nbi.dock.icon.file>${basedir}/src/main/osx/ovation.icns</nbi.dock.icon.file>
+                            </userSettings>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>default-standalone-zip</id>
+                                <phase>package</phase>
+                            </execution>
+
+                            <execution>
+                                <id>autoupdate</id>
+                                <goals>
+                                    <goal>autoupdate</goal>
+                                </goals>
+                            </execution>
+
+                            <execution>
+                                <id>extra</id>
+                                <goals>
+                                    <goal>build-installers</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- Permits NbModuleSuite to be run in integration-test phase: -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <all.clusters>${all.clusters}</all.clusters>
+                                <branding.token>${brandingToken}</branding.token>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+
+                    <!-- Avoid jar goal -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>none</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Profile used along with the deployment profile to upload the update site -->
+        <profile>
+            <id>upload-updates</id>
+            <build>
+                <plugins>
+                    <!-- Upload the autoupdate site automatically -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>wagon-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>upload-jar-to-folder</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>upload</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <fromDir>${ovation.updates.site}</fromDir>
+                            <includes>*</includes>
+                            <url>${ovation.updates.repository.url}</url>
+                            <toDir>${ovation.updates.repository.path}</toDir>
+                            <serverId>${ovation.updates.repository.id}</serverId>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Profile used along with deployment to create the dmg archive -->
+        <profile>
+            <id>create-dmg</id>
+            <build>
+                <plugins>
+
+                    <!-- Create the Mac OS X application bundle and dmg file -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <id>create-app-bundle</id>
+
+                                <phase>package</phase>
+
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+
+                                <configuration>
+                                    <target>
+                                        <echo message="Building OS X app bundle ${line.separator}"/>
+
+                                        <delete includeEmptyDirs="true" failonerror="false">
+                                            <fileset dir="${project.build.directory}/${ovation.appbundle.name}.app"/>
+                                        </delete>
+
+                                        <mkdir dir="${project.build.directory}/${ovation.appbundle.name}.app"/>
+                                        <mkdir dir="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS"/>
+
+                                        <copy todir="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}">
+                                            <fileset dir="${project.build.directory}/${brandingToken}"/>
+                                        </copy>
+
+                                        <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}.icns" file="${basedir}/src/main/osx/${brandingToken}.icns" />
+                                        <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Info.plist" file="${project.build.directory}/Info.plist"/>
+
+                                        <!-- At this point we could copy the modified ovation launcher -->
+                                        <!-- <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" file="${basedir}/src/main/osx/${brandingToken}" /> -->
+
+                                        <!-- <chmod file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" perm="ugo+rx"/> -->
+
+                                        <symlink link="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS/ovation" resource="../Resources/${brandingToken}/bin/${brandingToken}" failonerror="false" />
+
+                                        <echo message="Signing app bundle ${line.separator}"/>
+                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign">
+                                            <arg value="-fs"/>
+                                            <arg value="${physion.codesign.identity}"/>
+                                            <arg value="-v"/>
+                                            <arg value="${ovation.appbundle.name}.app"/>
+                                        </exec>
+
+                                        <echo message="Creating DMG ${line.separator}"/>
+                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="hdiutil">
+                                            <arg value="create"/>
+                                            <arg value="-noanyowners"/>
+                                            <arg value="-imagekey"/>
+                                            <arg value="zlib-level=9"/>
+                                            <arg value="-srcfolder"/>
+                                            <arg value="${ovation.appbundle.name}.app"/>
+                                            <arg value="${project.artifactId}-${project.version}.dmg"/>
+                                        </exec>
+
+                                        <exec dir="${project.build.directory}" os="Linux" executable="mkisofs">
+                                            <arg value="-V"/>
+                                            <arg value="${ovation.appbundle.name}"/>
+                                            <arg value="-U"/>
+                                            <arg value="-D"/>
+                                            <arg value="-l"/>
+                                            <arg value="-allow-multidot"/>
+                                            <arg value="-max-iso9660-filenames"/>
+                                            <arg value="-relaxed-filenames"/>
+                                            <arg value="-no-iso-translate"/>
+                                            <arg value="-r"/>
+                                            <arg value="-o"/>
+                                            <arg value="${project.artifactId}-${project.version}.dmg"/>
+                                            <arg value="-root"/>
+                                            <arg value="${ovation.appbundle.name}.app"/>
+                                            <arg value="${ovation.appbundle.name}.app"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Profile used along with deployment to attach the dmg archive -->
+        <profile>
+            <id>deploy-dmg</id>
+            <build>
+                <plugins>
+                    <!-- Attach the final DMG for deployment -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-dmg</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>attach-artifact</goal>
+                                </goals>
+                                <configuration>
+                                    <artifacts>
+                                        <artifact>
+                                            <file>${project.build.directory}/${project.artifactId}-${project.version}.dmg</file>
+                                            <type>dmg</type>
+                                        </artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Profile activated for macos release. Need to be called with profile deploy-dmg. -->
+        <profile>
+            <id>release-macos</id>
+            <build>
+                <plugins>
+                    <!-- Deploy dmg artifact -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>deploy-file</goal>
+                                </goals>
+                                <configuration>
+                                    <packaging>dmg</packaging>
+                                    <generatePom>false</generatePom>
+                                    <repositoryId>${ovation.release.repository.id}</repositoryId>
+                                    <url>${ovation.release.repository.url}</url>
+                                    <artifactId>${project.artifactId}</artifactId>
+                                    <groupId>${project.groupId}</groupId>
+                                    <version>${project.version}</version>
+                                    <file>${project.build.directory}/${project.artifactId}-${project.version}.dmg</file>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <repositories>
+        <repository>
+            <id>s3-release-repository</id>
+            <name>S3 Release Repository</name>
+            <url>s3://us.physion.maven/release</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>s3-snapshot-repository</id>
+            <name>S3 Snapshot Repository</name>
+            <url>s3://us.physion.maven/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+
+        <repository>
+            <id>s3-updates-repository</id>
+            <name>S3 Updates Repository</name>
+            <url>s3://us.physion.maven/updates</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 </project>
