@@ -51,7 +51,7 @@ public class DefaultDataPanel extends JPanel{
                         try {
                             File f = d.getData().get();
                             if (Desktop.isDesktopSupported()) {
-                                Desktop.getDesktop().edit(f);
+                                Desktop.getDesktop().open(f);
                             } else {
                                 throw new OvationException("Java Desktop not supported on this machine");
                             }
@@ -68,11 +68,14 @@ public class DefaultDataPanel extends JPanel{
         });
 
         c.insets = new Insets(10, 10, 10, 10);
+        c.anchor = GridBagConstraints.NORTH;
+        c.weighty = 0.0;
         c.gridy = 0;
         add(elementName, c);
         c.gridy = 1;
         add(messageLabel, c);
         c.gridy = 2;
+        c.weighty = 1.0;
         add(openButton, c);
     }
 }

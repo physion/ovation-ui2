@@ -23,6 +23,7 @@ import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 import ovation.*;
 import us.physion.ovation.domain.*;
+import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.Owned;
 import us.physion.ovation.domain.mixin.ProcedureElement;
 import us.physion.ovation.ui.browser.insertion.InsertSource;
@@ -83,7 +84,7 @@ public class EntityWrapperUtilities {
         Set<Stack<IEntityWrapper>> paths = new HashSet<Stack<IEntityWrapper>>();
 
         if (isPerUser(e)) {
-            path.push(new PerUserEntityWrapper(((Owned)e).getOwner().getUsername(), ((Owned)e).getOwner().getURI().toString()));
+            path.push(new PerUserEntityWrapper(((Owned) e).getOwner().getUsername(), ((Owned) e).getOwner().getURI().toString()));
         }
 
         Set<OvationEntity> parents = getParents(e, path);
@@ -119,17 +120,18 @@ public class EntityWrapperUtilities {
         } else if (type.isAssignableFrom(EpochGroup.class)) {
             ProcedureElement parent = ((EpochGroup) entity).getParent();
             if (parent instanceof Experiment) {
-                parents.add((Experiment)parent);
+                parents.add((Experiment) parent);
             } else {
-                parents.add((EpochGroup)parent);
+                parents.add((EpochGroup) parent);
             }
         } else if (type.isAssignableFrom(Epoch.class)) {
             parents.add(((Epoch) entity).getParent());
         } else if (type.isAssignableFrom(Measurement.class)) {
             parents.add(((Measurement) entity).getEpoch());
             Epoch epoch = ((Measurement) entity).getEpoch();
-            for (String source : ((Measurement) entity).getSourceNames())
+            for (String source : ((Measurement) entity).getSourceNames()) {
                 parents.add(epoch.getInputSources().get(source));
+            }
         } else if (type.isAssignableFrom(AnalysisRecord.class)) {
             parents.add(((AnalysisRecord) entity).getParent());
         }
@@ -144,16 +146,15 @@ public class EntityWrapperUtilities {
     }
 
     protected static Node createNode(IEntityWrapper key, Children c) {
-        
+
         boolean forceCreateNode = false;
-        if (key instanceof PerUserEntityWrapper)
-        {
+        if (key instanceof PerUserEntityWrapper) {
             //per user entity wrappers are "user" nodes
             //their uri's correspond to the "User" object they represent, and therefore
             //are not unique nodes
             forceCreateNode = true;
         }
-        
+
         Map<String, Node> treeMap = BrowserUtilities.getNodeMap();
         String uri = key.getURI();
         if (!forceCreateNode) {//If node with uri exists, create a node that just proxies the existing node
@@ -173,22 +174,22 @@ public class EntityWrapperUtilities {
     }
 
     protected static void setIconForType(AbstractNode n, Class entityClass) {
-        if (entityClass.isAssignableFrom(Source.class)) {
+        if (Source.class.isAssignableFrom(entityClass)) {
             n.setIconBaseWithExtension("us/physion/ovation/ui/browser/source.png");
-        } else if (entityClass.isAssignableFrom(Project.class)) {
+        } else if (Project.class.isAssignableFrom(entityClass)) {
             n.setIconBaseWithExtension("us/physion/ovation/ui/browser/project.png");
-        } else if (entityClass.isAssignableFrom(Experiment.class)) {
+        } else if (Experiment.class.isAssignableFrom(entityClass)) {
             n.setIconBaseWithExtension("us/physion/ovation/ui/browser/experiment.png");
-        } else if (entityClass.isAssignableFrom(EpochGroup.class)) {
+        } else if (EpochGroup.class.isAssignableFrom(entityClass)) {
             n.setIconBaseWithExtension("us/physion/ovation/ui/browser/epochGroup.png");
-        } else if (entityClass.isAssignableFrom(Epoch.class)) {
+        } else if (Epoch.class.isAssignableFrom(entityClass)) {
             n.setIconBaseWithExtension("us/physion/ovation/ui/browser/epoch.png");
-        } else if (entityClass.isAssignableFrom(AnalysisRecord.class)) {
+        } else if (AnalysisRecord.class.isAssignableFrom(entityClass)) {
             n.setIconBaseWithExtension("us/physion/ovation/ui/browser/analysis-record.png");
-        } else if (entityClass.isAssignableFrom(Measurement.class)){
-           n.setIconBaseWithExtension("us/physion/ovation/ui/browser/response.png"); 
-        } else if (entityClass.isAssignableFrom(User.class) ){
-           n.setIconBaseWithExtension("us/physion/ovation/ui/browser/user.png"); 
+        } else if (DataElement.class.isAssignableFrom(entityClass)) {
+            n.setIconBaseWithExtension("us/physion/ovation/ui/browser/analysis-record.png");
+        } else if (User.class.isAssignableFrom(entityClass)) {
+            n.setIconBaseWithExtension("us/physion/ovation/ui/browser/user.png");
         }
     }
 }

@@ -133,7 +133,7 @@ public class ParameterTableModel extends DefaultTableModel {
                 params.remove(oldKey);
                 params.put((String)o, oldValue);
                 keys.set(row, (String)o);
-                Collections.sort(keys);
+                //Collections.sort(keys);
             }
             
         }else{//setting a value
@@ -144,7 +144,7 @@ public class ParameterTableModel extends DefaultTableModel {
             }else{
                 //setting a value on an existing key
                 params.put(keys.get(row), o);
-                Collections.sort(keys);// we sort, in case people have added a new key value pair
+                //Collections.sort(keys);// we sort, in case people have added a new key value pair
             }
         }
         /*
