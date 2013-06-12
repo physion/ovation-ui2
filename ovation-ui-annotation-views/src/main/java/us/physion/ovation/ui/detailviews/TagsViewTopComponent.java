@@ -149,10 +149,9 @@ public final class TagsViewTopComponent extends TopComponent {
         {
             final TableNode node = (TableNode)tagTableNode;
             EditableTableModel m = ((EditableTableModel)node.getPanel().getTable().getModel());
-            int row = m.getRowCount() -1;
             for (String tag : newTags)
             {
-                m.setValueAt(tag, row++, 0);
+                m.setValueAt(tag, m.getRowCount() -1, 0);
             }
             ((ScrollableTableTree)tagTree).resizeNode(node);
         }

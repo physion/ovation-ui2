@@ -134,6 +134,14 @@ public class EditableTableModel extends DefaultTableModel{
         if (getValueAt(row, column).equals(val))//nothing changed
             return;
         
+        if (val instanceof String)
+        {
+            if (((String)val).trim().isEmpty())
+            {
+                return;
+            }
+        }
+        
         if (row >= keys.size()) {
             //we are adding a key or value
             if (column == 0 && params.containsKey(val))

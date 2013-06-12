@@ -69,7 +69,6 @@ public final class ProtocolViewTopComponent extends TopComponent {
     private DataContext ctx;
     DefaultComboBoxModel model;
     
-    
     protected ConnectionListener cn = new ConnectionListener(new Runnable(){
 
             @Override
@@ -123,12 +122,12 @@ public final class ProtocolViewTopComponent extends TopComponent {
 
 void resetProtocols()
     {
-        resetProtocols(Lookup.getDefault().lookup(ConnectionProvider.class  
-
-).getDefaultContext());
+        resetProtocols(Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
     }
     public void resetProtocols(DataContext context)
     {
+        if (context == null)
+            return;
          protocols = Lists.newArrayList(context.getProtocols());
          Collections.sort(protocols, new Comparator<Protocol>() {
 
