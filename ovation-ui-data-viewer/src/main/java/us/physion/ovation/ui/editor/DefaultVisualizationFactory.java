@@ -33,7 +33,7 @@ public class DefaultVisualizationFactory implements VisualizationFactory
         
         @Override
         public Component generatePanel() {
-            return new DefaultDisplayPanel(data);
+            return new DefaultDataPanel(data);
         }
 
         @Override
