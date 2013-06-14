@@ -20,6 +20,7 @@ public class TabularDataPanel extends javax.swing.JPanel implements StrictSizePa
         initComponents();
         jTable1.setModel(new DefaultTableModel(data, columnNames));
         jTable1.getTableHeader().setBorder(new LineBorder(Color.GRAY));
+        //jTable1.getCellRenderer(). return text areas instead of labels
     }
 
     /**
