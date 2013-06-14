@@ -185,6 +185,8 @@ public final class ResponseViewTopComponent extends TopComponent {
             updateEntitySelection.cancel(true);
             LoggerFactory.getLogger(ResponseViewTopComponent.class).debug("Cancelled other thread");
         }
+        if (jTable1.isEditing())
+            jTable1.getCellEditor().stopCellEditing();
         updateEntitySelection = EventQueueUtilities.runOffEDT(r);
     }
 
@@ -222,7 +224,6 @@ public final class ResponseViewTopComponent extends TopComponent {
                     added = true;
                     break;
                 }
-
             }
             if (!added) {
                 responseGroups.add(ResponseWrapperFactory.create(rw).createVisualization(rw));
@@ -252,7 +253,6 @@ public final class ResponseViewTopComponent extends TopComponent {
 
             @Override
             public void run() {
-
                 int initialSize = responsePanels.size();
                 while (!responsePanels.isEmpty()) {
                     responsePanels.remove(0);

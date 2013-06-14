@@ -164,6 +164,8 @@ class ChartGroupWrapper implements Visualization
 
     @Override
     public boolean shouldAdd(DataElement r) {
+        if (!NumericDataElements.isNumeric(r))
+            return false;
         NumericData data;
         try {
             data = NumericDataElements.getNumericData(r).get();

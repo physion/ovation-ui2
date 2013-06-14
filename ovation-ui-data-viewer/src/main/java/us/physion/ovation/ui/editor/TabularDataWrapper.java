@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.editor;
 
+import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.collect.Lists;
 import com.pixelmed.dicom.DicomInputStream;
 import java.awt.Component;
@@ -16,6 +17,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import org.openide.util.Exceptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 
@@ -23,6 +26,7 @@ public class TabularDataWrapper implements Visualization {
 
     String[] columnNames;
     String[][] tabularData;
+    static Logger logger = LoggerFactory.getLogger(TabularDataWrapper.class);
 
     TabularDataWrapper(){};
     
@@ -31,53 +35,35 @@ public class TabularDataWrapper implements Visualization {
         try {
             InputStream in;
             in = new FileInputStream(r.getData().get());
-            Scanner s = new Scanner(in, "UTF-8");
-            if (!s.hasNextLine())
-            {
-                throw new RuntimeException("Empty response data!");
-            }
-            String line = s.nextLine();
-            columnNames = line.split(",");
-            int lineCount=0; 
-            //TODO: there must better way to do this!
-            while (s.hasNextLine())
-            {
-                line = s.nextLine();
-                if (line.charAt(0) == '#') {
-                    continue;
-                }
-                lineCount++;
-            }
+
+            CSVReader reader = new CSVReader(new FileReader(r.getData().get()));
+            List<String[]> myEntries = reader.readAll();
             
-            tabularData = new String[lineCount][columnNames.length];
-            in = new FileInputStream(r.getData().get());
-            s = new Scanner(in, "UTF-8");
-            s.nextLine();
-            lineCount = 0;
-            while (s.hasNextLine())
+            columnNames = myEntries.remove(0);
+
+            tabularData = new String[myEntries.size()][columnNames.length];
+            int lineCount = 0;
+            for (String[] elements : myEntries)
             {
-                line = s.nextLine();
-                if (line.charAt(0) == '#') {
-                    continue;
-                }
-                String[] values = line.split(",");
-                for (int i=0; i<columnNames.length; ++i)
+                int entryCount = 0;
+                for (String entry : elements)
                 {
-                    tabularData[lineCount][i] = values[i];
+                    tabularData[lineCount][entryCount++] = entry; 
                 }
                 lineCount++;
             }
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-            throw new OvationException(ex.getLocalizedMessage());
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-            throw new OvationException(ex.getLocalizedMessage());
-        } catch (FileNotFoundException ex) {
-            Exceptions.printStackTrace(ex);
-            throw new OvationException(ex.getLocalizedMessage());
+        } catch (Exception ex) {
+            String rId = "";
+            if (r != null)
+            {
+                rId = "'" + r.getUuid() + "'";
+            }
+            logger.debug("Error parsing tabular data file " + rId + ":" + ex.getLocalizedMessage());
+            throw new OvationException(ex);
         }
     }
+    
+  
 
     @Override
     public Component generatePanel() {
