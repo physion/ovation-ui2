@@ -16,7 +16,7 @@ import javax.swing.table.TableCellRenderer;
  *
  * @author huecotanks
  */
-public class ClickableCellEditor implements TableCellEditor{//extends AbstractCellEditor -- see note below
+public class ClickableCellEditor extends AbstractCellEditor implements TableCellEditor{//extends AbstractCellEditor -- see note below
     //extend the AbstractCellEditor, if you need to actually edit the values in the clickableCellEditor
     //it handles the default event firing when the cell is being edited
     //You'll also have delete the methods below getCellEditorValue
@@ -50,22 +50,15 @@ public class ClickableCellEditor implements TableCellEditor{//extends AbstractCe
 
     @Override
     public boolean stopCellEditing() {
+        this.fireEditingStopped();
+        current = null;
         return true;
     }
 
     @Override
     public void cancelCellEditing() {
-        //pass
-    }
-
-    @Override
-    public void addCellEditorListener(CellEditorListener l) {
-        //pass
-    }
-
-    @Override
-    public void removeCellEditorListener(CellEditorListener l) {
-        //pass
+        this.fireEditingCanceled();
+        current = null;
     }
     //End deletions -------------------------------------------
 }

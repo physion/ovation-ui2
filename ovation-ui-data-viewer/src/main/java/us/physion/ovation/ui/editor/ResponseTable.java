@@ -22,7 +22,7 @@ public class ResponseTable extends JTable{
    public void tableChanged(TableModelEvent e) {
         //if just an update, and not a data or structure changed event or an insert or delete, use the fixed row update handling
         //otherwise call super.tableChanged to let the standard JTable update handling manage it
-        /*if ( e != null &&
+        if ( e != null &&
             e.getType() == TableModelEvent.UPDATE &&
             e.getFirstRow() != TableModelEvent.HEADER_ROW &&
             e.getLastRow() != Integer.MAX_VALUE) {
@@ -30,8 +30,8 @@ public class ResponseTable extends JTable{
             handleRowUpdate(e);
         } else {
             super.tableChanged(e);
-        }*/
-        handleRowUpdate(e);
+        }
+        //handleRowUpdate(e);
     }
 
     /**

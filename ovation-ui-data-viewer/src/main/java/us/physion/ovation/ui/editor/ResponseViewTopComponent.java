@@ -114,6 +114,7 @@ public final class ResponseViewTopComponent extends TopComponent {
         jTable1.setDefaultEditor(ResponsePanel.class, new ClickableCellEditor(cellRenderer));
         cellRenderer.setTable(jTable1);
         jTable1.setVisible(true);
+        jTable1.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         responseListPane.setVisible(true);
     }
 
@@ -171,6 +172,10 @@ public final class ResponseViewTopComponent extends TopComponent {
     }
 
     protected void updateEntitySelection() {
+        if (jTable1.isEditing())
+        {
+            jTable1.setCellEditor(null);
+        }
         final Collection<? extends IEntityWrapper> entities = global.allInstances();
         Runnable r = new Runnable() {
 
@@ -185,8 +190,6 @@ public final class ResponseViewTopComponent extends TopComponent {
             updateEntitySelection.cancel(true);
             LoggerFactory.getLogger(ResponseViewTopComponent.class).debug("Cancelled other thread");
         }
-        if (jTable1.isEditing())
-            jTable1.getCellEditor().stopCellEditing();
         updateEntitySelection = EventQueueUtilities.runOffEDT(r);
     }
 
@@ -307,7 +310,10 @@ public final class ResponseViewTopComponent extends TopComponent {
                     ((ResponseTable)jTable1).setHeights(rowHeights);
                     int tableHeight = totalStrictHeight + flexiblePanels*flexiblePanelHeight;
                     jTable1.setSize(jTable1.getWidth(), tableHeight);
-                    chartModel.fireTableDataChanged();
+                    if (jTable1.isEditing())
+                        chartModel.fireTableStructureChanged();
+                    else
+                        chartModel.fireTableDataChanged();
                 }
                 else if (responseGroups.size() < initialSize) {
                     //jTable1.setSize(0, height);
