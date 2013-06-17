@@ -94,6 +94,7 @@ public final class ResponseViewTopComponent extends TopComponent {
             //TODO: we should have some other Interface for things that can update the tags view
             //then we could get rid of the Library dependancy on the Explorer API
             if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider) {
+                resetTableEditor();
                 updateEntitySelection();
             }
         }
@@ -116,6 +117,22 @@ public final class ResponseViewTopComponent extends TopComponent {
         jTable1.setVisible(true);
         jTable1.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         responseListPane.setVisible(true);
+    }
+    //delete - creating a new table takes too long
+    private JTable initTable()
+    {
+        JTable table = new ResponseTable();
+        table.setDefaultEditor(ResponsePanel.class, new ClickableCellEditor(cellRenderer));
+        cellRenderer.setTable(table);
+        table.setVisible(true);
+        table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        table.setDefaultEditor(ResponsePanel.class, new ClickableCellEditor(cellRenderer));
+        return table;
+    }
+    
+    private void resetTableEditor()
+    {
+        jTable1.setDefaultEditor(ResponsePanel.class, new ClickableCellEditor(cellRenderer));
     }
 
     /**
