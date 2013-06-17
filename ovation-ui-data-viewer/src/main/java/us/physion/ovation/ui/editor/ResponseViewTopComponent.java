@@ -62,17 +62,17 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  * Top component which displays something.
  */
 @ConvertAsProperties(dtd = "-//us.physion.ovation.editor//ResponseView//EN",
-autostore = false)
+        autostore = false)
 @TopComponent.Description(preferredID = "ResponseViewTopComponent",
-//iconBase="SET/PATH/TO/ICON/HERE", 
-persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+        //iconBase="SET/PATH/TO/ICON/HERE", 
+        persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "editor", openAtStartup = true)
 @ActionID(category = "Window", id = "us.physion.ovation.editor.ResponseViewTopComponent")
 @ActionReference(path = "Menu/Window" /*
- * , position = 333
- */)
+         * , position = 333
+         */)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_ResponseViewAction",
-preferredID = "ResponseViewTopComponent")
+        preferredID = "ResponseViewTopComponent")
 @Messages({
     "CTL_ResponseViewAction=Selection View",
     "CTL_ResponseViewTopComponent=Selection Viewer",
@@ -87,14 +87,13 @@ public final class ResponseViewTopComponent extends TopComponent {
     Future updateEntitySelection;
     ResponseCellRenderer cellRenderer = new ResponseCellRenderer();
     private LookupListener listener = new LookupListener() {
-
         @Override
         public void resultChanged(LookupEvent le) {
 
             //TODO: we should have some other Interface for things that can update the tags view
             //then we could get rid of the Library dependancy on the Explorer API
             if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider) {
-                resetTableEditor();
+                //resetTableEditor();
                 updateEntitySelection();
             }
         }
@@ -106,7 +105,7 @@ public final class ResponseViewTopComponent extends TopComponent {
 
     private void initTopComponent() {
         initComponents();
-        
+
         setName("Data Viewer");//Bundle.CTL_ResponseViewTopComponent());
         setToolTipText("Displays the selected DataElements");//Bundle.HINT_ResponseViewTopComponent());
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
@@ -119,8 +118,8 @@ public final class ResponseViewTopComponent extends TopComponent {
         responseListPane.setVisible(true);
     }
     //delete - creating a new table takes too long
-    private JTable initTable()
-    {
+
+    private JTable initTable() {
         JTable table = new ResponseTable();
         table.setDefaultEditor(ResponsePanel.class, new ClickableCellEditor(cellRenderer));
         cellRenderer.setTable(table);
@@ -129,9 +128,8 @@ public final class ResponseViewTopComponent extends TopComponent {
         table.setDefaultEditor(ResponsePanel.class, new ClickableCellEditor(cellRenderer));
         return table;
     }
-    
-    private void resetTableEditor()
-    {
+
+    private void resetTableEditor() {
         jTable1.setDefaultEditor(ResponsePanel.class, new ClickableCellEditor(cellRenderer));
     }
 
@@ -189,21 +187,16 @@ public final class ResponseViewTopComponent extends TopComponent {
     }
 
     protected void updateEntitySelection() {
-        if (jTable1.isEditing())
-        {
-            jTable1.setCellEditor(null);
-        }
+        
         final Collection<? extends IEntityWrapper> entities = global.allInstances();
         Runnable r = new Runnable() {
-
             @Override
             public void run() {
                 updateEntitySelection(entities);
             }
         };
 
-        if (updateEntitySelection != null && !updateEntitySelection.isDone())
-        {
+        if (updateEntitySelection != null && !updateEntitySelection.isDone()) {
             updateEntitySelection.cancel(true);
             LoggerFactory.getLogger(ResponseViewTopComponent.class).debug("Cancelled other thread");
         }
@@ -211,26 +204,27 @@ public final class ResponseViewTopComponent extends TopComponent {
     }
 
     protected List<Visualization> updateEntitySelection(Collection<? extends IEntityWrapper> entities) {
-        
+        if (jTable1.getCellEditor() != null) {
+            jTable1.getCellEditor().cancelCellEditing();
+        }
+
         LinkedList<DataElement> responseList = new LinkedList<DataElement>();
 
         Iterator i = entities.iterator();
-        while(i.hasNext())
-        {
-            IEntityWrapper ew = (IEntityWrapper)i.next();
+        while (i.hasNext()) {
+            IEntityWrapper ew = (IEntityWrapper) i.next();
             if (DataElementContainer.class.isAssignableFrom(ew.getType())) {
                 DataElementContainer container = (DataElementContainer) (ew.getEntity());//getEntity gets the context for the given thread
                 responseList.addAll(Sets.newHashSet(container.getDataElements().values()));
-                
-                if (container instanceof Epoch)
-                {
-                    for (AnalysisRecord a : ((Epoch)container).getAnalysisRecords()) {
+
+                if (container instanceof Epoch) {
+                    for (AnalysisRecord a : ((Epoch) container).getAnalysisRecords()) {
                         responseList.addAll(Sets.newHashSet(a.getOutputs().values()));
                     }
                 }
 
             } else if (DataElement.class.isAssignableFrom(ew.getType())) {
-                responseList.add((DataElement)ew.getEntity());
+                responseList.add((DataElement) ew.getEntity());
             }
         }
 
@@ -249,14 +243,13 @@ public final class ResponseViewTopComponent extends TopComponent {
                 responseGroups.add(ResponseWrapperFactory.create(rw).createVisualization(rw));
             }
         }
-        
+
         EventQueueUtilities.runOnEDT(updateChartRunnable(responseGroups));
         return responseGroups;
     }
-    
+
     //for debugging
-    protected static void error(String s)
-    {
+    protected static void error(String s) {
         JDialog d = new JDialog(new JFrame(), true);
         d.setPreferredSize(new Dimension(500, 500));
         d.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -270,69 +263,66 @@ public final class ResponseViewTopComponent extends TopComponent {
     private Runnable updateChartRunnable(final List<Visualization> responseGroups) {
         final int height = this.getHeight();
         return new Runnable() {
-
             @Override
             public void run() {
                 int initialSize = responsePanels.size();
                 while (!responsePanels.isEmpty()) {
                     responsePanels.remove(0);
                 }
-                
-                if (responseGroups.size() != 0) 
-                {
+
+                if (responseGroups.size() != 0) {
                     /*int nonStrictHeight = height/responseGroups.size();
-                    jTable1.setRowHeight(nonStrictHeight);
-                    for (Visualization c : responseGroups) {
-                        Component p = c.generatePanel();
-                        responsePanels.add(new ResponsePanel(p));
-                    }*/
-                    
+                     jTable1.setRowHeight(nonStrictHeight);
+                     for (Visualization c : responseGroups) {
+                     Component p = c.generatePanel();
+                     responsePanels.add(new ResponsePanel(p));
+                     }*/
+
                     //This is for setting each row in the table to a more appropriate height
                     int[] rowHeights = new int[responseGroups.size()];//highest allowable height for each row
                     ArrayList<Integer> strictHeights = new ArrayList<Integer>();
                     int totalStrictHeight = 0;
                     int flexiblePanels = 0;
                     int minHeight = 150;//min height of a chart
-                    
+
                     for (Visualization c : responseGroups) {
                         Component p = c.generatePanel();
 
                         int row = responsePanels.size();
-                        if (p instanceof StrictSizePanel)
-                        {
-                            int strictHeight = ((StrictSizePanel)p).getStrictSize().height;
+                        if (p instanceof StrictSizePanel) {
+                            int strictHeight = ((StrictSizePanel) p).getStrictSize().height;
                             strictHeights.add(strictHeight);
                             rowHeights[row] = strictHeight;
                             totalStrictHeight += strictHeight;
-                        }  else{
+                        } else {
                             rowHeights[row] = Integer.MAX_VALUE;
                             flexiblePanels++;
-                        }  
+                        }
                         responsePanels.add(new ResponsePanel(p));
                     }
                     int flexiblePanelHeight = minHeight;
-                    if (flexiblePanels != 0)
-                    {
-                        flexiblePanelHeight = Math.max(minHeight, (height - totalStrictHeight)/flexiblePanels);
+                    if (flexiblePanels != 0) {
+                        flexiblePanelHeight = Math.max(minHeight, (height - totalStrictHeight) / flexiblePanels);
                     }
-                    for (int i=0; i<rowHeights.length; ++i)
-                    {
-                        if (rowHeights[i] == Integer.MAX_VALUE)
+                    for (int i = 0; i < rowHeights.length; ++i) {
+                        if (rowHeights[i] == Integer.MAX_VALUE) {
                             rowHeights[i] = flexiblePanelHeight;
+                        }
                     }
                     //I have to do this, so theres a smooth transition between 
-                    if (jTable1.getRowHeight() != rowHeights[0])
+                    if (jTable1.getRowHeight() != rowHeights[0]) {
                         jTable1.setRowHeight(rowHeights[0]);
+                    }
                     cellRenderer.setHeights(rowHeights);
-                    ((ResponseTable)jTable1).setHeights(rowHeights);
-                    int tableHeight = totalStrictHeight + flexiblePanels*flexiblePanelHeight;
+                    ((ResponseTable) jTable1).setHeights(rowHeights);
+                    int tableHeight = totalStrictHeight + flexiblePanels * flexiblePanelHeight;
                     jTable1.setSize(jTable1.getWidth(), tableHeight);
-                    if (jTable1.isEditing())
+                    if (jTable1.isEditing()) {
                         chartModel.fireTableStructureChanged();
-                    else
+                    } else {
                         chartModel.fireTableDataChanged();
-                }
-                else if (responseGroups.size() < initialSize) {
+                    }
+                } else if (responseGroups.size() < initialSize) {
                     //jTable1.setSize(0, height);
                     chartModel.fireTableRowsDeleted(responseGroups.size(), initialSize - 1);
                 }

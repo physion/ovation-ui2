@@ -63,14 +63,17 @@ public class SourceSelector extends javax.swing.JPanel {
             root.add(new DefaultMutableTreeNode(new EntityWrapper(s)));
         }
         if (!root.isLeaf()) {
-            //root.breadthFirstEnumeration().
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) root.getFirstChild();
-            for (; node != null; node = node.getNextNode()) {
+          /*  Set<Source>
+            children = root.children();
+            while(children.hasMoreElements())
+            {    
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode)children.nextElement();//(DefaultMutableTreeNode) root.getFirstChild();
                 Source s = ((Source) ((IEntityWrapper) node.getUserObject()).getEntity());
                 for (Source child : s.getChildrenSources()) {
                     node.add(new DefaultMutableTreeNode(new EntityWrapper(child)));
                 }
-            }
+                children
+            }*/
         }
         root.add(new DefaultMutableTreeNode("<None>"));
         ((DefaultTreeModel)sourcesTree.getModel()).setRoot(root);
@@ -96,7 +99,8 @@ public class SourceSelector extends javax.swing.JPanel {
             {
                 l = new JLabel((String)value);
             }else{
-                l = new JLabel(((Source)((IEntityWrapper)value).getEntity()).getLabel());
+                Source s = (Source)((IEntityWrapper)value).getEntity();
+                l = new JLabel(s.getLabel() + " | " + s.getIdentifier());
             }
             
             if (selected)
@@ -122,8 +126,8 @@ public class SourceSelector extends javax.swing.JPanel {
         this.cs = changeSupport;
         this.ctx = ctx;
         //TODO: find the relative paths
-        resetButton.setIcon(new ImageIcon("/Users/huecotanks/Ovation/ui/ovation-ui/Browser/src/us/physion/ovation/ui/browser/reset-query24.png"));
-        runQueryButton.setIcon(new ImageIcon("/Users/huecotanks/Ovation/ui/ovation-ui/QueryTools/src/us/physion/ovation/query/query24.png"));
+        resetButton.setIcon(new ImageIcon("../Browser/src/us/physion/ovation/ui/browser/reset-query24.png"));
+        runQueryButton.setIcon(new ImageIcon("../QueryTools/src/us/physion/ovation/query/query24.png"));
             
         //save Browser regisetered ems
         
@@ -131,7 +135,6 @@ public class SourceSelector extends javax.swing.JPanel {
         //sourcesTree.setUI(new PropertiesTreeUI(this));
         //addComponentListener(new RepaintOnResize(tree));
         sourcesTree.setCellRenderer(new SourcesCellRenderer());
-        sourcesTree.setEditable(true);
         sourcesTree.setRootVisible(false);
         sourcesTree.setShowsRootHandles(true);
         sourcesTree.setEditable(false);

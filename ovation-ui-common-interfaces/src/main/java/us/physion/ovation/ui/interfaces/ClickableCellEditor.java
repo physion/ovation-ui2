@@ -29,7 +29,11 @@ public class ClickableCellEditor extends AbstractCellEditor implements TableCell
     
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-        current = r.getTableCellRendererComponent(table, value, isSelected, isSelected, row, column);
+        if (table.getRowCount() > row && table.getColumnCount() > column)
+            current = r.getTableCellRendererComponent(table, value, isSelected, isSelected, row, column);
+        else{
+            current = null;
+        }
         return current;
     }
 
