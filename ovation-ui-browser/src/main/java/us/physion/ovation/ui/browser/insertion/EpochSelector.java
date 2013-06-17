@@ -6,6 +6,7 @@ package us.physion.ovation.ui.browser.insertion;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -27,5 +28,10 @@ public class EpochSelector extends JPanel{
         c.anchor = GridBagConstraints.WEST;
         c.gridx = 0;
         c.gridy = 0;
+        refreshButton = new JButton(new ImageIcon(""));//TODO: image icons
+        queryButton = new JButton(new ImageIcon(""));//TODO: image icons
+        browserTree = new BeanTreeView();
+        browserTree.setRootVisible(false);
+        
     }
 }

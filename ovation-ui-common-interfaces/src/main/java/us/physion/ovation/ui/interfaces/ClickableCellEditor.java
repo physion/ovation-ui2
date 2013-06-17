@@ -54,9 +54,12 @@ public class ClickableCellEditor extends AbstractCellEditor implements TableCell
 
     @Override
     public boolean stopCellEditing() {
-        this.fireEditingStopped();
+        cancelCellEditing();
+        return true;
+    /*this.fireEditingStopped();
         current = null;
         return true;
+        */
     }
 
     @Override
