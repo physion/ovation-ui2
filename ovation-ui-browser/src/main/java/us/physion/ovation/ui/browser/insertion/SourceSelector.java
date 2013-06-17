@@ -63,8 +63,9 @@ public class SourceSelector extends javax.swing.JPanel {
             root.add(new DefaultMutableTreeNode(new EntityWrapper(s)));
         }
         if (!root.isLeaf()) {
+            //root.breadthFirstEnumeration().
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) root.getFirstChild();
-            while ((node = node.getNextNode()) != null) {
+            for (; node != null; node = node.getNextNode()) {
                 Source s = ((Source) ((IEntityWrapper) node.getUserObject()).getEntity());
                 for (Source child : s.getChildrenSources()) {
                     node.add(new DefaultMutableTreeNode(new EntityWrapper(child)));

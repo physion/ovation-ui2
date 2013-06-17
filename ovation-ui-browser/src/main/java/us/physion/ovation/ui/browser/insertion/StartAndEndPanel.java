@@ -58,7 +58,6 @@ public class StartAndEndPanel extends javax.swing.JPanel {
     
     protected void startDateTimeChanged() {
         start = new DateTime(startPicker.getDate(), DateTimeZone.forID(((String)jComboBox1.getSelectedItem())));
-        //setStart(start);
     }
     
     public DateTime getStart()
