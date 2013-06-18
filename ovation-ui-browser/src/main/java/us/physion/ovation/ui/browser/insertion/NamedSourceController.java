@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package us.physion.ovation.ui.importer;
+package us.physion.ovation.ui.browser.insertion;
 
 import java.awt.Component;
 import java.util.HashMap;
@@ -23,38 +23,46 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
  *
  * @author jackie
  */
-public class SourceController extends BasicWizardPanel {
+public class NamedSourceController extends BasicWizardPanel {
     
-    SourceController()
+    Map<String, Source> defaultValues;
+    String wdKey;
+    public NamedSourceController(String key, Map<String, Source> defaultSelectedValues)
     {
         super();
+        wdKey = key;
+        defaultValues = defaultSelectedValues;
     }
     
     @Override
     public Component getComponent() {
         if (component == null) {
-            component = new NamedSourceSelector(changeSupport);
+            component = new NamedSourceSelector(changeSupport, defaultValues);
         }
         return component;
     }
 
     @Override
     public void readSettings(WizardDescriptor data) {
-        //read protocolID and protocolParameters
+        //sources
+        Map<String, Source> sources = (Map<String, Source>)data.getProperty(wdKey);
+        ((NamedSourceSelector)component).addSources(sources);
+        
     }
     @Override
     public void storeSettings(WizardDescriptor data) {
-        
+        ((NamedSourceSelector)component).finish();//saves edited value to table model, if not saved yet
         Map<String, Source> sources = ((NamedSourceSelector)component).getNamedSources();
         if (sources == null)
             sources = new HashMap();
        
-        data.putProperty("sources", sources);
+        data.putProperty(wdKey, sources);
     }
 
     @Override
     public boolean isValid() {
-      return true;
+        Map<String, Source> sources = ((NamedSourceSelector)component).getNamedSources();
+        return sources != null && !sources.isEmpty();
     }
     
 }

@@ -5,6 +5,7 @@
 package us.physion.ovation.ui.browser.insertion;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Sets;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
@@ -13,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.JLabel;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
@@ -21,6 +23,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
+import org.openide.explorer.view.BeanTreeView;
+import org.openide.nodes.AbstractNode;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Lookup;
 import us.physion.ovation.DataContext;
@@ -31,6 +37,7 @@ import us.physion.ovation.domain.User;
 import us.physion.ovation.ui.ScrollableTableTree;
 import us.physion.ovation.ui.TableTreeKey;
 import us.physion.ovation.ui.browser.EntityWrapper;
+import us.physion.ovation.ui.browser.FilteredEntityChildren;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
@@ -39,21 +46,63 @@ import us.physion.ovation.ui.interfaces.ParameterTableModel;
  *
  * @author jackie
  */
-public class NamedSourceSelector extends javax.swing.JPanel {
-    ChangeSupport cs;
+public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Provider, ExplorerManager.Provider{
+    final ChangeSupport cs;
     private DataContext context;
     
     JTree sourcesTree;
-    ParameterTableModel tableModel; 
+    ParameterTableModel tableModel;
+    Lookup l;
+    ExplorerManager em;
     
-     public NamedSourceSelector(ChangeSupport cs) {
-         this(cs, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
+    
+    public NamedSourceSelector(ChangeSupport cs, Map<String, Source> defaults) {
+         this(cs, null, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
+         addSources(defaults);
+    }
+     
+     public void finish()
+     {
+         if (jTable1.getCellEditor() != null)
+         {
+            jTable1.getCellEditor().stopCellEditing();
+         }
+     }
+     
+     public void addSources(Map<String, Source> sources)
+     {
+         if (sources == null)
+             return;
+         Map<String, Source> existingSources = getNamedSources();
+         for (String name : sources.keySet())
+         {
+             Source s = sources.get(name);
+             if (existingSources.containsValue(s))
+             {
+                 if(!existingSources.containsKey(name) || !existingSources.get(name).equals(s))
+                 {
+                     //replace the existing source's name with the corresponding name in the 'sources' map
+                     int row = -1;
+                     for (int i =0; i< tableModel.getRowCount(); i++)
+                     {
+                         if (s.equals(tableModel.getValueAt(i, 1)))
+                         {
+                             row = i;
+                             break;
+                         }
+                     }
+                     tableModel.setValueAt(name, row, 0);
+                 }
+             }else{
+                tableModel.addParameter(name, sources.get(name));
+             }
+         }
      }
     
     /**
      * Creates new form NamedSourceSelector
      */
-    public NamedSourceSelector(ChangeSupport cs, DataContext c) {
+    public NamedSourceSelector(ChangeSupport cs, Map<String, Source> defaultSources, DataContext c) {
         this.cs = cs;
         this.context = c;
         tableModel = new ParameterTableModel(false);//doesnt have the extra row for ui editing
@@ -67,27 +116,22 @@ public class NamedSourceSelector extends javax.swing.JPanel {
         });
         initComponents();
         jSplitPane1.setDividerLocation(300);
-        sourcesTree = ((ScrollableTableTree)sourcesScrollPane).getTree();
-        sourcesTree.setCellRenderer(new SourcesCellRenderer());
-        sourcesTree.setRootVisible(false);
-        sourcesTree.setShowsRootHandles(true);
-        sourcesTree.setEditable(false);
         
-        /*sourcesTree.addTreeSelectionListener(new TreeSelectionListener() {
-
-            @Override
-            public void valueChanged(TreeSelectionEvent tse) {
-                TreePath path = tse.getPath();
-                DefaultMutableTreeNode n = (DefaultMutableTreeNode)path.getLastPathComponent();
-                Object o = n.getUserObject();
-                if (o instanceof IEntityWrapper)
-                    setSource((IEntityWrapper)o);
-                else{
-                    setSource(null);
-                }
-            }
-        });*/
+        em = new ExplorerManager();
+        l = ExplorerUtils.createLookup(em, getActionMap());
+        BeanTreeView sourcesTree = new BeanTreeView();
+        sourcesTree.setRootVisible(false);
+        sourcesScrollPane.setViewportView(sourcesTree);
+   
         resetSources();
+        
+        if (defaultSources != null)
+        {
+            for (String sourceName : defaultSources.keySet())
+            {
+                tableModel.addParameter(sourceName, defaultSources.get(sourceName));
+            }
+        }
         
         addButton.addActionListener(new ActionListener() {
 
@@ -96,7 +140,12 @@ public class NamedSourceSelector extends javax.swing.JPanel {
                 Source s = getSource();
                 if (s != null)
                 {
+                    if (getNamedSources().containsValue(s))
+                    {
+                        return;
+                    }
                     tableModel.addParameter(s.getIdentifier(), s);
+                    NamedSourceSelector.this.cs.fireChange();
                 }
             }
         });
@@ -107,23 +156,20 @@ public class NamedSourceSelector extends javax.swing.JPanel {
             public void actionPerformed(ActionEvent ae) {
                 int num = table.getSelectedRow();
                 tableModel.remove(num);
+                NamedSourceSelector.this.cs.fireChange();
             }
         });
     }
     
     private Source getSource()
     {
-        TreePath path = sourcesTree.getSelectionPath();
-        if (path == null)
+        IEntityWrapper ew  = l.lookup(IEntityWrapper.class);
+        if (ew == null)
             return null;
-        DefaultMutableTreeNode n = (DefaultMutableTreeNode) path.getLastPathComponent();
-        Object o = n.getUserObject();
-        if (o instanceof IEntityWrapper) {
-            if (Source.class.isAssignableFrom(((IEntityWrapper) o).getType())) {
-                return ((Source) ((IEntityWrapper) o).getEntity());
-            }
-        }
-        return null;
+                    
+         if (Source.class.isAssignableFrom(ew.getType()))
+             return (Source)ew.getEntity();
+         return null;
     }
     
     public Map<String, Source> getNamedSources()
@@ -143,58 +189,7 @@ public class NamedSourceSelector extends javax.swing.JPanel {
     }
 
     private void resetSources() {
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Sources");
-        for (Source s : context.getTopLevelSources())
-        {
-            if (!s.getParentSources().iterator().hasNext())
-            {
-                root.add(new DefaultMutableTreeNode(new EntityWrapper(s)));
-            }
-        }
-        if (!root.isLeaf()) {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) root.getFirstChild();
-            while ((node = node.getNextNode()) != null) {
-                Source s = ((Source) ((IEntityWrapper) node.getUserObject()).getEntity());
-                for (Source child : s.getChildrenSources()) {
-                    node.add(new DefaultMutableTreeNode(new EntityWrapper(child)));
-                }
-            }
-        }
-        //root.add(new DefaultMutableTreeNode("<None>"));
-        ((DefaultTreeModel)sourcesTree.getModel()).setRoot(root);
-
-    }
-
-    private static class SourcesCellRenderer implements TreeCellRenderer{
-
-        public SourcesCellRenderer() {
-        }
-
-        @Override
-        public Component getTreeCellRendererComponent(JTree jtree, 
-        Object o, 
-        boolean selected, 
-        boolean expanded, 
-        boolean leaf, 
-        int row, 
-        boolean hasFocus) {
-            JLabel l;
-            Object value = ((DefaultMutableTreeNode) o).getUserObject();
-            if (value instanceof String)
-            {
-                l = new JLabel((String)value);
-            }else{
-                l = new JLabel(((Source)((IEntityWrapper)value).getEntity()).getLabel());
-            }
-            
-            if (selected)
-            {
-                l.setOpaque(true);
-                l.setBackground(Color.BLUE);
-                l.setForeground(Color.WHITE);
-            }
-            return l;
-        }
+        em.setRootContext(new AbstractNode(new FilteredEntityChildren(FilteredEntityChildren.wrap(context.getTopLevelSources()), Sets.<Class>newHashSet(Source.class))));
     }
 
     /**
@@ -212,7 +207,7 @@ public class NamedSourceSelector extends javax.swing.JPanel {
         sourceViewPanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        sourcesScrollPane = new ScrollableTableTree();
+        sourcesScrollPane = new javax.swing.JScrollPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
         removeButton = new javax.swing.JButton();
@@ -278,14 +273,14 @@ public class NamedSourceSelector extends javax.swing.JPanel {
             .add(jSplitPane1)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .add(jLabel1)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(jLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
@@ -308,4 +303,14 @@ public class NamedSourceSelector extends javax.swing.JPanel {
     private javax.swing.JScrollPane sourcesScrollPane;
     private javax.swing.JTable table;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public Lookup getLookup() {
+        return l;
+    }
+
+    @Override
+    public ExplorerManager getExplorerManager() {
+        return em;
+    }
 }

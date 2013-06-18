@@ -61,7 +61,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
         updateWithKeys(children);
     }
     
-    private Callable<Children> getChildrenCallable(final EntityWrapper key)
+    protected Callable<Children> getChildrenCallable(final EntityWrapper key)
     {
         return new Callable<Children>() {
 
@@ -114,24 +114,6 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
         if (c == null) {
             return;
         }
-        
-        /*if (parent == null) {
-            List<EntityWrapper> list = new LinkedList<EntityWrapper>();
-            //case root node: add entityWrapper for each project
-            if (projectView) {
-                for (Project p : c.getProjects()) {
-                    list.add(new EntityWrapper(p));
-                }
-            } else {
-                for (Source s : c.getTopLevelSources()) {
-                    list.add(new EntityWrapper(s));
-                }
-            }
-            updateWithKeys(list);
-
-        } else {
-            updateWithKeys(createKeysForEntity(c, parent));
-        }*/
         updateWithKeys(createKeysForEntity(c, parent));
 
     }

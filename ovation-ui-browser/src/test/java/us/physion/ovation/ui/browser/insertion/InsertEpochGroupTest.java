@@ -111,10 +111,10 @@ public class InsertEpochGroupTest extends OvationTestCase{
         
         TestCase.assertFalse(listener.getStateChanged());
         Source src = ctx.insertSource("a new source", "89");
-        s.setSource(new TestEntityWrapper(ctx, src));
+        //s.setSource(new TestEntityWrapper(ctx, src));
         TestCase.assertTrue(listener.getStateChanged());
         
-        TestCase.assertEquals(src.getUuid(), s.getSource().getEntity().getUuid());
+        //TestCase.assertEquals(src.getUuid(), s.getSource().getEntity().getUuid());
     }
     
     @Test
@@ -129,7 +129,7 @@ public class InsertEpochGroupTest extends OvationTestCase{
         
         TestCase.assertTrue(p.isValid());
         l.resetStateChanged();
-        ss.setSource( new TestEntityWrapper(ctx, ctx.insertSource("label", "89")));
+        //ss.setSource( new TestEntityWrapper(ctx, ctx.insertSource("label", "89")));
         TestCase.assertTrue(l.getStateChanged());
     }
     
@@ -145,7 +145,7 @@ public class InsertEpochGroupTest extends OvationTestCase{
         TestCase.assertNull(d.getProperty("epochGroup.source"));
         
         Source src = ctx.insertSource("new label", "blah");
-        ss.setSource( new TestEntityWrapper(ctx, src));
+        //ss.setSource( new TestEntityWrapper(ctx, src));
         p.storeSettings(d);
         TestCase.assertEquals(((IEntityWrapper)d.getProperty("epochGroup.source")).getEntity().getUuid(), src.getUuid());
         

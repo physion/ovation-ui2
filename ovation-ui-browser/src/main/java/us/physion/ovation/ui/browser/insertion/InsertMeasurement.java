@@ -11,28 +11,20 @@ import java.util.Map;
 import static javax.swing.Action.NAME;
 import org.joda.time.DateTime;
 import org.openide.WizardDescriptor;
-import org.openide.util.lookup.ServiceProvider;
-import org.openide.util.lookup.ServiceProviders;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochContainer;
 import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
-import us.physion.ovation.ui.interfaces.RootInsertable;
-import us.physion.ovation.ui.interfaces.SourceInsertable;
 
-@ServiceProviders(value={
-    @ServiceProvider(service=SourceInsertable.class)
-})
 /**
  *
  * @author huecotanks
  */
-public class InsertChildSource extends InsertEntity implements SourceInsertable{
-    public InsertChildSource() {
-        putValue(NAME, "Insert Source...");
+public class InsertMeasurement extends InsertEntity {
+    public InsertMeasurement() {
+        putValue(NAME, "Insert Measurement...");
     }
 
     @Override

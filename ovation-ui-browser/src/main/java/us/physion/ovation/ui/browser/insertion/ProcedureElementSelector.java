@@ -10,6 +10,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -38,13 +41,14 @@ import us.physion.ovation.domain.mixin.ProcedureElement;
 import us.physion.ovation.ui.browser.EntityChildren;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.browser.EntityWrapperUtilities;
+import us.physion.ovation.ui.browser.FilteredEntityChildren;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 /**
  *
  * @author jackie
  */
-public class EpochSelector extends JPanel implements Lookup.Provider, ExplorerManager.Provider{
+public class ProcedureElementSelector extends JPanel implements Lookup.Provider, ExplorerManager.Provider{
 
     private JButton refreshButton;
     private JButton queryButton;
@@ -53,7 +57,13 @@ public class EpochSelector extends JPanel implements Lookup.Provider, ExplorerMa
     private Lookup l;
     ChangeSupport changeSupport;
     
-    public EpochSelector(ChangeSupport cs)
+    @Override
+    public String getName()
+    {
+        return "Select an existing Epoch or containing ProcedureElement";
+    }
+    
+    public ProcedureElementSelector(ChangeSupport cs)
     {
         super();
         changeSupport = cs;
@@ -66,7 +76,16 @@ public class EpochSelector extends JPanel implements Lookup.Provider, ExplorerMa
         c.anchor = GridBagConstraints.WEST;
         c.gridx = 0;
         c.gridy = 0;
+        c.fill = GridBagConstraints.BOTH;
+        c.insets = new Insets(0, 0, 0, 0);
         refreshButton = new JButton(new ImageIcon(""));//TODO: image icons
+        refreshButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resetNodes();
+            }
+        });
         queryButton = new JButton(new ImageIcon(""));//TODO: image icons
         browserTree = new BeanTreeView();
         em = new ExplorerManager();
@@ -80,7 +99,7 @@ public class EpochSelector extends JPanel implements Lookup.Provider, ExplorerMa
             }
         });
         
-        browserTree.setRootVisible(false);
+        browserTree.setRootVisible(true);
         this.add(refreshButton, c);
         
         c.gridx = 1;
@@ -91,6 +110,8 @@ public class EpochSelector extends JPanel implements Lookup.Provider, ExplorerMa
         c.gridheight = 3;
         c.gridwidth = 5;
         this.add(browserTree, c);
+        resetNodes();
+        this.setSize(500, 500);
     }
     
     public void resetNodes()
@@ -103,26 +124,18 @@ public class EpochSelector extends JPanel implements Lookup.Provider, ExplorerMa
                     return new EntityWrapper(input);
                 }
             }));
-        em.setRootContext(new AbstractNode(new EntityChildren(exps)
-        {
-            ArrayList<Class<? extends ProcedureElement>> viewableClasses = Lists.newArrayList(Epoch.class, EpochContainer.class);
-            @Override
-            protected List<EntityWrapper> createKeysForEntity(DataContext c, EntityWrapper ew) {
-                List<EntityWrapper> list = new ArrayList();
-                for (Class clazz : viewableClasses)
-                {
-                    if (ew.getType().isAssignableFrom(clazz)) {
-                        return (super.createKeysForEntity(c, ew));
-                    }
-                }
-                return list;
-            }
-        }));
+        em.setRootContext(new AbstractNode(new FilteredEntityChildren(FilteredEntityChildren.wrap(ctx.getProjects()), Sets.<Class>newHashSet(ProcedureElement.class))));
     }
     
     public ProcedureElement getProcedureElement()
     {
-        return (ProcedureElement)l.lookup(EntityWrapper.class).getEntity();
+        EntityWrapper ew = l.lookup(EntityWrapper.class);
+        if (ew == null)
+            return null;
+        
+        if (ProcedureElement.class.isAssignableFrom(ew.getType()))
+            return (ProcedureElement)ew.getEntity();
+        return null;
     }
 
     @Override

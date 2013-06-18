@@ -200,13 +200,13 @@ public final class ResponseViewTopComponent extends TopComponent {
             updateEntitySelection.cancel(true);
             LoggerFactory.getLogger(ResponseViewTopComponent.class).debug("Cancelled other thread");
         }
+        if (jTable1.getCellEditor() != null) {
+            jTable1.getCellEditor().cancelCellEditing();
+        }
         updateEntitySelection = EventQueueUtilities.runOffEDT(r);
     }
 
     protected List<Visualization> updateEntitySelection(Collection<? extends IEntityWrapper> entities) {
-        if (jTable1.getCellEditor() != null) {
-            jTable1.getCellEditor().cancelCellEditing();
-        }
 
         LinkedList<DataElement> responseList = new LinkedList<DataElement>();
 

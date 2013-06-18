@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.importer;
 
+import us.physion.ovation.ui.browser.insertion.NamedSourceController;
 import us.physion.ovation.ui.browser.insertion.KeyValueController;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
@@ -98,7 +99,7 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
 
         panels.add(new GetImageFilesController(files));//set the files, and start/end times
         panels.add(new EquipmentSetupController());//set equipment setup info
-        panels.add(new SourceController());
+        panels.add(new NamedSourceController("sources", null));
 
         for (int i = 0; i < epochCount; i++) {
             panels.add(new ProtocolController(i));//set protocol info
@@ -150,7 +151,7 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
                 protocol = eg.getDataContext().insertProtocol((String)epoch.get("protocolName"), (String)epoch.get("protocolDocument"));
             }
             
-            Map<String, Source> input = (Map<String, Source>) epoch.get("inputSources");//set
+            Map<String, Source> input = (Map<String, Source>)wd.getProperty("sources");
             DateTime start = (DateTime)epoch.get("start");
             DateTime end = (DateTime)epoch.get("end");
             Map<String, Object> protocolParameters = (Map<String, Object>)epoch.get("protocolParameters");
@@ -169,9 +170,9 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
             {
                 Measurement measurement;
                 try {
-                    measurement = e.insertMeasurement((String) m.get("name"),//needs to be set
+                    measurement = e.insertMeasurement((String) m.get("name"),
                             (Set<String>) m.get("sourceNames"),//set by sourceSelector? 
-                            (Set<String>) m.get("deviceNames"),// needs to be set
+                            (Set<String>) m.get("deviceNames"),
                             new URL((String) m.get("url")),
                             (String) m.get("mimeType"));
                 } catch (MalformedURLException ex) {
