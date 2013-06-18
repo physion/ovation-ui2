@@ -86,6 +86,7 @@
                         <publicPackage>com.google.common.base.*</publicPackage>
                         <publicPackage>com.google.common.base.internal.*</publicPackage>
                         <publicPackage>com.google.common.collect.*</publicPackage>
+                        <publicPackage>com.google.common.hash.*</publicPackage>
                         <publicPackage>com.google.common.util.concurrent.*</publicPackage>
                         <publicPackage>com.google.inject.*</publicPackage>
                         <publicPackage>com.google.common.eventbus.*</publicPackage>
