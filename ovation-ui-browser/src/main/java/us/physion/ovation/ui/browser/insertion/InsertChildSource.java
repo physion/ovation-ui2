@@ -42,10 +42,9 @@ public class InsertChildSource extends InsertEntity implements SourceInsertable{
         Map<String, Source> defaultParents = new HashMap();
         defaultParents.put(p.getLabel(), p);
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
-        //panels.add(new NameWizard("source"));
         panels.add(new InsertSourceWizardPanel1());
         //panels.add(new NamedSourceController("source.parents", defaultParents));
-        //panels.add();//select epoch or epoch container
+        panels.add(new EpochSelectionController());//TODO: if epoch is selected, skip the next 4 wizards
         panels.add(new StartAndEndTimeController("epoch"));//start and end time
         panels.add(new SelectProtocolController("epoch"));//protocol
         panels.add(new KeyValueController("Add Protocol Parameters", "Add optional protocol parameters", "epoch.protocolParameters"));

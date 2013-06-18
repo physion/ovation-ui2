@@ -145,7 +145,7 @@ public class EntityWrapperUtilities {
         return false;
     }
 
-    protected static Node createNode(IEntityWrapper key, Children c) {
+    public static Node createNode(IEntityWrapper key, Children c) {
 
         boolean forceCreateNode = false;
         if (key instanceof PerUserEntityWrapper) {
