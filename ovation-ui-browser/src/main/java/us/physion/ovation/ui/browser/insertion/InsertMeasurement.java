@@ -30,18 +30,11 @@ public class InsertMeasurement extends InsertEntity {
     @Override
     public List<WizardDescriptor.Panel<WizardDescriptor>> getPanels(IEntityWrapper parent)
     {
-        Source p = parent.getEntity(Source.class);
-        Map<String, Source> defaultParents = new HashMap();
-        defaultParents.put(p.getIdentifier(), p);
+        Epoch epoch = parent.getEntity(Epoch.class);
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
-        panels.add(new InsertSourceWizardPanel1());
-        panels.add(new NamedSourceController("source.parents", defaultParents));
-        panels.add(new ProcedureElementController("source"));//TODO: if epoch is selected, skip the next 4 wizards
-        panels.add(new NameWizard("source"));
-        panels.add(new StartAndEndTimeController("epoch"));//start and end time
-        panels.add(new SelectProtocolController("epoch"));//protocol
-        panels.add(new KeyValueController("Add Protocol Parameters", "Add optional protocol parameters", "epoch.protocolParameters"));
-        panels.add(new KeyValueController("Add Device Parameters", "Add optional device parameters", "epoch.deviceParameters"));
+        panels.add(new MeasurementController(epoch));
+        panels.add(new SourceNameSelectionController());
+        panels.add(new DeviceNameSelectionController());
         return panels;
     }
 
