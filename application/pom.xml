@@ -113,17 +113,11 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                <version>${nbm.plugin.version}</version>
                 <configuration>
                     <!-- setup ovation.conf for the final product -->
                     <etcConfFile>${basedir}/target/${brandingToken}.conf</etcConfFile>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>default-standalone-zip</id>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
+
             </plugin>
 
             <!-- Copy ressources ovation.conf and Info.plist with filtering (replacing 'project.version' by the actual version) -->
@@ -275,6 +269,7 @@
 
                         <configuration>
                             <installerOsWindows>true</installerOsWindows>
+                            <installerPack200Enable>false</installerPack200Enable>
                         </configuration>
 
                         <executions>
