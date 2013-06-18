@@ -29,6 +29,17 @@
             <url>http://bits.netbeans.org/maven2/</url>
         </repository>
 
+        <repository>
+            <id>s3-release-repository</id>
+            <name>AWS Release Repository</name>
+            <url>s3://us.physion.maven/release</url>
+        </repository>
+        <snapshotRepository>
+            <id>s3-snapshot-repository</id>
+            <name>AWS Snapshot Repository</name>
+            <url>s3://us.physion.maven/snapshot</url>
+        </snapshotRepository>
+
     </repositories>
 
     <build>
