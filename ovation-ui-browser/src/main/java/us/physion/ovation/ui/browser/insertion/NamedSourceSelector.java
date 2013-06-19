@@ -120,12 +120,17 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
        
         initComponents();
         
-         jTable1.setDefaultRenderer(Source.class, new TableCellRenderer() {
+         jTable1.setDefaultRenderer(Object.class, new TableCellRenderer() {
 
             @Override
             public Component getTableCellRendererComponent(JTable jtable, Object o, boolean bln, boolean bln1, int i, int i1) {
+                if (o instanceof Source)
+                {
                 Source s = (Source)o;
                 return new JLabel(s.getLabel() + " | " + s.getIdentifier());
+                }
+                else
+                    return new JLabel(o.toString());
             }
         });
         jSplitPane1.setDividerLocation(300);
@@ -157,7 +162,7 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
                     {
                         return;
                     }
-                    tableModel.addParameter(s.getIdentifier(), s);
+                    tableModel.addParameter(s.getLabel() + " | " + s.getIdentifier(), s);
                     NamedSourceSelector.this.cs.fireChange();
                 }
             }

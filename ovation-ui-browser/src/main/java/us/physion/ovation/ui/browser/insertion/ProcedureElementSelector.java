@@ -13,11 +13,13 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -60,7 +62,7 @@ public class ProcedureElementSelector extends JPanel implements Lookup.Provider,
     @Override
     public String getName()
     {
-        return "Select an existing Epoch or containing ProcedureElement";
+        return "Select an existing Epoch or ProcedureElement";
     }
     
     public ProcedureElementSelector(ChangeSupport cs)
@@ -71,14 +73,9 @@ public class ProcedureElementSelector extends JPanel implements Lookup.Provider,
     }
     void initComponents()
     {
-        this.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
-        c.gridx = 0;
-        c.gridy = 0;
-        c.fill = GridBagConstraints.BOTH;
-        c.insets = new Insets(0, 0, 0, 0);
-        refreshButton = new JButton(new ImageIcon("us/physion/ovation/ui/browser/refresh24.png"));//TODO: image icons
+      
+        this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+        refreshButton = new JButton(new ImageIcon("../ovation-ui-browser/src/main/resources/us/physion/ovation/ui/browser/refresh24.png"));//TODO: image icons
         refreshButton.addActionListener(new ActionListener() {
 
             @Override
@@ -86,7 +83,8 @@ public class ProcedureElementSelector extends JPanel implements Lookup.Provider,
                 resetNodes();
             }
         });
-        queryButton = new JButton(new ImageIcon("us/physion/ovation/ui/browser/reset-query24.png"));//TODO: image icons
+        queryButton = new JButton(new ImageIcon("../ovation-ui-query/src/main/resources/us/physion/ovation/ui/query/query24.png"));//TODO: image icons
+        queryButton.setEnabled(false);
         browserTree = new BeanTreeView();
         em = new ExplorerManager();
         l = ExplorerUtils.createLookup(em, getActionMap());
@@ -100,18 +98,18 @@ public class ProcedureElementSelector extends JPanel implements Lookup.Provider,
         });
         
         browserTree.setRootVisible(false);
-        this.add(refreshButton, c);
+        JScrollPane p = new JScrollPane();
+        p.setViewportView(browserTree);
         
-        c.gridx = 1;
-        this.add(queryButton, c);
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+        panel.add(refreshButton);
         
-        c.gridy = 1;
-        c.gridx = 0;
-        c.gridheight = 3;
-        c.gridwidth = 5;
-        this.add(browserTree, c);
+        panel.add(queryButton);
+
+        this.add(panel);
+        this.add(p);
         resetNodes();
-        this.setSize(500, 500);
     }
     
     public void resetNodes()

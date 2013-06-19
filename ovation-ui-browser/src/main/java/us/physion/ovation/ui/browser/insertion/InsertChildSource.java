@@ -39,15 +39,14 @@ public class InsertChildSource extends InsertEntity implements SourceInsertable{
     public List<WizardDescriptor.Panel<WizardDescriptor>> getPanels(IEntityWrapper parent)
     {
         String explanation =
-            "<html><p>Select any other Sources that contributed to the generation</br>"
-            + "of this Source. These sources become the inputs to the Epoch</br>"
-            + "that generates this Source</p>"
-            + "</br><p>Input Sources are given names within the scope of their </br>"
-            + "containing Epoch, to distinguish one input from another. Choose names</br>"
-            + "that shed light on the Source's primary relationship to the Epoch</p></html>";
+            "<html><p>Select any other Sources that contributed to the generation of this Source.<br/>"
+            + "These sources become the inputs to the Epoch that generates this Source</p>"
+            + "<br/><p>Input Sources are given names within the scope of their containing Epoch, to<br/>"
+            + "distinguish one input from another. Choose names that shed light on the Source's primary<br/>"
+            + " relationship to the Epoch</p><br/></html>";
         Source p = parent.getEntity(Source.class);
         Map<String, Source> defaultParents = new HashMap();
-        defaultParents.put(p.getIdentifier(), p);
+        defaultParents.put(p.getLabel() + " | " + p.getIdentifier(), p);
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
         panels.add(new InsertSourceWizardPanel1());
         panels.add(new NamedSourceController("source.parents", defaultParents, explanation));

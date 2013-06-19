@@ -36,7 +36,8 @@ public class ProcedureElementController extends BasicWizardPanel {
     }
 
     @Override
-    public void readSettings(WizardDescriptor data){}
+    public void readSettings(WizardDescriptor data){
+    }
 
     @Override
     public void storeSettings(WizardDescriptor data) {
