@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@ServiceProviders(value={
+/*@ServiceProviders(value={
     @ServiceProvider(service=ProjectInsertable.class),
     @ServiceProvider(service=EpochInsertable.class)
-})
+})*/
 /**
  *
  * @author huecotanks

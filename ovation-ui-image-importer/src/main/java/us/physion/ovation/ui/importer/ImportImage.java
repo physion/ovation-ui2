@@ -99,7 +99,14 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
 
         panels.add(new GetImageFilesController(files));//set the files, and start/end times
         panels.add(new EquipmentSetupController());//set equipment setup info
-        panels.add(new NamedSourceController("sources", null));
+        
+        String explanation =  
+            "<html><p>Select any Sources that are referenced in this image. These sources</br>"
+            + "become the inputs to the Epoch that generates this image Measurement</p>"
+            + "</br><p>Input Sources are given names within the scope of their </br>"
+            + "containing Epoch, to distinguish one input from another. Choose names</br>"
+            + "that shed light on the Source's primary relationship to the Epoch</p></html>";
+        panels.add(new NamedSourceController("sources", null, explanation));
 
         for (int i = 0; i < epochCount; i++) {
             panels.add(new ProtocolController(i));//set protocol info

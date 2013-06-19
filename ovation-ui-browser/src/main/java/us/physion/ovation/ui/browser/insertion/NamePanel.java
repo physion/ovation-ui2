@@ -12,15 +12,25 @@ import org.openide.util.ChangeSupport;
  */
 public class NamePanel extends javax.swing.JPanel {
 
+    public String getName()
+    {
+        return "Select A Name";
+    }
     String objectName;
     ChangeSupport changeSupport;
     /**
      * Creates new form NamePanel
      */
-    public NamePanel(ChangeSupport cs) {
+    public NamePanel(ChangeSupport cs, String explanation) {
         initComponents();
         changeSupport = cs;
         objectName = "";
+        jLabel2.setText(explanation);
+    }
+    
+    public NamePanel(ChangeSupport cs)
+    {
+        this(cs, "");
     }
     
     public String getObjectName()
@@ -39,33 +49,48 @@ public class NamePanel extends javax.swing.JPanel {
 
         jLabel1 = new javax.swing.JLabel();
         nameField = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(NamePanel.class, "NamePanel.jLabel1.text")); // NOI18N
 
         nameField.setText(org.openide.util.NbBundle.getMessage(NamePanel.class, "NamePanel.nameField.text")); // NOI18N
+        nameField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nameFieldActionPerformed(evt);
+            }
+        });
         nameField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 nameFieldKeyReleased(evt);
             }
         });
 
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(NamePanel.class, "NamePanel.jLabel2.text")); // NOI18N
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(jLabel1)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(nameField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel1)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(nameField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel2)
+                        .add(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
+                .add(jLabel2)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
                     .add(nameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(0, 272, Short.MAX_VALUE))
+                .add(0, 266, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -84,8 +109,13 @@ public class NamePanel extends javax.swing.JPanel {
        
     }//GEN-LAST:event_nameFieldKeyReleased
 
+    private void nameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_nameFieldActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField nameField;
     // End of variables declaration//GEN-END:variables
 }

@@ -78,7 +78,7 @@ public class ProcedureElementSelector extends JPanel implements Lookup.Provider,
         c.gridy = 0;
         c.fill = GridBagConstraints.BOTH;
         c.insets = new Insets(0, 0, 0, 0);
-        refreshButton = new JButton(new ImageIcon(""));//TODO: image icons
+        refreshButton = new JButton(new ImageIcon("us/physion/ovation/ui/browser/refresh24.png"));//TODO: image icons
         refreshButton.addActionListener(new ActionListener() {
 
             @Override
@@ -86,7 +86,7 @@ public class ProcedureElementSelector extends JPanel implements Lookup.Provider,
                 resetNodes();
             }
         });
-        queryButton = new JButton(new ImageIcon(""));//TODO: image icons
+        queryButton = new JButton(new ImageIcon("us/physion/ovation/ui/browser/reset-query24.png"));//TODO: image icons
         browserTree = new BeanTreeView();
         em = new ExplorerManager();
         l = ExplorerUtils.createLookup(em, getActionMap());
@@ -99,7 +99,7 @@ public class ProcedureElementSelector extends JPanel implements Lookup.Provider,
             }
         });
         
-        browserTree.setRootVisible(true);
+        browserTree.setRootVisible(false);
         this.add(refreshButton, c);
         
         c.gridx = 1;

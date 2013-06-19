@@ -27,17 +27,19 @@ public class NamedSourceController extends BasicWizardPanel {
     
     Map<String, Source> defaultValues;
     String wdKey;
-    public NamedSourceController(String key, Map<String, Source> defaultSelectedValues)
+    String explanation;
+    public NamedSourceController(String key, Map<String, Source> defaultSelectedValues, String explanation)
     {
         super();
         wdKey = key;
         defaultValues = defaultSelectedValues;
+        this.explanation = explanation;
     }
     
     @Override
     public Component getComponent() {
         if (component == null) {
-            component = new NamedSourceSelector(changeSupport, defaultValues);
+            component = new NamedSourceSelector(changeSupport, defaultValues, explanation);
         }
         return component;
     }
