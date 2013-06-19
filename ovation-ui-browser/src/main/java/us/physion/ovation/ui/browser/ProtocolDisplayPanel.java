@@ -26,6 +26,7 @@ import us.physion.ovation.domain.Protocol;
 public class ProtocolDisplayPanel extends JScrollPane{
     
     JComboBox protocolBox;
+    JTextField uriField;
     JTextField functionField;
     JTextField scmUrlField;
     JTextField scmRevisionField;
@@ -42,6 +43,9 @@ public class ProtocolDisplayPanel extends JScrollPane{
         panel.setBorder(new EmptyBorder(15, 15, 15, 15));
         panel.setLayout(new GridBagLayout());
         protocolBox = new JComboBox();
+        protocolBox.setSelectedItem("");
+        uriField = new JTextField();
+        uriField.setEditable(false);
         functionField = new JTextField();
         functionField.setEditable(false);
         scmUrlField = new JTextField();
@@ -54,10 +58,11 @@ public class ProtocolDisplayPanel extends JScrollPane{
         protocolDocArea.setPreferredSize(new Dimension(getWidth(), 200));
         
         addLabeledComponent("Protocol Name:", protocolBox, 0, false);
-        addLabeledComponent("Function:", functionField, 1, false);
-        addLabeledComponent("Scm URL:", scmUrlField, 2, false);
-        addLabeledComponent("Scm Revision:", scmRevisionField, 3, false);
-        addLabeledComponent("Protocol Document:", protocolDocArea, 4, true);
+        addLabeledComponent("Protocol URI:", uriField, 1, false);
+        addLabeledComponent("Function:", functionField, 2, false);
+        addLabeledComponent("Scm URL:", scmUrlField, 3, false);
+        addLabeledComponent("Scm Revision:", scmRevisionField, 4, false);
+        addLabeledComponent("Protocol Document:", protocolDocArea, 5, true);
         
         this.setViewportView(panel);
     }
@@ -87,6 +92,13 @@ public class ProtocolDisplayPanel extends JScrollPane{
     
     void setSelectedProtocol(Protocol p)
     {
+        String uri = p.getURI().toString();
+        if (uri == null || uri.isEmpty()) {
+            uriField.setText("N/A");
+            uriField.setForeground(Color.GRAY);
+        } else {
+            uriField.setText(uri);
+        }
         String functionName = p.getFunctionName();
         if (functionName == null || functionName.isEmpty()) {
             functionField.setText("N/A");

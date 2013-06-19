@@ -17,11 +17,9 @@ import us.physion.ovation.domain.Source;
  */
 public class MeasurementController extends BasicWizardPanel{
    
-    Epoch epoch;
-    MeasurementController(Epoch e)
+    MeasurementController()
    {
        super();
-       epoch = e;
    }
    
    @Override
@@ -34,7 +32,6 @@ public class MeasurementController extends BasicWizardPanel{
 
     @Override
     public void readSettings(WizardDescriptor data) {
-       data.putProperty("epoch", epoch);
     }
     
     @Override

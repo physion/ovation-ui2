@@ -102,10 +102,9 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
         
         String explanation =  
             "<html><p>Select any Sources that are referenced in this image. These sources become the inputs<br/>"
-            + " to the Epoch that generates this image Measurement</p>"
+            + "to the Epoch that generates this image Measurement.</p>"
             + "<br/><p>Input Sources are given names within the scope of their containing Epoch, to distinguish<br/>"
-            + "one input from another. Choose names that shed light on the Source's primary relationship to<br/>"
-            + "the Epoch</p><br/></html>";
+            + "one input from another. Choose names that reflect the Source's relationship to the Epoch.</p><br/></html>";
         panels.add(new NamedSourceController("sources", null, explanation));
 
         for (int i = 0; i < epochCount; i++) {

@@ -20,6 +20,22 @@ import us.physion.ovation.domain.Source;
  * @author huecotanks
  */
 public class SourceNameSelectionController extends BasicWizardPanel{
+   
+    String inputSourcesKey;
+    Epoch epoch;
+    
+    public SourceNameSelectionController(String key)
+    {
+        super();
+        inputSourcesKey = key;
+    }
+    
+    public SourceNameSelectionController(Epoch epoch)
+    {
+        super();
+        this.epoch = epoch;
+    }
+    
     @Override
     public Component getComponent() {
         if (component == null) {
@@ -32,9 +48,12 @@ public class SourceNameSelectionController extends BasicWizardPanel{
 
     @Override
     public void readSettings(WizardDescriptor data) {
-        Epoch e = (Epoch)data.getProperty("epoch");
-        
-        Map<String, Source> sources = e.getInputSources();
+        Map<String, Source> sources;
+        if (epoch != null) {
+            sources = epoch.getInputSources();
+        }else{
+            sources = (Map<String, Source>)data.getProperty(inputSourcesKey);
+        }
         if (sources == null)
             sources = new HashMap();
         ArrayList l = new ArrayList(sources.keySet());

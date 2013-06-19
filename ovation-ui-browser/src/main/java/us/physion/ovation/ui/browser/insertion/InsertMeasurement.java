@@ -45,9 +45,9 @@ public class InsertMeasurement extends InsertEntity implements EpochInsertable{
     {
         Epoch epoch = parent.getEntity(Epoch.class);
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
-        panels.add(new MeasurementController(epoch));
-        panels.add(new SourceNameSelectionController());
-        panels.add(new DeviceNameSelectionController());
+        panels.add(new MeasurementController());
+        panels.add(new SourceNameSelectionController(epoch));
+        panels.add(new DeviceNameSelectionController(epoch));
         return panels;
     }
 
