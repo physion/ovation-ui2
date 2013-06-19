@@ -48,6 +48,6 @@ public class MeasurementController extends BasicWizardPanel{
     @Override
     public boolean isValid() {
         MeasurementPanel p = (MeasurementPanel)component;
-        return !p.getFile().isEmpty() && !p.getContentType().isEmpty() && !p.getMeasurementName().isEmpty();
+        return p.getFile() != null && !p.getContentType().isEmpty() && !p.getMeasurementName().isEmpty();
     }
 }

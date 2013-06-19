@@ -5,12 +5,16 @@
 package us.physion.ovation.ui.browser.insertion;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import static javax.swing.JComponent.TOOL_TIP_TEXT_KEY;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import org.openide.util.ChangeSupport;
+import org.openide.util.Exceptions;
+import us.physion.ovation.exceptions.OvationException;
 
 /**
  *
@@ -40,9 +44,15 @@ public class MeasurementPanel extends javax.swing.JPanel {
         cs.fireChange();
     }
     
-    public String getFile()
+    public URL getFile()
     {
-        return file.getAbsolutePath();
+        if (file == null)
+            return null;
+        try {
+            return new URL("file://" + file.getAbsolutePath());
+        } catch (MalformedURLException ex) {
+            return null;
+        }
     }
     
     public String getContentType()
