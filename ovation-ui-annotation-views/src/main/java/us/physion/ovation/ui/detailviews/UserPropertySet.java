@@ -27,7 +27,7 @@ class UserPropertySet extends PerUserAnnotationSet {
 
     UserPropertySet(User u, boolean isOwner, boolean currentUser, Map<String, Object> props, Set<String> uris)
     {
-        super(u, currentUser, isOwner, uris);
+        super(u, isOwner, currentUser, uris);
         properties = props;
     }
 
@@ -50,7 +50,7 @@ class UserPropertySet extends PerUserAnnotationSet {
 
     @Override
     public TableModel createTableModel() {
-        EditableTableModel m = new EditableTableModel(true);
+        EditableTableModel m = new EditableTableModel(isCurrentUser());
         m.setParams(properties);
         return m;
     }

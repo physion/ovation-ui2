@@ -94,50 +94,14 @@ public final class TagsViewTopComponent extends TopComponent {
 
     protected List<TableTreeKey> update(Collection<? extends IEntityWrapper> entities, DataContext c)
     {
-        ArrayList<TableTreeKey> tags = new ArrayList<TableTreeKey>();
-        Set<String> uris = new HashSet<String>();
-        Set<OvationEntity> entitybases = new HashSet();
-        Set<String> owners = new HashSet();
-        for (IEntityWrapper w : entities) {
-            OvationEntity e = w.getEntity();
-            entitybases.add(e);
-            uris.add(e.getURI().toString());
-            if (e instanceof Owned)
-                owners.add(((Owned)e).getOwner().getUuid().toString());
-        }
-
-        boolean containsCurrentUser = false;//current user's property table should always exist, even if there are no properties
-        for (User u : c.getUsers()) {
-            List<String> taglist = new ArrayList<String>();
-            for (OvationEntity e : entitybases) {
-                if (e instanceof Taggable)
-                {
-                    taglist.addAll(Lists.newArrayList(((Taggable)e).getUserTags(u)));
-                }
-            }
-            if (!taglist.isEmpty()) {
-                String uuid = u.getUuid().toString();
-                containsCurrentUser = isUserAuthenticated(u, c);
-                tags.add(new TagsSet(u, owners.contains(uuid), containsCurrentUser, taglist, uris));
-            }
-        }
-        if (!containsCurrentUser) {
-            User current = c.getAuthenticatedUser();
-            tags.add(new TagsSet(current, true, true, new ArrayList<String>(), uris));
-        }
-        
-        Collections.sort(tags);
-        
+        List<TableTreeKey> tags = PerUserAnnotationSets.createTagSets(entities, c);
         ((ScrollableTableTree) tagTree).setKeys(tags);
         
         this.entities = entities;
         return tags;
     }
 
-    private boolean isUserAuthenticated(User u, DataContext c) {
-        return c.getAuthenticatedUser().getUuid().equals(u.getUuid());
-    }
-
+    //TODO: refactor
     protected void updateTagList(String[] newTags)
     {
         JTree tree = ((ScrollableTableTree) tagTree).getTree();
@@ -164,7 +128,6 @@ public final class TagsViewTopComponent extends TopComponent {
         setToolTipText(Bundle.HINT_TagsViewTopComponent());
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         global.addLookupListener(listener);
-        
     }
 
     /**

@@ -28,7 +28,7 @@ public abstract class PerUserAnnotationSet implements TableTreeKey{
     boolean current;
     Set<String> uris;
 
-    public PerUserAnnotationSet(User u, boolean currentUser, boolean isOwner, Set<String> uris) {
+    public PerUserAnnotationSet(User u, boolean isOwner, boolean currentUser, Set<String> uris) {
         userURI = u.getURI().toString();
         this.current = currentUser;
         username = u.getUsername();
