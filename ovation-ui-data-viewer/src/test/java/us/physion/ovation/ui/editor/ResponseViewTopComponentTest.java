@@ -13,14 +13,15 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import us.physion.ovation.domain.*;
-import us.physion.ovation.domain.factories.MeasurementFactory;
-import us.physion.ovation.domain.impl.StdMeasurementFactory;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.TestEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
 import us.physion.ovation.values.NumericData;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
@@ -33,7 +34,7 @@ import static org.junit.Assert.assertTrue;
 public class ResponseViewTopComponentTest extends OvationTestCase{
 
     ResponseViewTopComponent t;
-    
+
     private Epoch epoch;
 
     @Before
