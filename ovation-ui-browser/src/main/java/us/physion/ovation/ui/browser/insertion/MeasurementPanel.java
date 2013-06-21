@@ -67,7 +67,7 @@ public class MeasurementPanel extends javax.swing.JPanel {
     
     public String getName()
     {
-        return "Choose Measurement File";
+        return "Choose DataElement File";
     }
 
     /**

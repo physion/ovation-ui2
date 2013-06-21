@@ -171,12 +171,12 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
 
         Map<String, Object> analysisProtocolParams = new HashMap();
         analysisProtocolParams.put("thing1", "thing2");
-        AnalysisRecord a1 = epoch.insertAnalysisRecord("a1", Maps.<String,DataElement>newHashMap(), protocol, analysisProtocolParams);
+        AnalysisRecord a1 = epoch.addAnalysisRecord("a1", Maps.<String,DataElement>newHashMap(), protocol, analysisProtocolParams);
         entitySet.add(new TestEntityWrapper(ctx, a1));
 
         analysisProtocolParams.put("thing1", "thing4");
         analysisProtocolParams.put("thing3", "thing4");
-        AnalysisRecord a2 = epoch.insertAnalysisRecord("a1", Maps.<String,DataElement>newHashMap(), protocol, analysisProtocolParams);
+        AnalysisRecord a2 = epoch.addAnalysisRecord("a1", Maps.<String,DataElement>newHashMap(), protocol, analysisProtocolParams);
         entitySet.add(new TestEntityWrapper(ctx, a2));
 
         List<TableTreeKey> params = t.setEntities(entitySet);

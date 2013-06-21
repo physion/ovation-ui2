@@ -52,7 +52,6 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
     final ChangeSupport cs;
     private DataContext context;
     
-    JTree sourcesTree;
     ParameterTableModel tableModel;
     Lookup l;
     ExplorerManager em;

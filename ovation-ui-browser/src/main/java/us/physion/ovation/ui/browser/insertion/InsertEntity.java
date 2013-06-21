@@ -28,7 +28,7 @@ import us.physion.ovation.ui.interfaces.*;
  *
  * @author jackie
  */
-public class InsertEntity extends AbstractAction implements EntityInsertable{
+abstract public class InsertEntity extends AbstractAction implements EntityInsertable{
 
     @Override
     public void actionPerformed(ActionEvent ae) {
@@ -97,19 +97,12 @@ public class InsertEntity extends AbstractAction implements EntityInsertable{
         }
         return null;
     }
-
-    @Override
-    public List<WizardDescriptor.Panel<WizardDescriptor>> getPanels(IEntityWrapper parent){
-        throw new UnsupportedOperationException("Subclasses of InsertEntity should implement the getPanels method");
-    }
-
-    @Override
-    public void wizardFinished(WizardDescriptor wiz, DataContext c, IEntityWrapper ew) {
-        throw new UnsupportedOperationException("Subclasses of InsertEntity should implement the wizardFinished method");
-    }
     
     protected Protocol getProtocolFromProtocolSelector(DataContext context, Map<String, String> newProtocols, String selectedProtocolName, Protocol existingProtocol)
     {
+        if (existingProtocol != null)
+            return existingProtocol;
+        
         if (newProtocols == null)
             return null;
         
@@ -125,9 +118,6 @@ public class InsertEntity extends AbstractAction implements EntityInsertable{
                 protocol = p;
             }
         }
-        if (protocol == null)
-            return existingProtocol;
-        
         return protocol;
     }
     

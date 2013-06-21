@@ -53,7 +53,7 @@ public class InsertEpochAndMeasurement extends InsertEntity implements Experimen
         panels.add(new KeyValueController("Add Protocol Parameters", "Add optional protocol parameters", "epoch.protocolParameters"));
         panels.add(new KeyValueController("Add Device Parameters", "Add optional device parameters", "epoch.deviceParameters"));
         
-        panels.add(new MeasurementController());
+        panels.add(new DataElementController());
         panels.add(new SourceNameSelectionController("epoch.inputs"));
         panels.add(new DeviceNameSelectionController((EpochContainer)parent.getEntity()));
         return panels;

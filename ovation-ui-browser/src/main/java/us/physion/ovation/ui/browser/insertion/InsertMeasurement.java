@@ -45,7 +45,7 @@ public class InsertMeasurement extends InsertEntity implements EpochInsertable{
     {
         Epoch epoch = parent.getEntity(Epoch.class);
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
-        panels.add(new MeasurementController());
+        panels.add(new DataElementController());
         panels.add(new SourceNameSelectionController(epoch));
         panels.add(new DeviceNameSelectionController(epoch));
         return panels;
@@ -55,9 +55,9 @@ public class InsertMeasurement extends InsertEntity implements EpochInsertable{
     public void wizardFinished(WizardDescriptor wiz, DataContext c, IEntityWrapper parent)
     {
         Epoch e = (Epoch)parent.getEntity();
-        String name = (String)wiz.getProperty("measurement.name");
-        String contentType = (String)wiz.getProperty("measurement.contentType");
-        URL file = (URL)wiz.getProperty("measurement.file");
+        String name = (String)wiz.getProperty("dataElement.name");
+        String contentType = (String)wiz.getProperty("dataElement.contentType");
+        URL file = (URL)wiz.getProperty("dataElement.file");
         Set<String> sourceNames = (Set<String>)wiz.getProperty("sourceNames");
         Set<String> deviceNames = (Set<String>)wiz.getProperty("deviceNames");
 

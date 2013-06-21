@@ -15,9 +15,9 @@ import us.physion.ovation.domain.Source;
  *
  * @author huecotanks
  */
-public class MeasurementController extends BasicWizardPanel{
+public class DataElementController extends BasicWizardPanel{
    
-    MeasurementController()
+    DataElementController()
    {
        super();
    }
@@ -37,9 +37,9 @@ public class MeasurementController extends BasicWizardPanel{
     @Override
     public void storeSettings(WizardDescriptor data) {
         MeasurementPanel p = (MeasurementPanel)component;
-        data.putProperty("measurement.file", p.getFile());
-        data.putProperty("measurement.contentType", p.getContentType());
-        data.putProperty("measurement.name", p.getMeasurementName());
+        data.putProperty("dataElement.file", p.getFile());
+        data.putProperty("dataElement.contentType", p.getContentType());
+        data.putProperty("dataElement.name", p.getMeasurementName());
     }
 
     @Override

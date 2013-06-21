@@ -89,6 +89,19 @@ public class ParameterTableModel extends DefaultTableModel {
 
         this.fireTableRowsDeleted(row, row);
     }
+    
+    public int countKeys(String name)
+    {
+        if (!keys.contains(name))
+            return 0;
+        
+        for (int i = 1; i< keys.size(); i++)
+        {
+            if (!keys.contains(name + "." + i))
+                return i;
+        }
+        return keys.size();
+    }
 
     public Object getValueAt(int row, int column) {
 

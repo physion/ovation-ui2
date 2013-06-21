@@ -24,11 +24,12 @@ import us.physion.ovation.ui.interfaces.ProjectInsertable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import us.physion.ovation.domain.AnalysisRecord;
 
-/*@ServiceProviders(value={
+@ServiceProviders(value={
     @ServiceProvider(service=ProjectInsertable.class),
     @ServiceProvider(service=EpochInsertable.class)
-})*/
+})
 /**
  *
  * @author huecotanks
@@ -47,9 +48,8 @@ public class InsertAnalysisRecord extends InsertEntity implements ProjectInserta
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
         panels.add(new NameWizard(objectPrefix));
         panels.add(new SelectProtocolController(objectPrefix));
-        panels.add(new KeyValueController("Add Protocol Parameters", "Add option protocol parameters, if any", combine(objectPrefix, "protocolParameters")));
-        //panels.add(new AnalysisRecordInputsWizard(objectPrefix));
-        //panels.add(new AnalysisRecordOutputsWizard(objectPrefix));
+        panels.add(new KeyValueController("Add Protocol Parameters", "Add option protocol parameters, if any", combine(objectPrefix, "parameters")));
+        panels.add(new NamedDataElementController(objectPrefix + ".namedInputs"));
         return panels;
     }
 
@@ -58,17 +58,19 @@ public class InsertAnalysisRecord extends InsertEntity implements ProjectInserta
     {
         OvationEntity parentEntity = parent.getEntity();
         Protocol protocol = getProtocolFromProtocolSelector(parentEntity.getDataContext(),
-                    (Map<String, String>) wiz.getProperty("epoch.newProtocols"),
-                    (String) wiz.getProperty("epoch.protocolName"),
-                    (Protocol) wiz.getProperty("epoch.protocol"));
+                    (Map<String, String>) wiz.getProperty(objectPrefix + ".newProtocols"),
+                    (String) wiz.getProperty(objectPrefix + ".protocolName"),
+                    (Protocol) wiz.getProperty(objectPrefix + ".protocol"));
+        
+        AnalysisRecord analysisRecord;
         
         if (Project.class.isAssignableFrom(parent.getType())) {
-            ((Project)parentEntity).insertAnalysisRecord(((String) wiz.getProperty(objectPrefix + ".name")),
+            analysisRecord = ((Project)parentEntity).addAnalysisRecord(((String) wiz.getProperty(objectPrefix + ".name")),
                     ((Map<String, DataElement>) wiz.getProperty(objectPrefix + ".namedInputs")),
                     protocol,
                     ((Map<String, Object>) wiz.getProperty(objectPrefix + ".parameters")));
         } else if (Epoch.class.isAssignableFrom(parent.getType())) {
-            ((Epoch)parentEntity).insertAnalysisRecord(((String) wiz.getProperty(objectPrefix + ".name")),
+            analysisRecord = ((Epoch)parentEntity).addAnalysisRecord(((String) wiz.getProperty(objectPrefix + ".name")),
                     ((Map<String, DataElement>) wiz.getProperty(objectPrefix + ".namedInputs")),
                     protocol,
                     ((Map<String, Object>) wiz.getProperty(objectPrefix + ".parameters")));

@@ -30,7 +30,7 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
         displayName = "#CTL_Sync")
 @ActionReferences({
     @ActionReference(path = "Menu/Tools", position = 1300),
-    @ActionReference(path = "Toolbars/Find", position = 300),
+    @ActionReference(path = "Toolbars/Memory", position = 300),//QuickSearch, Find, Standard
     @ActionReference(path = "Shortcuts", name = "SM-S")
 })
 @Messages("CTL_Sync=Sync")
