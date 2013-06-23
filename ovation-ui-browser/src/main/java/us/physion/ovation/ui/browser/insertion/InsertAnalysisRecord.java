@@ -4,14 +4,10 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import org.openide.WizardDescriptor;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.util.lookup.ServiceProviders;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
@@ -61,14 +57,14 @@ public class InsertAnalysisRecord extends InsertEntity implements ProjectInserta
                     (Map<String, String>) wiz.getProperty("epoch.newProtocols"),
                     (String) wiz.getProperty("epoch.protocolName"),
                     (Protocol) wiz.getProperty("epoch.protocol"));
-        
+
         if (Project.class.isAssignableFrom(parent.getType())) {
-            ((Project)parentEntity).insertAnalysisRecord(((String) wiz.getProperty(objectPrefix + ".name")),
+            ((Project)parentEntity).addAnalysisRecord(((String) wiz.getProperty(objectPrefix + ".name")),
                     ((Map<String, DataElement>) wiz.getProperty(objectPrefix + ".namedInputs")),
                     protocol,
                     ((Map<String, Object>) wiz.getProperty(objectPrefix + ".parameters")));
         } else if (Epoch.class.isAssignableFrom(parent.getType())) {
-            ((Epoch)parentEntity).insertAnalysisRecord(((String) wiz.getProperty(objectPrefix + ".name")),
+            ((Epoch)parentEntity).addAnalysisRecord(((String) wiz.getProperty(objectPrefix + ".name")),
                     ((Map<String, DataElement>) wiz.getProperty(objectPrefix + ".namedInputs")),
                     protocol,
                     ((Map<String, Object>) wiz.getProperty(objectPrefix + ".parameters")));
