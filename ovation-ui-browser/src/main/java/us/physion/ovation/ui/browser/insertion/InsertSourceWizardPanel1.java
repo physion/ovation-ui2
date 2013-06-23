@@ -36,7 +36,9 @@ class InsertSourceWizardPanel1 extends BasicWizardPanel
     @Override
     public boolean isValid() {
         String label = ((InsertSourceVisualPanel1)component).getLabel();
-        return (label != null && !label.isEmpty());
+        String identifier = ((InsertSourceVisualPanel1)component).getIdentifier();
+        return (label != null && !label.isEmpty()) &&
+                (identifier != null && !identifier.isEmpty()) ;
     }
 
 

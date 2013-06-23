@@ -13,11 +13,16 @@ import us.physion.ovation.domain.mixin.ProcedureElement;
  *
  * @author jackie
  */
-public class EpochSelectionController extends BasicWizardPanel {
+public class ProcedureElementController extends BasicWizardPanel {
 
+    String objectPrefix;
+    ProcedureElementController(String objectPrefix)
+    {
+        this.objectPrefix = objectPrefix;
+    }
     @Override
     public boolean isValid() {
-        EpochSelector c = (EpochSelector)component;
+        ProcedureElementSelector c = (ProcedureElementSelector)component;
         return c.getProcedureElement() != null;
     }
     
@@ -25,21 +30,24 @@ public class EpochSelectionController extends BasicWizardPanel {
     public Component getComponent() {
         if (component == null)
         {
-            component = new EpochSelector(changeSupport);
+            component = new ProcedureElementSelector(changeSupport);
         }
         return component;
     }
 
     @Override
-    public void readSettings(WizardDescriptor data){}
+    public void readSettings(WizardDescriptor data){
+    }
 
     @Override
     public void storeSettings(WizardDescriptor data) {
-        ProcedureElement e = ((EpochSelector)getComponent()).getProcedureElement();
+        ProcedureElement e = ((ProcedureElementSelector)getComponent()).getProcedureElement();
+        if (e == null)
+            return;
         if (e instanceof Epoch)
-            data.putProperty("epoch", e);
+            data.putProperty(objectPrefix + ".epoch", e);
         else{
-            data.putProperty("epoch.parent", e);
+            data.putProperty(objectPrefix + ".epochContainer", e);
         }
     }
     

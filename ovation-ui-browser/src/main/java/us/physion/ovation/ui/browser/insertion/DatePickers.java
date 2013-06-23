@@ -34,7 +34,7 @@ public class DatePickers {
     {
         boolean found = false;
         String id = TimeZone.getDefault().getID();
-        for (String s : availableIDs)
+        for (String s : getTimeZoneIDs())
         {
             if (s.equals(id))
             {

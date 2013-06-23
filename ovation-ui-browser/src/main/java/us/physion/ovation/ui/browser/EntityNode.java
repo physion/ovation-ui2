@@ -100,7 +100,7 @@ public class EntityNode extends AbstractNode implements ResettableNode{
         insertables.put(EpochGroup.class.getSimpleName(), EpochGroupInsertable.class);
         insertables.put(Epoch.class.getSimpleName(), EpochInsertable.class);
         insertables.put(Measurement.class.getSimpleName(), ResponseInsertable.class);
-        insertables.put(AnalysisRecord.class.getSimpleName(), DerivedResponseInsertable.class);
+        insertables.put(AnalysisRecord.class.getSimpleName(), AnalysisRecordInsertable.class);
         return insertables;
     }
    

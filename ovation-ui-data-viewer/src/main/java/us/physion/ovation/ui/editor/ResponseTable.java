@@ -31,7 +31,6 @@ public class ResponseTable extends JTable{
         } else {
             super.tableChanged(e);
         }
-        //handleRowUpdate(e);
     }
 
     /**

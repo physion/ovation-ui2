@@ -116,48 +116,7 @@ public final class PropertiesViewTopComponent extends TopComponent {
     
     protected List<TableTreeKey> setEntities(Collection<? extends IEntityWrapper> entities, DataContext c)
     {
-        List<TableTreeKey> properties = new ArrayList<TableTreeKey>();
-        Set<String> uris = new HashSet<String>();
-        Set<OvationEntity> entitybases = new HashSet();
-        Set<String> owners = new HashSet();
-        for (IEntityWrapper w : entities) {
-            OvationEntity e = w.getEntity();
-            entitybases.add(e);
-            uris.add(e.getURI().toString());
-            if (e instanceof Owned)
-            {
-                owners.add(((Owned)e).getOwner().getUuid().toString());
-            }
-        }
-
-        String currentUserUUID = c.getAuthenticatedUser().getUuid().toString();
-        boolean containsCurrentUser = false;//current user's property table should always exist, even if there are no properties
-        
-        for (User u : c.getUsers()) {
-            Map<String, Object> userProps = new HashMap();
-            for (OvationEntity e : entitybases) {
-                if (e instanceof AnnotatableEntity)
-                    userProps.putAll(((AnnotatableEntity)e).getUserProperties(u));
-            }
-            if (!userProps.isEmpty()) {
-                String uuid = u.getUuid().toString();
-                UserPropertySet propertySet;
-                if (currentUserUUID.equals(uuid)) {
-                    containsCurrentUser = true;
-                    propertySet = new UserPropertySet(u, owners.contains(uuid), true, userProps, uris);
-                } else {
-                    propertySet = new UserPropertySet(u, owners.contains(uuid), false, userProps, uris);
-                }
-                properties.add(propertySet);
-            }
-        }
-        if (!containsCurrentUser) {
-            User current = c.getAuthenticatedUser();
-            properties.add(new UserPropertySet(current, true, true, new HashMap<String, Object>(), uris));
-        }
-        
-        Collections.sort(properties);
-        
+        List<TableTreeKey> properties = PerUserAnnotationSets.createPropertySets(entities, c);
         ((ScrollableTableTree) jScrollPane1).setKeys(properties);
         
         this.entities = entities;

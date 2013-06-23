@@ -152,24 +152,26 @@ public class EntityWrapperUtilities {
             //per user entity wrappers are "user" nodes
             //their uri's correspond to the "User" object they represent, and therefore
             //are not unique nodes
-            forceCreateNode = true;
+            return createNewNode(key, c);
         }
 
         Map<String, Node> treeMap = BrowserUtilities.getNodeMap();
         String uri = key.getURI();
-        if (!forceCreateNode) {//If node with uri exists, create a node that just proxies the existing node
-            if (uri != null && treeMap.containsKey(uri)) {
-                return new FilterNode(treeMap.get(uri));
-            }
+        if (treeMap.containsKey(uri)) {
+            return new FilterNode(treeMap.get(uri));
         }
 
         //otherwise, create an AbstractNode representing this object
+        EntityNode n = createNewNode(key, c);
+        treeMap.put(uri, n);
+        return n;
+    }
+    
+    public static EntityNode createNewNode(IEntityWrapper key, Children c)
+    {
         EntityNode n = new EntityNode(c, Lookups.singleton(key), key);
         n.setDisplayName(key.getDisplayName());
         setIconForType(n, key.getType());
-        if (uri != null) {//TODO: test this for nodes that don't have uris
-            treeMap.put(key.getURI(), n);
-        }
         return n;
     }
 

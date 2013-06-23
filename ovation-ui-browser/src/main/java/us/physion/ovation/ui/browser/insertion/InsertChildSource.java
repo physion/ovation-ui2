@@ -38,13 +38,20 @@ public class InsertChildSource extends InsertEntity implements SourceInsertable{
     @Override
     public List<WizardDescriptor.Panel<WizardDescriptor>> getPanels(IEntityWrapper parent)
     {
+        String explanation =
+            "<html><p>Select any other Sources that contributed to the generation of this Source.<br/>"
+            + "These sources become the inputs to the Epoch that generates this Source</p>"
+            + "<br/><p>Input Sources are given names within the scope of their containing Epoch, to<br/>"
+            + "distinguish one input from another. Choose names that shed light on the Source's primary<br/>"
+            + " relationship to the Epoch</p><br/></html>";
         Source p = parent.getEntity(Source.class);
         Map<String, Source> defaultParents = new HashMap();
-        defaultParents.put(p.getLabel(), p);
+        defaultParents.put(p.getLabel() + " | " + p.getIdentifier(), p);
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
         panels.add(new InsertSourceWizardPanel1());
-        //panels.add(new NamedSourceController("source.parents", defaultParents));
-        panels.add(new EpochSelectionController());//TODO: if epoch is selected, skip the next 4 wizards
+        panels.add(new NamedSourceController("source.parents", defaultParents, explanation));
+        panels.add(new ProcedureElementController("source"));//TODO: if epoch is selected, skip the next 4 wizards
+        panels.add(new NameWizard("source"));
         panels.add(new StartAndEndTimeController("epoch"));//start and end time
         panels.add(new SelectProtocolController("epoch"));//protocol
         panels.add(new KeyValueController("Add Protocol Parameters", "Add optional protocol parameters", "epoch.protocolParameters"));
@@ -77,7 +84,7 @@ public class InsertChildSource extends InsertEntity implements SourceInsertable{
         }
 
         parentEntity.insertSource(parentSources,
-                (Epoch) wiz.getProperty("source.epoch"),
+                epoch,
                 (String) wiz.getProperty("source.name"),
                 (String)wiz.getProperty("source.label"),
                     (String)wiz.getProperty("source.identifier"));

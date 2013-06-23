@@ -38,7 +38,7 @@ id = "us.physion.ovation.ui.query.RunQuery")
 displayName = "#CTL_RunQuery")
 @ActionReferences({
     @ActionReference(path = "Menu/Tools", position = 10),
-    @ActionReference(path = "Toolbars/Find", position = 10),
+    //@ActionReference(path = "Toolbars/Find", position = 10),
     @ActionReference(path = "Shortcuts", name = "M-R")
 })
 @Messages("CTL_RunQuery=Run Query")

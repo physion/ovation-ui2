@@ -35,7 +35,7 @@ public class ScrollableTableTree extends JScrollPane {
         return tree;
     }
 
-    public void setKeys(final java.util.List<? extends TableTreeKey> keys) {
+    public synchronized void setKeys(final java.util.List<? extends TableTreeKey> keys) {
         //TODO: test this logic
         EventQueueUtilities.runOnEDT(new Runnable() {
 
@@ -114,9 +114,9 @@ public class ScrollableTableTree extends JScrollPane {
         userNodes = new HashMap<String, DefaultMutableTreeNode>();
     }
 
-    private boolean shouldExpand(TableTreeKey tableInfo) {
+    private synchronized boolean shouldExpand(TableTreeKey tableInfo) {
         //TODO: test this logic
-        if (userNodes.containsKey(tableInfo.getID())) {
+       if (userNodes.containsKey(tableInfo.getID())) {
             DefaultMutableTreeNode n = userNodes.get(tableInfo.getID());
             TreePath tp = new TreePath(n.getPath());
             if (n.isNodeAncestor((TreeNode)((DefaultTreeModel)tree.getModel()).getRoot()))

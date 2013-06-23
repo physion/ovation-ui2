@@ -109,7 +109,8 @@ class ChartGroupWrapper implements Visualization
         }
         String newName = datasetName + "-" + String.valueOf(scale + 1);
 
-        if (d.dataArray.getElementType().getSimpleName().equals("double")) {
+        if (d.dataArray.getElementType().getSimpleName().equals("double") ||
+                d.dataArray.getElementType().getSimpleName().equals("float")) {
             double[] floatingData = (double[])d.dataArray.get1DJavaArray(Double.class);
             double[][] data = new double[2][(int) size];
 
@@ -134,7 +135,8 @@ class ChartGroupWrapper implements Visualization
                 _ds.addSeries(datasetName, data);
             }
 
-        } else if (d.dataArray.getElementType().getSimpleName().equals("int")) {
+        } else if (d.dataArray.getElementType().getSimpleName().equals("int") ||
+                d.dataArray.getElementType().getSimpleName().equals("short")) {
             int[] integerData = (int[])d.dataArray.get1DJavaArray(Integer.class);
             double[][] data = new double[2][(int) size];
 

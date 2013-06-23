@@ -23,7 +23,7 @@ id = "us.physion.ovation.ui.database.LogoutAction")
 displayName = "#CTL_LogoutAction")
 @ActionReferences({
     @ActionReference(path = "Menu/File", position = 1100),
-    @ActionReference(path = "Toolbars/QuickSearch", position = 500),
+    //@ActionReference(path = "Toolbars/QuickSearch", position = 500),
     @ActionReference(path = "Shortcuts", name = "SM-L")
 })
 @Messages("CTL_LogoutAction=Logout")
