@@ -8,7 +8,6 @@
         <version>2.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>us.physion</groupId>
     <artifactId>ovation-api-module</artifactId>
     <packaging>nbm</packaging>
 
@@ -144,5 +143,4 @@
             </plugin>
         </plugins>
     </build>
-    <version>${ovation.api.version}</version>
 </project>

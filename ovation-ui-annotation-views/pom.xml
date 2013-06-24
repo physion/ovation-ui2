@@ -8,7 +8,6 @@
         <version>2.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>us.physion</groupId>
     <artifactId>ovation-ui-annotation-views</artifactId>
     <version>2.0-SNAPSHOT</version>
     <packaging>nbm</packaging>
@@ -65,11 +64,6 @@
 
         <dependency>
             <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-actions</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-dialogs</artifactId>
         </dependency>
 
@@ -120,12 +114,6 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-settings</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>us.physion</groupId>
-            <artifactId>ovation-api-module</artifactId>
-            <version>${ovation.api.version}</version>
         </dependency>
 
         <dependency>
