@@ -4,51 +4,40 @@
  */
 package us.physion.ovation.ui.database;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.*;
-import java.util.prefs.Preferences;
-import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
-import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
-import ovation.*;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
-import us.physion.ovation.domain.User;
-import us.physion.ovation.exceptions.AuthenticationException;
-import us.physion.ovation.exceptions.OvationException;
-import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IUpgradeDB;
 import us.physion.ovation.ui.interfaces.UpdateInfo;
+
+import java.util.Comparator;
 
 /**
  *
  * @author huecotanks
  */
 class DBConnectionManager {
-    
+
     ConnectionDialog connectionDialog;
     CancellableDialog installVersionDialog;
     CancellableDialog shouldRun;
-    
+
     boolean cancelled = false;
     DataStoreCoordinator dsc;
     public void setConnectionDialog(ConnectionDialog d)
     {
         connectionDialog = d;
     }
-    
+
     public void setInstallVersionDialog(CancellableDialog d)
     {
         installVersionDialog = d;
     }
-    
+
     public void setShouldRunDialog(CancellableDialog d)
     {
         shouldRun = d;
     }
-    
+
     public void showDialog()
     {
         connectionDialog.showDialog();
@@ -63,55 +52,7 @@ class DBConnectionManager {
     {
         return dsc;
     }
-    
-    void tryToConnect(final String username, final String password, final String connectionFile) {
-        //run this on a thread that's not the event queue thread
-        Runnable r = new Runnable(){
 
-            @Override
-            public void run() {
-                connectionDialog.startConnectionStatusBar();
-                
-                DataContext c = getContextFromConnectionFile(connectionFile, username, password);
-                if (c == null) {
-                    return;
-                }
-
-                boolean authenticated = false;
-                try {
-                    Iterable<User> users = c.getRepository().getWithUsername(username);
-                    if (!users.iterator().hasNext())
-                        connectionDialog.showErrors(new AuthenticationException("No user with username '" + username), c.getCoordinator());   
-                    
-                    for (User u : users)
-                    {
-                        try {
-                            if (c.getCoordinator().authenticateUser(u.getEmail(), password.toCharArray()).get()) {
-                                authenticated = true;
-                                break;
-                            }
-                        } catch(Exception e)
-                        {
-                            //pass
-                        }
-                    }
-                } catch (Exception ex) {
-                    connectionDialog.showErrors(ex, c.getCoordinator());
-                    return;
-                }
-                if (!authenticated) {
-                    connectionDialog.showErrors(new AuthenticationException("Username and password didn't match"), c.getCoordinator());
-                    return;
-                }
-                dsc = c.getCoordinator();
-                cancelled = false;
-                
-                connectionDialog.disposeOnEDT();
-            }
-            
-        };
-        EventQueueUtilities.runOffEDT(r);
-    }
     void cancel()
     {
         cancelled = true;
@@ -125,7 +66,7 @@ class DBConnectionManager {
             c = dsc.getContext();
         } catch(DatabaseNotFoundException ex)
         {
-            Preferences p = Preferences.userNodeForPackage(Ovation.class);                        
+            Preferences p = Preferences.userNodeForPackage(Ovation.class);
             String idString = p.get("local_fd_ids", "");
             String[] idStrings = idString.split(",");
             Set ids = new HashSet();
@@ -142,7 +83,7 @@ class DBConnectionManager {
             }
             idString += ","+ fdid;
             p.put("local_fd_ids", idString);
-                       
+
             String lockserver;
             try {
                 lockserver = InetAddress.getLocalHost().getHostName();
@@ -150,7 +91,7 @@ class DBConnectionManager {
                 lockserver = "127.0.0.1";
             }
             DatabaseManager.createLocalDatabase(connectionFile, lockserver, fdid);
-            
+
             //license database, and add user
             try {
                 dsc = DataStoreCoordinator.coordinatorWithConnectionFile(connectionFile);
@@ -158,7 +99,7 @@ class DBConnectionManager {
                 String lab = p.get("ovation_license_lab", "");
                 String text = p.get("ovation_license_licenseText", "");
                 dsc.licenseDatabase(institution, lab, text, false);
-                
+
                 c = dsc.getContext();
                 c.addUser(username, password);
                 try {
@@ -242,7 +183,7 @@ class DBConnectionManager {
                 }
                return getContextFromConnectionFile(connectionFile, username, password);
             }
-                    
+
         }
         catch (Exception ex) {
             connectionDialog.showErrors(ex, dsc);
@@ -253,7 +194,7 @@ class DBConnectionManager {
         */
         return null;
     }
-    
+
     protected boolean shouldRunUpdater(int databaseVersion, int apiVersion)
     {
         if (databaseVersion <0 || apiVersion <0 )
@@ -261,7 +202,7 @@ class DBConnectionManager {
             connectionDialog.showErrors(new RuntimeException("Invalid database schema version (" + databaseVersion + ") or api schema version (" + apiVersion + ")"), null);
             return false;
         }
-        
+
         if (databaseVersion > apiVersion)
         {
             if (installVersionDialog == null)
@@ -278,7 +219,7 @@ class DBConnectionManager {
         }
         return false;
     }
-    
+
     protected boolean runUpdater(final IUpgradeDB tool, CancellableDialog inProgress)
     {
         /*inProgress.showDialog();
@@ -288,7 +229,7 @@ class DBConnectionManager {
         {
             inProgress.cancel();
             //TODO: pop up a dialog here
-            
+
         } catch (Exception e)
         {
             inProgress.cancel();

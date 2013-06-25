@@ -91,6 +91,7 @@
                         <publicPackage>com.google.common.eventbus.*</publicPackage>
                         <publicPackage>com.google.common.io.*</publicPackage>
                         <publicPackage>com.google.common.cache.*</publicPackage>
+                        <publicPackage>com.google.common.annotations.*</publicPackage>
                         <publicPackage>edu.wisc.ssec.mcidas.*</publicPackage>
                         <publicPackage>edu.wisc.ssec.mcidas.adde.*</publicPackage>
                         <publicPackage>loci.formats.*</publicPackage>
