@@ -39,17 +39,17 @@ import java.util.concurrent.ExecutionException;
  * Top component which displays something.
  */
 @ConvertAsProperties(dtd = "-//us.physion.ovation.detailviews//ResourceView//EN",
-autostore = false)
+        autostore = false)
 @TopComponent.Description(preferredID = "ResourceViewTopComponent",
-//iconBase="SET/PATH/TO/ICON/HERE",
-persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+        //iconBase="SET/PATH/TO/ICON/HERE",
+        persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "properties", openAtStartup = true)
 @ActionID(category = "Window", id = "us.physion.ovation.detailviews.ResourceViewTopComponent")
 @ActionReference(path = "Menu/Window" /*
- * , position = 333
- */)
+         * , position = 333
+         */)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_ResourceViewAction",
-preferredID = "ResourceViewTopComponent")
+        preferredID = "ResourceViewTopComponent")
 @Messages({
     "CTL_ResourceViewAction=Resources",
     "CTL_ResourceViewTopComponent=Resources",
@@ -58,19 +58,16 @@ preferredID = "ResourceViewTopComponent")
 public final class ResourceViewTopComponent extends TopComponent {
 
     private LookupListener listener = new LookupListener() {
-
         @Override
         public void resultChanged(LookupEvent le) {
 
             //TODO: we should have some other Interface for things that can update the tags view
             //then we could get rid of the Library dependancy on the Explorer API
-            if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider)
-            {
+            if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider) {
                 //closeEditedResourceFiles();
                 updateResources();
             }
         }
-
     };
     protected Lookup.Result<IEntityWrapper> global;
     protected Collection<? extends IEntityWrapper> entities;
@@ -89,15 +86,13 @@ public final class ResourceViewTopComponent extends TopComponent {
         global.addLookupListener(listener);
 
         resourceList.addMouseListener(new MouseAdapter() {
-
             public void mouseClicked(MouseEvent evt) {
                 JList list = (JList) evt.getSource();
                 int index = -1;
                 if (evt.getClickCount() == 2 || evt.getClickCount() == 3) {
                     index = list.locationToIndex(evt.getPoint());
                     final IResourceWrapper rw = (IResourceWrapper) listModel.getElementAt(index);
-                    EventQueueUtilities.runOffEDT(new Runnable(){
-
+                    EventQueueUtilities.runOffEDT(new Runnable() {
                         @Override
                         public void run() {
                             editResource(rw);
@@ -107,17 +102,14 @@ public final class ResourceViewTopComponent extends TopComponent {
             }
         });
 
-        resourceList.addListSelectionListener(new ListSelectionListener(){
-
+        resourceList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent lse) {
 
-                for (Object value: resourceList.getSelectedValues())
-                {
-                    if (editedSet.contains(value))
-                    {
-                       setSavedButtonEnabled(true);
-                       return;
+                for (Object value : resourceList.getSelectedValues()) {
+                    if (editedSet.contains(value)) {
+                        setSavedButtonEnabled(true);
+                        return;
                     }
                 }
                 setSavedButtonEnabled(false);
@@ -125,8 +117,7 @@ public final class ResourceViewTopComponent extends TopComponent {
         });
     }
 
-    protected void editResource(IResourceWrapper rw)
-    {
+    protected void editResource(IResourceWrapper rw) {
         Resource r = rw.getEntity();
         DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
         try {
@@ -141,51 +132,46 @@ public final class ResourceViewTopComponent extends TopComponent {
 
         //TODO: enable editing when the API catches up
         /*if (!editedSet.contains(rw)) {
-            Resource r = rw.getEntity();
-            try{
-                r.edit();
-            } catch(OvationException e)
-            {
-                //pass, for now - this can be deleted with ovation version 1.4
-            } catch(UnsupportedOperationException e)
-            {
-                //pass, for now - this can be deleted with ovation version 1.4
-            }
-            editedSet.add(rw);
+         Resource r = rw.getEntity();
+         try{
+         r.edit();
+         } catch(OvationException e)
+         {
+         //pass, for now - this can be deleted with ovation version 1.4
+         } catch(UnsupportedOperationException e)
+         {
+         //pass, for now - this can be deleted with ovation version 1.4
+         }
+         editedSet.add(rw);
 
-            setSavedButtonEnabled(true);
-        }*/
+         setSavedButtonEnabled(true);
+         }*/
     }
 
-    protected void setSavedButtonEnabled(final boolean enable)
-    {
+    protected void setSavedButtonEnabled(final boolean enable) {
         saveButtonEnabled = enable;
-        EventQueueUtilities.runOnEDT(new Runnable(){
-
-                @Override
-                public void run() {
-                    saveButton.setEnabled(enable);
-                }
-            });
+        EventQueueUtilities.runOnEDT(new Runnable() {
+            @Override
+            public void run() {
+                saveButton.setEnabled(enable);
+            }
+        });
     }
 
-    protected void closeEditedResourceFiles()
-    {
+    protected void closeEditedResourceFiles() {
         //TODO: close edited files when API catches up
         /*for (IResourceWrapper rw : editedSet)
-        {
-            rw.getEntity().releaseLocalFile();
-        }
-        editedSet = new HashSet();
-        setSavedButtonEnabled(false);
-        */
+         {
+         rw.getEntity().releaseLocalFile();
+         }
+         editedSet = new HashSet();
+         setSavedButtonEnabled(false);
+         */
     }
 
-    protected void updateResources()
-    {
+    protected void updateResources() {
         entities = global.allInstances();
-        EventQueueUtilities.runOffEDT(new Runnable(){
-
+        EventQueueUtilities.runOffEDT(new Runnable() {
             @Override
             public void run() {
                 updateResources(entities);
@@ -193,13 +179,11 @@ public final class ResourceViewTopComponent extends TopComponent {
         });
     }
 
-    protected void updateResources(Collection<? extends IEntityWrapper> entities)
-    {
+    protected void updateResources(Collection<? extends IEntityWrapper> entities) {
         List<IResourceWrapper> resources = new LinkedList();
-        for (IEntityWrapper e: entities)
-        {
+        for (IEntityWrapper e : entities) {
             if (AnnotatableEntity.class.isAssignableFrom(e.getType())) {
-                AnnotatableEntity entity = (AnnotatableEntity)e.getEntity();
+                AnnotatableEntity entity = (AnnotatableEntity) e.getEntity();
                 for (String name : entity.getResourceNames()) {
                     resources.add(new ResourceWrapper(name, entity.getResource(name), entity.getURI()));
                 }
@@ -208,23 +192,23 @@ public final class ResourceViewTopComponent extends TopComponent {
 
         //TODO: remove from edited set
         /*
-        LinkedList<IResourceWrapper> toRemove = new LinkedList();
-        for (IResourceWrapper rw : editedSet)
-        {
-            if (!resources.contains(rw))
-            {
-                toRemove.add(rw);
-            }
-        }
+         LinkedList<IResourceWrapper> toRemove = new LinkedList();
+         for (IResourceWrapper rw : editedSet)
+         {
+         if (!resources.contains(rw))
+         {
+         toRemove.add(rw);
+         }
+         }
 
-        //TODO: wrap in a transaction? run on another thread?
-        for (IResourceWrapper rw : toRemove)
-        {
-            editedSet.remove(rw);
-            rw.getEntity().releaseLocalFile();
-        }
-        *
-        */
+         //TODO: wrap in a transaction? run on another thread?
+         for (IResourceWrapper rw : toRemove)
+         {
+         editedSet.remove(rw);
+         rw.getEntity().releaseLocalFile();
+         }
+         *
+         */
 
         listModel.setResources(resources);
 
@@ -232,7 +216,6 @@ public final class ResourceViewTopComponent extends TopComponent {
             setSavedButtonEnabled(false);
         }
     }
-
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -318,9 +301,8 @@ public final class ResourceViewTopComponent extends TopComponent {
 
     private void removeResourceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeResourceButtonActionPerformed
         //Delete selected resources
-        EventQueueUtilities.runOffEDT(new Runnable(){
-            public void run()
-            {
+        EventQueueUtilities.runOffEDT(new Runnable() {
+            public void run() {
                 removeResources(resourceList.getSelectedValues(), entities);
             }
         });
@@ -329,19 +311,18 @@ public final class ResourceViewTopComponent extends TopComponent {
     //TODO: save button should work when the API catches up
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         /*final Object[] rws = resourceList.getSelectedValues();
-        EventQueueUtilities.runOffEDT(new Runnable() {
-            @Override
-            public void run() {
-                for (Object rw : rws) {
-                    Resource r = ((IResourceWrapper) rw).getEntity();
-                    if (r.canWrite()) {
-                        r.sync();
-                    }
-                }
-            }
-        });*/
+         EventQueueUtilities.runOffEDT(new Runnable() {
+         @Override
+         public void run() {
+         for (Object rw : rws) {
+         Resource r = ((IResourceWrapper) rw).getEntity();
+         if (r.canWrite()) {
+         r.sync();
+         }
+         }
+         }
+         });*/
     }//GEN-LAST:event_saveButtonActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton insertResourceButton;
     private javax.swing.JScrollPane jScrollPane1;
@@ -349,6 +330,7 @@ public final class ResourceViewTopComponent extends TopComponent {
     private javax.swing.JList resourceList;
     private javax.swing.JButton saveButton;
     // End of variables declaration//GEN-END:variables
+
     @Override
     public void componentOpened() {
         // TODO add custom code on component opening
@@ -375,60 +357,48 @@ public final class ResourceViewTopComponent extends TopComponent {
 
     //TODO: when API caatches up
     protected void removeResources(Object[] selectedValues, Collection<? extends IEntityWrapper> entities) {
-        /*for (Object o :selectedValues)
-        {
+        for (Object o : selectedValues) {
             if (o instanceof IResourceWrapper) {
                 String rName = ((IResourceWrapper) o).getName();
                 for (IEntityWrapper e : entities) {
-                    if (AnnotatableEntity.class.isAssignableFrom(e.getType()))
-                    {
-                        AnnotatableEntity eb = (AnnotatableEntity)e.getEntity();
-                        for (String name : eb.getResourceNames()) {
-                            if (name.equals(rName)) {
-                                Resource r = eb.getResource(name);
-                                if (r.canWrite()) {
-                                    eb.removeResource(r);
-                                }
-                            }
+                    if (AnnotatableEntity.class.isAssignableFrom(e.getType())) {
+                        AnnotatableEntity eb = (AnnotatableEntity) e.getEntity();
+                        if (eb.canWrite(eb.getDataContext().getAuthenticatedUser())) {
+                            eb.removeResource(rName);
                         }
                     }
                 }
             }
         }
         updateResources(entities);// don't regrab entities from the current TopComponent
-        *
-        */
     }
 
-    protected boolean saveButtonIsEnabled()
-    {
+    protected boolean saveButtonIsEnabled() {
         return saveButtonEnabled;
     }
 
-    protected List<IResourceWrapper> getResources()
-    {
+    protected List<IResourceWrapper> getResources() {
         return listModel.getResources();
     }
 
-    protected void addResource(Collection<? extends IEntityWrapper> entities, String path)
-    {
+    protected void addResource(Collection<? extends IEntityWrapper> entities, String path) {
         File resourceFile = new File(path);
         String name = resourceFile.getName();
 
         for (IEntityWrapper e : entities) {
             AnnotatableEntity entity = e.getEntity(AnnotatableEntity.class);
             Resource r = entity.addResource(name,
-                                            resourceFile.toURI(),
-                                            URLConnection.guessContentTypeFromName(resourceFile.getName()));
+                    resourceFile.toURI(),
+                    URLConnection.guessContentTypeFromName(resourceFile.getName()));
             listModel.addResource(new ResourceWrapper(name, r, entity.getURI()));
         }
     }
 
-    private class ResourceListModel extends AbstractListModel
-    {
+    private class ResourceListModel extends AbstractListModel {
+
         List<IResourceWrapper> resources = new LinkedList<IResourceWrapper>();
-        public List<IResourceWrapper> getResources()
-        {
+
+        public List<IResourceWrapper> getResources() {
             return resources;
         }
 
@@ -439,23 +409,21 @@ public final class ResourceViewTopComponent extends TopComponent {
 
         @Override
         public Object getElementAt(int i) {
-            if (i < resources.size())
+            if (i < resources.size()) {
                 return resources.get(i);
+            }
             return null;
         }
 
-        protected void setResources(List<IResourceWrapper> newResources)
-        {
+        protected void setResources(List<IResourceWrapper> newResources) {
             int length = Math.max(resources.size(), newResources.size());
             resources = newResources;
             this.fireContentsChanged(this, 0, length);
         }
 
-        protected void addResource(IResourceWrapper resource)
-        {
+        protected void addResource(IResourceWrapper resource) {
             resources.add(resource);
             this.fireContentsChanged(this, resources.size(), resources.size());
         }
     };
-
 }
