@@ -4,34 +4,36 @@
  */
 package us.physion.ovation.ui.detailviews;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileFilter;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
-import org.openide.util.*;
-import org.openide.windows.TopComponent;
+import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
 import org.openide.util.NbBundle.Messages;
-import ovation.*;
+import org.openide.util.Utilities;
+import org.openide.windows.TopComponent;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.AnnotatableEntity;
-import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.values.Resource;
+
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
+import java.net.URLConnection;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Top component which displays something.
@@ -85,7 +87,7 @@ public final class ResourceViewTopComponent extends TopComponent {
 
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         global.addLookupListener(listener);
-        
+
         resourceList.addMouseListener(new MouseAdapter() {
 
             public void mouseClicked(MouseEvent evt) {
@@ -104,12 +106,12 @@ public final class ResourceViewTopComponent extends TopComponent {
                 }
             }
         });
-        
+
         resourceList.addListSelectionListener(new ListSelectionListener(){
 
             @Override
             public void valueChanged(ListSelectionEvent lse) {
-                
+
                 for (Object value: resourceList.getSelectedValues())
                 {
                     if (editedSet.contains(value))
@@ -122,9 +124,21 @@ public final class ResourceViewTopComponent extends TopComponent {
             }
         });
     }
-    
+
     protected void editResource(IResourceWrapper rw)
     {
+        Resource r = rw.getEntity();
+        DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+        try {
+            Desktop.getDesktop().open(r.getData(ctx.getFileService()).get());
+        } catch (InterruptedException e) {
+            throw new OvationException("Unable to open Resource", e);
+        } catch (ExecutionException e) {
+            throw new OvationException("Unable to open Resource", e);
+        } catch (IOException e) {
+            throw new OvationException("Unable to open Resource", e);
+        }
+
         //TODO: enable editing when the API catches up
         /*if (!editedSet.contains(rw)) {
             Resource r = rw.getEntity();
@@ -138,11 +152,11 @@ public final class ResourceViewTopComponent extends TopComponent {
                 //pass, for now - this can be deleted with ovation version 1.4
             }
             editedSet.add(rw);
-            
+
             setSavedButtonEnabled(true);
         }*/
     }
-    
+
     protected void setSavedButtonEnabled(final boolean enable)
     {
         saveButtonEnabled = enable;
@@ -154,7 +168,7 @@ public final class ResourceViewTopComponent extends TopComponent {
                 }
             });
     }
-    
+
     protected void closeEditedResourceFiles()
     {
         //TODO: close edited files when API catches up
@@ -178,7 +192,7 @@ public final class ResourceViewTopComponent extends TopComponent {
             }
         });
     }
-    
+
     protected void updateResources(Collection<? extends IEntityWrapper> entities)
     {
         List<IResourceWrapper> resources = new LinkedList();
@@ -191,7 +205,7 @@ public final class ResourceViewTopComponent extends TopComponent {
                 }
             }
         }
-        
+
         //TODO: remove from edited set
         /*
         LinkedList<IResourceWrapper> toRemove = new LinkedList();
@@ -202,23 +216,23 @@ public final class ResourceViewTopComponent extends TopComponent {
                 toRemove.add(rw);
             }
         }
-        
+
         //TODO: wrap in a transaction? run on another thread?
         for (IResourceWrapper rw : toRemove)
         {
             editedSet.remove(rw);
             rw.getEntity().releaseLocalFile();
         }
-        * 
+        *
         */
-        
+
         listModel.setResources(resources);
 
         if (editedSet.isEmpty()) {
             setSavedButtonEnabled(false);
         }
     }
-    
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -359,7 +373,7 @@ public final class ResourceViewTopComponent extends TopComponent {
         // TODO read your settings according to their version
     }
 
-    //TODO: when API caatches up 
+    //TODO: when API caatches up
     protected void removeResources(Object[] selectedValues, Collection<? extends IEntityWrapper> entities) {
         /*for (Object o :selectedValues)
         {
@@ -382,34 +396,31 @@ public final class ResourceViewTopComponent extends TopComponent {
             }
         }
         updateResources(entities);// don't regrab entities from the current TopComponent
-        * 
+        *
         */
     }
-    
+
     protected boolean saveButtonIsEnabled()
     {
         return saveButtonEnabled;
     }
-    
+
     protected List<IResourceWrapper> getResources()
     {
         return listModel.getResources();
     }
-    
+
     protected void addResource(Collection<? extends IEntityWrapper> entities, String path)
     {
-        Resource r = null;
-        String name = new File(path).getName();
+        File resourceFile = new File(path);
+        String name = resourceFile.getName();
 
         for (IEntityWrapper e : entities) {
             AnnotatableEntity entity = e.getEntity(AnnotatableEntity.class);
-            try {
-                r = entity.addResource(name, new URI(path), "application/txt");
-                listModel.addResource(new ResourceWrapper(name, r, entity.getURI()));
-            } catch (URISyntaxException ex) {
-                Exceptions.printStackTrace(ex);
-                throw new OvationException("Invalid path. " + ex.getLocalizedMessage());
-            }
+            Resource r = entity.addResource(name,
+                                            resourceFile.toURI(),
+                                            URLConnection.guessContentTypeFromName(resourceFile.getName()));
+            listModel.addResource(new ResourceWrapper(name, r, entity.getURI()));
         }
     }
 
@@ -420,7 +431,7 @@ public final class ResourceViewTopComponent extends TopComponent {
         {
             return resources;
         }
-        
+
         @Override
         public int getSize() {
             return resources.size();
