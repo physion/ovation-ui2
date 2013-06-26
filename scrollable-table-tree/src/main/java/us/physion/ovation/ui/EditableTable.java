@@ -36,7 +36,7 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
         this.treeUtils = t;
         //this.setBorder(BorderFactory.createEtchedBorder());
     }
-    
+
     public void resize()
     {
         JScrollPane sp = getScrollPane();
@@ -74,7 +74,7 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
             .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .add(0, 0, Short.MAX_VALUE)
-                .add(deleteButton))
+                .add(deleteButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -87,7 +87,7 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
     }// </editor-fold>//GEN-END:initComponents
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-       
+
         deleteRows(table.getSelectedRows());
     }//GEN-LAST:event_deleteButtonActionPerformed
 
@@ -100,14 +100,14 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
     public JTable getTable() {
         return table;
     }
-    
+
     @Override
     public JPanel getPanel() {
         return this;
     }
 
     @Override
-    public Dimension getPreferredSize(){  
+    public Dimension getPreferredSize(){
         int height = 0;
         //this is voodoo magic, DO NOT CHANGE
         if (table.getHeight() ==0)
@@ -121,10 +121,10 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
         }
         int width = treeUtils == null ? getWidth() : treeUtils.getCellWidth();
         Dimension actual = new Dimension(width, height);
-         return actual;  
-       
+         return actual;
+
     }
-    
+
     protected JScrollPane getScrollPane()
     {
        return jScrollPane1;
@@ -142,7 +142,7 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
             }
         });
     }
-    
+
     public void deleteRows(int[] rows) {
         //There is a bug in getListeners - it doesnt find the EditableTableModelListener if you pass is EditableTableModelListener.class
         TableModelListener[] listeners = ((DefaultTableModel) table.getModel()).getListeners(TableModelListener.class);
