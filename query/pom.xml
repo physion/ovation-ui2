@@ -18,61 +18,45 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
-	<repositories>
-		<!--
-			Repository hosting NetBeans modules, especially APIs.
-			Versions are based on IDE releases, e.g.: RELEASE691
-			To create your own repository, use: nbm:populate-repository
-		-->
-		<repository>
-			<id>netbeans</id>
-			<name>NetBeans</name>
-			<url>http://bits.netbeans.org/maven2/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.netbeans.api</groupId>
 			<artifactId>org-netbeans-api-annotations-common</artifactId>
 		</dependency>
-                
+
 		<dependency>
 			<groupId>org.netbeans.api</groupId>
 			<artifactId>org-openide-modules</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.netbeans.api</groupId>
 			<artifactId>org-openide-util</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.netbeans.api</groupId>
 			<artifactId>org-netbeans-api-progress</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.netbeans.api</groupId>
 			<artifactId>org-openide-util-lookup</artifactId>
 		</dependency>
-		
-                
+
+
 		<dependency>
 			<groupId>us.physion</groupId>
 			<artifactId>ovation-api-module</artifactId>
-			<version>${ovation.api.version}</version>
+			<version>${project.version}</version>
 		</dependency>
-                
+
 		<dependency>
 			<groupId>us.physion</groupId>
 			<artifactId>ovation-ui-common-interfaces</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-                    
+
 	</dependencies>
 
 	<build>

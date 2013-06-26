@@ -19,21 +19,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <repositories>
-        <!--
-        Repository hosting NetBeans modules, especially APIs.
-        Versions are based on IDE releases, e.g.: RELEASE691
-        To create your own repository, use: nbm:populate-repository
-        -->
-        <repository>
-            <id>netbeans</id>
-            <name>NetBeans</name>
-            <url>http://bits.netbeans.org/maven2/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
     <dependencies>
         <dependency>
@@ -44,7 +29,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-api-module</artifactId>
-            <version>${ovation.api.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -117,14 +102,14 @@
 	  <artifactId>opencsv</artifactId>
 	  <version>2.0</version>
 	</dependency>
-	
+
 	<dependency>
             <groupId>us.physion</groupId>
             <artifactId>ij-bundle</artifactId>
             <version>1.0</version>
             <type>jar</type>
-            <!--<scope>system</scope>                                                                                                                         
-            <systemPath>${project.basedir}/../lib/pixelmed.jar</systemPath>                                                                                   
+            <!--<scope>system</scope>
+            <systemPath>${project.basedir}/../lib/pixelmed.jar</systemPath>
         -->
         </dependency>
 

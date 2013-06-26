@@ -19,23 +19,7 @@
         <!---<netbeans.run.params.ide/>
         <netbeans.run.params>${netbeans.run.params.ide}</netbeans.run.params>
 	-->
-</properties>
-
-    <repositories>
-        <!--
-        Repository hosting NetBeans modules, especially APIs.
-        Versions are based on IDE releases, e.g.: RELEASE691
-        To create your own repository, use: nbm:populate-repository
-        -->
-        <repository>
-            <id>netbeans</id>
-            <name>NetBeans</name>
-            <url>http://bits.netbeans.org/maven2/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -54,13 +38,13 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util</artifactId>
         </dependency>
-        
-         <dependency>
+
+        <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-lookup</artifactId>
         </dependency>
-         
-         <dependency>
+
+        <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-progress</artifactId>
         </dependency>
@@ -74,7 +58,7 @@
             <groupId>org.swinglabs</groupId>
             <artifactId>swing-layout</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-ui-common-interfaces</artifactId>
@@ -95,10 +79,10 @@
             <artifactId>beansbinding</artifactId>
         </dependency>
 
-	<dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-api-module</artifactId>
-            <version>${ovation.api.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
@@ -132,16 +116,16 @@
                 </configuration>
             </plugin>
         </plugins>
-        
-        <resources> 
-            <resource> 
-                <directory>src/main/java</directory> 
-                <includes> 
-                    <include>**/*.png</include> 
-                    <include>**/*.jpg</include> 
-                    <include>**/*.gif</include> 
-                </includes> 
-            </resource> 
-        </resources> 
+
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.png</include>
+                    <include>**/*.jpg</include>
+                    <include>**/*.gif</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
 </project>
