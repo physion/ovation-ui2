@@ -13,6 +13,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
+import us.physion.ovation.util.PlatformUtils;
 
 /**
  *
@@ -35,6 +36,13 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
         m.setTable(table);
         this.treeUtils = t;
         //this.setBorder(BorderFactory.createEtchedBorder());
+
+        if (PlatformUtils.isMac()) {
+            //deleteButton.putClientProperty("JButton.buttonType", "square");
+            deleteButton.setPreferredSize(new Dimension(34, 34));
+            getLayout().layoutContainer(this);
+        }
+
     }
 
     public void resize()

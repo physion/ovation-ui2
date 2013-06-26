@@ -34,6 +34,7 @@ import java.net.URLConnection;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import us.physion.ovation.util.PlatformUtils;
 
 /**
  * Top component which displays something.
@@ -115,6 +116,11 @@ public final class ResourceViewTopComponent extends TopComponent {
                 setSavedButtonEnabled(false);
             }
         });
+
+        if (PlatformUtils.isMac()) {
+            insertResourceButton.putClientProperty("JButton.buttonType", "square");
+            removeResourceButton.putClientProperty("JButton.buttonType", "square");
+        }
     }
 
     protected void editResource(IResourceWrapper rw) {
