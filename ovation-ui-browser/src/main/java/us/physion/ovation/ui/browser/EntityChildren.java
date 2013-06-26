@@ -14,6 +14,7 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.*;
 import javax.swing.SwingUtilities;
 import org.openide.nodes.Children;
@@ -24,6 +25,8 @@ import ovation.*;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
+import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -38,12 +41,13 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
     EntityWrapper parent;
     boolean projectView;
-    DataStoreCoordinator dsc;
 
-    EntityChildren(EntityWrapper e, boolean pView, DataStoreCoordinator theDSC) {
+    public EntityChildren(EntityWrapper e) {
+        if (e == null)
+            throw new OvationException("Pass in the list of Project/Source EntityWrappers, instead of null");
+        
         parent = e;
-        projectView = pView;
-        dsc = theDSC;
+        //if its per user, we create 
         if (e instanceof PerUserEntityWrapper)
         {
             setKeys(((PerUserEntityWrapper)e).getChildren());
@@ -51,21 +55,26 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
             initKeys();
         }
     }
-
-    private Callable<Children> getChildrenCallable(final EntityWrapper key)
+    
+    public EntityChildren(List<EntityWrapper> children) {
+        parent = null;
+        updateWithKeys(children);
+    }
+    
+    protected Callable<Children> getChildrenCallable(final EntityWrapper key)
     {
         return new Callable<Children>() {
 
             @Override
             public Children call() throws Exception {
-                return new EntityChildren(key, projectView, dsc);
+                return new EntityChildren(key);
             }
         };
     }
 
     @Override
-    protected Node[] createNodes(final EntityWrapper key) {
-
+    protected Node[] createNodes(final EntityWrapper key) 
+    {
         return new Node[]{EntityWrapperUtilities.createNode(key, Children.createLazy(getChildrenCallable(key)))};
     }
 
@@ -101,100 +110,79 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
     
     protected void createKeys() {
         
-        if (dsc == null)
-            dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
-        if (dsc == null) {
+        DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+        if (c == null) {
             return;
         }
-        DataContext c = dsc.getContext();
-        
-        if (parent == null) {
-            List<EntityWrapper> list = new LinkedList<EntityWrapper>();
-            //case root node: add entityWrapper for each project
-            if (projectView) {
-                for (Project p : c.getProjects()) {
-                    list.add(new EntityWrapper(p));
-                }
-            } else {
-                for (Source s : c.getSources()) {
-                    list.add(new EntityWrapper(s));
-                }
-            }
-            updateWithKeys(list);
+        updateWithKeys(createKeysForEntity(c, parent));
 
-        } else {
-            updateWithKeys(createKeysForEntity(c, parent));
-        }
     }
 
     protected List<EntityWrapper> createKeysForEntity(DataContext c, EntityWrapper ew) {
 
-        DataContext context = dsc.getContext();
         List<EntityWrapper> list = new LinkedList<EntityWrapper>();
         Class entityClass = ew.getType();
-        if (projectView) {
-            if (entityClass.isAssignableFrom(Project.class)) {
-                Project entity = (Project) ew.getEntity();
-                Iterator<Experiment> itr = entity.getExperiments();
-                while(itr.hasNext())
-                {
-                    Experiment e = itr.next();
-                    list.add(new EntityWrapper(e));
-                }
-                String currentUser = c.getAuthenticatedUser().getUsername();
+        if (Project.class.isAssignableFrom(entityClass)) {
+            Project entity = (Project) ew.getEntity();
+            for (Experiment e : entity.getExperiments()) {
+                list.add(new EntityWrapper(e));
+            }
+            String currentUser = c.getAuthenticatedUser().getUsername();
 
-                for (User user : c.getUsers()) {
-                    List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
-                            new Function<AnalysisRecord, EntityWrapper>() {
-
-                                @Override
-                                public EntityWrapper apply(AnalysisRecord f) {
-                                    return new EntityWrapper(f);
-                                }
-                            }));
+            for (User user : c.getUsers()) {
+                List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
+                        new Function<AnalysisRecord, EntityWrapper>() {
+                    @Override
+                    public EntityWrapper apply(AnalysisRecord f) {
+                        return new EntityWrapper(f);
+                    }
+                }));
+                if (l.size() > 0) {
                     list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));
-                    
                 }
 
-                return list;
             }
-        } else {
-            if (entityClass.isAssignableFrom(Source.class)) {
-                Source entity = (Source) ew.getEntity();
-                for (Source e : entity.getChildrenSources()) {
-                    list.add(new EntityWrapper(e));
-                }
-                for (Epoch e : entity.getEpochs()) {
-                    list.add(new EntityWrapper(e));
-                }
-                return list;
-            }
+
+            return list;
         }
-        if (entityClass.isAssignableFrom(Experiment.class)) {
+        if (Source.class.isAssignableFrom(entityClass)) {
+            Source entity = (Source) ew.getEntity();
+            for (Source e : entity.getChildrenSources()) {
+                list.add(new EntityWrapper(e));
+            }
+            for (Epoch e : entity.getEpochs()) {
+                list.add(new EntityWrapper(e));
+            }
+            return list;
+        }
+        if (Experiment.class.isAssignableFrom(entityClass)) {
             Experiment entity = (Experiment) ew.getEntity();
 
             for (EpochGroup eg : entity.getEpochGroups()) {
                 list.add(new EntityWrapper(eg));
             }
+            for (Epoch e : entity.getEpochs()) {
+                list.add(new EntityWrapper(e));
+            }
             return list;
-        } else if (entityClass.isAssignableFrom(EpochGroup.class)) {
+        } else if (EpochGroup.class.isAssignableFrom(entityClass)) {
             EpochGroup entity = (EpochGroup) ew.getEntity();
 
-            for (EpochGroup eg : entity.getChildren()) {
+            for (EpochGroup eg : entity.getEpochGroups()) {
                 list.add(new EntityWrapper(eg));
             }
-            
-            context.beginTransaction();
+
+            c.beginTransaction();//we wrap these in a transaction, because there may be a lot of epochs
             try {
                 for (Epoch e : entity.getEpochs()) {
                     list.add(new EntityWrapper(e));
                 }
-            } finally{
-                context.commitTransaction();
+            } finally {
+                c.commitTransaction();
             }
             return list;
-        } else if (entityClass.isAssignableFrom(Epoch.class)) {
-            context.beginTransaction();
+        } else if (Epoch.class.isAssignableFrom(entityClass)) {
+            c.beginTransaction();//we wrap this in a transaction, because there may be a lot of epochs
             try {
                 Epoch entity = (Epoch) ew.getEntity();
                 for (Measurement m : entity.getMeasurements()) {
@@ -210,10 +198,18 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                                     return new EntityWrapper(f);
                                 }
                             }));
-                    list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));    
+                    if (l.size() > 0)
+                        list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));    
                 }
             } finally {
-                context.commitTransaction();
+                c.commitTransaction();
+            }
+        } else if(AnalysisRecord.class.isAssignableFrom(entityClass))
+        {
+            AnalysisRecord entity = (AnalysisRecord) ew.getEntity();
+            for(DataElement d : entity.getOutputs().values())
+            {
+                list.add(new EntityWrapper(d));
             }
         }
         return list;

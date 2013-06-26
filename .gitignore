@@ -25,3 +25,8 @@
 
 *.fdb
 /target/
+application/ovation.log
+
+ovation.log
+
+rebel.xml

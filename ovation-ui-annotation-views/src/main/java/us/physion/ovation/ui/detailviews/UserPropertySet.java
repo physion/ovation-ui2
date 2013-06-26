@@ -12,7 +12,6 @@ import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.User;
-import us.physion.ovation.domain.impl.AnnotatableEntityBase;
 import us.physion.ovation.domain.mixin.Owned;
 import us.physion.ovation.domain.mixin.PropertyAnnotatable;
 import us.physion.ovation.ui.*;
@@ -28,7 +27,7 @@ class UserPropertySet extends PerUserAnnotationSet {
 
     UserPropertySet(User u, boolean isOwner, boolean currentUser, Map<String, Object> props, Set<String> uris)
     {
-        super(u, currentUser, isOwner, uris);
+        super(u, isOwner, currentUser, uris);
         properties = props;
     }
 
@@ -51,7 +50,7 @@ class UserPropertySet extends PerUserAnnotationSet {
 
     @Override
     public TableModel createTableModel() {
-        EditableTableModel m = new EditableTableModel(true);
+        EditableTableModel m = new EditableTableModel(isCurrentUser());
         m.setParams(properties);
         return m;
     }
@@ -60,7 +59,7 @@ class UserPropertySet extends PerUserAnnotationSet {
     public TableModelListener createTableModelListener(us.physion.ovation.ui.ScrollableTableTree t, us.physion.ovation.ui.TableNode n) {
         if (isEditable())
         {
-            return new PropertyTableModelListener(uris, (ExpandableJTree)t.getTree(), n, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection());
+            return new PropertyTableModelListener(uris, (ExpandableJTree)t.getTree(), n, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
         }
         return null;
     }

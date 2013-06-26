@@ -4,7 +4,10 @@
  */
 package us.physion.ovation.ui.browser;
 
-import com.sun.source.tree.ExpressionTree;
+//import com.sun.source.tree.ExpressionTree;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import java.awt.EventQueue;
 import java.io.IOException;
 import java.util.*;
@@ -23,7 +26,10 @@ import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.ExpressionTreeProvider;
@@ -80,22 +86,48 @@ public class BrowserUtilities{
                     @Override
                     public void run() {
                         browserMap.clear();
-                        ExpressionTree result = Lookup.getDefault().lookup(ExpressionTreeProvider.class).getExpressionTree();
-                        setTrees(result);
+                        //ExpressionTree result = Lookup.getDefault().lookup(ExpressionTreeProvider.class).getExpressionTree();
+                        //setTrees(result);
                     }
                 });
                 etp.addQueryListener(ql);
             }
         }
-        em.setRootContext(new EntityNode(new EntityChildren(null, projectView, null), null));
-        resetView(em, projectView);
+        
+       resetView(em, projectView);
+    }
+    
+    static List<EntityWrapper> getEntityList(boolean projectView, DataContext ctx)
+    {
+        if (projectView)
+        {
+            return Lists.newArrayList(Iterables.transform(ctx.getProjects(), new Function<Project, EntityWrapper>() {
+
+                @Override
+                public EntityWrapper apply(Project input) {
+                    return new EntityWrapper(input);
+                }
+            }));
+        }
+        else{
+            return Lists.newArrayList(Iterables.transform(ctx.getTopLevelSources(), new Function<Source, EntityWrapper>() {
+
+                @Override
+                public EntityWrapper apply(Source input) {
+                    return new EntityWrapper(input);
+                }
+            }));
+        }
     }
     
     public static void resetView()
     {
         browserMap.clear();
+        DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+        
         for (ExplorerManager mgr : registeredViewManagers.keySet()) {
-            mgr.setRootContext(new EntityNode(new EntityChildren(null, registeredViewManagers.get(mgr), null), null));
+            List<EntityWrapper> list = getEntityList(registeredViewManagers.get(mgr), ctx);
+            mgr.setRootContext(new EntityNode(new EntityChildren(list), null));
         }
     }
     
@@ -126,13 +158,14 @@ public class BrowserUtilities{
 
     protected static void resetView(ExplorerManager e, boolean projectView)
     {
-        e.setRootContext(new EntityNode(new EntityChildren(null, projectView, null), null));
+        DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+        e.setRootContext(new EntityNode(new EntityChildren(getEntityList(projectView, ctx)), null));
     }
-    
-    protected static void setTrees(final ExpressionTree result)
+
+    //TODO: uncomment when we have query capabiliites
+    /*protected static void setTrees(final ExpressionTree result)
     {
-        //TODO: uncomment when we have query capabiliites
-        /*if (result == null)
+        if (result == null)
             return;
         
         Set<ExplorerManager> mgrs = new HashSet<ExplorerManager>();
@@ -146,9 +179,8 @@ public class BrowserUtilities{
         Iterator itr = dsc.getContext().query(result);
         
         EntityWrapperUtilities.createNodesFromQuery(mgrs, itr);
-        * 
-        */
-    }
+        
+    }*/
 
     public static void runOnEDT(Runnable r)
     {

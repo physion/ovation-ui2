@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.detailviews;
 
+import com.google.common.collect.Multimap;
 import java.io.File;
 import java.net.InetAddress;
 import java.util.HashSet;
@@ -11,83 +12,60 @@ import java.util.List;
 import java.util.Set;
 import org.joda.time.DateTime;
 import org.junit.*;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.database.DatabaseManager;
 import static org.junit.Assert.*;
 import org.openide.util.Exceptions;
 import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.mixin.Taggable;
 import us.physion.ovation.ui.TableTreeKey;
 import us.physion.ovation.ui.interfaces.TestEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
-import us.physion.ovation.ui.test.TestManager;
 /**
  *
  * @author huecotanks
  */
 public class TagsViewTopComponentTest extends OvationTestCase{
-    private TestEntityWrapper project;
-    private TestEntityWrapper project2;
-    
-    static TestManager mgr = new SelectionViewTestManager();
-    public TagsViewTopComponentTest() {
-        setTestManager(mgr); //this is because there are static and non-static methods that need to use the test manager
-    }
-    
-    @BeforeClass
-    public static void setUpClass()
-    {
-        OvationTestCase.setUpDatabase(mgr, 6);
-    }
     
     @Before
     public void setUp() {
-        dsc = setUpTest();
-
+        super.setUp();
+        
+    }
+    
+    private Project makeProject()
+    {
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
         DateTime UNUSED_START = new DateTime(0);
-        
-        DataContext c = dsc.getContext();
-        Project p = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
-        project = new TestEntityWrapper(dsc, p);
-        p.addTag("tag1");
-        p.addTag("tag2");
-        
-        Project p2 = c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
-        project2 = project = new TestEntityWrapper(dsc, p);
-        p2.addTag("tag1");
-        p2.addTag("another tag");
-        
+        return ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START);
     }
     
-    @After
-    public void tearDown()
-    {
-        tearDownTest();
-    }
-    
-     @AfterClass
-    public static void tearDownClass() throws Exception {
-        OvationTestCase.tearDownDatabase(mgr);
-    }
-   
     @Test
     public void testUpdateSetsMySelectedTagsProperly()
     {
         TagsViewTopComponent t = new TagsViewTopComponent();
         Set entitySet = new HashSet();
-        entitySet.add(project);
-        entitySet.add(project2);
+        
+        Project project = makeProject();
+        project.addTag("tag1");
+        project.addTag("tag2");
+        entitySet.add(new TestEntityWrapper(ctx, project));
+
+        Project project2 = makeProject();
+        project.addTag("tag1");
+        project.addTag("another tag");
+        entitySet.add(new TestEntityWrapper(ctx, project2));
         
         //both projects are selected
-        List<TableTreeKey> tagSets = t.update(entitySet, dsc);
+        List<TableTreeKey> tagSets = t.update(entitySet, ctx);
         List<String> myTagsFromUserNode = ((TagsSet)tagSets.get(0)).getTags();
         Set<String> mytags = new HashSet();
-        for (String tag : ((ITaggableEntityBase)project.getEntity()).getMyTags())
+        for (String tag : project.getUserTags(ctx.getAuthenticatedUser()))
         {
             mytags.add(tag);
         }
-        for (String tag : ((ITaggableEntityBase)project2.getEntity()).getMyTags())
+        for (String tag : project2.getUserTags(ctx.getAuthenticatedUser()))
         {
             mytags.add(tag);
         }
@@ -100,10 +78,10 @@ public class TagsViewTopComponentTest extends OvationTestCase{
         
         //a single project is selected
         entitySet = new HashSet();
-        entitySet.add(project);
-        myTagsFromUserNode = ((TagsSet)t.update(entitySet, dsc).get(0)).getTags();
+        entitySet.add(new TestEntityWrapper(ctx, project));
+        myTagsFromUserNode = ((TagsSet)t.update(entitySet, ctx).get(0)).getTags();
         mytags = new HashSet<String>();
-        for (String tag : ((ITaggableEntityBase)project.getEntity()).getTags())
+        for (String tag : project.getTags().values())
         {
             mytags.add(tag);
         }
@@ -125,18 +103,26 @@ public class TagsViewTopComponentTest extends OvationTestCase{
      {
         TagsViewTopComponent t = new TagsViewTopComponent();
         Set entitySet = new HashSet();
-        entitySet.add(project);
-        entitySet.add(project2);
+        
+        Project project = makeProject();
+        project.addTag("tag1");
+        project.addTag("tag2");
+        entitySet.add(new TestEntityWrapper(ctx, project));
+
+        Project project2 = makeProject();
+        project.addTag("tag1");
+        project.addTag("another tag");
+        entitySet.add(new TestEntityWrapper(ctx, project2));
         
         //both projects are selected
-        List<TableTreeKey> tagSets = t.update(entitySet, dsc);
+        List<TableTreeKey> tagSets = t.update(entitySet, ctx);
         List<String> myTagsFromUserNode = ((TagsSet)tagSets.get(0)).getTags();
         Set<String> mytags = new HashSet();
-        for (String tag : ((ITaggableEntityBase)project.getEntity()).getMyTags())
+        for (String tag : project.getUserTags(ctx.getAuthenticatedUser()))
         {
             mytags.add(tag);
         }
-        for (String tag : ((ITaggableEntityBase)project2.getEntity()).getMyTags())
+        for (String tag : project2.getUserTags(ctx.getAuthenticatedUser()))
         {
             mytags.add(tag);
         }

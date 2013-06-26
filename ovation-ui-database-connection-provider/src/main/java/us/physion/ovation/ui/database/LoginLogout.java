@@ -27,7 +27,7 @@ id = "us.physion.ovation.ui.database.LoginLogout")
 displayName = "#CTL_LoginLogout")
 @ActionReferences({
     @ActionReference(path = "Menu/File", position = 1000),
-    @ActionReference(path = "Toolbars/Edit", position = 20),
+    //@ActionReference(path = "Toolbars/Edit", position = 20),
     @ActionReference(path = "Shortcuts", name = "M-L")
 })
 @Messages("CTL_LoginLogout=Change Connection")
@@ -38,7 +38,7 @@ public final class LoginLogout extends AbstractAction {// implements Presenter.T
         if (cp == null)
         {
             cp = new DatabaseConnectionProvider();
-            cp.getConnection();
+            cp.getDefaultContext();
         }else {
             cp.resetConnection();
         }

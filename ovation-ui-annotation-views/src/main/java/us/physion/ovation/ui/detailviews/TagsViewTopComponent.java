@@ -74,7 +74,7 @@ public final class TagsViewTopComponent extends TopComponent {
         EventQueueUtilities.runOffEDT(new Runnable() {
             @Override
             public void run() {
-                updateTagList(tagList, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection());
+                updateTagList(tagList);
             }
         });
     }
@@ -82,67 +82,27 @@ public final class TagsViewTopComponent extends TopComponent {
     protected void update()
     {
         entities = global.allInstances();
-        ConnectionProvider cp = Lookup.getDefault().lookup(ConnectionProvider.class);
-        cp.getConnection().getContext(); //getContext
         EventQueueUtilities.runOffEDT(new Runnable()
         {
             @Override
             public void run()
             {
-                update(entities, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection());
+                update(entities, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
             }
         });
     }
 
-    protected List<TableTreeKey> update(Collection<? extends IEntityWrapper> entities, DataStoreCoordinator dsc)
+    protected List<TableTreeKey> update(Collection<? extends IEntityWrapper> entities, DataContext c)
     {
-        DataContext c = dsc.getContext();
-
-        ArrayList<TableTreeKey> tags = new ArrayList<TableTreeKey>();
-        Set<String> uris = new HashSet<String>();
-        Set<OvationEntity> entitybases = new HashSet();
-        Set<String> owners = new HashSet();
-        for (IEntityWrapper w : entities) {
-            OvationEntity e = w.getEntity();
-            entitybases.add(e);
-            uris.add(e.getURI().toString());
-            if (e instanceof Owned)
-                owners.add(((Owned)e).getOwner().getUuid().toString());
-        }
-
-        boolean containsCurrentUser = false;//current user's property table should always exist, even if there are no properties
-        for (User u : c.getUsers()) {
-            List<String> taglist = new ArrayList<String>();
-            for (OvationEntity e : entitybases) {
-                if (e instanceof Taggable)
-                {
-                    taglist.addAll(Lists.newArrayList(((Taggable)e).getUserTags(u)));
-                }
-            }
-            if (!taglist.isEmpty()) {
-                String uuid = u.getUuid().toString();
-                containsCurrentUser = isUserAuthenticated(u, c);
-                tags.add(new TagsSet(u, owners.contains(uuid), containsCurrentUser, taglist, uris));
-            }
-        }
-        if (!containsCurrentUser) {
-            User current = c.getAuthenticatedUser();
-            tags.add(new TagsSet(current, owners.contains(current.getUuid()), true, new ArrayList<String>(), uris));
-        }
-        
-        Collections.sort(tags);
-        
+        List<TableTreeKey> tags = PerUserAnnotationSets.createTagSets(entities, c);
         ((ScrollableTableTree) tagTree).setKeys(tags);
         
         this.entities = entities;
         return tags;
     }
 
-    private boolean isUserAuthenticated(User u, DataContext c) {
-        return c.getAuthenticatedUser().getUuid().equals(u.getUuid());
-    }
-
-    protected void updateTagList(String[] newTags, DataStoreCoordinator dsc)
+    //TODO: refactor
+    protected void updateTagList(String[] newTags)
     {
         JTree tree = ((ScrollableTableTree) tagTree).getTree();
         DefaultMutableTreeNode n = (DefaultMutableTreeNode)((DefaultTreeModel)tree.getModel()).getRoot();
@@ -153,23 +113,21 @@ public final class TagsViewTopComponent extends TopComponent {
         {
             final TableNode node = (TableNode)tagTableNode;
             EditableTableModel m = ((EditableTableModel)node.getPanel().getTable().getModel());
-            int row = m.getRowCount() -1;
             for (String tag : newTags)
             {
-                m.setValueAt(tag, row++, 0);
+                m.setValueAt(tag, m.getRowCount() -1, 0);
             }
-            //((ScrollableTableTree)tagTree).resizeNode(node);
+            ((ScrollableTableTree)tagTree).resizeNode(node);
         }
     }
     
     public TagsViewTopComponent() {
         initComponents();
-        this.add(tagTree);
+        //this.add(tagTree);
         setName(Bundle.CTL_TagsViewTopComponent());
         setToolTipText(Bundle.HINT_TagsViewTopComponent());
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         global.addLookupListener(listener);
-        
     }
 
     /**
@@ -183,7 +141,7 @@ public final class TagsViewTopComponent extends TopComponent {
         jSpinner1 = new javax.swing.JSpinner();
         addTagComboBox = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
-        tagTree = new ScrollableTableTree();
+        tagTree = new us.physion.ovation.ui.ScrollableTableTree();
 
         addTagComboBox.setEditable(true);
         addTagComboBox.setModel(tagComboModel);
@@ -227,8 +185,6 @@ public final class TagsViewTopComponent extends TopComponent {
         if (evt.getActionCommand().equals("comboBoxEdited"))
         {
             //add tag
-            ConnectionProvider cp = Lookup.getDefault().lookup(ConnectionProvider.class);
-            cp.getConnection().getContext(); //getContext
             String tags = addTagComboBox.getSelectedItem().toString();
             addTags(entities, tags);
             tagComboModel.removeAllElements();

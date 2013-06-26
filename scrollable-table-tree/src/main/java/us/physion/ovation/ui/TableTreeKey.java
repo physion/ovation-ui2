@@ -6,7 +6,7 @@ package us.physion.ovation.ui;
 
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
-import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.DataContext;
 
 /**
  *
@@ -14,7 +14,7 @@ import us.physion.ovation.DataStoreCoordinator;
  */
 public interface TableTreeKey extends Comparable
 {
-    public void refresh(DataStoreCoordinator dsc);//regrab info from the database
+    public void refresh(DataContext c);//regrab info from the database
     public String getDisplayName();
     public String getID();// for comparison
     public boolean isEditable();

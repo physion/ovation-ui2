@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.openide.util.ChangeSupport;
+import us.physion.ovation.ui.interfaces.DateTimePicker;
 
 public final class InsertProjectVisualPanel1 extends JPanel {
 
@@ -17,10 +18,8 @@ public final class InsertProjectVisualPanel1 extends JPanel {
     private String projectName;
     private String projectPurpose;
     private DateTime start;
-    private DateTime end;
     
     DateTimePicker startPicker;
-    DateTimePicker endPicker;
     /**
      * Creates new form InsertProjectVisualPanel1
      */
@@ -30,7 +29,7 @@ public final class InsertProjectVisualPanel1 extends JPanel {
         projectName = "";
         projectPurpose = "";
         
-        startPicker = DatePickerUtilities.createDateTimePicker();
+        startPicker = DatePickers.createDateTimePicker();
         startPicker.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
@@ -39,23 +38,11 @@ public final class InsertProjectVisualPanel1 extends JPanel {
                 }
             }
         });
-        endPicker = DatePickerUtilities.createDateTimePicker();
-        endPicker.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-                if ("date".equals(propertyChangeEvent.getPropertyName())) {
-                    endDateTimeChanged();
-                }
-            }
-        });
         
-        startTimezoneComboBox.setSelectedItem(DatePickerUtilities.getID(startPicker));
-        endTimezoneComboBox.setSelectedItem(DatePickerUtilities.getID(endPicker));
+        startTimezoneComboBox.setSelectedItem(DatePickers.getID(startPicker));
         startPane.setViewportView(startPicker);
-        endPane.setViewportView(endPicker);
         
         start = null;
-        end = null;
     }
 
     @Override
@@ -76,11 +63,6 @@ public final class InsertProjectVisualPanel1 extends JPanel {
     public DateTime getStart()
     {
         return start;
-    }
-    
-    public DateTime getEnd()
-    {
-        return end;
     }
     
     protected void setProjectName(String name)
@@ -108,17 +90,8 @@ public final class InsertProjectVisualPanel1 extends JPanel {
         start = d;
         change.fireChange();
     }
-    protected void setEnd(DateTime d)
-    {
-        end = d;
-        change.fireChange();
-    }
-    
     protected void startDateTimeChanged() {
         setStart(new DateTime(startPicker.getDate(), DateTimeZone.forID(((String)startTimezoneComboBox.getSelectedItem()))));
-    }
-    protected void endDateTimeChanged() {
-        setEnd(new DateTime(endPicker.getDate(), DateTimeZone.forID(((String)endTimezoneComboBox.getSelectedItem()))));
     }
     
     /**
@@ -135,11 +108,8 @@ public final class InsertProjectVisualPanel1 extends JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         purposeTextArea = new javax.swing.JTextArea();
         jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
         startPane = new javax.swing.JScrollPane();
-        endPane = new javax.swing.JScrollPane();
         startTimezoneComboBox = new javax.swing.JComboBox();
-        endTimezoneComboBox = new javax.swing.JComboBox();
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(InsertProjectVisualPanel1.class, "InsertProjectVisualPanel1.jLabel1.text")); // NOI18N
 
@@ -176,31 +146,16 @@ public final class InsertProjectVisualPanel1 extends JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(InsertProjectVisualPanel1.class, "InsertProjectVisualPanel1.jLabel3.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(InsertProjectVisualPanel1.class, "InsertProjectVisualPanel1.jLabel4.text")); // NOI18N
-
         startPane.setBackground(new java.awt.Color(204, 204, 204));
         startPane.setBorder(null);
         startPane.setOpaque(false);
         startPane.setPreferredSize(new java.awt.Dimension(200, 30));
 
-        endPane.setBackground(new java.awt.Color(204, 204, 204));
-        endPane.setBorder(null);
-        endPane.setOpaque(false);
-        endPane.setPreferredSize(new java.awt.Dimension(200, 30));
-
-        startTimezoneComboBox.setModel(new javax.swing.DefaultComboBoxModel(DatePickerUtilities.getTimeZoneIDs()));
+        startTimezoneComboBox.setModel(new javax.swing.DefaultComboBoxModel(DatePickers.getTimeZoneIDs()));
         startTimezoneComboBox.setPreferredSize(new java.awt.Dimension(180, 30));
         startTimezoneComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 startTimezoneComboBoxActionPerformed(evt);
-            }
-        });
-
-        endTimezoneComboBox.setModel(new javax.swing.DefaultComboBoxModel(DatePickerUtilities.getTimeZoneIDs()));
-        endTimezoneComboBox.setPreferredSize(new java.awt.Dimension(180, 30));
-        endTimezoneComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                endTimezoneComboBoxActionPerformed(evt);
             }
         });
 
@@ -211,26 +166,17 @@ public final class InsertProjectVisualPanel1 extends JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel3))
+                        .addComponent(startPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(endPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(startPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(startTimezoneComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(endTimezoneComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                            .addComponent(projectNameTextField, javax.swing.GroupLayout.Alignment.TRAILING)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(startTimezoneComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(projectNameTextField, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -250,12 +196,7 @@ public final class InsertProjectVisualPanel1 extends JPanel {
                         .addComponent(startPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(startTimezoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(endTimezoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(endPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(86, Short.MAX_VALUE))
+                .addContainerGap(40, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -282,17 +223,10 @@ public final class InsertProjectVisualPanel1 extends JPanel {
         setStart(new DateTime(startPicker.getDate(), DateTimeZone.forID(((String)startTimezoneComboBox.getSelectedItem()))));
     }//GEN-LAST:event_startTimezoneComboBoxActionPerformed
 
-    private void endTimezoneComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_endTimezoneComboBoxActionPerformed
-        setEnd(new DateTime(endPicker.getDate(), DateTimeZone.forID(((String)endTimezoneComboBox.getSelectedItem()))));
-    }//GEN-LAST:event_endTimezoneComboBoxActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane endPane;
-    private javax.swing.JComboBox endTimezoneComboBox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField projectNameTextField;
     private javax.swing.JTextArea purposeTextArea;

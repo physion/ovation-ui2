@@ -22,7 +22,7 @@ id = "us.physion.ovation.ui.browser.ResetQueryAction")
 displayName = "#CTL_ResetQueryAction")
 @ActionReferences({
     @ActionReference(path = "Menu/Tools", position = 1200),
-    @ActionReference(path = "Toolbars/Find", position = 150),
+    //@ActionReference(path = "Toolbars/Find", position = 150),
     @ActionReference(path = "Shortcuts", name = "SM-R")
 })
 @Messages("CTL_ResetQueryAction=Reset Query")

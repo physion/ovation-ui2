@@ -37,14 +37,9 @@ public class InsertProjectWizardPanel1 extends BasicWizardPanel{
         InsertProjectVisualPanel1 c = (InsertProjectVisualPanel1)component;
         if (c != null)
         {
-           boolean valid = (c.getProjectName() != null && !c.getProjectName().isEmpty() 
+           return (c.getProjectName() != null && !c.getProjectName().isEmpty() 
                    && c.getPurpose() != null && !c.getPurpose().isEmpty() 
                    && c.getStart() != null);
-           if (c.getEnd() != null)
-           {
-               return valid && !c.getStart().isAfter(c.getEnd());
-           }
-           return valid;
         }
         return false;
     }
@@ -56,7 +51,10 @@ public class InsertProjectWizardPanel1 extends BasicWizardPanel{
         wiz.putProperty("project.name", c.getProjectName());
         wiz.putProperty("project.purpose", c.getPurpose());
         wiz.putProperty("project.start", c.getStart());
-        wiz.putProperty("project.end", c.getEnd());
         // use wiz.putProperty to remember current panel state
+    }
+
+    @Override
+    public void readSettings(WizardDescriptor data) {
     }
 }

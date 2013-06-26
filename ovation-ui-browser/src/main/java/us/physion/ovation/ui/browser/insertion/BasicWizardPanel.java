@@ -17,23 +17,23 @@ import org.openide.util.HelpCtx;
  *
  * @author huecotanks
  */
-public class BasicWizardPanel implements WizardDescriptor.Panel<WizardDescriptor>{
+abstract public class BasicWizardPanel implements WizardDescriptor.Panel<WizardDescriptor>{
     
      protected final ChangeSupport changeSupport = new ChangeSupport(this);
     /**
      * The visual component that displays this panel. If you need to access the
      * component from this class, just use getComponent().
      */
-    protected JPanel component;
+    protected Component component;
 
     // Get the visual component for the panel. In this template, the component
     // is kept separate. This can be more efficient: if the wizard is created
     // but never displayed, or not all panels are displayed, it is better to
     // create only those which really need to be visible.
-    @Override
-    public JPanel getComponent() {
+    /*@Override
+    abstract public JPanel getComponent() {
         throw new UnsupportedOperationException("Subclasses must override this method");
-    }
+    }*/
 
     @Override
     public HelpCtx getHelp() {
@@ -58,7 +58,7 @@ public class BasicWizardPanel implements WizardDescriptor.Panel<WizardDescriptor
         changeSupport.removeChangeListener(l);
     }
 
-    @Override
+    /*@Override
     public void readSettings(WizardDescriptor wiz) {
         // use wiz.getProperty to retrieve previous panel state
     }
@@ -66,7 +66,7 @@ public class BasicWizardPanel implements WizardDescriptor.Panel<WizardDescriptor
     @Override
     public void storeSettings(WizardDescriptor wiz) {
         // use wiz.putProperty to remember current panel state
-    }
+    }*/
 
     
     static String updateTextField(JTextField f, ChangeSupport cs, String value){

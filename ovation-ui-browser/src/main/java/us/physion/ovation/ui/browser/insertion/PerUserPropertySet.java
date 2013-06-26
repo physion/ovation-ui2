@@ -8,8 +8,11 @@ import java.util.Map;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.User;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.AnnotatableEntity;
+import us.physion.ovation.domain.User;
+import us.physion.ovation.domain.mixin.Owned;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.ScrollableTableTree;
@@ -31,13 +34,13 @@ class PerUserPropertySet implements TableTreeKey {
         this.selected = selected;
         user = new EntityWrapper(u);
         displayName = u.getUsername() + "'s Properties";
-        if (selected.getEntity().getOwner().getUuid().equals(u.getUuid()))
+        if (((Owned)selected.getEntity()).getOwner().getUuid().equals(u.getUuid()))
         {
             isOwner = true;
             displayName += " (owner)";
         }
         
-        Map<String, Object> props = selected.getEntity().getUserProperties(u);
+        Map<String, Object> props = ((AnnotatableEntity)selected.getEntity()).getUserProperties(u);
         properties = new Object[props.size()][2];
         int i =0;
         for (String key : props.keySet())
@@ -48,7 +51,7 @@ class PerUserPropertySet implements TableTreeKey {
     }
 
     @Override
-    public void refresh(IAuthenticatedDataStoreCoordinator dsc) {
+    public void refresh(DataContext c) {
     }
 
     @Override

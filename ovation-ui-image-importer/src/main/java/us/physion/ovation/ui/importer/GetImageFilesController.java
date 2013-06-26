@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.importer;
 
+import com.google.common.collect.Lists;
 import java.awt.Component;
 import java.io.File;
 import java.net.MalformedURLException;
@@ -56,6 +57,7 @@ public class GetImageFilesController extends BasicWizardPanel{
 
     @Override
     public void storeSettings(WizardDescriptor wiz) {
+        wiz.putProperty("epochs", null);
         GetImageFilesPanel c = (GetImageFilesPanel)component;
         List<FileMetadata> files = c.getFiles();
         
@@ -100,58 +102,36 @@ public class GetImageFilesController extends BasicWizardPanel{
     }
 
     private void importSingleEpoch(WizardDescriptor wiz, FileMetadata data, int i) {
-        String epochName = "epoch" + i;
-        wiz.putProperty(epochName + ".start", data.getStart());
-        wiz.putProperty(epochName + ".end", data.getEnd(false));
-
-        wiz.putProperty(epochName + ".properties", data.getEpochProperties());
-
-        for (Map<String, Object> response : data.getResponses()) {
-            String responseName = epochName + "." + (String) response.get("name");
-            response.remove("name");
-            for (String key : response.keySet()) {
-                wiz.putProperty(responseName + "." + key, response.get(key));
-            }
+        Map<String, Object> epoch = new HashMap();
+        epoch.put("name", "epoch" + i);
+        epoch.put("start", data.getStart());
+        epoch.put("end", data.getEnd(false));
+        epoch.put("properties", data.getEpochProperties());
+        epoch.put("measurements", data.getMeasurements());
+        epoch.put("deviceParameters", data.getDeviceParameters());
+        
+        List<Map<String, Object>> epochs = (List<Map<String, Object>>)wiz.getProperty("epochs");
+        if (epochs == null)
+        {
+            epochs = Lists.newLinkedList();
         }
+        epochs.add(epoch);
+        wiz.putProperty("epochs", epochs);
     }
 
     private void importMultipleEpochs(WizardDescriptor wiz, FileMetadata data, int i) {
         Map<String, Object> parentEpochGroup = data.getParentEpochGroup();
+        parentEpochGroup.put("number", i);
         parentEpochGroup.put("start", data.getStart());
         parentEpochGroup.put("end", data.getEnd(false));
+        parentEpochGroup.put("epoch.properties", data.getEpochProperties());//TODO: maybe FileMetadata should do this?
         
-        //for each device, 
-        List<Map<String, Object>> devices = data.getDevices();
-        String deviceName = "";
-        String deviceManufacturer = "";
-        Map<String, Object> deviceProperties = new HashMap();
-        Map<String, Object> deviceParameters = new HashMap();
-        for (Map<String, Object> device : devices)
+        List<Map<String, Object>> parentEpochGroups = (List<Map<String, Object>>)wiz.getProperty("parentEpochGroups");
+        if (parentEpochGroups == null)
         {
-            String nameToAdd = (String)device.get("name");
-            if (nameToAdd != null)
-                deviceName += "-" + nameToAdd;
-            
-            String manufacturerToAdd = (String)device.get("manufacturer");
-            if (manufacturerToAdd != null)
-                deviceName += "-" + manufacturerToAdd;
-            
-            Map<String, Object> properties = (Map<String, Object>)device.get("properties");
-            if (properties != null)
-                deviceProperties.putAll(properties);
-            
+            parentEpochGroups = Lists.newLinkedList();
         }
-        if (!deviceName.isEmpty())
-            deviceName = deviceName.substring(1);
-        
-        if (!deviceManufacturer.isEmpty())
-            deviceManufacturer = deviceManufacturer.substring(1);
-        
-        wiz.putProperty("response.device.name", deviceName);
-        wiz.putProperty("response.device.manufacturer", deviceManufacturer);
-        wiz.putProperty("response.device.properties", deviceProperties);
-        wiz.putProperty("parentEpochGroup", parentEpochGroup);
-        wiz.putProperty("epoch.properties", data.getEpochProperties());
-        wiz.putProperty("responses", data.getResponses());
+        parentEpochGroups.add(parentEpochGroup);
+        wiz.putProperty("parentEpochGroups", parentEpochGroups);
     }
 }

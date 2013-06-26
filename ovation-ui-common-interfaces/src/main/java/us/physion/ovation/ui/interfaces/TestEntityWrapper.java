@@ -5,6 +5,7 @@
 package us.physion.ovation.ui.interfaces;
 
 import ovation.*;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.*;
@@ -16,14 +17,13 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  */
 public class TestEntityWrapper implements IEntityWrapper{
 
-    DataStoreCoordinator dsc; 
+    DataContext ctx;
     String uri;
     String displayName;
     Class type;
-    public TestEntityWrapper(DataStoreCoordinator dsc, OvationEntity e)
+    public TestEntityWrapper(DataContext ctx, OvationEntity e)
     {
-        this.dsc = dsc;
-        dsc.getContext();
+        this.ctx = ctx;
         uri = e.getURI().toString();
         type = e.getClass();
         displayName = inferDisplayName(e);
@@ -35,7 +35,7 @@ public class TestEntityWrapper implements IEntityWrapper{
 
     @Override
     public OvationEntity getEntity() {
-        return dsc.getContext().getObjectWithURI(uri);
+        return ctx.getObjectWithURI(uri);
     }
 
     @Override

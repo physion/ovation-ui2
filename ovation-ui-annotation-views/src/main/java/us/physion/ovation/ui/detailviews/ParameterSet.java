@@ -8,6 +8,7 @@ import java.util.*;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.ui.*;
 
@@ -35,7 +36,7 @@ class ParameterSet implements TableTreeKey {
     }
 
     @Override
-    public void refresh(DataStoreCoordinator dsc) {
+    public void refresh(DataContext c) {
         //This was commented out before 2.0 port
         /*DataContext c = dsc.getContext();
         User u = (User)c.objectWithURI(userURI);

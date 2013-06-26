@@ -17,6 +17,7 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.WizardDescriptor;
 import org.openide.util.lookup.ServiceProvider;
 import ovation.*;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.interfaces.EpochGroupInsertable;
@@ -66,16 +67,16 @@ public class ImportPrairie extends ImportImage{
         GetImageFilesController c = new GetImageFilesController(files);
         files = null;
         panels.add(c);
-        panels.add(new EpochDetailsController(-1));
-        panels.add(new DeviceDetailsController(-1, -1));
+        panels.add(new ProtocolController(-1));
+        panels.add(new DeviceNamesController(-1, -1));
         //panels.add(new ResponseDetailsController(-1, -1));
 
         return panels;
     }
     
     @Override
-    public void wizardFinished(final WizardDescriptor wd, final DataStoreCoordinator dsc, final IEntityWrapper iew) {
-
+    public void wizardFinished(final WizardDescriptor wd, final DataContext c, final IEntityWrapper iew) {
+/*
         EventQueueUtilities.runOffEDT(new Runnable() {
             
             @Override
@@ -129,9 +130,9 @@ public class ImportPrairie extends ImportImage{
                     h.finish();
                 }
             }
-        });
+        });*/
     }
-
+/*
     private void insertEpochsAndResponses(ExternalDevice dev,
             Map<String, Object> epochGroup,
             EpochGroup child,
@@ -182,4 +183,6 @@ public class ImportPrairie extends ImportImage{
         }
 
     }
+    * 
+    */
 }

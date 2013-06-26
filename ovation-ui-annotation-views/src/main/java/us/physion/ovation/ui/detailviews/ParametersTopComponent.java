@@ -82,14 +82,14 @@ public final class ParametersTopComponent extends TopComponent {
         for (IEntityWrapper ew : entities)
         {
             OvationEntity eb = ew.getEntity();
-            if (eb instanceof ProcedureElement)
+            if (eb instanceof AnalysisRecord)
+            {
+                addParams(tables, "Analysis Parameters", ((AnalysisRecord)eb).getProtocolParameters());
+            }
+            else if (eb instanceof ProcedureElement)
             {
                 addParams(tables, "Device Parameters", ((ProcedureElement)eb).getDeviceParameters());
                 addParams(tables, "Protocol Parameters", ((ProcedureElement)eb).getProtocolParameters());
-            }
-            else if (eb instanceof AnalysisRecord)
-            {
-                addParams(tables, "Analysis Parameters", ((AnalysisRecord)eb).getProtocolParameters());
             }
         }
         ArrayList<TableTreeKey> tableKeys = new ArrayList<TableTreeKey>();

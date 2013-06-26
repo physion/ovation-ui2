@@ -11,9 +11,11 @@ package us.physion.ovation.ui.editor;
 //import net.imglib2.io.ImgIOException;
 //import net.imglib2.io.ImgOpener;
 import java.net.MalformedURLException;
+import java.util.concurrent.ExecutionException;
 import org.openide.util.Exceptions;
 import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.exceptions.OvationException;
 
 @ServiceProvider(service = VisualizationFactory.class)
 /**
@@ -23,62 +25,63 @@ import us.physion.ovation.domain.Measurement;
     public class ImageJVisualizationFactory implements VisualizationFactory{
 
     @Override
-	public Visualization createVisualization(Measurement r) {
+    public Visualization createVisualization(DataElement r) {
         try {
-            return new ImageJVisualization(r.getURI().toURL().toExternalForm());
-                /*try {
-                  /*ImgPlus ip = ImgOpener.open(((URLResponse)r).getURLString());
-// display the dataset
-DisplayService displayService = new ImageJ().getService(DisplayService.class);
-displayService.getActiveDisplay().display(ip);
-return new ImageJVisualization(((URLResponse)r).getURLString());*/
-                
-                // define the file to open
+            return new ImageJVisualization(r.getData().get());
+            /*try {
+             /*ImgPlus ip = ImgOpener.open(((URLResponse)r).getURLString());
+             // display the dataset
+             DisplayService displayService = new ImageJ().getService(DisplayService.class);
+             displayService.getActiveDisplay().display(ip);
+             return new ImageJVisualization(((URLResponse)r).getURLString());*/
 
-       
- 
-                // display it via ImageJ
-                //imp.show();//null pointer
- 
-                // wrap it into an ImgLib image (no copying)
-                //final Img image = ImagePlusAdapter.wrap( imp );
- 
-                // display it via ImgLib using ImageJ
-                //ImageJFunctions.show( image );
-                /*} catch (Exception ex) {
-System.out.println(ex.getMessage());
-/*try{
-ImgPlus ip = ImgOpener.open(((URLResponse)r).getURLString());
-// display the dataset
-DisplayService displayService = new ImageJ().getService(DisplayService.class);
-displayService.getActiveDisplay().display(ip);
-return new ImageJVisualization(((URLResponse)r).getURLString());
-/*System.out.println("First error " + e.getMessage());
-try{
-// load the dataset
-final IOService ioService = context.getService(IOService.class);
-final Dataset dataset = ioService.loadDataset(url);
+            // define the file to open
 
-// display the dataset
-final DisplayService displayService =
-context.getService(DisplayService.class);
-displayService.createDisplay(file.getName(), dataset);*/
-                /*}catch (Exception e)
-{
-System.out.println(e.getMessage());
-}*/
+
+
+            // display it via ImageJ
+            //imp.show();//null pointer
+
+            // wrap it into an ImgLib image (no copying)
+            //final Img image = ImagePlusAdapter.wrap( imp );
+
+            // display it via ImgLib using ImageJ
+            //ImageJFunctions.show( image );
+                    /*} catch (Exception ex) {
+             System.out.println(ex.getMessage());
+             /*try{
+             ImgPlus ip = ImgOpener.open(((URLResponse)r).getURLString());
+             // display the dataset
+             DisplayService displayService = new ImageJ().getService(DisplayService.class);
+             displayService.getActiveDisplay().display(ip);
+             return new ImageJVisualization(((URLResponse)r).getURLString());
+             /*System.out.println("First error " + e.getMessage());
+             try{
+             // load the dataset
+             final IOService ioService = context.getService(IOService.class);
+             final Dataset dataset = ioService.loadDataset(url);
+
+             // display the dataset
+             final DisplayService displayService =
+             context.getService(DisplayService.class);
+             displayService.createDisplay(file.getName(), dataset);*/
+            /*}catch (Exception e)
+             {
+             System.out.println(e.getMessage());
+             }*/
             /*
              * }
              */
-        } catch (MalformedURLException ex) {
-            Exceptions.printStackTrace(ex);
-            throw new RuntimeException(ex.getLocalizedMessage());
+        } catch (InterruptedException ex) {
+            throw new OvationException(ex);
+        } catch (ExecutionException ex) {
+            throw new OvationException(ex);
         }
     }
 
     @Override
-	public int getPreferenceForDataContainer(Measurement r) {
-        if (r.getMimeType().toLowerCase().contains("tif")) {
+    public int getPreferenceForDataContainer(DataElement r) {
+        if (r.getDataContentType().toLowerCase().contains("tif")) {
             return 110;
         }
         return -1;

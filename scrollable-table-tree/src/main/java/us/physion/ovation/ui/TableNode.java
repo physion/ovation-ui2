@@ -7,6 +7,7 @@ package us.physion.ovation.ui;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.tree.DefaultMutableTreeNode;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
@@ -21,11 +22,11 @@ public class TableNode extends DefaultMutableTreeNode{
         super(p);
     }
     
-    public void reset(DataStoreCoordinator dsc)
+    public void reset(DataContext c)
     {
         //regrab properties/tags/etc from the database
         TableTreeKey p = (TableTreeKey)getUserObject();
-        p.refresh(dsc);
+        p.refresh(c);
     }
     
     public void setPanel(TablePanel t)

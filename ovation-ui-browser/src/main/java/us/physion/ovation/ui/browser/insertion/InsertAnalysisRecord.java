@@ -4,55 +4,80 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
-import java.awt.event.ActionEvent;
-import java.text.MessageFormat;
-import java.util.*;
-import javax.swing.AbstractAction;
-import org.openide.DialogDisplayer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.openide.WizardDescriptor;
-import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.util.lookup.ServiceProvider;
-import ovation.AnalysisRecord;
-import ovation.Epoch;
-import ovation.IAuthenticatedDataStoreCoordinator;
-import ovation.Project;
+import org.openide.util.lookup.ServiceProviders;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.Protocol;
+import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.ui.interfaces.EpochInsertable;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ProjectInsertable;
 
-//@ServiceProvider(service=ProjectInsertable.class)
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import us.physion.ovation.domain.AnalysisRecord;
+
+@ServiceProviders(value={
+    @ServiceProvider(service=ProjectInsertable.class),
+    @ServiceProvider(service=EpochInsertable.class)
+})
 /**
  *
  * @author huecotanks
  */
-public class InsertAnalysisRecord extends InsertEntity implements ProjectInsertable{
+public class InsertAnalysisRecord extends InsertEntity implements ProjectInsertable, EpochInsertable{
 
+    String objectPrefix;
     public InsertAnalysisRecord() {
         putValue(NAME, "Insert Analysis Record...");
+        objectPrefix = "analysisRecord";
     }
 
     @Override
     public List<WizardDescriptor.Panel<WizardDescriptor>> getPanels(IEntityWrapper parent)
     {
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
-        panels.add(new InsertAnalysisRecordWizardPanel1());
-        panels.add(new InsertAnalysisRecordWizardPanel2());
-        panels.add(new InsertAnalysisRecordWizardPanel3()); 
+        panels.add(new NameWizard(objectPrefix));
+        panels.add(new SelectProtocolController(objectPrefix));
+        panels.add(new KeyValueController("Add Protocol Parameters", "Add option protocol parameters, if any", combine(objectPrefix, "parameters")));
+        panels.add(new NamedDataElementController(objectPrefix + ".namedInputs"));
         return panels;
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wiz, IAuthenticatedDataStoreCoordinator dsc, IEntityWrapper parent)
+    public void wizardFinished(WizardDescriptor wiz, DataContext c, IEntityWrapper parent)
     {
-        ((Project)parent.getEntity()).insertAnalysisRecord(((String)wiz.getProperty("analysisRecord.name")), 
-                ((Iterator<Epoch>)wiz.getProperty("analysisRecord.epochs")), 
-                ((Iterator<AnalysisRecord>)wiz.getProperty("analysisRecord.inputs")), 
-                ((String)wiz.getProperty("analysisRecord.entryFn")), 
-                ((Map<String,Object>)wiz.getProperty("analysisRecord.parameters")), 
-                ((String)wiz.getProperty("analysisRecord.scmURL")), 
-                ((String)wiz.getProperty("analysisRecord.scmRevision")));
+        OvationEntity parentEntity = parent.getEntity();
+        Protocol protocol = getProtocolFromProtocolSelector(parentEntity.getDataContext(),
+                    (Map<String, String>) wiz.getProperty(objectPrefix + ".newProtocols"),
+                    (String) wiz.getProperty(objectPrefix + ".protocolName"),
+                    (Protocol) wiz.getProperty(objectPrefix + ".protocol"));
+        
+        AnalysisRecord analysisRecord;
+        
+        if (Project.class.isAssignableFrom(parent.getType())) {
+            analysisRecord = ((Project)parentEntity).addAnalysisRecord(((String) wiz.getProperty(objectPrefix + ".name")),
+                    ((Map<String, DataElement>) wiz.getProperty(objectPrefix + ".namedInputs")),
+                    protocol,
+                    ((Map<String, Object>) wiz.getProperty(objectPrefix + ".parameters")));
+        } else if (Epoch.class.isAssignableFrom(parent.getType())) {
+            analysisRecord = ((Epoch)parentEntity).addAnalysisRecord(((String) wiz.getProperty(objectPrefix + ".name")),
+                    ((Map<String, DataElement>) wiz.getProperty(objectPrefix + ".namedInputs")),
+                    protocol,
+                    ((Map<String, Object>) wiz.getProperty(objectPrefix + ".parameters")));
+        }
+
     }
-    
+
     @Override
     public int getPosition() {
         return 300;

@@ -28,7 +28,7 @@ public abstract class PerUserAnnotationSet implements TableTreeKey{
     boolean current;
     Set<String> uris;
 
-    public PerUserAnnotationSet(User u, boolean currentUser, boolean isOwner, Set<String> uris) {
+    public PerUserAnnotationSet(User u, boolean isOwner, boolean currentUser, Set<String> uris) {
         userURI = u.getURI().toString();
         this.current = currentUser;
         username = u.getUsername();
@@ -38,9 +38,8 @@ public abstract class PerUserAnnotationSet implements TableTreeKey{
 
 
     abstract protected void refreshAnnotations(User u, Iterable<OvationEntity> entities);
-
-
-        public String getID()
+        
+    public String getID()
     {
         return userURI;
     }
@@ -92,8 +91,7 @@ public abstract class PerUserAnnotationSet implements TableTreeKey{
         return s;
     }
 
-    public void refresh(DataStoreCoordinator dsc) {
-        final DataContext c = dsc.getContext();
+    public void refresh(final DataContext c) {
         User u = (User)c.getObjectWithURI(getID());
 
         Iterable<OvationEntity> entities = Iterables.transform(uris, new Function<String, OvationEntity>() {

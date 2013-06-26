@@ -79,14 +79,14 @@ public class TagsSet extends PerUserAnnotationSet{//TODO make a baseclass that t
     public TableModelListener createTableModelListener(ScrollableTableTree t, TableNode n) {
         if (isEditable())
         {
-            return new TagTableModelListener(uris,  (ExpandableJTree)t.getTree(), n, Lookup.getDefault().lookup(ConnectionProvider.class).getConnection());
+            return new TagTableModelListener(uris,  (ExpandableJTree)t.getTree(), n, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
         }
         return null;
     }
 
     @Override
     public TableModel createTableModel() {
-        EditableTableModel m = new EditableTableModel(true, 1, new String[]{"Tags"});
+        EditableTableModel m = new EditableTableModel(isCurrentUser(), 1, new String[]{"Tags"});
         m.setColumn(0, getTags());
         return m;
     }

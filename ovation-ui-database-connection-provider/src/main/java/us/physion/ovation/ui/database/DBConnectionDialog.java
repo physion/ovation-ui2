@@ -155,7 +155,6 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         chooseButton = new javax.swing.JButton();
         connectionFileComboBox = new javax.swing.JComboBox();
@@ -184,10 +183,6 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
 
         connectionFileComboBox.setEditable(true);
         connectionFileComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "<your connection file here>" }));
-
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, new org.netbeans.modules.form.InvalidComponent(), org.jdesktop.beansbinding.ELProperty.create("${connection}"), connectionFileComboBox, org.jdesktop.beansbinding.BeanProperty.create("selectedItem"));
-        bindingGroup.addBinding(binding);
-
         connectionFileComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 connectionFileComboBoxItemStateChanged(evt);
@@ -199,12 +194,6 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
         usernameLabel.setText(org.openide.util.NbBundle.getMessage(DBConnectionDialog.class, "DBConnectionDialog.usernameLabel.text")); // NOI18N
 
         passwordLabel.setText(org.openide.util.NbBundle.getMessage(DBConnectionDialog.class, "DBConnectionDialog.passwordLabel.text")); // NOI18N
-
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, new org.netbeans.modules.form.InvalidComponent(), org.jdesktop.beansbinding.ELProperty.create("${username}"), usernameTextField, org.jdesktop.beansbinding.BeanProperty.create("text"));
-        bindingGroup.addBinding(binding);
-
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, new org.netbeans.modules.form.InvalidComponent(), org.jdesktop.beansbinding.ELProperty.create("${password}"), passwordTextField, org.jdesktop.beansbinding.BeanProperty.create("text"));
-        bindingGroup.addBinding(binding);
 
         org.jdesktop.layout.GroupLayout credentialsPanelLayout = new org.jdesktop.layout.GroupLayout(credentialsPanel);
         credentialsPanel.setLayout(credentialsPanelLayout);
@@ -243,10 +232,6 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
 
         connectButton.setText(org.openide.util.NbBundle.getMessage(DBConnectionDialog.class, "DBConnectionDialog.connectButton.text")); // NOI18N
         connectButton.setToolTipText(org.openide.util.NbBundle.getMessage(DBConnectionDialog.class, "DBConnectionDialog.connectButton.toolTipText")); // NOI18N
-
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, new org.netbeans.modules.form.InvalidComponent(), org.jdesktop.beansbinding.ELProperty.create("${complete}"), connectButton, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
-        bindingGroup.addBinding(binding);
-
         connectButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 connectAction(evt);
@@ -290,10 +275,11 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(connectionFileComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(chooseButton)
-                    .add(connectionLabel))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(connectionFileComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(chooseButton))
+                    .add(connectionLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(credentialsPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -304,8 +290,6 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
                     .add(cancelButton))
                 .addContainerGap(16, Short.MAX_VALUE))
         );
-
-        bindingGroup.bind();
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -432,7 +416,6 @@ public class DBConnectionDialog extends javax.swing.JDialog implements Connectio
     private javax.swing.JPasswordField passwordTextField;
     private javax.swing.JLabel usernameLabel;
     private javax.swing.JTextField usernameTextField;
-    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
     public void showDialog() {

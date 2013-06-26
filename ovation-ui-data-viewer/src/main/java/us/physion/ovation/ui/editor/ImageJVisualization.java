@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Lists;
 import ij.ImageJ;
 import ij.ImagePlus;
 import ij.io.Opener;
@@ -12,12 +13,14 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import net.imglib2.img.*;
 import net.imglib2.io.ImgOpener;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.mixin.DataElement;
 
 
 /**
@@ -27,14 +30,13 @@ import us.physion.ovation.domain.Measurement;
 public class ImageJVisualization implements Visualization{
 
     JPanel panel;
-    ImageJVisualization(String url)
+    ImageJVisualization(File f)
     {
-        url = url.substring("file:".length());
         // open a file with ImageJ
         try {
             //ImageJ ij = new ImageJ();
             //Opener.setOpenUsingPlugins(true);
-            final ImagePlus imp = new Opener().openImage(url);
+            final ImagePlus imp = new Opener().openImage(f.getAbsolutePath());
             if (imp != null)
                 panel = new BufferedImagePanel(imp.getBufferedImage());
             else{
@@ -65,7 +67,7 @@ System.out.println(ex);
             {
                 panel.add(new JLabel("Unable to open image"));
             }
-            System.out.println("Unable to open image at '" + url + "'  \n" + e.getMessage());
+            System.out.println("Unable to open image at '" + f.getAbsolutePath() + "'  \n" + e.getMessage());
         }
     }
     
@@ -75,12 +77,12 @@ System.out.println(ex);
     }
 
     @Override
-	public boolean shouldAdd(Measurement r) {
+	public boolean shouldAdd(DataElement r) {
         return false;
     }
 
     @Override
-	public void add(Measurement r) {
+	public void add(DataElement r) {
         throw new UnsupportedOperationException("Not supported for this image visualization.");
     }    
 }

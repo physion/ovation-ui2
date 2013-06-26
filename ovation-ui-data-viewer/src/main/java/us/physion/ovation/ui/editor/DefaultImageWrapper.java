@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Lists;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -12,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -20,6 +22,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import org.openide.util.Exceptions;
 import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.mixin.DataElement;
 
 
 /**
@@ -30,7 +33,7 @@ public class DefaultImageWrapper implements Visualization{
 
     String name;
     BufferedImage img;
-    DefaultImageWrapper(Measurement r)
+    DefaultImageWrapper(DataElement r)
     {
         InputStream in = null;
         try {
@@ -62,18 +65,17 @@ public class DefaultImageWrapper implements Visualization{
     public Component generatePanel() {
         BufferedImagePanel pan = new BufferedImagePanel(img);
         pan.setAlignmentX(Component.CENTER_ALIGNMENT);
-        ImagePanel p = new ImagePanel(name, pan);
-        return p;
+        return new ImagePanel(name, pan);
     }
     
 
     @Override
-    public boolean shouldAdd(Measurement r) {
+    public boolean shouldAdd(DataElement r) {
         return false;
     }
 
     @Override
-    public void add(Measurement r) {
+    public void add(DataElement r) {
         throw new UnsupportedOperationException("Images are currently implemented one per panel");
     }
     

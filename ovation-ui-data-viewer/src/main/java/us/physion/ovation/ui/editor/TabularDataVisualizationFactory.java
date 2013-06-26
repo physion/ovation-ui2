@@ -7,7 +7,7 @@ package us.physion.ovation.ui.editor;
 import java.util.HashSet;
 import java.util.Set;
 import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.mixin.DataElement;
 
 @ServiceProvider(service = VisualizationFactory.class)
 /**
@@ -23,20 +23,20 @@ public class TabularDataVisualizationFactory implements VisualizationFactory {
         mimeTypes = new HashSet<String>();
         mimeTypes.add("application/vnd.ms-excel");
         mimeTypes.add("text/comma-separated-values");
+        mimeTypes.add("application/csv");
     }
     
     @Override
-    public Visualization createVisualization(Measurement r) {
+    public Visualization createVisualization(DataElement r) {
         return new TabularDataWrapper(r);
     }
 
     @Override
-    public int getPreferenceForDataContainer(Measurement r) {
-        if (mimeTypes.contains(r.getMimeType()))
+    public int getPreferenceForDataContainer(DataElement r) {
+        if (mimeTypes.contains(r.getDataContentType()))
         {
             return 100;
         }
         return -1;
     }
-    
 }

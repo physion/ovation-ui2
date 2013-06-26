@@ -42,19 +42,16 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
 
     ResizableTree tree;
     Set<String> uris;
-    DataStoreCoordinator dsc;
+    DataContext c;
     TableNode node;
     public PropertyTableModelListener(Set<String> uriSet, ResizableTree tree, TableNode node) {
-        this.dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
-        uris = uriSet;
-        this.tree = tree;
-        this.node = node;
+        this(uriSet, tree, node, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
     }
 
     // this contructor is used in unit tests
     public PropertyTableModelListener(Set<String> uriSet, ResizableTree tree, TableNode node,
-            DataStoreCoordinator dsc) {
-        this.dsc = dsc;
+            DataContext ctx) {
+        this.c = ctx;
         uris = uriSet;
         this.tree = tree;
         this.node = node;
@@ -95,7 +92,6 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
                 @Override
                 public void run() {
                     
-                    DataContext c = dsc.getContext();
                     for (String key: oldKeys)
                     {
                         for (String uri : uris) {
@@ -112,7 +108,7 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
                                 parseAndAdd((AnnotatableEntity)eb, key, props.get(key));
                         }
                     }
-                    node.reset(dsc);
+                    node.reset(c);
                 }
             });
         }
@@ -126,7 +122,6 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
 
             @Override
             public void run() {
-                DataContext c = dsc.getContext();
                 for (int i = rows.length - 1; i >= 0; i--) {
                     String key = (String) model.getValueAt(rows[i], 0);
                     final Object value = model.getValueAt(rows[i], 1);
@@ -144,7 +139,7 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
                     }
 
                 }
-                node.reset(dsc);
+                node.reset(c);
                 EventQueueUtilities.runOnEDT(new Runnable() {
 
                     @Override

@@ -25,6 +25,7 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ServiceProvider;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -203,13 +204,13 @@ public final class NotesTopComponent extends TopComponent {
     public void update()
     {
         Collection<? extends IEntityWrapper> entities = global.allInstances();
-        update(Lookup.getDefault().lookup(ConnectionProvider.class).getConnection(), entities);
+        update(Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext(), entities);
     }
     
-    public void update(DataStoreCoordinator dsc, Collection<? extends IEntityWrapper> entities)
+    public void update(DataContext c, Collection<? extends IEntityWrapper> entities)
     {
         this.entities = entities;
-        notesModel.setDSC(dsc);
+        notesModel.setContext(c);
         setEntities(entities);
     }
     

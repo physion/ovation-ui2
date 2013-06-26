@@ -42,13 +42,9 @@ public class EntityWrapperBase implements IEntityWrapper {
     
     @Override
     public OvationEntity getEntity(){
-        DataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
-        if (dsc == null)
-        {
+        DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+        if (c == null)
             return null;
-        }
-        DataContext c = dsc.getContext();
-      
         return c.getObjectWithURI(uri);
     }
     @Override

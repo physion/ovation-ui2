@@ -22,12 +22,13 @@ import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ServiceProvider;
 import ovation.*;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.detailviews.MockResizableTree;
-import us.physion.ovation.ui.detailviews.SelectionViewTestManager;
 import us.physion.ovation.ui.interfaces.*;
 import us.physion.ovation.ui.test.OvationTestCase;
-import us.physion.ovation.ui.test.TestManager;
 
 @ServiceProvider(service = Lookup.Provider.class)
 
@@ -46,63 +47,27 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
     private MockResizableTree mockTree;
     private EditableTable editableTable;
 
-    static TestManager mgr = new SelectionViewTestManager();
     public TableTreeTest() {
-	setTestManager(mgr); //this is because there are static and non-static methods that need to use the test manager
         ic = new InstanceContent();
         l = new AbstractLookup(ic);
         ic.add(this);
     }
     
-    @BeforeClass
-    public static void setUpClass()
-    {
-        OvationTestCase.setUpDatabase(mgr, 5);
-    }
-    
     @Before
-    public void setUp() throws UserAuthenticationException {
+    public void setUp() {
+        super.setUp();
         mockTree = new MockResizableTree();
-
-        dsc = setUpTest();
-        Ovation.enableLogging(LogLevel.DEBUG);
 
         String UNUSED_NAME = "name";
         String UNUSED_PURPOSE = "purpose";
         DateTime UNUSED_START = new DateTime(0);
-        byte[] data = {1, 2, 3, 4, 5};
-        String uti = "unknown-uti";
         
-        DataContext c = dsc.getContext();
-        User newUser = c.addUser("newUser", "password");
-        project = new TestEntityWrapper(dsc, c.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
-        source = new TestEntityWrapper(dsc, c.insertSource("source"));
-        Project p = (Project)project.getEntity();
-        p.addProperty("color", "yellow");
-        p.addProperty("size", 10.5);
-        Source s = (Source)source.getEntity();
-        s.addProperty("id", 4);
-        s.addProperty("birthday", "6/23/1988");
-        
-        c.authenticateUser("newUser", "password");
-        p.addProperty("color", "chartreuse");
-        p.addProperty("interesting", true);
+        project = new TestEntityWrapper(ctx, ctx.insertProject(UNUSED_NAME, UNUSED_PURPOSE, UNUSED_START));
+        source = new TestEntityWrapper(ctx, ctx.insertSource("source", "2983"));
         
         uris = new HashSet();
-        uris.add(project.getEntity().getURIString());
-        uris.add(source.getEntity().getURIString());
-    }
-    
-    
-    @After
-    public void tearDown()
-    {
-        tearDownTest();
-    }
-    
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-        OvationTestCase.tearDownDatabase(mgr);
+        uris.add(project.getEntity().getURI().toString());
+        uris.add(source.getEntity().getURI().toString());
     }
     
 //table tree tests. TODO: separate out tests of the scrollable table tree to another test class
@@ -130,7 +95,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         int i=0;
         for (String uri : uris)
         {
-            IEntityBase eb = dsc.getContext().objectWithURI(uri);
+            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
             if (i++%2 == 0)
                 eb.addProperty(key1, val1);//only half of the uris have the property
         }
@@ -151,13 +116,18 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
     
         for (String uri : uris)
         {
-            IEntityBase eb = dsc.getContext().objectWithURI(uri);
-            assertEquals(eb.getMyProperty(key1), newVal1);
+            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
+            assertEquals(eb.getUserProperty(getUser(), key1), newVal1);
         }
+    }
+    
+    public User getUser()
+    {
+        return ctx.getAuthenticatedUser();
     }
   
      @Test
-    public void testUpdatesDatabaseAndTableModelWithRowDeletion()
+    public void testUpdatesDatabaseAndTableModelWithRowDeletion() throws InterruptedException
     {
         String newKey1 = "something";
         String newVal1 = "else";
@@ -167,7 +137,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         int i=0;
         for (String uri : uris)
         {
-            IEntityBase eb = dsc.getContext().objectWithURI(uri);
+            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
             eb.addProperty(newKey1, newVal1);
             
             if (i++%2 == 0)
@@ -189,15 +159,17 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         assertEquals(m.getValueAt(1, 1), newVal2);
         
         editableTable.deleteRows(new int[] {0, 1});
+        
+        Thread.sleep(3000);
 
         for (String uri : uris)
         {
-            IEntityBase eb = dsc.getContext().objectWithURI(uri);
+            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
             assertFalse(eb.getProperties().containsKey(newKey1));
             assertFalse(eb.getProperties().containsKey(newKey2));
         }
         
-        assertEquals(m.getRowCount(), 1);
+        assertEquals(1, m.getRowCount());
     }
      
     @Test
@@ -208,7 +180,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         
         for (String uri : uris)
         {
-            IEntityBase eb = dsc.getContext().objectWithURI(uri);
+            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
             eb.addProperty(key1, val1);
         }
         
@@ -217,9 +189,9 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         m.setValueAt(key1, 0, 0);
         m.setValueAt(val1, 0, 1);
       
-        assertNewValueClassIsAppropriate(key1, "6/23/1988", Timestamp.class, m);
-        assertNewValueClassIsAppropriate(key1, "6/23/1988 6:30 pm", Timestamp.class, m);
-        assertNewValueClassIsAppropriate(key1, "1", Long.class, m);
+        assertNewValueClassIsAppropriate(key1, "6/23/1988", DateTime.class, m);
+        assertNewValueClassIsAppropriate(key1, "6/23/1988 6:30 pm", DateTime.class, m);
+        assertNewValueClassIsAppropriate(key1, "1", Integer.class, m);
         assertNewValueClassIsAppropriate(key1, String.valueOf(Integer.MAX_VALUE) + "1", Long.class, m);
         assertNewValueClassIsAppropriate(key1, "1.5", Double.class, m);
         assertNewValueClassIsAppropriate(key1, "True", Boolean.class, m);
@@ -232,19 +204,14 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         
         for (String uri : uris)
         {
-            IEntityBase eb = dsc.getContext().objectWithURI(uri);
-            assertEquals(eb.getMyProperty(key).getClass(), clazz);
+            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
+            assertEquals(eb.getUserProperty(ctx.getAuthenticatedUser(), key).getClass(), clazz);
         }
     }
 
     @Override
     public Lookup getLookup() {
         return l;
-    }
-
-    @Override
-    public IAuthenticatedDataStoreCoordinator getConnection() {
-        return dsc;
     }
 
     @Override
@@ -261,17 +228,27 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
     public void resetConnection() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public DataContext getDefaultContext() {
+       return ctx;
+    }
+
+    @Override
+    public DataContext getNewContext() {
+        return ctx.getCoordinator().getContext();
+    }
     
     private class TestTreeKey extends UserPropertySet {
 
-        public TestTreeKey(IAuthenticatedDataStoreCoordinator dsc, Set<String> uris) {
-            super(dsc.getContext().currentAuthenticatedUser(), true, true , new HashMap(), uris);
+        public TestTreeKey(DataStoreCoordinator dsc, Set<String> uris) {
+            super(dsc.getContext().getAuthenticatedUser(), true, true , new HashMap(), uris);
         }
         
         @Override
         public TableModelListener createTableModelListener(ScrollableTableTree t, TableNode n) {
             if (isEditable()) {
-                return new PropertyTableModelListener(uris, (ExpandableJTree) t.getTree(), n, dsc);
+                return new PropertyTableModelListener(uris, (ExpandableJTree) t.getTree(), n, ctx);
             }
             return null;
         }
@@ -285,7 +262,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         
         TableNode n = new TableNode(key);
         n.setPanel(editableTable);
-        PropertyTableModelListener listener = new PropertyTableModelListener(uris, mockTree, n, dsc);
+        PropertyTableModelListener listener = new PropertyTableModelListener(uris, mockTree, n, ctx);
         table.setModel(m);
         m.addTableModelListener(listener);
         return m;

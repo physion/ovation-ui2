@@ -35,10 +35,10 @@ class TagTableModelListener implements EditableTableModelListener {
 
     Set<String> uris;
     ResizableTree tree;
-    DataStoreCoordinator dsc;
     TableNode node;
-    public TagTableModelListener(Set<String> uriSet, ResizableTree expandableJTree, TableNode n, DataStoreCoordinator connection) {
-        this.dsc = connection;
+    DataContext c;
+    public TagTableModelListener(Set<String> uriSet, ResizableTree expandableJTree, TableNode n, DataContext connection) {
+        this.c = connection;
         uris = uriSet;
         this.tree = expandableJTree;
         this.node = n;
@@ -79,7 +79,6 @@ class TagTableModelListener implements EditableTableModelListener {
                 @Override
                 public void run() {
                     
-                    DataContext c = dsc.getContext();
                     for (String tag: oldTags)
                     {
                         for (String uri : uris) {
@@ -103,7 +102,7 @@ class TagTableModelListener implements EditableTableModelListener {
                             }
                         }
                     }
-                    node.reset(dsc);
+                    node.reset(c);
                 }
             });
         }
@@ -150,7 +149,7 @@ class TagTableModelListener implements EditableTableModelListener {
                         }
                     }
                 }
-                node.reset(dsc);
+                node.reset(c);
             }
         });
     }
@@ -171,7 +170,6 @@ class TagTableModelListener implements EditableTableModelListener {
 
                 final Set<String> toRemove = tags;
 
-                DataContext c = dsc.getContext();
                 for (String tag : toRemove) {
                     for (String uri : uris) {
                         OvationEntity eb = c.getObjectWithURI(uri);
@@ -181,7 +179,7 @@ class TagTableModelListener implements EditableTableModelListener {
                         }
                     }
                 }
-                node.reset(dsc);
+                node.reset(c);
 
                 //remove rows and resize
                 EventQueueUtilities.runOnEDT(new Runnable() {

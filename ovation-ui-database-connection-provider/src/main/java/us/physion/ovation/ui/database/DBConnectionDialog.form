@@ -60,10 +60,12 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="connectionFileComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="chooseButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="connectionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="connectionFileComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="chooseButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="connectionLabel" max="32767" attributes="0"/>
               </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="credentialsPanel" min="-2" max="-2" attributes="0"/>
@@ -99,9 +101,6 @@
           </StringArray>
         </Property>
       </Properties>
-      <BindingProperties>
-        <BindingProperty name="selectedItem" source="viewModel" sourcePath="${connection}" target="connectionFileComboBox" targetPath="selectedItem" updateStrategy="0" immediately="false"/>
-      </BindingProperties>
       <Events>
         <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="connectionFileComboBoxItemStateChanged"/>
       </Events>
@@ -167,18 +166,8 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="usernameTextField">
-          <BindingProperties>
-            <BindingProperty name="text" source="viewModel" sourcePath="${username}" target="usernameTextField" targetPath="text" updateStrategy="0" immediately="false">
-              <BindingParameter name="javax.swing.binding.ParameterKeys.TEXT_CHANGE_STRATEGY" value="javax.swing.binding.TextChangeStrategy.ON_TYPE"/>
-            </BindingProperty>
-          </BindingProperties>
         </Component>
         <Component class="javax.swing.JPasswordField" name="passwordTextField">
-          <BindingProperties>
-            <BindingProperty name="text" source="viewModel" sourcePath="${password}" target="passwordTextField" targetPath="text" updateStrategy="0" immediately="false">
-              <BindingParameter name="javax.swing.binding.ParameterKeys.TEXT_CHANGE_STRATEGY" value="javax.swing.binding.TextChangeStrategy.ON_TYPE"/>
-            </BindingProperty>
-          </BindingProperties>
         </Component>
       </SubComponents>
     </Container>
@@ -210,9 +199,6 @@
           <ResourceString bundle="us/physion/ovation/dbconnection/Bundle.properties" key="DBConnectionDialog.connectButton.toolTipText" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
-      <BindingProperties>
-        <BindingProperty name="enabled" source="viewModel" sourcePath="${complete}" target="connectButton" targetPath="enabled" updateStrategy="0" immediately="false"/>
-      </BindingProperties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="connectAction"/>
       </Events>
