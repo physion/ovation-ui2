@@ -60,7 +60,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-api-module</artifactId>
-            <version>${ovation.api.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -303,9 +303,8 @@
                                         <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}.icns" file="${basedir}/src/main/osx/${brandingToken}.icns" />
                                         <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Info.plist" file="${project.build.directory}/Info.plist"/>
 
-                                        <!-- At this point we could copy the modified ovation launcher -->
-                                        <!-- <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" file="${basedir}/src/main/osx/${brandingToken}" /> -->
 
+                                        <!-- Make sure the application is executable -->
                                         <chmod file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" perm="ugo+rx"/>
 
                                         <symlink link="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS/ovation" resource="../Resources/${brandingToken}/bin/${brandingToken}" failonerror="false" />
@@ -326,7 +325,7 @@
                                             <arg value="zlib-level=9"/>
                                             <arg value="-srcfolder"/>
                                             <arg value="${ovation.appbundle.name}.app"/>
-                                            <arg value="${project.artifactId}-${project.version}.dmg"/>
+                                            <arg value="$Ovation-${project.version}.dmg"/>
                                         </exec>
 
                                         <exec dir="${project.build.directory}" os="Linux" executable="mkisofs">
@@ -341,7 +340,7 @@
                                             <arg value="-no-iso-translate"/>
                                             <arg value="-r"/>
                                             <arg value="-o"/>
-                                            <arg value="${project.artifactId}-${project.version}.dmg"/>
+                                            <arg value="Ovation-${project.version}.dmg"/>
                                             <arg value="-root"/>
                                             <arg value="${ovation.appbundle.name}.app"/>
                                             <arg value="${ovation.appbundle.name}.app"/>
@@ -374,7 +373,7 @@
                                 <configuration>
                                     <artifacts>
                                         <artifact>
-                                            <file>${project.build.directory}/${project.artifactId}-${project.version}.dmg</file>
+                                            <file>${project.build.directory}/Ovation-${project.version}.dmg</file>
                                             <type>dmg</type>
                                         </artifact>
                                     </artifacts>
@@ -409,7 +408,7 @@
                                     <artifactId>${project.artifactId}</artifactId>
                                     <groupId>${project.groupId}</groupId>
                                     <version>${project.version}</version>
-                                    <file>${project.build.directory}/${project.artifactId}-${project.version}.dmg</file>
+                                    <file>${project.build.directory}/Ovation-${project.version}.dmg</file>
                                 </configuration>
                             </execution>
                         </executions>
