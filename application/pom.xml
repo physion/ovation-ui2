@@ -286,6 +286,7 @@
                                 </goals>
 
                                 <configuration>
+
                                     <target>
                                         <echo message="Building OS X app bundle ${line.separator}"/>
 
@@ -307,7 +308,7 @@
                                         <!-- Make sure the application is executable -->
                                         <chmod file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" perm="ugo+rx"/>
 
-                                        <symlink link="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS/ovation" resource="../Resources/${brandingToken}/bin/${brandingToken}" failonerror="false" />
+                                        <symlink link="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS/Ovation" resource="../Resources/${brandingToken}/bin/${brandingToken}" failonerror="false" />
 
                                         <echo message="Signing app bundle ${line.separator}"/>
                                         <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign">

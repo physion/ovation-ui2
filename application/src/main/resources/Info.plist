@@ -10,7 +10,7 @@
     <string>${project.version}</string>
 
     <key>CFBundleExecutable</key>
-    <string>ovation</string>
+    <string>Ovation</string>
 
     <key>CFBundlePackageType</key>
     <string>APPL</string>
