@@ -305,10 +305,12 @@
                                         <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Info.plist" file="${project.build.directory}/Info.plist"/>
 
 
-                                        <!-- Make sure the application is executable -->
+                                        <!-- Copy modified executable (with capitalized dock name and make sure it's executable -->
+                                        <delete file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}"/>
+                                        <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" file="${basedir}/src/main/osx/${brandingToken}"/>
                                         <chmod file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" perm="ugo+rx"/>
 
-                                        <symlink link="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS/Ovation" resource="../Resources/${brandingToken}/bin/${brandingToken}" failonerror="false" />
+                                        <symlink link="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS/${brandingToken}" resource="../Resources/${brandingToken}/bin/${brandingToken}" failonerror="false" />
 
                                         <echo message="Signing app bundle ${line.separator}"/>
                                         <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign">
@@ -326,7 +328,7 @@
                                             <arg value="zlib-level=9"/>
                                             <arg value="-srcfolder"/>
                                             <arg value="${ovation.appbundle.name}.app"/>
-                                            <arg value="$Ovation-${project.version}.dmg"/>
+                                            <arg value="Ovation-${project.version}.dmg"/>
                                         </exec>
 
                                         <exec dir="${project.build.directory}" os="Linux" executable="mkisofs">
