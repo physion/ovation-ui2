@@ -5,7 +5,10 @@
             <goals>
                 <goal>clean</goal>
                 <goal>install</goal>
-                <goal>-DskipTests</goal>
+                
             </goals>
+            <properties>
+                <skipTests>true</skipTests>
+            </properties>
         </action>
     </actions>
