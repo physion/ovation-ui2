@@ -3,15 +3,21 @@
         <action>
             <actionName>build</actionName>
             <goals>
-                <goal>compile</goal>
+                <goal>install</goal>
             </goals>
+            <properties>
+                <skipTests>true</skipTests>
+            </properties>
         </action>
         <action>
             <actionName>rebuild</actionName>
             <goals>
                 <goal>clean</goal>
                 <goal>install</goal>
-                <goal>-DskipTests</goal>
+                
             </goals>
+            <properties>
+                <skipTests>true</skipTests>
+            </properties>
         </action>
     </actions>
