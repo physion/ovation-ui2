@@ -264,12 +264,12 @@
             </build>
         </profile>
 
-        <!-- Profile used along with deployment to create the dmg archive -->
+
+        <!-- Profile used along with deployment to attach the dmg archive -->
         <profile>
-            <id>create-dmg</id>
+            <id>deploy-dmg</id>
             <build>
                 <plugins>
-
                     <!-- Create the Mac OS X application bundle and dmg file -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -353,15 +353,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                </plugins>
-            </build>
-        </profile>
 
-        <!-- Profile used along with deployment to attach the dmg archive -->
-        <profile>
-            <id>deploy-dmg</id>
-            <build>
-                <plugins>
                     <!-- Attach the final DMG for deployment -->
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
@@ -384,15 +376,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                </plugins>
-            </build>
-        </profile>
 
-        <!-- Profile activated for macos release. Need to be called with profile deploy-dmg. -->
-        <profile>
-            <id>release-macos</id>
-            <build>
-                <plugins>
                     <!-- Deploy dmg artifact -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
