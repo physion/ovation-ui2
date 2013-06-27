@@ -93,6 +93,9 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
                 .add(deleteButton)
                 .addContainerGap())
         );
+
+        deleteButton.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(EditableTable.class, "EditableTable.deleteButton.AccessibleContext.accessibleName")); // NOI18N
+        deleteButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(EditableTable.class, "EditableTable.deleteButton.AccessibleContext.accessibleDescription")); // NOI18N
     }// </editor-fold>//GEN-END:initComponents
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed

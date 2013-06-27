@@ -118,8 +118,12 @@ public final class ResourceViewTopComponent extends TopComponent {
         });
 
         if (PlatformUtils.isMac()) {
-            insertResourceButton.putClientProperty("JButton.buttonType", "square");
-            removeResourceButton.putClientProperty("JButton.buttonType", "square");
+            insertResourceButton.putClientProperty("JButton.buttonType", "gradient");
+            insertResourceButton.setPreferredSize(new Dimension(34, 34));
+
+            removeResourceButton.putClientProperty("JButton.buttonType", "gradient");
+            removeResourceButton.setPreferredSize(new Dimension(34, 34));
+            invalidate();
         }
     }
 
@@ -282,14 +286,19 @@ public final class ResourceViewTopComponent extends TopComponent {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 521, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 543, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(insertResourceButton)
                     .addComponent(removeResourceButton)
                     .addComponent(saveButton))
-                .addGap(28, 28, 28))
+                .addContainerGap())
         );
+
+        insertResourceButton.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ResourceViewTopComponent.class, "ResourceViewTopComponent.insertResourceButton.AccessibleContext.accessibleName")); // NOI18N
+        insertResourceButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ResourceViewTopComponent.class, "ResourceViewTopComponent.insertResourceButton.AccessibleContext.accessibleDescription")); // NOI18N
+        removeResourceButton.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ResourceViewTopComponent.class, "ResourceViewTopComponent.removeResourceButton.AccessibleContext.accessibleName")); // NOI18N
+        removeResourceButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ResourceViewTopComponent.class, "ResourceViewTopComponent.removeResourceButton.AccessibleContext.accessibleDescription")); // NOI18N
     }// </editor-fold>//GEN-END:initComponents
 
     private void insertResourceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertResourceButtonActionPerformed
