@@ -361,7 +361,7 @@
                         <executions>
                             <execution>
                                 <id>attach-dmg</id>
-                                <phase>pre-integration-test</phase>
+                                <phase>deploy</phase>
                                 <goals>
                                     <goal>attach-artifact</goal>
                                 </goals>
