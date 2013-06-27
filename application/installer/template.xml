@@ -81,6 +81,18 @@
            <fileset dir="${nbi.stub.common.location}"/>
         </copy>
 
+        <echo message="Updating Windows launcher icons ${line.separator}"/>
+
+        <exec dir="${launchers.dir}" osfamily="winnt" executable="${bin.dir}\ReplaceVistaIcon.exe">
+            <arg value="${launchers.dir}\app.exe"/>
+            <arg value="${app.ico.file}"/>
+        </exec>
+
+        <exec dir="${launchers.dir}" osfamily="winnt" executable="${bin.dir}\ReplaceVistaIcon.exe">
+            <arg value="${launchers.dir}\app64.exe"/>
+            <arg value="${app.ico.file}"/>
+        </exec>
+
         <property name="product-uid"  value="${suite.nbi.product.uid}"/>
 
         <condition property="icon.path" value="${nbi.icon.file}" else="${installer.build.dir}/ext/components/products/helloworld/data/icon48.png">
@@ -172,6 +184,7 @@
         <antcall target="-prepare-dock-icon"/>
 
         <delete dir="${dir.dir}" includeEmptyDirs="true"/>
+
     </target>
     
     <target name="-prepare-license" if="license.defined">

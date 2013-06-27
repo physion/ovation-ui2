@@ -176,10 +176,14 @@
                             <installerOsMacosx>false</installerOsMacosx>
                             <installerOsWindows>true</installerOsWindows>
                             <installerOsSolaris>false</installerOsSolaris>
+                            <installDirName>Ovation</installDirName>
                             <templateFile>${basedir}/installer/template.xml</templateFile>
                             <userSettings>
                                 <nbi.icon.file>${basedir}/installer/ovation_48x48.png</nbi.icon.file>
                                 <nbi.dock.icon.file>${basedir}/src/main/osx/ovation.icns</nbi.dock.icon.file>
+                                <bin.dir>${basedir}\bin</bin.dir>
+                                <app.ico.file>${basedir}\installer\ovation_48x48.ico</app.ico.file>
+                                <launchers.dir>${project.build.directory}\installer\launchers</launchers.dir>
                             </userSettings>
                         </configuration>
 
@@ -264,6 +268,46 @@
             </build>
         </profile>
 
+        <profile>
+
+            <id>deploy-windows</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <id>sign-windows-installer</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+
+                                <configuration>
+                                    <target>
+                                        <echo message="Signing Windows installer${line.separator}"/>
+                                        <copy file="${project.build.directory}/ovation-ui-app-${project.version}-windows.exe"
+                                              tofile="${project.build.directory}/Install Ovation ${project.version}.exe"
+                                              overwrite="true"/>
+                                        <exec dir="${project.build.directory}" osfamily="winnt" executable="C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin\signtool.exe">
+                                            <arg value="sign"/>
+                                            <arg value="/t"/>
+                                            <arg value="http://timestamp.digicert.com"/>
+                                            <arg value="/a"/>
+                                            <arg value="${project.build.directory}/Install Ovation ${project.version}.exe"/>
+                                        </exec>
+
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
 
         <!-- Profile used along with deployment to attach the dmg archive -->
         <profile>
@@ -306,8 +350,8 @@
 
 
                                         <!-- Copy modified executable (with capitalized dock name and make sure it's executable -->
-                                        <delete file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}"/>
-                                        <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" file="${basedir}/src/main/osx/${brandingToken}"/>
+                                        <!--<delete file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}"/>-->
+                                        <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" file="${basedir}/src/main/osx/${brandingToken}" overwrite="true"/>
                                         <chmod file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" perm="ugo+rx"/>
 
                                         <symlink link="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS/${brandingToken}" resource="../Resources/${brandingToken}/bin/${brandingToken}" failonerror="false" />
@@ -392,7 +436,7 @@
                                     <generatePom>false</generatePom>
                                     <repositoryId>${ovation.release.repository.id}</repositoryId>
                                     <url>${ovation.release.repository.url}</url>
-                                    <artifactId>${project.artifactId}</artifactId>
+                                    <artifactId>${project.artifactId}-dmg</artifactId>
                                     <groupId>${project.groupId}</groupId>
                                     <version>${project.version}</version>
                                     <file>${project.build.directory}/Ovation-${project.version}.dmg</file>
