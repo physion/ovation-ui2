@@ -275,4 +275,11 @@
             </build>
         </profile>
     </profiles>
+
+
+    <scm>
+        <connection>scm:git:git@github.com:physion/ovation-ui2.git</connection>
+        <developerConnection>scm:git:git@github.com:physion/ovation-ui2.git</developerConnection>
+        <url>scm:git:git@github.com:physion/ovation-ui2.git</url>
+    </scm>
 </project>
