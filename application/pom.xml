@@ -26,6 +26,9 @@
         <ovation.updates.repository.url>s3://us.physion.maven/updates</ovation.updates.repository.url>
         <ovation.updates.repository.id>s3-updates-repository</ovation.updates.repository.id>
         <ovation.appbundle.name>Ovation</ovation.appbundle.name>
+        <launcher.dir>${project.build.directory}\${brandingToken}\bin</launcher.dir>
+        <windows.ico>${basedir}\installer\ovation_48x48.ico</windows.ico>
+        <bin.dir>${basedir}\bin</bin.dir>
     </properties>
 
     <dependencies>
@@ -190,7 +193,7 @@
                         <executions>
                             <execution>
                                 <id>default-standalone-zip</id>
-                                <phase>package</phase>
+                                <phase>prepare-package</phase>
                             </execution>
 
                             <execution>
@@ -202,6 +205,8 @@
 
                             <execution>
                                 <id>extra</id>
+                                <!--Run post-package, but before install-->
+                                <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>build-installers</goal>
                                 </goals>
@@ -278,8 +283,9 @@
                         <artifactId>maven-antrun-plugin</artifactId>
                         <version>1.7</version>
                         <executions>
+
                             <execution>
-                                <id>sign-windows-installer</id>
+                                <id>update-launcher-icons</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>run</goal>
@@ -287,8 +293,52 @@
 
                                 <configuration>
                                     <target>
+                                        <echo message="Updating Windows launcher icons ${line.separator}"/>
+
+                                        <unzip src="${project.build.directory}/${project.artifactId}-${project.version}.zip"
+                                               dest="${project.build.directory}"
+                                               overwrite="true">
+                                            <patternset>
+                                                <include name="**/ovation.exe" />
+                                                <include name="**/ovation64.exe" />
+                                            </patternset>
+                                        </unzip>
+
+                                        <exec dir="${launcher.dir}"
+                                              executable="${bin.dir}\ReplaceVistaIcon.exe"
+                                              osfamily="winnt">
+                                            <arg value="${launcher.dir}\ovation.exe"/>
+                                            <arg value="${basedir}\installer\ovation_48x48.ico"/>
+                                        </exec>
+
+
+                                        <exec dir="${launcher.dir}"
+                                              executable="${bin.dir}\ReplaceVistaIcon.exe"
+                                              osfamily="winnt">
+                                            <arg value="${launcher.dir}\ovation64.exe"/>
+                                            <arg value="${basedir}\installer\ovation_48x48.ico"/>
+                                        </exec>
+
+                                        <zip destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip" update="true" >
+                                            <zipfileset dir="target/${brandingToken}/bin"
+                                                        includes="ovation*.exe"
+                                                        prefix="${brandingToken}/bin" />
+                                        </zip>
+                                    </target>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                                <id>sign-windows-installer</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+
+                                <configuration>
+                                    <target>
                                         <echo message="Signing Windows installer${line.separator}"/>
-                                        <copy file="${project.build.directory}/ovation-ui-app-${project.version}-windows.exe"
+                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}-windows.exe"
                                               tofile="${project.build.directory}/Install Ovation ${project.version}.exe"
                                               overwrite="true"/>
                                         <exec dir="${project.build.directory}" osfamily="winnt" executable="C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin\signtool.exe">
