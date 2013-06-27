@@ -8,40 +8,82 @@
     </parent>
 
     <groupId>us.physion</groupId>
-    <artifactId>scrollable-table-tree</artifactId>
+    <artifactId>ovation-ui-database-connection-provider</artifactId>
     <version>2.0-SNAPSHOT</version>
     <packaging>nbm</packaging>
 
-    <name>scrollable-table-tree</name>
+    <name>ovation-ui-database-connection-provider</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!---<netbeans.run.params.ide/>
+        <netbeans.run.params>${netbeans.run.params.ide}</netbeans.run.params>
+	-->
     </properties>
 
     <dependencies>
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-annotations-common</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ovation-api-module</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-lookup</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-progress</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-dialogs</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.swinglabs</groupId>
+            <artifactId>swing-layout</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-ui-common-interfaces</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.swinglabs</groupId>
-            <artifactId>swing-layout</artifactId>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-web-jsf</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-modules</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.jdesktop</groupId>
+            <artifactId>beansbinding</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-api-module</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -51,15 +93,8 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <version>${nbm.plugin.version}</version>
                 <extensions>true</extensions>
-                <configuration>
-                    <useOSGiDependencies>false</useOSGiDependencies>
-                    <publicPackages>
-                        <publicPackage>us.physion.ovation.ui.*</publicPackage>
-                        <publicPackage>us.physion.ovation.*</publicPackage>
-                    </publicPackages>
-
-                </configuration>
             </plugin>
+
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -71,5 +106,16 @@
                 </configuration>
             </plugin>
         </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.png</include>
+                    <include>**/*.jpg</include>
+                    <include>**/*.gif</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
 </project>

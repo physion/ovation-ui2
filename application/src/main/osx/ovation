@@ -4,8 +4,6 @@
 # resolve symlinks
 #
 
-export OO_PLUGIN_SPEC_DIR=/opt/ovation/plugins
-
 PRG=$0
 
 while [ -h "$PRG" ]; do
@@ -20,6 +18,7 @@ done
 
 progdir=`dirname "$PRG"`
 APPNAME=`basename "$PRG"`
+DOCKNAME=$(tr a-z A-Z <<< ${APPNAME:0:1})${APPNAME:1}
 
 if [ -f "$progdir/../etc/$APPNAME".conf ] ; then
     . "$progdir/../etc/$APPNAME".conf
@@ -78,20 +77,17 @@ nbexec=`echo "$progdir"/../platform*/lib/nbexec`
 
 case "`uname`" in
     Darwin*)
-		export JAVA6=`/usr/libexec/java_home -v 1.6`
-	    eval exec sh '"$nbexec"' \
-	        --jdkhome '"$JAVA6"' \
-	        -J-Dcom.apple.mrj.application.apple.menu.about.name='Ovation' \
-	        -J-Xdock:name='Ovation' \
-		-J-XX:PermSize=256m \
-		-J-XX:MaxPermSize=512m \
-	        '"-J-Xdock:icon=$progdir/../../$APPNAME.icns"' \
-	        --clusters '"$clusters"' \
-	        --userdir '"${userdir}"' \
-	        ${default_options} \
-	        "$args"
+        eval exec sh '"$nbexec"' \
+            --jdkhome '"$jdkhome"' \
+            -J-Dcom.apple.mrj.application.apple.menu.about.name='"$DOCKNAME"' \
+            -J-Xdock:name='"$DOCKNAME"' \
+            '"-J-Xdock:icon=$progdir/../../$APPNAME.icns"' \
+            --clusters '"$clusters"' \
+            --userdir '"${userdir}"' \
+            ${default_options} \
+            "$args"
         ;;
-    *)  
+    *)
        sh=sh
        # #73162: Ubuntu uses the ancient Bourne shell, which does not implement trap well.
        if [ -x /bin/bash ]

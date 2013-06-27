@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>ovation-ui-parent</artifactId>
+        <groupId>us.physion</groupId>
+        <version>2.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>us.physion</groupId>
+    <artifactId>ovation-ui-browser</artifactId>
+    <version>2.0-SNAPSHOT</version>
+    <packaging>nbm</packaging>
+
+    <name>ovation-ui-browser</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <netbeans.run.params.ide/>
+        <netbeans.run.params>${netbeans.run.params.ide}</netbeans.run.params>
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-annotations-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-progress</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-api-module</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-ui-common-interfaces</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-actions</artifactId>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-dialogs</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-awt</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-explorer</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-nodes</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-windows</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-lookup</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>us.physion</groupId>
+            <artifactId>ovation-ui-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.swinglabs</groupId>
+            <artifactId>swing-layout</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>scrollable-table-tree</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-settings</artifactId>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>us.physion</groupId>
+            <artifactId>ovation-ui-database-connection-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-autoupdate-services</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <version>${nbm.plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publicPackages>
+                        <publicPackage>us.physion.ovation.ui.browser.*</publicPackage>
+                        <publicPackage>us.physion.ovation.ui.browser.insertion.*</publicPackage>
+                    </publicPackages>
+                </configuration>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <!-- to have the jar plugin pickup the nbm generated manifest -->
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>

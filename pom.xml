@@ -66,7 +66,7 @@
                     <!-- NetBeans 6.9+ requires JDK 6 -->
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.3.2</version>
+                    <version>3.0</version>
                     <configuration>
                         <source>1.6</source>
                         <target>1.6</target>
@@ -210,23 +210,29 @@
                 <version>1.2.1</version>
             </dependency>
 
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.8.1</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
     <modules>
         <module>branding</module>
         <module>application</module>
-        <module>ovation-ui-database-connection-provider</module>
-        <module>ovation-ui-imagej</module>
-        <module>ovation-api-module</module>
-        <module>ovation-ui-common-interfaces</module>
-        <module>ovation-ui-test</module>
-        <module>ovation-ui-browser</module>
+        <module>database-connection-provider</module>
+        <module>imagej</module>
+        <module>ovation-api</module>
+        <module>common-interfaces</module>
+        <module>test</module>
+        <module>browser</module>
         <module>scrollable-table-tree</module>
-        <module>ovation-ui-data-viewer</module>
-        <module>ovation-ui-annotation-views</module>
-        <module>ovation-ui-image-importer</module>
-        <module>ovation-ui-query</module>
+        <module>data-viewer</module>
+        <module>annotation-views</module>
+        <module>image-importer</module>
+        <module>query</module>
     </modules>
 
     <properties>
@@ -237,7 +243,7 @@
         <keystore.alias>dev</keystore.alias>
         <keystore.store.password>ovation-core-dev</keystore.store.password>
         <keystore.key.password>ovation-core-dev</keystore.key.password>
-        <ovation.api.version>2.0-SNAPSHOT</ovation.api.version>
+        <ovation.api.version>2.0-beta1</ovation.api.version>
         <nbm.plugin.version>3.9</nbm.plugin.version>
     </properties>
 

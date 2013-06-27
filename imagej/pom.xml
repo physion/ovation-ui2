@@ -8,40 +8,50 @@
     </parent>
 
     <groupId>us.physion</groupId>
-    <artifactId>scrollable-table-tree</artifactId>
+    <artifactId>ovation-ui-imagej</artifactId>
     <version>2.0-SNAPSHOT</version>
     <packaging>nbm</packaging>
 
-    <name>scrollable-table-tree</name>
+    <name>ovation-ui-imagej</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>imagej.releases</id>
+            <url>http://maven.imagej.net/content/repositories/releases</url>
+        </repository>
+        <repository>
+            <id>imagej.snapshots</id>
+            <url>http://maven.imagej.net/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-annotations-common</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ovation-api-module</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ovation-ui-common-interfaces</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.swinglabs</groupId>
-            <artifactId>swing-layout</artifactId>
+            <groupId>net.imagej</groupId>
+            <artifactId>ij-core</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>net.imagej</groupId>
+            <artifactId>ij-data</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.imagej</groupId>
+            <artifactId>ij-ui</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -52,14 +62,19 @@
                 <version>${nbm.plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <useOSGiDependencies>false</useOSGiDependencies>
                     <publicPackages>
-                        <publicPackage>us.physion.ovation.ui.*</publicPackage>
-                        <publicPackage>us.physion.ovation.*</publicPackage>
+                        <publicPackage>imagej.*</publicPackage>
+                        <publicPackage>imagej.data.*</publicPackage>
+                        <publicPackage>imagej.display.*</publicPackage>
+                        <publicPackage>loci.*</publicPackage>
+                        <publicPackage>loci.common.services.*</publicPackage>
+                        <publicPackage>loci.formats.*</publicPackage>
+                        <publicPackage>loci.formats.meta.*</publicPackage>
+                        <publicPackage>loci.formats.services.*</publicPackage>
                     </publicPackages>
-
                 </configuration>
             </plugin>
+
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
