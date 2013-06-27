@@ -38,9 +38,9 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
         //this.setBorder(BorderFactory.createEtchedBorder());
 
         if (PlatformUtils.isMac()) {
-            //deleteButton.putClientProperty("JButton.buttonType", "square");
+            deleteButton.putClientProperty("JButton.buttonType", "gradient");
             deleteButton.setPreferredSize(new Dimension(34, 34));
-            getLayout().layoutContainer(this);
+            invalidate();
         }
 
     }
@@ -68,6 +68,7 @@ public class EditableTable extends javax.swing.JPanel implements TablePanel,Resi
 
         setBackground(new java.awt.Color(255, 255, 255));
 
+        deleteButton.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
         deleteButton.setText(org.openide.util.NbBundle.getMessage(EditableTable.class, "EditableTable.deleteButton.text_1")); // NOI18N
         deleteButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
