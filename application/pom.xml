@@ -15,8 +15,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netbeans.run.params.ide/>
-        <netbeans.run.params>${netbeans.run.params.ide}</netbeans.run.params>
         <all.clusters>${project.build.directory}/${brandingToken}</all.clusters>
         <ovation.release.repository.id>s3-release-repository</ovation.release.repository.id>
         <ovation.release.repository.url>s3://us.physion.maven/release</ovation.release.repository.url>
