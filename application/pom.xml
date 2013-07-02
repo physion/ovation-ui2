@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>us.physion</groupId>
         <artifactId>ovation-ui-parent</artifactId>
-        <version>2.0-beta2-SNAPSHOT</version>
+        <version>2.0-beta2</version>
     </parent>
 
     <artifactId>ovation-ui-app</artifactId>
@@ -292,36 +291,28 @@
 
                                 <configuration>
                                     <target>
-                                        <echo message="Updating Windows launcher icons ${line.separator}"/>
+                                        <echo message="Updating Windows launcher icons ${line.separator}" />
 
-                                        <unzip src="${project.build.directory}/${project.artifactId}-${project.version}.zip"
-                                               dest="${project.build.directory}"
-                                               overwrite="true">
+                                        <unzip src="${project.build.directory}/${project.artifactId}-${project.version}.zip" dest="${project.build.directory}" overwrite="true">
                                             <patternset>
                                                 <include name="**/ovation.exe" />
                                                 <include name="**/ovation64.exe" />
                                             </patternset>
                                         </unzip>
 
-                                        <exec dir="${launcher.dir}"
-                                              executable="${bin.dir}\ReplaceVistaIcon.exe"
-                                              osfamily="winnt">
-                                            <arg value="${launcher.dir}\ovation.exe"/>
-                                            <arg value="${basedir}\installer\ovation_48x48.ico"/>
+                                        <exec dir="${launcher.dir}" executable="${bin.dir}\ReplaceVistaIcon.exe" osfamily="winnt">
+                                            <arg value="${launcher.dir}\ovation.exe" />
+                                            <arg value="${basedir}\installer\ovation_48x48.ico" />
                                         </exec>
 
 
-                                        <exec dir="${launcher.dir}"
-                                              executable="${bin.dir}\ReplaceVistaIcon.exe"
-                                              osfamily="winnt">
-                                            <arg value="${launcher.dir}\ovation64.exe"/>
-                                            <arg value="${basedir}\installer\ovation_48x48.ico"/>
+                                        <exec dir="${launcher.dir}" executable="${bin.dir}\ReplaceVistaIcon.exe" osfamily="winnt">
+                                            <arg value="${launcher.dir}\ovation64.exe" />
+                                            <arg value="${basedir}\installer\ovation_48x48.ico" />
                                         </exec>
 
-                                        <zip destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip" update="true" >
-                                            <zipfileset dir="target/${brandingToken}/bin"
-                                                        includes="ovation*.exe"
-                                                        prefix="${brandingToken}/bin" />
+                                        <zip destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip" update="true">
+                                            <zipfileset dir="target/${brandingToken}/bin" includes="ovation*.exe" prefix="${brandingToken}/bin" />
                                         </zip>
                                     </target>
                                 </configuration>
@@ -336,16 +327,14 @@
 
                                 <configuration>
                                     <target>
-                                        <echo message="Signing Windows installer${line.separator}"/>
-                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}-windows.exe"
-                                              tofile="${project.build.directory}/Install Ovation ${project.version}.exe"
-                                              overwrite="true"/>
+                                        <echo message="Signing Windows installer${line.separator}" />
+                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}-windows.exe" tofile="${project.build.directory}/Install Ovation ${project.version}.exe" overwrite="true" />
                                         <exec dir="${project.build.directory}" osfamily="winnt" executable="C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin\signtool.exe">
-                                            <arg value="sign"/>
-                                            <arg value="/t"/>
-                                            <arg value="http://timestamp.digicert.com"/>
-                                            <arg value="/a"/>
-                                            <arg value="${project.build.directory}/Install Ovation ${project.version}.exe"/>
+                                            <arg value="sign" />
+                                            <arg value="/t" />
+                                            <arg value="http://timestamp.digicert.com" />
+                                            <arg value="/a" />
+                                            <arg value="${project.build.directory}/Install Ovation ${project.version}.exe" />
                                         </exec>
 
                                     </target>
@@ -381,71 +370,71 @@
                                 <configuration>
 
                                     <target>
-                                        <echo message="Building OS X app bundle ${line.separator}"/>
+                                        <echo message="Building OS X app bundle ${line.separator}" />
 
                                         <delete includeEmptyDirs="true" failonerror="false">
-                                            <fileset dir="${project.build.directory}/${ovation.appbundle.name}.app"/>
+                                            <fileset dir="${project.build.directory}/${ovation.appbundle.name}.app" />
                                         </delete>
 
-                                        <mkdir dir="${project.build.directory}/${ovation.appbundle.name}.app"/>
-                                        <mkdir dir="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS"/>
+                                        <mkdir dir="${project.build.directory}/${ovation.appbundle.name}.app" />
+                                        <mkdir dir="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS" />
 
                                         <copy todir="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}">
-                                            <fileset dir="${project.build.directory}/${brandingToken}"/>
+                                            <fileset dir="${project.build.directory}/${brandingToken}" />
                                         </copy>
 
                                         <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}.icns" file="${basedir}/src/main/osx/${brandingToken}.icns" />
-                                        <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Info.plist" file="${project.build.directory}/Info.plist"/>
+                                        <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Info.plist" file="${project.build.directory}/Info.plist" />
 
 
                                         <!-- Copy modified executable (with capitalized dock name and make sure it's executable -->
-                                        <!--<delete file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}"/>-->
-                                        <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" file="${basedir}/src/main/osx/${brandingToken}" overwrite="true"/>
-                                        <chmod file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" perm="ugo+rx"/>
+                                        <!--<delete file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" />-->
+                                        <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" file="${basedir}/src/main/osx/${brandingToken}" overwrite="true" />
+                                        <chmod file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" perm="ugo+rx" />
 
                                         <symlink link="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS/${brandingToken}" resource="../Resources/${brandingToken}/bin/${brandingToken}" failonerror="false" />
 
-                                        <echo message="Signing app bundle ${line.separator}"/>
+                                        <echo message="Signing app bundle ${line.separator}" />
                                         <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign">
-                                            <arg value="-fs"/>
-                                            <arg value="${physion.codesign.identity}"/>
-                                            <arg value="-v"/>
-                                            <arg value="${ovation.appbundle.name}.app"/>
+                                            <arg value="-fs" />
+                                            <arg value="${physion.codesign.identity}" />
+                                            <arg value="-v" />
+                                            <arg value="${ovation.appbundle.name}.app" />
                                         </exec>
 
-                                        <echo message="Creating DMG ${line.separator}"/>
+                                        <echo message="Creating DMG ${line.separator}" />
                                         <exec dir="${project.build.directory}" os="Mac OS X" executable="/usr/local/bin/dmgcanvas">
-                                            <arg value="${project.basedir}/src/main/osx/dmg_template.dmgCanvas"/>
-                                            <arg value="${dmg.artifact}"/>
-                                            <arg value="-volume"/>
-                                            <arg value="Ovation ${project.version}"/>
+                                            <arg value="${project.basedir}/src/main/osx/dmg_template.dmgCanvas" />
+                                            <arg value="${dmg.artifact}" />
+                                            <arg value="-volume" />
+                                            <arg value="Ovation ${project.version}" />
                                         </exec>
                                         <!--<exec dir="${project.build.directory}" os="Mac OS X" executable="hdiutil">-->
-                                            <!--<arg value="create"/>-->
-                                            <!--<arg value="-noanyowners"/>-->
-                                            <!--<arg value="-imagekey"/>-->
-                                            <!--<arg value="zlib-level=9"/>-->
-                                            <!--<arg value="-srcfolder"/>-->
-                                            <!--<arg value="${ovation.appbundle.name}.app"/>-->
-                                            <!--<arg value="Ovation-${project.version}.dmg"/>-->
+                                            <!--<arg value="create" />-->
+                                            <!--<arg value="-noanyowners" />-->
+                                            <!--<arg value="-imagekey" />-->
+                                            <!--<arg value="zlib-level=9" />-->
+                                            <!--<arg value="-srcfolder" />-->
+                                            <!--<arg value="${ovation.appbundle.name}.app" />-->
+                                            <!--<arg value="Ovation-${project.version}.dmg" />-->
                                         <!--</exec>-->
 
                                         <!--<exec dir="${project.build.directory}" os="Linux" executable="mkisofs">-->
-                                            <!--<arg value="-V"/>-->
-                                            <!--<arg value="${ovation.appbundle.name}"/>-->
-                                            <!--<arg value="-U"/>-->
-                                            <!--<arg value="-D"/>-->
-                                            <!--<arg value="-l"/>-->
-                                            <!--<arg value="-allow-multidot"/>-->
-                                            <!--<arg value="-max-iso9660-filenames"/>-->
-                                            <!--<arg value="-relaxed-filenames"/>-->
-                                            <!--<arg value="-no-iso-translate"/>-->
-                                            <!--<arg value="-r"/>-->
-                                            <!--<arg value="-o"/>-->
-                                            <!--<arg value="Ovation-${project.version}.dmg"/>-->
-                                            <!--<arg value="-root"/>-->
-                                            <!--<arg value="${ovation.appbundle.name}.app"/>-->
-                                            <!--<arg value="${ovation.appbundle.name}.app"/>-->
+                                            <!--<arg value="-V" />-->
+                                            <!--<arg value="${ovation.appbundle.name}" />-->
+                                            <!--<arg value="-U" />-->
+                                            <!--<arg value="-D" />-->
+                                            <!--<arg value="-l" />-->
+                                            <!--<arg value="-allow-multidot" />-->
+                                            <!--<arg value="-max-iso9660-filenames" />-->
+                                            <!--<arg value="-relaxed-filenames" />-->
+                                            <!--<arg value="-no-iso-translate" />-->
+                                            <!--<arg value="-r" />-->
+                                            <!--<arg value="-o" />-->
+                                            <!--<arg value="Ovation-${project.version}.dmg" />-->
+                                            <!--<arg value="-root" />-->
+                                            <!--<arg value="${ovation.appbundle.name}.app" />-->
+                                            <!--<arg value="${ovation.appbundle.name}.app" />-->
                                         <!--</exec>-->
                                     </target>
                                 </configuration>
