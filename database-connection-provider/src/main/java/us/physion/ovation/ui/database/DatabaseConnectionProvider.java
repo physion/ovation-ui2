@@ -47,7 +47,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         }
         JLabel l = new JLabel(name);
         f.setPreferredSize(new Dimension(250, 25));
-        
+
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
         c.gridy = row;
@@ -55,7 +55,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         c.fill = GridBagConstraints.BOTH;
         c.gridwidth = 2;
         form.add(f, c);
-        
+
         return f;
     }
 
@@ -65,8 +65,8 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
     }
 
     private static class LoginModel {
-        String email; 
-        String password; 
+        String email;
+        String password;
         boolean cancelled = true;
 
         void setEmail(String email)
@@ -95,7 +95,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
     private boolean waitingForContext = false;
 
     public DatabaseConnectionProvider() {
-        
+
         connectionListeners = Collections.synchronizedSet(new HashSet());
     }
 
@@ -116,7 +116,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         }
 
         final ConnectionListener[] listeners = connectionListeners.toArray(new ConnectionListener[0]);
-        
+
         final Runnable r = new Runnable() {
 
             public void run() {
@@ -139,25 +139,25 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
                 }
             }
         };
-        
+
         EventQueueUtilities.runOnEDT(r);
-        
+
         return context;
     }
-    
+
     private LoginModel showLoginDialog(String error) {
-        
+
         final LoginModel model = new LoginModel();
-        
-        final JDialog d = new JDialog(new JFrame(), true);
+
+        final JDialog d = new JDialog(new JFrame(), "Ovation", true);
         d.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        
+
         JPanel login = new JPanel();
         login.setAlignmentX(Component.LEFT_ALIGNMENT);
         login.setBorder(new EmptyBorder(15, 15, 15, 15));
         login.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        
+
         BufferedImage physionIcon;
         File f = null;
         try {
@@ -178,20 +178,20 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
                 s = " at '" + f.getAbsolutePath() + "'";
             logger.error("Could not find Physion icon" + s);
         }
-        
+
         //tabs.addTab("Login", login);
-        
+
         //JPanel signUp = new JPanel();
         //tabs.addTab("Sign up", signUp);
-        
+
         //LOGIN
         //------------------------------------------------------
         //TODO: header if the error is not null
-        
+
         //two text fields
         final JTextField emailTB = addField(login, "Email: ", 1, false);
         final JTextField passwordTB = addField(login, "Password: ", 2, true);
-        
+
         //Cancel/Ok buttons
         //JButton cancelButton = new JButton("Cancel");
         JButton okButton = new JButton("Login");
@@ -214,29 +214,29 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
                 d.dispose();
             }
         });
-               
+
         //SIGN UP
         //-----------------------------------------------------------
        /* JLabel header = new JLabel("New to Ovation? Sign up");
-        
+
         //two text fields
         JPanel s_form = new JPanel(new GridBagLayout());
         final JTextField nameTB = addField(s_form, "Name: ", 0, false);
         final JTextField s_emailTB = addField(s_form, "Email: ", 1, false);
         final JTextField s_passwordTB = addField(s_form, "Password: ", 2, true);
-        
+
         JPanel s_buttonPane = new JPanel();
         JButton signUpButton = new JButton("Sign Up");
         s_buttonPane.setLayout(new BoxLayout(s_buttonPane, BoxLayout.LINE_AXIS));
         s_buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         s_buttonPane.add(signUpButton);
-        
+
         signUpButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent ae) {
                 //sign up through the website
-                //when that's completed, 
+                //when that's completed,
                 model.setEmail(s_emailTB.getText());
                 model.setPassword(s_passwordTB.getText());
                 model.cancelled = false;
@@ -246,7 +246,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         signUp.add(header, BorderLayout.PAGE_START);
         signUp.add(s_form, BorderLayout.CENTER);
         signUp.add(s_buttonPane, BorderLayout.PAGE_END);
-        
+
         d.getContentPane().add(tabs);
         login.getRootPane().setDefaultButton(okButton);
         */
@@ -271,7 +271,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
                 return authenticateUser(dsc, e.getLocalizedMessage());
             } catch (ExecutionException e) {
                 return authenticateUser(dsc, e.getLocalizedMessage());
-            } 
+            }
             //TODO: add other common errors here
         }
         return false;

@@ -5,7 +5,7 @@
     <parent>
         <groupId>us.physion</groupId>
         <artifactId>ovation-ui-parent</artifactId>
-        <version>2.0-beta1</version>
+        <version>2.0-beta2-SNAPSHOT</version>
     </parent>
 
     <artifactId>ovation-ui-app</artifactId>
@@ -29,6 +29,7 @@
         <launcher.dir>${project.build.directory}\${brandingToken}\bin</launcher.dir>
         <windows.ico>${basedir}\installer\ovation_48x48.ico</windows.ico>
         <bin.dir>${basedir}\bin</bin.dir>
+        <dmg.artifact>${project.build.directory}/Ovation-${project.version}.dmg</dmg.artifact>
     </properties>
 
     <dependencies>
@@ -371,7 +372,7 @@
                         <version>1.7</version>
                         <executions>
                             <execution>
-                                <id>create-app-bundle</id>
+                                <id>package-app-bundle</id>
 
                                 <phase>package</phase>
 
@@ -415,33 +416,39 @@
                                         </exec>
 
                                         <echo message="Creating DMG ${line.separator}"/>
-                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="hdiutil">
-                                            <arg value="create"/>
-                                            <arg value="-noanyowners"/>
-                                            <arg value="-imagekey"/>
-                                            <arg value="zlib-level=9"/>
-                                            <arg value="-srcfolder"/>
-                                            <arg value="${ovation.appbundle.name}.app"/>
-                                            <arg value="Ovation-${project.version}.dmg"/>
+                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="/usr/local/bin/dmgcanvas">
+                                            <arg value="${project.basedir}/src/main/osx/dmg_template.dmgCanvas"/>
+                                            <arg value="${dmg.artifact}"/>
+                                            <arg value="-volume"/>
+                                            <arg value="Ovation ${project.version}"/>
                                         </exec>
+                                        <!--<exec dir="${project.build.directory}" os="Mac OS X" executable="hdiutil">-->
+                                            <!--<arg value="create"/>-->
+                                            <!--<arg value="-noanyowners"/>-->
+                                            <!--<arg value="-imagekey"/>-->
+                                            <!--<arg value="zlib-level=9"/>-->
+                                            <!--<arg value="-srcfolder"/>-->
+                                            <!--<arg value="${ovation.appbundle.name}.app"/>-->
+                                            <!--<arg value="Ovation-${project.version}.dmg"/>-->
+                                        <!--</exec>-->
 
-                                        <exec dir="${project.build.directory}" os="Linux" executable="mkisofs">
-                                            <arg value="-V"/>
-                                            <arg value="${ovation.appbundle.name}"/>
-                                            <arg value="-U"/>
-                                            <arg value="-D"/>
-                                            <arg value="-l"/>
-                                            <arg value="-allow-multidot"/>
-                                            <arg value="-max-iso9660-filenames"/>
-                                            <arg value="-relaxed-filenames"/>
-                                            <arg value="-no-iso-translate"/>
-                                            <arg value="-r"/>
-                                            <arg value="-o"/>
-                                            <arg value="Ovation-${project.version}.dmg"/>
-                                            <arg value="-root"/>
-                                            <arg value="${ovation.appbundle.name}.app"/>
-                                            <arg value="${ovation.appbundle.name}.app"/>
-                                        </exec>
+                                        <!--<exec dir="${project.build.directory}" os="Linux" executable="mkisofs">-->
+                                            <!--<arg value="-V"/>-->
+                                            <!--<arg value="${ovation.appbundle.name}"/>-->
+                                            <!--<arg value="-U"/>-->
+                                            <!--<arg value="-D"/>-->
+                                            <!--<arg value="-l"/>-->
+                                            <!--<arg value="-allow-multidot"/>-->
+                                            <!--<arg value="-max-iso9660-filenames"/>-->
+                                            <!--<arg value="-relaxed-filenames"/>-->
+                                            <!--<arg value="-no-iso-translate"/>-->
+                                            <!--<arg value="-r"/>-->
+                                            <!--<arg value="-o"/>-->
+                                            <!--<arg value="Ovation-${project.version}.dmg"/>-->
+                                            <!--<arg value="-root"/>-->
+                                            <!--<arg value="${ovation.appbundle.name}.app"/>-->
+                                            <!--<arg value="${ovation.appbundle.name}.app"/>-->
+                                        <!--</exec>-->
                                     </target>
                                 </configuration>
                             </execution>
@@ -462,7 +469,7 @@
                                 <configuration>
                                     <artifacts>
                                         <artifact>
-                                            <file>${project.build.directory}/Ovation-${project.version}.dmg</file>
+                                            <file>${dmg.artifact}</file>
                                             <type>dmg</type>
                                         </artifact>
                                     </artifacts>
