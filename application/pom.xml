@@ -200,15 +200,6 @@
                                     <goal>autoupdate</goal>
                                 </goals>
                             </execution>
-
-                            <execution>
-                                <id>extra</id>
-                                <!--Run post-package, but before install-->
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>build-installers</goal>
-                                </goals>
-                            </execution>
                         </executions>
                     </plugin>
 
@@ -343,6 +334,22 @@
                         </executions>
                     </plugin>
 
+                    <!-- NBM Plugin settings. Build windows installer -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>nbm-maven-plugin</artifactId>
+
+                        <executions>
+                            <execution>
+                                <id>extra</id>
+                                <!--Run post-package, but before install-->
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>build-installers</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
