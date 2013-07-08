@@ -41,6 +41,6 @@ public class FileUtilities {
     
     public static void main(String[] args) throws MalformedURLException
     {
-        downloadFile(new URL("https://s3.amazonaws.com/com.physionconsulting.ovation.updates/1.4/Update_3.jar"));
+        //downloadFile(new URL("https://s3.amazonaws.com/com.physionconsulting.ovation.updates/1.4/Update_3.jar"));
     }
 }
