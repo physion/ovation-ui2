@@ -71,8 +71,14 @@ public class TabularPanel extends JPanel implements StrictSizePanel {
                     @Override
                     public void run() {
                         try {
+                            File file = dataWrapper.file;
                             if (Desktop.isDesktopSupported()) {
-                                Desktop.getDesktop().edit(dataWrapper.file);
+                                if (file.getAbsolutePath().length() > 254)
+                                {
+                                    Desktop.getDesktop().edit(file.getParentFile());
+                                }else{
+                                    Desktop.getDesktop().edit(file);
+                                }
                             } else {
                                 throw new OvationException("Java Desktop not supported on this machine");
                             }
