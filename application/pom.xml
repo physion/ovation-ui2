@@ -416,33 +416,6 @@
                                             <arg value="-volume" />
                                             <arg value="Ovation ${project.version}" />
                                         </exec>
-                                        <!--<exec dir="${project.build.directory}" os="Mac OS X" executable="hdiutil">-->
-                                            <!--<arg value="create" />-->
-                                            <!--<arg value="-noanyowners" />-->
-                                            <!--<arg value="-imagekey" />-->
-                                            <!--<arg value="zlib-level=9" />-->
-                                            <!--<arg value="-srcfolder" />-->
-                                            <!--<arg value="${ovation.appbundle.name}.app" />-->
-                                            <!--<arg value="Ovation-${project.version}.dmg" />-->
-                                        <!--</exec>-->
-
-                                        <!--<exec dir="${project.build.directory}" os="Linux" executable="mkisofs">-->
-                                            <!--<arg value="-V" />-->
-                                            <!--<arg value="${ovation.appbundle.name}" />-->
-                                            <!--<arg value="-U" />-->
-                                            <!--<arg value="-D" />-->
-                                            <!--<arg value="-l" />-->
-                                            <!--<arg value="-allow-multidot" />-->
-                                            <!--<arg value="-max-iso9660-filenames" />-->
-                                            <!--<arg value="-relaxed-filenames" />-->
-                                            <!--<arg value="-no-iso-translate" />-->
-                                            <!--<arg value="-r" />-->
-                                            <!--<arg value="-o" />-->
-                                            <!--<arg value="Ovation-${project.version}.dmg" />-->
-                                            <!--<arg value="-root" />-->
-                                            <!--<arg value="${ovation.appbundle.name}.app" />-->
-                                            <!--<arg value="${ovation.appbundle.name}.app" />-->
-                                        <!--</exec>-->
                                     </target>
                                 </configuration>
                             </execution>
