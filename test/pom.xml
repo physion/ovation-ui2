@@ -8,14 +8,15 @@
     </parent>
 
     <groupId>us.physion</groupId>
-    <artifactId>scrollable-table-tree</artifactId>
+    <artifactId>ovation-ui-test</artifactId>
     <packaging>nbm</packaging>
 
-    <name>scrollable-table-tree</name>
+    <name>ovation-ui-test</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
 
     <dependencies>
         <dependency>
@@ -23,24 +24,20 @@
             <artifactId>org-netbeans-api-annotations-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-api-module</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ovation-ui-common-interfaces</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.swinglabs</groupId>
-            <artifactId>swing-layout</artifactId>
+	<dependency>
+            <groupId>us.physion</groupId>
+            <artifactId>ovation-test-utils</artifactId>
+            <version>${ovation.api.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -50,15 +47,8 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <version>${nbm.plugin.version}</version>
                 <extensions>true</extensions>
-                <configuration>
-                    <useOSGiDependencies>false</useOSGiDependencies>
-                    <publicPackages>
-                        <publicPackage>us.physion.ovation.ui.*</publicPackage>
-                        <publicPackage>us.physion.ovation.*</publicPackage>
-                    </publicPackages>
-
-                </configuration>
             </plugin>
+
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

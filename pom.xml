@@ -4,7 +4,7 @@
 
     <groupId>us.physion</groupId>
     <artifactId>ovation-ui-parent</artifactId>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.0-beta3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>ovation-ui-parent</name>
@@ -46,32 +46,43 @@
             </extension>
         </extensions>
 
+        <plugins>
+            <plugin>
+                <!-- NetBeans 6.9+ requires JDK 6 -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.0</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <version>${nbm.plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <brandingToken>${brandingToken}</brandingToken>
+                    <cluster>${brandingToken}</cluster>
+                    <useOSGiDependencies>false</useOSGiDependencies>
+                    <userSettings>
+                        <releaseVersion>${project.version}</releaseVersion>
+                    </userSettings>
+                </configuration>
+            </plugin>
+
+            <!--Release-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.3.2</version>
+            </plugin>
+        </plugins>
+
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>nbm-maven-plugin</artifactId>
-                    <version>${nbm.plugin.version}</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <brandingToken>${brandingToken}</brandingToken>
-                        <cluster>${brandingToken}</cluster>
-                        <useOSGiDependencies>false</useOSGiDependencies>
-                        <userSettings>
-                            <releaseVersion>${project.version}</releaseVersion>
-                        </userSettings>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <!-- NetBeans 6.9+ requires JDK 6 -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.3.2</version>
-                    <configuration>
-                        <source>1.6</source>
-                        <target>1.6</target>
-                    </configuration>
-                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -81,11 +92,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
                     <version>2.2.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.3.1</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -215,34 +221,40 @@
                 <version>1.2.1</version>
             </dependency>
 
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.8.1</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
     <modules>
         <module>branding</module>
         <module>application</module>
-        <module>ovation-ui-database-connection-provider</module>
-        <module>ovation-ui-imagej</module>
-        <module>ovation-api-module</module>
-        <module>ovation-ui-common-interfaces</module>
-        <module>ovation-ui-test</module>
-        <module>ovation-ui-browser</module>
+        <module>database-connection-provider</module>
+        <module>imagej</module>
+        <module>ovation-api</module>
+        <module>common-interfaces</module>
+        <module>test</module>
+        <module>browser</module>
         <module>scrollable-table-tree</module>
-        <module>ovation-ui-data-viewer</module>
-        <module>ovation-ui-annotation-views</module>
-        <module>ovation-ui-image-importer</module>
-        <module>ovation-ui-query</module>
+        <module>data-viewer</module>
+        <module>annotation-views</module>
+        <module>image-importer</module>
+        <module>query</module>
     </modules>
 
     <properties>
         <netbeans.version>RELEASE73</netbeans.version>
         <brandingToken>ovation</brandingToken>
-        <keystore.path>${project.parent.basedir}/cert/dev.keystore</keystore.path>
+        <keystore.path>../cert/dev.keystore</keystore.path>
         <keystore.type>JKS</keystore.type>
         <keystore.alias>dev</keystore.alias>
         <keystore.store.password>ovation-core-dev</keystore.store.password>
         <keystore.key.password>ovation-core-dev</keystore.key.password>
-        <ovation.api.version>2.0-SNAPSHOT</ovation.api.version>
+        <ovation.api.version>2.0-beta2</ovation.api.version>
         <nbm.plugin.version>3.9</nbm.plugin.version>
     </properties>
 
@@ -253,8 +265,8 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jar-plugin</artifactId>
-                        <version>2.3.1</version>
+                        <artifactId>maven-jarsigner-plugin</artifactId>
+                        <version>1.2</version>
                         <executions>
                             <execution>
                                 <id>sign</id>
@@ -274,4 +286,12 @@
             </build>
         </profile>
     </profiles>
+
+
+    <scm>
+        <connection>scm:git:git@github.com:physion/ovation-ui2.git</connection>
+        <developerConnection>scm:git:git@github.com:physion/ovation-ui2.git</developerConnection>
+        <url>scm:git:git@github.com:physion/ovation-ui2.git</url>
+      <tag>HEAD</tag>
+  </scm>
 </project>

@@ -8,39 +8,42 @@
     </parent>
 
     <groupId>us.physion</groupId>
-    <artifactId>scrollable-table-tree</artifactId>
+    <artifactId>ovation-ui-common-interfaces</artifactId>
     <packaging>nbm</packaging>
 
-    <name>scrollable-table-tree</name>
+    <name>ovation-ui-common-interfaces</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
 
     <dependencies>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-annotations-common</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-api-module</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ovation-ui-common-interfaces</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.swinglabs</groupId>
-            <artifactId>swing-layout</artifactId>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-dialogs</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-lookup</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -53,12 +56,24 @@
                 <configuration>
                     <useOSGiDependencies>false</useOSGiDependencies>
                     <publicPackages>
+                        <publicPackage>us.physion.ovation.ui.interfaces.*</publicPackage>
                         <publicPackage>us.physion.ovation.ui.*</publicPackage>
                         <publicPackage>us.physion.ovation.*</publicPackage>
+                        <publicPackage>us.physion.ovation.api.*</publicPackage>
+                        <publicPackage>us.physion.ovation.domain.*</publicPackage>
+                        <publicPackage>opendap.dap.*</publicPackage>
+                        <publicPackage>org.apache.commons.*</publicPackage>
+                        <publicPackage>edu.wisc.*</publicPackage>
+                        <publicPackage>Jama.*</publicPackage>
+                        <publicPackage>org.jdom.*</publicPackage>
+                        <publicPackage>ucar.grib.*</publicPackage>
+                        <publicPackage>visad.jmet.*</publicPackage>
+                        <publicPackage>org.slf4j.impl.*</publicPackage>
+                        <publicPackage>loci.formats.*</publicPackage>
                     </publicPackages>
-
                 </configuration>
             </plugin>
+
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
