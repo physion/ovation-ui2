@@ -19,8 +19,8 @@
         <ovation.release.repository.url>s3://us.physion.maven/release</ovation.release.repository.url>
         <physion.codesign.identity>3rd Party Mac Developer Application: Physion Consulting LLC</physion.codesign.identity>
         <ovation.updates.site.sourcedir>${project.build.directory}/netbeans_site</ovation.updates.site.sourcedir>
-        <ovation.updates.repository.path>nbm</ovation.updates.repository.path>
-        <ovation.updates.repository.url>s3://updates.ovation.io/</ovation.updates.repository.url>
+        <ovation.updates.repository.path>current</ovation.updates.repository.path>
+        <ovation.updates.repository.url>s3://updates-ovation-io/</ovation.updates.repository.url>
         <ovation.updates.repository.id>s3-updates-repository</ovation.updates.repository.id>
         <ovation.appbundle.name>Ovation</ovation.appbundle.name>
         <launcher.dir>${project.build.directory}\${brandingToken}\bin</launcher.dir>
