@@ -113,7 +113,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                <version>${nbm.plugin.version}</version>
                 <configuration>
                     <!-- setup ovation.conf for the final product -->
                     <etcConfFile>${basedir}/target/${brandingToken}.conf</etcConfFile>
@@ -175,7 +174,7 @@
                             <installerLicenseFile>../licenses/license-GPL.txt</installerLicenseFile>
                             <installerOsLinux>false</installerOsLinux>
                             <installerOsMacosx>false</installerOsMacosx>
-                            <installerOsWindows>false</installerOsWindows>
+                            <installerOsWindows>true</installerOsWindows>
                             <installerOsSolaris>false</installerOsSolaris>
                             <installDirName>Ovation</installDirName>
                             <templateFile>${basedir}/installer/template.xml</templateFile>
@@ -272,11 +271,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>nbm-maven-plugin</artifactId>
-
-                        <configuration>
-                            <installerOsWindows>true</installerOsWindows>
-                        </configuration>
-
                         <executions>
                             <execution>
                                 <id>extra</id>
