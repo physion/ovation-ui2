@@ -283,44 +283,9 @@
                         <artifactId>nbm-maven-plugin</artifactId>
 
                         <configuration>
-                            <installerLicenseFile>../licenses/license-GPL.txt</installerLicenseFile>
-                            <installerOsLinux>false</installerOsLinux>
-                            <installerOsMacosx>false</installerOsMacosx>
                             <installerOsWindows>true</installerOsWindows>
-                            <installerOsSolaris>false</installerOsSolaris>
-                            <installDirName>Ovation</installDirName>
-                            <templateFile>${basedir}/installer/template.xml</templateFile>
-                            <userSettings>
-                                <nbi.icon.file>${basedir}/installer/ovation_48x48.png</nbi.icon.file>
-                                <nbi.dock.icon.file>${basedir}/src/main/osx/ovation.icns</nbi.dock.icon.file>
-                                <bin.dir>${basedir}\bin</bin.dir>
-                                <app.ico.file>${basedir}\installer\ovation_48x48.ico</app.ico.file>
-                                <launchers.dir>${project.build.directory}\installer\launchers</launchers.dir>
-                            </userSettings>
                         </configuration>
 
-                        <executions>
-                            <execution>
-                                <id>default-standalone-zip</id>
-                                <phase>prepare-package</phase>
-                            </execution>
-
-                            <execution>
-                                <id>autoupdate</id>
-                                <goals>
-                                    <goal>autoupdate</goal>
-                                </goals>
-                            </execution>
-
-                            <execution>
-                                <id>extra</id>
-                                <!--Run post-package, but before install-->
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>build-installers</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
 
                     <plugin>
