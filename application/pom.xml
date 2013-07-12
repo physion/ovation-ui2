@@ -200,15 +200,6 @@
                                     <goal>autoupdate</goal>
                                 </goals>
                             </execution>
-
-                            <execution>
-                                <id>extra</id>
-                                <!--Run post-package, but before install-->
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>build-installers</goal>
-                                </goals>
-                            </execution>
                         </executions>
                     </plugin>
 
@@ -285,6 +276,18 @@
                         <configuration>
                             <installerOsWindows>true</installerOsWindows>
                         </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>extra</id>
+                                <!--Run post-package, but before install-->
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>build-installers</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+
 
                     </plugin>
 
