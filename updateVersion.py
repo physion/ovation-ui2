@@ -12,9 +12,14 @@ def replace(file_path, pattern, subst):
     new_file = open(abs_path,'w')
     old_file = open(file_path)
 
+    found_version = False
     try:        
        for line in old_file:
-            new_file.write(re.sub(pattern, subst, line))
+           if re.match(pattern, line):
+               found_version = True
+           new_file.write(re.sub(pattern, subst, line))
+       if not found_version:
+           new_file.write(subst)
     finally:
         #close temp file
         new_file.close()

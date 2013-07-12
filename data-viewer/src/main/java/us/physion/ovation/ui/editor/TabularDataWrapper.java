@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import com.pixelmed.dicom.DicomInputStream;
 import java.awt.Component;
 import java.io.*;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
@@ -27,30 +28,37 @@ public class TabularDataWrapper implements Visualization {
     String[] columnNames;
     String[][] tabularData;
     static Logger logger = LoggerFactory.getLogger(TabularDataWrapper.class);
-
+    
+    List<String[]> myEntries;
+    int nextChunkPosition;
+    final int CHUNK_SIZE = 100;
+    File file;
+    
     TabularDataWrapper(){};
     
     TabularDataWrapper(DataElement r) 
     {
         try {
-            InputStream in;
-            in = new FileInputStream(r.getData().get());
+            file = r.getData().get();
+            InputStream in = new FileInputStream(file);
 
             CSVReader reader = new CSVReader(new FileReader(r.getData().get()));
-            List<String[]> myEntries = reader.readAll();
-            
+            myEntries = reader.readAll();
             columnNames = myEntries.remove(0);
 
-            tabularData = new String[myEntries.size()][columnNames.length];
-            int lineCount = 0;
-            for (String[] elements : myEntries)
+            nextChunkPosition = 0;
+            next();
+            
+            int size = Math.min(myEntries.size(), CHUNK_SIZE);
+            tabularData = new String[size][columnNames.length];
+            for (int lineCount = 0; lineCount<size; lineCount++)
             {
+                String[] elements = myEntries.get(lineCount);
                 int entryCount = 0;
                 for (String entry : elements)
                 {
                     tabularData[lineCount][entryCount++] = entry; 
                 }
-                lineCount++;
             }
         } catch (Exception ex) {
             String rId = "";
@@ -63,11 +71,50 @@ public class TabularDataWrapper implements Visualization {
         }
     }
     
-  
-
+    public void next()
+    {
+        int size = Math.min(myEntries.size() - nextChunkPosition, CHUNK_SIZE);
+        tabularData = new String[size][columnNames.length];
+        for (int lineCount = 0; lineCount < size; lineCount++) {
+            String[] elements = myEntries.get(nextChunkPosition + lineCount);
+            int entryCount = 0;
+            for (String entry : elements) {
+                tabularData[lineCount][entryCount++] = entry;
+            }
+        }
+        nextChunkPosition = nextChunkPosition + size;
+    }  
+    
+    public void previous()
+    {
+        nextChunkPosition = nextChunkPosition - tabularData.length;
+        int size = CHUNK_SIZE;
+        
+        int previousChunkPosition = nextChunkPosition  - size;
+        
+        tabularData = new String[size][columnNames.length];
+        for (int lineCount = 0; lineCount < size; lineCount++) {
+            String[] elements = myEntries.get(previousChunkPosition + lineCount);
+            int entryCount = 0;
+            for (String entry : elements) {
+                tabularData[lineCount][entryCount++] = entry;
+            }
+        }
+    }  
+    
+    public boolean hasNext()
+    {
+        return (nextChunkPosition < myEntries.size());
+    }
+    
+    public boolean hasPrevious()
+    {
+        return (nextChunkPosition > CHUNK_SIZE);
+    }
+    
     @Override
     public Component generatePanel() {
-        return new TabularDataPanel(tabularData, columnNames);
+        return new TabularPanel(this);
     }
 
     @Override
