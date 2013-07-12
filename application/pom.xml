@@ -175,7 +175,7 @@
                             <installerLicenseFile>../licenses/license-GPL.txt</installerLicenseFile>
                             <installerOsLinux>false</installerOsLinux>
                             <installerOsMacosx>false</installerOsMacosx>
-                            <installerOsWindows>true</installerOsWindows>
+                            <installerOsWindows>false</installerOsWindows>
                             <installerOsSolaris>false</installerOsSolaris>
                             <installDirName>Ovation</installDirName>
                             <templateFile>${basedir}/installer/template.xml</templateFile>
@@ -267,6 +267,30 @@
             <id>deploy-windows</id>
             <build>
                 <plugins>
+
+                    <!--Override to produce the windows installer-->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>nbm-maven-plugin</artifactId>
+
+                        <configuration>
+                            <installerOsWindows>true</installerOsWindows>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>extra</id>
+                                <!--Run post-package, but before install-->
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>build-installers</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+
+
+                    </plugin>
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
