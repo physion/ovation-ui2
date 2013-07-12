@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>us.physion</groupId>
         <artifactId>ovation-ui-parent</artifactId>
-        <version>2.0-SNAPSHOT</version>
+        <version>2.0-beta3-SNAPSHOT</version>
     </parent>
 
     <artifactId>ovation-ui-app</artifactId>
@@ -15,8 +14,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netbeans.run.params.ide/>
-        <netbeans.run.params>${netbeans.run.params.ide}</netbeans.run.params>
         <all.clusters>${project.build.directory}/${brandingToken}</all.clusters>
         <ovation.release.repository.id>s3-release-repository</ovation.release.repository.id>
         <ovation.release.repository.url>s3://us.physion.maven/release</ovation.release.repository.url>
@@ -26,6 +23,10 @@
         <ovation.updates.repository.url>s3://us.physion.maven/updates</ovation.updates.repository.url>
         <ovation.updates.repository.id>s3-updates-repository</ovation.updates.repository.id>
         <ovation.appbundle.name>Ovation</ovation.appbundle.name>
+        <launcher.dir>${project.build.directory}\${brandingToken}\bin</launcher.dir>
+        <windows.ico>${basedir}\installer\ovation_48x48.ico</windows.ico>
+        <bin.dir>${basedir}\bin</bin.dir>
+        <dmg.artifact>${project.build.directory}/Ovation-${project.version}.dmg</dmg.artifact>
     </properties>
 
     <dependencies>
@@ -60,7 +61,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ovation-api-module</artifactId>
-            <version>${ovation.api.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -128,6 +129,7 @@
             <!-- Copy ressources ovation.conf and Info.plist with filtering (replacing 'project.version' by the actual version) -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
                 <executions>
                     <execution>
                         <id>generate-app-conf-file</id>
@@ -171,34 +173,31 @@
 
                         <configuration>
                             <installerLicenseFile>../licenses/license-GPL.txt</installerLicenseFile>
-                            <installerOsLinux>true</installerOsLinux>
+                            <installerOsLinux>false</installerOsLinux>
                             <installerOsMacosx>false</installerOsMacosx>
                             <installerOsWindows>true</installerOsWindows>
                             <installerOsSolaris>false</installerOsSolaris>
+                            <installDirName>Ovation</installDirName>
                             <templateFile>${basedir}/installer/template.xml</templateFile>
                             <userSettings>
                                 <nbi.icon.file>${basedir}/installer/ovation_48x48.png</nbi.icon.file>
                                 <nbi.dock.icon.file>${basedir}/src/main/osx/ovation.icns</nbi.dock.icon.file>
+                                <bin.dir>${basedir}\bin</bin.dir>
+                                <app.ico.file>${basedir}\installer\ovation_48x48.ico</app.ico.file>
+                                <launchers.dir>${project.build.directory}\installer\launchers</launchers.dir>
                             </userSettings>
                         </configuration>
 
                         <executions>
                             <execution>
                                 <id>default-standalone-zip</id>
-                                <phase>package</phase>
+                                <phase>prepare-package</phase>
                             </execution>
 
                             <execution>
                                 <id>autoupdate</id>
                                 <goals>
                                     <goal>autoupdate</goal>
-                                </goals>
-                            </execution>
-
-                            <execution>
-                                <id>extra</id>
-                                <goals>
-                                    <goal>build-installers</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -263,90 +262,91 @@
             </build>
         </profile>
 
-        <!-- Profile used along with deployment to create the dmg archive -->
         <profile>
-            <id>create-dmg</id>
+
+            <id>deploy-windows</id>
             <build>
                 <plugins>
-
-                    <!-- Create the Mac OS X application bundle and dmg file -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
                         <version>1.7</version>
                         <executions>
+
                             <execution>
-                                <id>create-app-bundle</id>
-
+                                <id>update-launcher-icons</id>
                                 <phase>package</phase>
-
                                 <goals>
                                     <goal>run</goal>
                                 </goals>
 
                                 <configuration>
                                     <target>
-                                        <echo message="Building OS X app bundle ${line.separator}"/>
+                                        <echo message="Updating Windows launcher icons ${line.separator}" />
 
-                                        <delete includeEmptyDirs="true" failonerror="false">
-                                            <fileset dir="${project.build.directory}/${ovation.appbundle.name}.app"/>
-                                        </delete>
+                                        <unzip src="${project.build.directory}/${project.artifactId}-${project.version}.zip" dest="${project.build.directory}" overwrite="true">
+                                            <patternset>
+                                                <include name="**/ovation.exe" />
+                                                <include name="**/ovation64.exe" />
+                                            </patternset>
+                                        </unzip>
 
-                                        <mkdir dir="${project.build.directory}/${ovation.appbundle.name}.app"/>
-                                        <mkdir dir="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS"/>
-
-                                        <copy todir="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}">
-                                            <fileset dir="${project.build.directory}/${brandingToken}"/>
-                                        </copy>
-
-                                        <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}.icns" file="${basedir}/src/main/osx/${brandingToken}.icns" />
-                                        <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Info.plist" file="${project.build.directory}/Info.plist"/>
-
-                                        <!-- At this point we could copy the modified ovation launcher -->
-                                        <!-- <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" file="${basedir}/src/main/osx/${brandingToken}" /> -->
-
-                                        <chmod file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" perm="ugo+rx"/>
-
-                                        <symlink link="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS/ovation" resource="../Resources/${brandingToken}/bin/${brandingToken}" failonerror="false" />
-
-                                        <echo message="Signing app bundle ${line.separator}"/>
-                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign">
-                                            <arg value="-fs"/>
-                                            <arg value="${physion.codesign.identity}"/>
-                                            <arg value="-v"/>
-                                            <arg value="${ovation.appbundle.name}.app"/>
+                                        <exec dir="${launcher.dir}" executable="${bin.dir}\ReplaceVistaIcon.exe" osfamily="winnt">
+                                            <arg value="${launcher.dir}\ovation.exe" />
+                                            <arg value="${basedir}\installer\ovation_48x48.ico" />
                                         </exec>
 
-                                        <echo message="Creating DMG ${line.separator}"/>
-                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="hdiutil">
-                                            <arg value="create"/>
-                                            <arg value="-noanyowners"/>
-                                            <arg value="-imagekey"/>
-                                            <arg value="zlib-level=9"/>
-                                            <arg value="-srcfolder"/>
-                                            <arg value="${ovation.appbundle.name}.app"/>
-                                            <arg value="${project.artifactId}-${project.version}.dmg"/>
+
+                                        <exec dir="${launcher.dir}" executable="${bin.dir}\ReplaceVistaIcon.exe" osfamily="winnt">
+                                            <arg value="${launcher.dir}\ovation64.exe" />
+                                            <arg value="${basedir}\installer\ovation_48x48.ico" />
                                         </exec>
 
-                                        <exec dir="${project.build.directory}" os="Linux" executable="mkisofs">
-                                            <arg value="-V"/>
-                                            <arg value="${ovation.appbundle.name}"/>
-                                            <arg value="-U"/>
-                                            <arg value="-D"/>
-                                            <arg value="-l"/>
-                                            <arg value="-allow-multidot"/>
-                                            <arg value="-max-iso9660-filenames"/>
-                                            <arg value="-relaxed-filenames"/>
-                                            <arg value="-no-iso-translate"/>
-                                            <arg value="-r"/>
-                                            <arg value="-o"/>
-                                            <arg value="${project.artifactId}-${project.version}.dmg"/>
-                                            <arg value="-root"/>
-                                            <arg value="${ovation.appbundle.name}.app"/>
-                                            <arg value="${ovation.appbundle.name}.app"/>
-                                        </exec>
+                                        <zip destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip" update="true">
+                                            <zipfileset dir="target/${brandingToken}/bin" includes="ovation*.exe" prefix="${brandingToken}/bin" />
+                                        </zip>
                                     </target>
                                 </configuration>
+                            </execution>
+
+                            <execution>
+                                <id>sign-windows-installer</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+
+                                <configuration>
+                                    <target>
+                                        <echo message="Signing Windows installer${line.separator}" />
+                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}-windows.exe" tofile="${project.build.directory}/Install Ovation ${project.version}.exe" overwrite="true" />
+                                        <exec dir="${project.build.directory}" osfamily="winnt" executable="C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin\signtool.exe">
+                                            <arg value="sign" />
+                                            <arg value="/t" />
+                                            <arg value="http://timestamp.digicert.com" />
+                                            <arg value="/a" />
+                                            <arg value="${project.build.directory}/Install Ovation ${project.version}.exe" />
+                                        </exec>
+
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- NBM Plugin settings. Build windows installer -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>nbm-maven-plugin</artifactId>
+
+                        <executions>
+                            <execution>
+                                <id>extra</id>
+                                <!--Run post-package, but before install-->
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>build-installers</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
@@ -359,6 +359,69 @@
             <id>deploy-dmg</id>
             <build>
                 <plugins>
+                    <!-- Create the Mac OS X application bundle and dmg file -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <id>package-app-bundle</id>
+
+                                <phase>package</phase>
+
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+
+                                <configuration>
+
+                                    <target>
+                                        <echo message="Building OS X app bundle ${line.separator}" />
+
+                                        <delete includeEmptyDirs="true" failonerror="false">
+                                            <fileset dir="${project.build.directory}/${ovation.appbundle.name}.app" />
+                                        </delete>
+
+                                        <mkdir dir="${project.build.directory}/${ovation.appbundle.name}.app" />
+                                        <mkdir dir="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS" />
+
+                                        <copy todir="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}">
+                                            <fileset dir="${project.build.directory}/${brandingToken}" />
+                                        </copy>
+
+                                        <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}.icns" file="${basedir}/src/main/osx/${brandingToken}.icns" />
+                                        <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Info.plist" file="${project.build.directory}/Info.plist" />
+
+
+                                        <!-- Copy modified executable (with capitalized dock name and make sure it's executable -->
+                                        <!--<delete file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" />-->
+                                        <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" file="${basedir}/src/main/osx/${brandingToken}" overwrite="true" />
+                                        <chmod file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" perm="ugo+rx" />
+
+                                        <symlink link="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS/${brandingToken}" resource="../Resources/${brandingToken}/bin/${brandingToken}" failonerror="false" />
+
+                                        <echo message="Signing app bundle ${line.separator}" />
+                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign">
+                                            <arg value="-fs" />
+                                            <arg value="${physion.codesign.identity}" />
+                                            <arg value="-v" />
+                                            <arg value="${ovation.appbundle.name}.app" />
+                                        </exec>
+
+                                        <echo message="Creating DMG ${line.separator}" />
+                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="/usr/local/bin/dmgcanvas">
+                                            <arg value="${project.basedir}/src/main/osx/dmg_template.dmgCanvas" />
+                                            <arg value="${dmg.artifact}" />
+                                            <arg value="-volume" />
+                                            <arg value="Ovation ${project.version}" />
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
                     <!-- Attach the final DMG for deployment -->
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
@@ -366,14 +429,14 @@
                         <executions>
                             <execution>
                                 <id>attach-dmg</id>
-                                <phase>pre-integration-test</phase>
+                                <phase>deploy</phase>
                                 <goals>
                                     <goal>attach-artifact</goal>
                                 </goals>
                                 <configuration>
                                     <artifacts>
                                         <artifact>
-                                            <file>${project.build.directory}/${project.artifactId}-${project.version}.dmg</file>
+                                            <file>${dmg.artifact}</file>
                                             <type>dmg</type>
                                         </artifact>
                                     </artifacts>
@@ -381,15 +444,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                </plugins>
-            </build>
-        </profile>
 
-        <!-- Profile activated for macos release. Need to be called with profile deploy-dmg. -->
-        <profile>
-            <id>release-macos</id>
-            <build>
-                <plugins>
                     <!-- Deploy dmg artifact -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -405,10 +460,10 @@
                                     <generatePom>false</generatePom>
                                     <repositoryId>${ovation.release.repository.id}</repositoryId>
                                     <url>${ovation.release.repository.url}</url>
-                                    <artifactId>${project.artifactId}</artifactId>
+                                    <artifactId>${project.artifactId}-dmg</artifactId>
                                     <groupId>${project.groupId}</groupId>
                                     <version>${project.version}</version>
-                                    <file>${project.build.directory}/${project.artifactId}-${project.version}.dmg</file>
+                                    <file>${project.build.directory}/Ovation-${project.version}.dmg</file>
                                 </configuration>
                             </execution>
                         </executions>
@@ -419,29 +474,6 @@
     </profiles>
 
     <repositories>
-        <repository>
-            <id>s3-release-repository</id>
-            <name>S3 Release Repository</name>
-            <url>s3://us.physion.maven/release</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>s3-snapshot-repository</id>
-            <name>S3 Snapshot Repository</name>
-            <url>s3://us.physion.maven/snapshot</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-
         <repository>
             <id>s3-updates-repository</id>
             <name>S3 Updates Repository</name>
