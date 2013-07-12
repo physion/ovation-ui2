@@ -117,7 +117,12 @@
                     <!-- setup ovation.conf for the final product -->
                     <etcConfFile>${basedir}/target/${brandingToken}.conf</etcConfFile>
                 </configuration>
-
+                <executions>
+                    <execution>
+                        <id>default-standalone-zip</id>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Copy ressources ovation.conf and Info.plist with filtering (replacing 'project.version' by the actual version) -->
