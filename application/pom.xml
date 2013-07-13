@@ -19,8 +19,8 @@
         <ovation.release.repository.url>s3://us.physion.maven/release</ovation.release.repository.url>
         <physion.codesign.identity>3rd Party Mac Developer Application: Physion Consulting LLC</physion.codesign.identity>
         <ovation.updates.site.sourcedir>${project.build.directory}/netbeans_site</ovation.updates.site.sourcedir>
-        <ovation.updates.repository.path>nbm</ovation.updates.repository.path>
-        <ovation.updates.repository.url>s3://updates.ovation.io/</ovation.updates.repository.url>
+        <ovation.updates.repository.path>current</ovation.updates.repository.path>
+        <ovation.updates.repository.url>s3://updates-ovation-io/</ovation.updates.repository.url>
         <ovation.updates.repository.id>s3-updates-repository</ovation.updates.repository.id>
         <ovation.appbundle.name>Ovation</ovation.appbundle.name>
         <launcher.dir>${project.build.directory}\${brandingToken}\bin</launcher.dir>
@@ -113,7 +113,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                <version>${nbm.plugin.version}</version>
                 <configuration>
                     <!-- setup ovation.conf for the final product -->
                     <etcConfFile>${basedir}/target/${brandingToken}.conf</etcConfFile>
@@ -175,7 +174,7 @@
                             <installerLicenseFile>../licenses/license-GPL.txt</installerLicenseFile>
                             <installerOsLinux>false</installerOsLinux>
                             <installerOsMacosx>false</installerOsMacosx>
-                            <installerOsWindows>false</installerOsWindows>
+                            <installerOsWindows>true</installerOsWindows>
                             <installerOsSolaris>false</installerOsSolaris>
                             <installDirName>Ovation</installDirName>
                             <templateFile>${basedir}/installer/template.xml</templateFile>
@@ -272,11 +271,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>nbm-maven-plugin</artifactId>
-
-                        <configuration>
-                            <installerOsWindows>true</installerOsWindows>
-                        </configuration>
-
                         <executions>
                             <execution>
                                 <id>extra</id>
