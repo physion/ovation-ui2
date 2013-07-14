@@ -81,7 +81,8 @@
                 <configuration>
                     <!-- During release:perform, enable the "release" profile  -->
                     <releaseProfiles>deployment,deploy-dmg,deploy-updates,sign</releaseProfiles>
-                    <goals>deploy</goals>
+                    <!-- Deploy, then clean so that the post-release build succeeds -->
+                    <goals>deploy clean</goals>
                     <!-- Before commit, clean and verify -->
                     <preparationGoals>clean verify</preparationGoals>
                 </configuration>
