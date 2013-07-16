@@ -6,6 +6,7 @@ package us.physion.ovation.ui.browser;
 
 import java.util.HashMap;
 import javax.swing.Action;
+import javax.swing.ActionMap;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.actions.CopyAction;
 import org.openide.awt.ActionID;
@@ -41,6 +42,7 @@ preferredID = "SourceBrowserTopComponent")
 public final class SourceBrowserTopComponent extends TopComponent implements ExplorerManager.Provider{
 
     private ExplorerManager em = new ExplorerManager();
+    
     public SourceBrowserTopComponent() {
         initComponents();
         setName(Bundle.CTL_SourceBrowserTopComponent());
@@ -50,13 +52,9 @@ public final class SourceBrowserTopComponent extends TopComponent implements Exp
 
         BrowserUtilities.initBrowser(em, false);
         ((BeanTreeView)jScrollPane1).setRootVisible(false);
-        //TODO: extend existing CopyAction somehow
-        /*
-        CopyAction globalCopyAction = SystemAction.get (CopyAction.class);
-        Object key = globalCopyAction.getActionMapKey(); // key is a special value defined by all CallbackSystemActions
-
-        getActionMap().put (key, BrowserUtilities.myCopyAction());
-        */
+        
+        ActionMap actionMap = this.getActionMap();
+        actionMap.put("copy-to-clipboard", (Action) new BrowserCopyAction());        
     }
 
     /**
