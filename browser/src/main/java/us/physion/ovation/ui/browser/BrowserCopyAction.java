@@ -28,7 +28,7 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 id = "us.physion.ovation.ui.browser.BrowserCopyAction")
 @ActionRegistration(displayName = "#CTL_BrowserCopyAction")
 @ActionReferences({
-    @ActionReference(path = "Shortcuts", name = "M-C")
+    @ActionReference(path = "Shortcuts", name = "D-C")
 })
 @NbBundle.Messages("CTL_BrowserCopyAction=Copy Entity")
 public class BrowserCopyAction implements ActionListener{
