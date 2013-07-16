@@ -28,7 +28,7 @@ displayName = "#CTL_LoginLogout")
 @ActionReferences({
     @ActionReference(path = "Menu/File", position = 1000),
     //@ActionReference(path = "Toolbars/Edit", position = 20),
-    @ActionReference(path = "Shortcuts", name = "M-L")
+    @ActionReference(path = "Shortcuts", name = "D-L")
 })
 @Messages("CTL_LoginLogout=Change Connection")
 public final class LoginLogout extends AbstractAction {// implements Presenter.Toolbar

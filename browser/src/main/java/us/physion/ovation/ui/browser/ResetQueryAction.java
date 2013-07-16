@@ -23,7 +23,7 @@ displayName = "#CTL_ResetQueryAction")
 @ActionReferences({
     @ActionReference(path = "Menu/Tools", position = 1200),
     //@ActionReference(path = "Toolbars/Find", position = 150),
-    @ActionReference(path = "Shortcuts", name = "SD-R")
+    @ActionReference(path = "Shortcuts", name = "DS-R")
 })
 @Messages("CTL_ResetQueryAction=Reset Query")
 public final class ResetQueryAction implements ResetBrowser{

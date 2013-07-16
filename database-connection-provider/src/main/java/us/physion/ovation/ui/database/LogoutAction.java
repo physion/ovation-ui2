@@ -24,7 +24,7 @@ displayName = "#CTL_LogoutAction")
 @ActionReferences({
     @ActionReference(path = "Menu/File", position = 1100),
     //@ActionReference(path = "Toolbars/QuickSearch", position = 500),
-    @ActionReference(path = "Shortcuts", name = "SM-L")
+    @ActionReference(path = "Shortcuts", name = "DS-L")
 })
 @Messages("CTL_LogoutAction=Logout")
 public final class LogoutAction implements ActionListener {

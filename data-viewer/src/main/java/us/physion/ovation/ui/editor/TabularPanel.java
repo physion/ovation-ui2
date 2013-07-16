@@ -62,7 +62,7 @@ public class TabularPanel extends JPanel implements StrictSizePanel {
         jTable1.setGridColor(new java.awt.Color(204, 204, 204));
         jScrollPane1.setViewportView(jTable1);
         
-        openInExcelButton = new JButton("Open in Excel...");
+        openInExcelButton = new JButton("Open...");
         openInExcelButton.addActionListener(new ActionListener() {
 
             @Override
