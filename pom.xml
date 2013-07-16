@@ -4,7 +4,7 @@
 
     <groupId>us.physion</groupId>
     <artifactId>ovation-ui-parent</artifactId>
-    <version>2.0.5</version>
+    <version>2.0.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>ovation-ui-parent</name>
@@ -347,6 +347,6 @@
         <connection>scm:git:git@github.com:physion/ovation-ui2.git</connection>
         <developerConnection>scm:git:git@github.com:physion/ovation-ui2.git</developerConnection>
         <url>scm:git:git@github.com:physion/ovation-ui2.git</url>
-      <tag>ovation-ui-parent-2.0.5</tag>
+      <tag>HEAD</tag>
   </scm>
 </project>
