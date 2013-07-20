@@ -98,6 +98,8 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
         int epochCount = files.size();
 
         panels.add(new GetImageFilesController(files));//set the files, and start/end times
+        
+        panels.add(new GetSupportingFilesController(0));//set the files, and start/end times
         panels.add(new EquipmentSetupController());//set equipment setup info
         
         String explanation =  
@@ -128,7 +130,7 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
     }
 
     @Override
-    public void wizardFinished(WizardDescriptor wd, DataContext c, IEntityWrapper iew) {
+    public void wizardFinished(final WizardDescriptor wd, DataContext c, IEntityWrapper iew) {
         EpochGroup eg = ((EpochGroup)iew.getEntity());
         Experiment exp = eg.getExperiment();
         
@@ -137,7 +139,7 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
         
         if (es == null)
         {
-            exp.setEquipmentSetup(equipmentSetup);
+            exp.setEquipmentSetupFromMap(equipmentSetup);
         }else{
             for (String key : equipmentSetup.keySet())
             {
@@ -163,7 +165,7 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
             Map<String, Object> protocolParameters = (Map<String, Object>)epoch.get("protocolParameters");
             Map<String, Object> deviceParameters = (Map<String, Object>)epoch.get("deviceParameters");
             Map<String, Object> epochProperties = (Map<String, Object>)epoch.get("properties");
-            Epoch e = eg.insertEpoch(input, null, start, end, protocol, protocolParameters, deviceParameters);
+            final Epoch e = eg.insertEpoch(input, null, start, end, protocol, protocolParameters, deviceParameters);
             for (String key : epochProperties.keySet())
             {
                 Object val = epochProperties.get(key);
@@ -171,28 +173,34 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
                     e.addProperty(key, val);
             }
             
-            List<Map<String, Object>> measurements = (List<Map<String, Object>>)epoch.get("measurements");
-            for (Map<String, Object> m : measurements)
-            {
-                Measurement measurement;
-                try {
-                    measurement = e.insertMeasurement((String) m.get("name"),
-                            (Set<String>) m.get("sourceNames"),//set by sourceSelector? 
-                            (Set<String>) m.get("deviceNames"),
-                            new URL((String) m.get("url")),
-                            (String) m.get("mimeType"));
-                } catch (MalformedURLException ex) {
-                    throw new OvationException(ex);
-                }
+            final List<Map<String, Object>> measurements = (List<Map<String, Object>>)epoch.get("measurements");
+            /*EventQueueUtilities.runOffEDT(new Runnable() {
+                @Override
+                public void run() {*/
+                    for (Map<String, Object> m : measurements) {
+                        Measurement measurement;
+                        try {
+                            measurement = e.insertMeasurement((String) m.get("name"),
+                                    (Set<String>) m.get("sourceNames"),//set by sourceSelector? 
+                                    (Set<String>) m.get("deviceNames"),
+                                    new URL((String) m.get("url")),
+                                    (String) m.get("mimeType"),
+                                    (List<URL>) wd.getProperty("supportingFiles"));
+                        } catch (MalformedURLException ex) {
+                            throw new OvationException(ex);
+                        }
 
-                Map<String, Object> measurementProperties = (Map<String, Object>)m.get("properties");
-                for (String key : measurementProperties.keySet()) {
-                    Object val = measurementProperties.get(key);
-                    if (val != null) {
-                        measurement.addProperty(key, val);
+                        Map<String, Object> measurementProperties = (Map<String, Object>) m.get("properties");
+                        for (String key : measurementProperties.keySet()) {
+                            Object val = measurementProperties.get(key);
+                            if (val != null) {
+                                measurement.addProperty(key, val);
+                            }
+                        }
                     }
-                }
-            }
+                /*}
+            });*/
+
         }
 
         List<Map<String, Object>> parentEpochGroups = (List<Map<String, Object>>) wd.getProperty("parentEpochGroups");
@@ -229,7 +237,7 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
                  * (Set<String>)m.get("sourceNames"),
                  * (Set<String>)m.get("deviceNames"), (URL)m.get("url"),
                  * (String)m.get("mimeType"));
-            }
+                 }
                  */
             }
         }
