@@ -10,6 +10,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
+import javax.swing.AbstractAction;
 import org.openide.actions.CopyAction;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -24,14 +25,18 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  *
  * @author huecotanks
  */
+/*
 @ActionID(category = "Edit",
 id = "us.physion.ovation.ui.browser.BrowserCopyAction")
 @ActionRegistration(displayName = "#CTL_BrowserCopyAction")
 @ActionReferences({
-    @ActionReference(path = "Shortcuts", name = "M-C")
+    @ActionReference(path = "Shortcuts", name = "D-C")
 })
 @NbBundle.Messages("CTL_BrowserCopyAction=Copy Entity")
-public class BrowserCopyAction implements ActionListener{
+*/
+public class BrowserCopyAction extends AbstractAction {
+    
+    
     @Override
     public void actionPerformed(ActionEvent e)
     {

@@ -39,7 +39,7 @@ displayName = "#CTL_RunQuery")
 @ActionReferences({
     @ActionReference(path = "Menu/Tools", position = 10),
     //@ActionReference(path = "Toolbars/Find", position = 10),
-    @ActionReference(path = "Shortcuts", name = "M-R")
+    @ActionReference(path = "Shortcuts", name = "D-R")
 })
 @Messages("CTL_RunQuery=Run Query")
 public final class RunQuery implements ActionListener {

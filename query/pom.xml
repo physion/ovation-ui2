@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>ovation-ui-parent</artifactId>
 		<groupId>us.physion</groupId>
-		<version>2.0-beta3-SNAPSHOT</version>
+		<version>2.0.5-SNAPSHOT</version>
 	</parent>
 
 	<groupId>us.physion</groupId>
@@ -63,7 +63,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>nbm-maven-plugin</artifactId>
-				<version>${nbm.plugin.version}</version>
+				
 				<extensions>true</extensions>
 			</plugin>
 
