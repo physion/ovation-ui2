@@ -31,40 +31,41 @@ public class MeasurementPanel extends javax.swing.JPanel {
         initComponents();
         this.cs = cs;
     }
-    
+
     public void setFile(File f)
     {
         file = f;
         jTextField1.setText(f.getName());
         jTextField2.setText(f.getName());
         String contentType = URLConnection.guessContentTypeFromName(f.getName());
-        if (contentType == null)
+        if (contentType == null) {
             contentType = "";
+        }
         jTextField3.setText(contentType);
         cs.fireChange();
     }
-    
+
     public URL getFile()
     {
         if (file == null)
             return null;
         try {
-            return new URL("file://" + file.getAbsolutePath());
+            return file.toURI().toURL();
         } catch (MalformedURLException ex) {
             return null;
         }
     }
-    
+
     public String getContentType()
     {
         return jTextField3.getText();
     }
-    
+
     public String getMeasurementName()
     {
         return jTextField2.getText();
     }
-    
+
     public String getName()
     {
         return "Choose DataElement File";
@@ -176,7 +177,7 @@ public class MeasurementPanel extends javax.swing.JPanel {
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
         String fileName = jTextField1.getText();
-        if (fileName.isEmpty()) 
+        if (fileName.isEmpty())
         {
             setFile(null);
         }
