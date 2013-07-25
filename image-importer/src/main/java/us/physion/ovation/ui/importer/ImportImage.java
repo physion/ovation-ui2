@@ -59,19 +59,19 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
     {
         putValue(NAME, "Import Image...");
     }
-    
+
     @Override
     public int getPosition() {
         return 101;
     }
-    
+
     @Override
-    public void actionPerformed(ActionEvent ae) 
+    public void actionPerformed(ActionEvent ae)
     {
         setFiles();
         super.actionPerformed(ae);
     }
-    
+
     public void setFiles()
     {
         JFileChooser chooser = new JFileChooser();
@@ -91,18 +91,18 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
             }
         }
     }
-    
+
     @Override
     public List<Panel<WizardDescriptor>> getPanels(IEntityWrapper iew) {
         List<Panel<WizardDescriptor>> panels = new ArrayList<Panel<WizardDescriptor>>();
         int epochCount = files.size();
 
         panels.add(new GetImageFilesController(files));//set the files, and start/end times
-        
+
         panels.add(new GetSupportingFilesController(0));//set the files, and start/end times
         panels.add(new EquipmentSetupController());//set equipment setup info
-        
-        String explanation =  
+
+        String explanation =
             "<html><p>Select any Sources that are referenced in this image. These sources become the inputs<br/>"
             + "to the Epoch that generates this image Measurement.</p>"
             + "<br/><p>Input Sources are given names within the scope of their containing Epoch, to distinguish<br/>"
@@ -112,12 +112,12 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
         for (int i = 0; i < epochCount; i++) {
             panels.add(new ProtocolController(i));//set protocol info
             panels.add(new KeyValueController(
-                    "Epoch " + (i+1) + ": Protocol Parameters", 
-                    "Enter any relevent protocol parameters below. These parameters will be associated with Epoch " + (i+1), 
+                    "Epoch " + (i+1) + ": Protocol Parameters",
+                    "Enter any relevent protocol parameters below. These parameters will be associated with Epoch " + (i+1),
                     "epochs;" + i + ";protocolParameters"));
             panels.add(new KeyValueController(
-                    "Epoch " + (i+1) + ": Device Parameters", 
-                    "Enter any relevent device parameters below. These parameters will be associated with Epoch " + (i+1), 
+                    "Epoch " + (i+1) + ": Device Parameters",
+                    "Enter any relevent device parameters below. These parameters will be associated with Epoch " + (i+1),
                     "epochs;" + i + ";deviceParameters"));
             int measurementCount = files.get(i).getMeasurements().size();
             for (int j = 0; j < measurementCount; j++) {
@@ -133,10 +133,10 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
     public void wizardFinished(final WizardDescriptor wd, DataContext c, IEntityWrapper iew) {
         EpochGroup eg = ((EpochGroup)iew.getEntity());
         Experiment exp = eg.getExperiment();
-        
+
         Map<String, Object> equipmentSetup = (Map<String, Object>) wd.getProperty("equipmentSetup");
         EquipmentSetup es = exp.getEquipmentSetup();
-        
+
         if (es == null)
         {
             exp.setEquipmentSetupFromMap(equipmentSetup);
@@ -146,9 +146,9 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
                 es.addDeviceDetail(key, equipmentSetup.get(key));
             }
         }
-        
+
         List<Map<String, Object>> epochs = (List<Map<String, Object>>) wd.getProperty("epochs");
-        
+
         for (Map<String, Object> epoch : epochs)
         {
             Protocol protocol = null;
@@ -158,7 +158,7 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
             }else if (epoch.get("protocolName") != null && epoch.get("protocolDocument") != null){
                 protocol = eg.getDataContext().insertProtocol((String)epoch.get("protocolName"), (String)epoch.get("protocolDocument"));
             }
-            
+
             Map<String, Source> input = (Map<String, Source>)wd.getProperty("sources");
             DateTime start = (DateTime)epoch.get("start");
             DateTime end = (DateTime)epoch.get("end");
@@ -172,16 +172,16 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
                 if (val != null)
                     e.addProperty(key, val);
             }
-            
+
             final List<Map<String, Object>> measurements = (List<Map<String, Object>>)epoch.get("measurements");
-            /*EventQueueUtilities.runOffEDT(new Runnable() {
+            EventQueueUtilities.runOffEDT(new Runnable() {
                 @Override
-                public void run() {*/
+                public void run() {
                     for (Map<String, Object> m : measurements) {
                         Measurement measurement;
                         try {
                             measurement = e.insertMeasurement((String) m.get("name"),
-                                    (Set<String>) m.get("sourceNames"),//set by sourceSelector? 
+                                    (Set<String>) m.get("sourceNames"),//set by sourceSelector?
                                     (Set<String>) m.get("deviceNames"),
                                     new URL((String) m.get("url")),
                                     (String) m.get("mimeType"),
@@ -198,8 +198,8 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
                             }
                         }
                     }
-                /*}
-            });*/
+               }
+            });
 
         }
 
