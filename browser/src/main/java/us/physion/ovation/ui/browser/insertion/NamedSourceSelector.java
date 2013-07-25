@@ -8,6 +8,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -44,6 +45,7 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
+import us.physion.ovation.util.PlatformUtils;
 /**
  *
  * @author jackie
@@ -61,6 +63,15 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
          this(cs, null, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
          addSources(defaults);
          jLabel1.setText(labelText);
+         
+         if (PlatformUtils.isMac()) {
+            addButton.putClientProperty("JButton.buttonType", "gradient");
+            addButton.setPreferredSize(new Dimension(34, 34));
+
+            removeButton.putClientProperty("JButton.buttonType", "gradient");
+            removeButton.setPreferredSize(new Dimension(34, 34));
+            invalidate();
+        }
     }
      
      public void finish()
@@ -280,6 +291,8 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
         jSplitPane1.setRightComponent(jScrollPane2);
 
         removeButton.setText(org.openide.util.NbBundle.getMessage(NamedSourceSelector.class, "NamedSourceSelector.removeButton.text_1")); // NOI18N
+        removeButton.setMaximumSize(new java.awt.Dimension(41, 23));
+        removeButton.setMinimumSize(new java.awt.Dimension(41, 23));
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(NamedSourceSelector.class, "NamedSourceSelector.jLabel1.text")); // NOI18N
 
@@ -293,9 +306,9 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(0, 0, Short.MAX_VALUE)
-                        .add(addButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 27, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(addButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(removeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(removeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
                         .add(jLabel1)
                         .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
