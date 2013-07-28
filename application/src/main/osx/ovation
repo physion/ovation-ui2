@@ -24,6 +24,14 @@ if [ -f "$progdir/../etc/$APPNAME".conf ] ; then
     . "$progdir/../etc/$APPNAME".conf
 fi
 
+case "`uname`" in
+    Darwin*)
+        # Request the JVM before running
+        /usr/libexec/java_home -R
+        ;;
+esac
+
+
 # XXX does not correctly deal with spaces in non-userdir params
 args=""
 

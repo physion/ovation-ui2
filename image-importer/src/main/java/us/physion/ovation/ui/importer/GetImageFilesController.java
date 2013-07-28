@@ -69,6 +69,12 @@ public class GetImageFilesController extends BasicWizardPanel{
             f.setEnd(c.getEnd(count++));
         }
         Collections.sort(files, new FileMetadataComparator());
+        List<File> fileList = Lists.newArrayList();
+        for (FileMetadata f: files)
+        {
+            fileList.add(f.getFile());
+        }
+        wiz.putProperty("files", fileList);
 
         Map<String, Map<String, Object>> devices = new HashMap<String, Map<String, Object>>();
         for (int i=0; i< files.size(); i++)

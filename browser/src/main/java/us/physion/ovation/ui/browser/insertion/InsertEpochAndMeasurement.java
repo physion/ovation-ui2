@@ -76,9 +76,9 @@ public class InsertEpochAndMeasurement extends InsertEntity implements Experimen
         Map<String, Object> deviceParameters = (Map<String, Object>) wiz.getProperty("epoch.deviceParameters");
             
         Epoch epoch = parentEntity.insertEpoch(inputSources, null, start, end, protocol, protocolParameters, deviceParameters);
-        String name = (String)wiz.getProperty("measurement.name");
-        String contentType = (String)wiz.getProperty("measurement.contentType");
-        URL file = (URL)wiz.getProperty("measurement.file");
+        String name = (String)wiz.getProperty("dataElement.name");
+        String contentType = (String)wiz.getProperty("dataElement.contentType");
+        URL file = (URL)wiz.getProperty("dataElement.file");
         Set<String> sourceNames = (Set<String>)wiz.getProperty("sourceNames");
         Set<String> deviceNames = (Set<String>)wiz.getProperty("deviceNames");
 

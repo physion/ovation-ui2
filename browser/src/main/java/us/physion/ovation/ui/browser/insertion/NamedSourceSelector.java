@@ -8,6 +8,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -44,6 +45,7 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
+import us.physion.ovation.util.PlatformUtils;
 /**
  *
  * @author jackie
@@ -51,18 +53,27 @@ import us.physion.ovation.ui.interfaces.ParameterTableModel;
 public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Provider, ExplorerManager.Provider{
     final ChangeSupport cs;
     private DataContext context;
-    
+
     ParameterTableModel tableModel;
     Lookup l;
     ExplorerManager em;
-    
-    
+
+
     public NamedSourceSelector(ChangeSupport cs, Map<String, Source> defaults, String labelText) {
          this(cs, null, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
          addSources(defaults);
          jLabel1.setText(labelText);
+
+         if (PlatformUtils.isMac()) {
+            addButton.putClientProperty("JButton.buttonType", "gradient");
+            addButton.setPreferredSize(new Dimension(34, 34));
+
+            removeButton.putClientProperty("JButton.buttonType", "gradient");
+            removeButton.setPreferredSize(new Dimension(34, 34));
+            invalidate();
+        }
     }
-     
+
      public void finish()
      {
          if (jTable1.getCellEditor() != null)
@@ -70,7 +81,7 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
             jTable1.getCellEditor().stopCellEditing();
          }
      }
-     
+
      public void addSources(Map<String, Source> sources)
      {
          if (sources == null)
@@ -100,7 +111,7 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
              }
          }
      }
-    
+
     /**
      * Creates new form NamedSourceSelector
      */
@@ -116,9 +127,9 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
                 return input.x == 0; //only the first column is editable
             }
         });
-       
+
         initComponents();
-        
+
          jTable1.setDefaultRenderer(Object.class, new TableCellRenderer() {
 
             @Override
@@ -133,15 +144,15 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
             }
         });
         jSplitPane1.setDividerLocation(300);
-        
+
         em = new ExplorerManager();
         l = ExplorerUtils.createLookup(em, getActionMap());
         BeanTreeView sourcesTree = new BeanTreeView();
         sourcesTree.setRootVisible(false);
         sourcesScrollPane.setViewportView(sourcesTree);
-   
+
         resetSources();
-        
+
         if (defaultSources != null)
         {
             for (String sourceName : defaultSources.keySet())
@@ -149,7 +160,7 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
                 tableModel.addParameter(sourceName, defaultSources.get(sourceName));
             }
         }
-        
+
         addButton.addActionListener(new ActionListener() {
 
             @Override
@@ -166,7 +177,7 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
                 }
             }
         });
-        
+
         removeButton.addActionListener(new ActionListener() {
 
             @Override
@@ -177,18 +188,18 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
             }
         });
     }
-    
+
     private Source getSource()
     {
         IEntityWrapper ew  = l.lookup(IEntityWrapper.class);
         if (ew == null)
             return null;
-                    
+
          if (Source.class.isAssignableFrom(ew.getType()))
              return (Source)ew.getEntity();
          return null;
     }
-    
+
     public Map<String, Source> getNamedSources()
     {
         Map<String, Source> sourceMap = new HashMap();
@@ -199,7 +210,7 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
         }
         return sourceMap;
     }
-    
+
     @Override
     public String getName() {
         return "Select Source(s)";
@@ -280,6 +291,8 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
         jSplitPane1.setRightComponent(jScrollPane2);
 
         removeButton.setText(org.openide.util.NbBundle.getMessage(NamedSourceSelector.class, "NamedSourceSelector.removeButton.text_1")); // NOI18N
+        removeButton.setMaximumSize(new java.awt.Dimension(41, 23));
+        removeButton.setMinimumSize(new java.awt.Dimension(41, 23));
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(NamedSourceSelector.class, "NamedSourceSelector.jLabel1.text")); // NOI18N
 
@@ -293,9 +306,9 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(0, 0, Short.MAX_VALUE)
-                        .add(addButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 27, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(addButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(removeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(removeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
                         .add(jLabel1)
                         .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
@@ -306,11 +319,11 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
                 .addContainerGap()
                 .add(jLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 228, Short.MAX_VALUE)
+                .add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 218, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(addButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(removeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(addButton)
+                    .add(removeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(30, 30, 30))
         );
     }// </editor-fold>//GEN-END:initComponents
