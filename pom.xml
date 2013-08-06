@@ -30,7 +30,7 @@
         </repository>
 
         <repository>
-            <id>s3-release-repository</id>
+            <id>s3-ovation-release-repository</id>
             <name>AWS Release Repository</name>
             <url>s3://us.physion.maven/release</url>
         </repository>
@@ -116,12 +116,12 @@
 
     <distributionManagement>
         <repository>
-            <id>s3-release-repository</id>
+            <id>s3-ovation-release-repository</id>
             <name>AWS Release Repository</name>
             <url>s3://us.physion.maven/release</url>
         </repository>
         <snapshotRepository>
-            <id>s3-snapshot-repository</id>
+            <id>s3-ovation-snapshot-repository</id>
             <name>AWS Snapshot Repository</name>
             <url>s3://us.physion.maven/snapshot</url>
         </snapshotRepository>
