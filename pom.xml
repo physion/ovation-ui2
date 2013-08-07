@@ -32,7 +32,7 @@
         <repository>
             <id>s3-ovation-release-repository</id>
             <name>AWS Release Repository</name>
-            <url>s3://us.physion.maven/release</url>
+            <url>s3://maven.ovation.io/release</url>
         </repository>
 
     </repositories>
