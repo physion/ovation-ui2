@@ -67,7 +67,7 @@ public class ProtocolDisplayPanel extends JScrollPane{
         this.setViewportView(panel);
     }
     
-    void addLabeledComponent(String label, Component component, int row, boolean bottom)
+    final void addLabeledComponent(String label, Component component, int row, boolean bottom)
     {
         JLabel l = new JLabel(label);
         GridBagConstraints c = new GridBagConstraints();
