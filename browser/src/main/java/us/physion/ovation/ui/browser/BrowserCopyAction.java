@@ -25,18 +25,16 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  *
  * @author huecotanks
  */
-/*
 @ActionID(category = "Edit",
-id = "us.physion.ovation.ui.browser.BrowserCopyAction")
+        id = "us.physion.ovation.ui.browser.BrowserCopyAction")
 @ActionRegistration(displayName = "#CTL_BrowserCopyAction")
 @ActionReferences({
     @ActionReference(path = "Shortcuts", name = "D-C")
 })
 @NbBundle.Messages("CTL_BrowserCopyAction=Copy Entity")
-*/
 public class BrowserCopyAction extends AbstractAction {
-    
-    
+
+
     @Override
     public void actionPerformed(ActionEvent e)
     {
@@ -50,11 +48,11 @@ public class BrowserCopyAction extends AbstractAction {
         else{
             for (IEntityWrapper ew : entities)
             {
-                selection += ew.getURI() + ", "; 
+                selection += ew.getURI() + ", ";
             }
             selection = selection.substring(0, selection.length() - 2);
         }
-       
+
         StringSelection data = new StringSelection(selection);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(data, data);
