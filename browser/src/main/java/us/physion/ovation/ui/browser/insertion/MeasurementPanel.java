@@ -4,6 +4,9 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
+import java.awt.FileDialog;
+import static java.awt.FileDialog.LOAD;
+import java.awt.Frame;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -11,9 +14,13 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import static javax.swing.JComponent.TOOL_TIP_TEXT_KEY;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
+import org.openide.windows.WindowManager;
 import us.physion.ovation.exceptions.OvationException;
 
 /**
@@ -164,10 +171,16 @@ public class MeasurementPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        JFileChooser chooser = new JFileChooser();
-        int returnVal = chooser.showOpenDialog(new JPanel());
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            setFile(chooser.getSelectedFile());
+        JFrame mainFrame = (JFrame) WindowManager.getDefault().getMainWindow();
+
+        FileDialog chooser = new FileDialog(mainFrame,
+                NbBundle.getMessage(MeasurementPanel.class, "MeasurementPanel.fileDialog.title"),
+                LOAD);
+        chooser.setMultipleMode(false);
+        chooser.setVisible(true);
+        String filename = chooser.getFile();
+        if (filename != null) {
+            setFile(new File(filename));
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 

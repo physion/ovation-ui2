@@ -60,11 +60,6 @@ public class BrowserUtilities{
         return browserMap;
     } 
     
-    //TODO: extend default CopyAction somehow
-    /*public static BrowserCopyAction myCopyAction()
-    {
-        return browserCopy;
-    }*/
     
     static void submit(Runnable runnable) {
         executorService.submit(runnable);

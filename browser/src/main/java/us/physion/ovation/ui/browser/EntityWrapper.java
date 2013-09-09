@@ -18,18 +18,18 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  * @author huecotanks
  */
 public class EntityWrapper implements IEntityWrapper {
-    
+
     private String uri;
     private Class type;
     private String displayName;
-    
+
     public EntityWrapper(OvationEntity e)
     {
         uri = e.getURI().toString();
         type = e.getClass();
         displayName = EntityWrapper.inferDisplayName(e);
     }
-    
+
     //used by the PerUserEntityWrapper object
     protected EntityWrapper(String name, Class clazz, String uri)
     {
@@ -37,7 +37,7 @@ public class EntityWrapper implements IEntityWrapper {
         displayName = name;
         this.uri = uri;
     }
-    
+
     @Override
     public OvationEntity getEntity(){
         OvationEntity b = null;
@@ -48,7 +48,7 @@ public class EntityWrapper implements IEntityWrapper {
                 return null;
             }
             b = c.getObjectWithURI(uri);
-        
+
         } catch (RuntimeException e)
         {
             ErrorManager.getDefault().notify(e);
@@ -75,14 +75,14 @@ public class EntityWrapper implements IEntityWrapper {
 	Class type = e.getClass();
         if (Source.class.isAssignableFrom(type))
         {
-            return ((Source)e).getLabel();
+            return ((Source) e).getLabel() + " (" + ((Source) e).getIdentifier() + ")";
         }
         else if (Project.class.isAssignableFrom(type))
         {
             return ((Project)e).getName();
         }else if (Experiment.class.isAssignableFrom(type))
         {
-            return ((Experiment)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
+            return ((Experiment) e).getPurpose() + " (" + ((Experiment) e).getStart().toString("MM/dd/yyyy-hh:mm:ss") + ")";
         }
         else if (EpochGroup.class.isAssignableFrom(type))
         {
