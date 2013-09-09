@@ -39,10 +39,10 @@ preferredID = "SourceBrowserTopComponent")
     "CTL_SourceBrowserTopComponent=Source Navigator",
     "HINT_SourceBrowserTopComponent=Browse your Ovation Dataset starting from the Source hierarchy"
 })
-public final class SourceBrowserTopComponent extends TopComponent implements ExplorerManager.Provider{
+public final class SourceBrowserTopComponent extends TopComponent implements ExplorerManager.Provider {
 
     private ExplorerManager em = new ExplorerManager();
-    
+
     public SourceBrowserTopComponent() {
         initComponents();
         setName(Bundle.CTL_SourceBrowserTopComponent());
@@ -52,9 +52,9 @@ public final class SourceBrowserTopComponent extends TopComponent implements Exp
 
         BrowserUtilities.initBrowser(em, false);
         ((BeanTreeView)jScrollPane1).setRootVisible(false);
-        
+
         ActionMap actionMap = this.getActionMap();
-        actionMap.put("copy-to-clipboard", (Action) new BrowserCopyAction());        
+        actionMap.put("copy-to-clipboard", (Action) new BrowserCopyAction());
     }
 
     /**
