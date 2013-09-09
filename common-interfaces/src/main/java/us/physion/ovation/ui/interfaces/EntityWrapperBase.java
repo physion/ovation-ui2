@@ -20,18 +20,18 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  * @author huecotanks
  */
 public class EntityWrapperBase implements IEntityWrapper {
-    
+
     private String uri;
     private Class type;
     private String displayName;
-    
+
     public EntityWrapperBase(OvationEntity e)
     {
         uri = e.getURI().toString();
         type = e.getClass();
         displayName = inferDisplayName(e);
     }
-    
+
     //used by the PerUserEntityWrapper object
     protected EntityWrapperBase(String name, Class clazz, String uri)
     {
@@ -39,7 +39,7 @@ public class EntityWrapperBase implements IEntityWrapper {
         displayName = name;
         this.uri = uri;
     }
-    
+
     @Override
     public OvationEntity getEntity(){
         DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
@@ -57,19 +57,19 @@ public class EntityWrapperBase implements IEntityWrapper {
     @Override
     public Class getType() { return type;}
 
-   
+
     public static String inferDisplayName(OvationEntity e) {
 	Class type = e.getClass();
         if (type.isAssignableFrom(Source.class))
         {
-            return ((Source)e).getLabel();
+            return ((Source) e).getLabel() + " (" + ((Source) e).getIdentifier() + ")";
         }
         else if (type.isAssignableFrom(Project.class))
         {
             return ((Project)e).getName();
         }else if (type.isAssignableFrom(Experiment.class))
         {
-            return ((Experiment)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
+            return ((Experiment) e).getPurpose() + " (" + ((Experiment) e).getStart().toString("MM/dd/yyyy-hh:mm:ss") + ")";
         }
         else if (type.isAssignableFrom(EpochGroup.class))
         {
@@ -83,7 +83,7 @@ public class EntityWrapperBase implements IEntityWrapper {
         {
             return ((Measurement)e).getName();
         }
-        
+
         else if (type.isAssignableFrom(AnalysisRecord.class))
         {
             return ((AnalysisRecord)e).getName();
