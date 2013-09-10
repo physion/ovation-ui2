@@ -180,7 +180,7 @@ public class MeasurementPanel extends javax.swing.JPanel {
         chooser.setVisible(true);
         String filename = chooser.getFile();
         if (filename != null) {
-            setFile(new File(filename));
+            setFile(new File(chooser.getDirectory(), filename));
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
