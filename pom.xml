@@ -30,9 +30,9 @@
         </repository>
 
         <repository>
-            <id>s3-release-repository</id>
+            <id>s3-ovation-release-repository</id>
             <name>AWS Release Repository</name>
-            <url>s3://us.physion.maven/release</url>
+            <url>s3://maven.ovation.io/release</url>
         </repository>
 
     </repositories>
@@ -116,14 +116,14 @@
 
     <distributionManagement>
         <repository>
-            <id>s3-release-repository</id>
+            <id>s3-ovation-release-repository</id>
             <name>AWS Release Repository</name>
-            <url>s3://us.physion.maven/release</url>
+            <url>s3://maven.ovation.io/release</url>
         </repository>
         <snapshotRepository>
-            <id>s3-snapshot-repository</id>
+            <id>s3-ovation-snapshot-repository</id>
             <name>AWS Snapshot Repository</name>
-            <url>s3://us.physion.maven/snapshot</url>
+            <url>s3://maven.ovation.io/snapshot</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -271,7 +271,7 @@
         <keystore.alias>dev</keystore.alias>
         <keystore.store.password>ovation-core-dev</keystore.store.password>
         <keystore.key.password>ovation-core-dev</keystore.key.password>
-        <ovation.api.version>2.0.0-beta5</ovation.api.version>
+        <ovation.api.version>2.0.0-beta6</ovation.api.version>
         <nbm.plugin.version>3.10.1</nbm.plugin.version>
     </properties>
 
