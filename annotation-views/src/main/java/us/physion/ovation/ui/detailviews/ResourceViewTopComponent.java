@@ -26,6 +26,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import static java.awt.FileDialog.LOAD;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -34,6 +35,8 @@ import java.net.URLConnection;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import org.openide.util.NbBundle;
+import org.openide.windows.WindowManager;
 import us.physion.ovation.util.PlatformUtils;
 
 /**
@@ -303,6 +306,7 @@ public final class ResourceViewTopComponent extends TopComponent {
 
     private void insertResourceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertResourceButtonActionPerformed
         //addButton
+        /* Swing JFileChooser
         JFileChooser chooser = new JFileChooser();
         int returnVal = chooser.showOpenDialog(new JPanel());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -311,6 +315,21 @@ public final class ResourceViewTopComponent extends TopComponent {
             String path = chooser.getSelectedFile().getAbsolutePath();
             addResource(entities, path);
         }
+         */
+
+        JFrame mainFrame = (JFrame) WindowManager.getDefault().getMainWindow();
+
+        FileDialog chooser = new FileDialog(mainFrame,
+                NbBundle.getMessage(ResourceViewTopComponent.class, "ResourceViewTopComponent.addResourceFileDialog.title"),
+                LOAD);
+
+        //chooser.setMultipleMode(false); Java 1.7 only
+        chooser.setVisible(true);
+        String filename = chooser.getFile();
+        if (filename != null) {
+            addResource(entities, new File(chooser.getDirectory(), filename).getAbsolutePath());
+        }
+
     }//GEN-LAST:event_insertResourceButtonActionPerformed
 
     private void removeResourceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeResourceButtonActionPerformed
