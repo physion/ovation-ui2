@@ -176,7 +176,8 @@ public class MeasurementPanel extends javax.swing.JPanel {
         FileDialog chooser = new FileDialog(mainFrame,
                 NbBundle.getMessage(MeasurementPanel.class, "MeasurementPanel.fileDialog.title"),
                 LOAD);
-        chooser.setMultipleMode(false);
+
+        //chooser.setMultipleMode(false); Java 1.7 only
         chooser.setVisible(true);
         String filename = chooser.getFile();
         if (filename != null) {
