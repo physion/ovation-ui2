@@ -4,7 +4,7 @@
  */
 package us.physion.ovation.ui.detailviews;
 
-import us.physion.ovation.values.Resource;
+import us.physion.ovation.domain.Resource;
 /**
  *
  * @author jackie
@@ -18,5 +18,5 @@ public interface IResourceWrapper {
     String getURI();
 
     String toString();
-    
+
 }
