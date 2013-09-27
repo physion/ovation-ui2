@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import org.openide.nodes.AbstractNode;
 import org.openide.util.ChangeSupport;
-import us.physion.ovation.domain.AnalysisArtifact;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochContainer;

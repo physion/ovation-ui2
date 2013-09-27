@@ -20,7 +20,7 @@ import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
-import us.physion.ovation.values.Resource;
+import us.physion.ovation.domain.Resource;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -31,12 +31,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URLConnection;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.mixin.ResourceContainer;
 import us.physion.ovation.util.PlatformUtils;
 
 /**
@@ -134,7 +138,7 @@ public final class ResourceViewTopComponent extends TopComponent {
         Resource r = rw.getEntity();
         DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
         try {
-            Desktop.getDesktop().open(r.getData(ctx.getFileService()).get());
+            Desktop.getDesktop().open(r.getData().get());
         } catch (InterruptedException e) {
             throw new OvationException("Unable to open Resource", e);
         } catch (ExecutionException e) {
@@ -195,10 +199,10 @@ public final class ResourceViewTopComponent extends TopComponent {
     protected void updateResources(Collection<? extends IEntityWrapper> entities) {
         List<IResourceWrapper> resources = new LinkedList();
         for (IEntityWrapper e : entities) {
-            if (AnnotatableEntity.class.isAssignableFrom(e.getType())) {
-                AnnotatableEntity entity = (AnnotatableEntity) e.getEntity();
+            if (ResourceContainer.class.isAssignableFrom(e.getType())) {
+                ResourceContainer entity = (ResourceContainer) e.getEntity();
                 for (String name : entity.getResourceNames()) {
-                    resources.add(new ResourceWrapper(name, entity.getResource(name), entity.getURI()));
+                    resources.add(new ResourceWrapper(name, entity.getResource(name)));
                 }
             }
         }
@@ -394,9 +398,9 @@ public final class ResourceViewTopComponent extends TopComponent {
             if (o instanceof IResourceWrapper) {
                 String rName = ((IResourceWrapper) o).getName();
                 for (IEntityWrapper e : entities) {
-                    if (AnnotatableEntity.class.isAssignableFrom(e.getType())) {
-                        AnnotatableEntity eb = (AnnotatableEntity) e.getEntity();
-                        if (eb.canWrite(eb.getDataContext().getAuthenticatedUser())) {
+                    if (ResourceContainer.class.isAssignableFrom(e.getType())) {
+                        ResourceContainer eb = (ResourceContainer) e.getEntity();
+                        if (((OvationEntity) eb).canWrite(((OvationEntity) eb).getDataContext().getAuthenticatedUser())) {
                             eb.removeResource(rName);
                         }
                     }
@@ -419,11 +423,16 @@ public final class ResourceViewTopComponent extends TopComponent {
         String name = resourceFile.getName();
 
         for (IEntityWrapper e : entities) {
-            AnnotatableEntity entity = e.getEntity(AnnotatableEntity.class);
-            Resource r = entity.addResource(name,
-                    resourceFile.toURI(),
-                    URLConnection.guessContentTypeFromName(resourceFile.getName()));
-            listModel.addResource(new ResourceWrapper(name, r, entity.getURI()));
+            ResourceContainer entity = (ResourceContainer) e.getEntity();
+            Resource r;
+            try {
+                r = entity.addResource(name,
+                        resourceFile.toURI().toURL(),
+                        URLConnection.guessContentTypeFromName(resourceFile.getName()));
+            } catch (MalformedURLException ex) {
+                throw new OvationException("Unable to add Resource", ex);
+            }
+            listModel.addResource(new ResourceWrapper(name, r));
         }
     }
 

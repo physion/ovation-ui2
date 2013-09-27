@@ -5,7 +5,7 @@
 package us.physion.ovation.ui.detailviews;
 
 import us.physion.ovation.DataStoreCoordinator;
-import us.physion.ovation.values.Resource;
+import us.physion.ovation.domain.Resource;
 
 /**
  *
@@ -14,7 +14,7 @@ import us.physion.ovation.values.Resource;
 public class DummyResourceWrapper implements IResourceWrapper{
 
     private DataStoreCoordinator dsc;
-    String uri; 
+    String uri;
     String name;
     public DummyResourceWrapper(DataStoreCoordinator dsc, String name, Resource r)
     {
@@ -36,5 +36,5 @@ public class DummyResourceWrapper implements IResourceWrapper{
     public String getURI() {
         return uri;
     }
-    
+
 }
