@@ -5,7 +5,7 @@
     <groupId>us.physion</groupId>
     <artifactId>ovation-ui-parent</artifactId>
     <version>2.0.12</version>
-    <packaging>pom</packaging>
+    <packaging>pom</packaging> 
 
     <name>ovation-ui-parent</name>
     <url>http://ovation.io</url>
