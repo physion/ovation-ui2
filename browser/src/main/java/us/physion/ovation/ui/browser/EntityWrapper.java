@@ -82,7 +82,7 @@ public class EntityWrapper implements IEntityWrapper {
             return ((Project)e).getName();
         }else if (Experiment.class.isAssignableFrom(type))
         {
-            return ((Experiment) e).getPurpose() + " (" + ((Experiment) e).getStart().toString("MM/dd/yyyy-hh:mm:ss") + ")";
+            return ((Experiment) e).getPurpose() + " (" + ((Experiment) e).getStart().toString("MM/dd/yyyy") + ")";
         }
         else if (EpochGroup.class.isAssignableFrom(type))
         {
@@ -91,7 +91,7 @@ public class EntityWrapper implements IEntityWrapper {
         else if (Epoch.class.isAssignableFrom(type))
         {
             if (((Epoch)e).getProtocol() != null)
-                return ((Epoch)e).getProtocol().getName();
+                return ((Epoch) e).getProtocol().getName() + " (" + ((Epoch) e).getStart().toString("MM/dd/yyyy") + ")";
             else{
                 return ((Epoch)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
             }
