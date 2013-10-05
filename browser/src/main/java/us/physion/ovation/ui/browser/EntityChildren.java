@@ -7,30 +7,21 @@ package us.physion.ovation.ui.browser;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import java.awt.EventQueue;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.*;
-import javax.swing.SwingUtilities;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
-import ovation.*;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
-import us.physion.ovation.ui.interfaces.IEntityWrapper;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.Callable;
 
 
 /**
@@ -124,10 +115,12 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
         Class entityClass = ew.getType();
         if (Project.class.isAssignableFrom(entityClass)) {
             Project entity = (Project) ew.getEntity();
-            for (Experiment e : entity.getExperiments()) {
+
+            List<Experiment> experiments = sortedExperiments(entity);
+
+            for (Experiment e : experiments) {
                 list.add(new EntityWrapper(e));
             }
-            String currentUser = c.getAuthenticatedUser().getUsername();
 
             for (User user : c.getUsers()) {
                 List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
@@ -150,7 +143,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
             for (Source e : entity.getChildrenSources()) {
                 list.add(new EntityWrapper(e));
             }
-            for (Epoch e : entity.getEpochs()) {
+            for (Epoch e : sortedEpochs(entity)) {
                 list.add(new EntityWrapper(e));
             }
             return list;
@@ -158,10 +151,10 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
         if (Experiment.class.isAssignableFrom(entityClass)) {
             Experiment entity = (Experiment) ew.getEntity();
 
-            for (EpochGroup eg : entity.getEpochGroups()) {
+            for (EpochGroup eg : sortedEpochGroups(entity)) {
                 list.add(new EntityWrapper(eg));
             }
-            for (Epoch e : entity.getEpochs()) {
+            for (Epoch e : sortedEpochs(entity)) {
                 list.add(new EntityWrapper(e));
             }
             return list;
@@ -174,7 +167,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
             c.beginTransaction();//we wrap these in a transaction, because there may be a lot of epochs
             try {
-                for (Epoch e : entity.getEpochs()) {
+                for (Epoch e : sortedEpochs(entity)) {
                     list.add(new EntityWrapper(e));
                 }
             } finally {
@@ -213,5 +206,73 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
             }
         }
         return list;
+    }
+
+    private List<Experiment> sortedExperiments(Project entity) {
+        List<Experiment> experiments = Lists.newArrayList(entity.getExperiments());
+        Collections.sort(experiments, new Comparator<Experiment>()
+        {
+            @Override
+            public int compare(Experiment o1, Experiment o2) {
+                if (o1 == null || o2 == null ||
+                        o1.getStart() == null || o2.getStart() == null) {
+                    return 0;
+                }
+
+                return o1.getStart().compareTo(o2.getStart());
+            }
+        });
+        return experiments;
+    }
+
+    private List<EpochGroup> sortedEpochGroups(Experiment entity) {
+        List<EpochGroup> epochGroups = Lists.newArrayList(entity.getEpochGroups());
+        Collections.sort(epochGroups, new Comparator<EpochGroup>()
+        {
+            @Override
+            public int compare(EpochGroup o1, EpochGroup o2) {
+                if (o1 == null || o2 == null ||
+                        o1.getStart() == null || o2.getStart() == null) {
+                    return 0;
+                }
+
+                return o1.getStart().compareTo(o2.getStart());
+            }
+        });
+        return epochGroups;
+    }
+
+    private List<Epoch> sortedEpochs(Source entity) {
+        List<Epoch> epochs = Lists.newArrayList(entity.getEpochs());
+        Collections.sort(epochs, new Comparator<Epoch>()
+        {
+            @Override
+            public int compare(Epoch o1, Epoch o2) {
+                if (o1 == null || o2 == null ||
+                        o1.getStart() == null || o2.getStart() == null) {
+                    return 0;
+                }
+
+                return o1.getStart().compareTo(o2.getStart());
+            }
+        });
+        return epochs;
+    }
+
+    private List<Epoch> sortedEpochs(EpochContainer entity) {
+        List<Epoch> epochs = Lists.newArrayList(entity.getEpochs());
+        Collections.sort(epochs, new Comparator<Epoch>()
+        {
+            @Override
+            public int compare(Epoch o1, Epoch o2) {
+                if (o1 == null || o2 == null ||
+                        o1.getStart() == null || o2.getStart() == null) {
+                    return 0;
+                }
+
+                return o1.getStart().compareTo(o2.getStart());
+            }
+        });
+        return epochs;
     }
 }
