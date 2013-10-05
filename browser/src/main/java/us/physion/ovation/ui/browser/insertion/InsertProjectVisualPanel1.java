@@ -131,6 +131,7 @@ public final class InsertProjectVisualPanel1 extends JPanel {
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(InsertProjectVisualPanel1.class, "InsertProjectVisualPanel1.jLabel2.text")); // NOI18N
 
         purposeTextArea.setColumns(12);
+        purposeTextArea.setLineWrap(true);
         purposeTextArea.setRows(5);
         purposeTextArea.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
         purposeTextArea.setPreferredSize(new java.awt.Dimension(550, 82));
@@ -151,7 +152,7 @@ public final class InsertProjectVisualPanel1 extends JPanel {
         startPane.setOpaque(false);
         startPane.setPreferredSize(new java.awt.Dimension(200, 30));
 
-        startTimezoneComboBox.setModel(new javax.swing.DefaultComboBoxModel(DatePickers.getTimeZoneIDs()));
+        startTimezoneComboBox.setModel(new javax.swing.DefaultComboBoxModel(us.physion.ovation.ui.browser.insertion.DatePickers.getTimeZoneIDs()));
         startTimezoneComboBox.setPreferredSize(new java.awt.Dimension(180, 30));
         startTimezoneComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
