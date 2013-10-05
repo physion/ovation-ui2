@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.browser;
 
+import org.joda.time.DateTime;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import us.physion.ovation.DataContext;
@@ -86,17 +87,23 @@ public class EntityWrapper implements IEntityWrapper {
         }
         else if (EpochGroup.class.isAssignableFrom(type))
         {
-            return ((EpochGroup)e).getLabel();
-        }
-        else if (Epoch.class.isAssignableFrom(type))
-        {
-            if (((Epoch)e).getProtocol() != null)
-                return ((Epoch) e).getProtocol().getName() + " (" + ((Epoch) e).getStart().toString("MM/dd/yyyy") + ")";
-            else{
-                return ((Epoch)e).getStart().toString("MM/dd/yyyy-hh:mm:ss");
+            return ((EpochGroup) e).getLabel();
+        } else if (Epoch.class.isAssignableFrom(type)) {
+            if (((Epoch) e).getProtocol() != null) {
+                String epochTime;
+                Epoch epoch = (Epoch) e;
+                DateTime start = new DateTime(epoch.getStart());
+                if (epoch.getStart().equals(start.toDateMidnight())) {
+                    epochTime = epoch.getStart().toString("MM/dd/yyyy");
+                } else {
+                    epochTime = epoch.getStart().toString("MM/dd/yyyy hh:mm:ss");
+                }
+
+                return epoch.getProtocol().getName() + " (" + epochTime + ")";
+            } else {
+                return ((Epoch) e).getStart().toString("MM/dd/yyyy hh:mm:ss");
             }
-        }
-        else if (DataElement.class.isAssignableFrom(type))
+        } else if (DataElement.class.isAssignableFrom(type))
         {
             return ((DataElement)e).getName();
         } else if (AnalysisRecord.class.isAssignableFrom(type))
