@@ -4,7 +4,7 @@
     <parent>
         <artifactId>ovation-ui-parent</artifactId>
         <groupId>us.physion</groupId>
-        <version>2.0.14</version>
+        <version>1.9.9</version>
     </parent>
 
     <groupId>us.physion</groupId>
