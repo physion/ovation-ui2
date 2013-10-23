@@ -1,23 +1,16 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.database;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,12 +151,8 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         login.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
-        BufferedImage physionIcon;
-        File f = null;
-        try {
-            f = new File ("installer/ovation_48x48.png");
-            physionIcon = ImageIO.read(f);
-            JLabel image = new JLabel(new ImageIcon( physionIcon ));
+        ImageIcon physionIcon = ImageUtilities.loadImageIcon("/org/netbeans/core/startup/frame48.gif", true);
+            JLabel image = new JLabel(physionIcon);
             c.gridx = 0;
             c.gridy = 0;
             c.gridwidth = 1;
@@ -171,13 +160,6 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
             c.insets = new Insets(0, 0, 15, 15);
             login.add(image, c);
             image.setAlignmentX(Component.LEFT_ALIGNMENT);
-        }
-        catch (IOException ex) {
-            String s = "";
-            if (f != null)
-                s = " at '" + f.getAbsolutePath() + "'";
-            logger.error("Could not find Physion icon" + s);
-        }
 
         //tabs.addTab("Login", login);
 
