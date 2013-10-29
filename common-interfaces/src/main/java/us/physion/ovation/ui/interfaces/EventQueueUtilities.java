@@ -85,20 +85,26 @@ public class EventQueueUtilities
     
     
     public static Future runOffEDT(Runnable r, final ProgressHandle ph) {
-        
-        start(ph);
-        ListenableFuture f = executorService.submit(r);
-        Futures.addCallback(f, new FutureCallback() {
-            @Override
-            public void onSuccess(Object result) {
-                finish(ph);
-            }
+        if (EventQueue.isDispatchThread()) {
+            start(ph);
+            ListenableFuture f = executorService.submit(r);
+            Futures.addCallback(f, new FutureCallback() {
+                @Override
+                public void onSuccess(Object result) {
+                    finish(ph);
+                }
 
-            @Override
-            public void onFailure(Throwable t) {
-                 finish(ph);
-            }
-        });
-        return f;
+                @Override
+                public void onFailure(Throwable t) {
+                    finish(ph);
+                }
+            });
+            return f;
+        } else {
+            start(ph);
+            r.run();
+            finish(ph);
+            return Futures.immediateFuture(null);
+        }
     }
 }
