@@ -19,6 +19,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -41,7 +42,7 @@ public class LoginWindow {
     LoginModel model;
     JDialog dialog;
     JLabel errorMsg;
-    OVTimer spinner;
+    JLabel spinner;
     
     public LoginModel showLoginDialog() {
 
@@ -57,13 +58,13 @@ public class LoginWindow {
         //start timer
         
         spinner.setVisible(true);
-        spinner.start();
 
         Runnable r = new Runnable() {
             public void run() {
+                //spinner.setVisible(true);
                 DataStoreCoordinator dsc = Ovation.newDataStoreCoordinator();
                 try {
-                    boolean success = dsc.authenticateUser(m.getEmail(), m.getPassword().toCharArray()).get();
+                    boolean success = dsc.authenticateUser(m.getEmail(), m.getPassword().toCharArray(), m.rememberMe()).get();
                     if (success) {
                         m.cancelled = false;
                         m.setDSC(dsc);
@@ -71,7 +72,6 @@ public class LoginWindow {
                     }
                 } catch (Exception ex) {
                     displayError(ex);
-                    spinner.stop();
                     return;
                 }
             }
@@ -97,7 +97,9 @@ public class LoginWindow {
     {
         model = new LoginModel();
         dialog = new JDialog(new JFrame(), "Ovation", true);
-        spinner = new OVTimer();
+        spinner = new JLabel(new ImageIcon("us/physion/ovation/ui/database/ajax-loader.gif"));
+        //spinner.setVisible(false);
+        
         errorMsg = new JLabel();
         dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -172,10 +174,29 @@ public class LoginWindow {
         });
         
         c.gridx = 0;
+        c.gridwidth = 1;
+        JCheckBox cb = new JCheckBox();
+        cb.setSelected(false);
+        cb.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                boolean checked = ((JCheckBox)(ae.getSource())).isSelected();
+                model.setRememberMe(checked);
+            }
+        });
+        login.add(cb, c);
+        c.gridwidth = 1;
+        c.gridx = 1;
+        JLabel rememberMe = new JLabel("Remember me");
+        login.add(rememberMe, c);
+        
+        c.gridx = 0;
         c.gridy = 4;
         c.gridwidth = 3;
         errorMsg.setForeground(Color.RED);
         login.add(errorMsg, c);
+        
 
         //SIGN UP
         //-----------------------------------------------------------

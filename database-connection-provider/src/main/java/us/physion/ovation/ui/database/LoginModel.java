@@ -15,10 +15,16 @@ public class LoginModel {
         String password;
         boolean cancelled = true;
         DataStoreCoordinator dsc;
+        boolean rememberMe = false;
 
         void setDSC(DataStoreCoordinator dsc)
         {
             this.dsc = dsc;
+        }
+        
+        void setRememberMe(boolean b)
+        {
+            rememberMe = b;
         }
         
         DataStoreCoordinator getDSC()
@@ -45,6 +51,11 @@ public class LoginModel {
         boolean isCancelled()
         {
             return cancelled;
+        }
+        
+        boolean rememberMe()
+        {
+            return rememberMe;
         }
     
 }
