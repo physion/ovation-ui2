@@ -18,6 +18,7 @@ import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Source;
+import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.*;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -47,5 +48,6 @@ public class InsertSource extends InsertEntity implements RootInsertable
     {
         c.insertSource(((String)wiz.getProperty("source.label")),
                     ((String)wiz.getProperty("source.identifier")));
+        BrowserUtilities.resetView();
     }
 }

@@ -27,14 +27,14 @@ import org.openide.windows.TopComponent;
 import us.physion.ovation.domain.AnnotatableEntity;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
-@ActionID(category = "Tools",
+/*@ActionID(category = "Tools",
 id = "us.physion.ovation.ui.detailviews.NewNote")
 @ActionRegistration(displayName = "#CTL_NewNote")
 @ActionReferences({
     @ActionReference(path = "Menu/File", position = 2350),
     @ActionReference(path = "Shortcuts", name = "DS-N")
 })
-@Messages("CTL_NewNote=New Note")
+@Messages("CTL_NewNote=New Note")*/
 public final class NewNote implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
