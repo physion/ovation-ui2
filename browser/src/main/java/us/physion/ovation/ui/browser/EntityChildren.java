@@ -181,6 +181,8 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                 for (Measurement m : entity.getMeasurements()) {
                     list.add(new EntityWrapper(m));
                 }
+                
+                Collections.sort(list, new EntityComparator());
 
                 for (User user : c.getUsers()) {
                     List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
@@ -191,6 +193,9 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                                     return new EntityWrapper(f);
                                 }
                             }));
+                    
+                    Collections.sort(l, new EntityComparator());
+
                     if (l.size() > 0)
                         list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));    
                 }
@@ -204,6 +209,8 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
             {
                 list.add(new EntityWrapper(d));
             }
+            
+            Collections.sort(list, new EntityComparator());
         }
         return list;
     }
