@@ -1,42 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Sets;
-import com.pixelmed.dicom.DicomException;
-import com.pixelmed.dicom.DicomInputStream;
-import com.pixelmed.display.SingleImagePanel;
-import com.pixelmed.display.SourceImage;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import javax.swing.*;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.Plot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.title.TextTitle;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -51,7 +22,6 @@ import org.openide.explorer.view.BeanTreeView;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
-import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.DataElementContainer;
 import us.physion.ovation.ui.interfaces.ClickableCellEditor;
@@ -188,11 +158,12 @@ public final class ResponseViewTopComponent extends TopComponent {
 
     protected void updateEntitySelection() {
         
+        final ProgressHandle progress = ProgressHandleFactory.createHandle("Updating view");
         final Collection<? extends IEntityWrapper> entities = global.allInstances();
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                updateEntitySelection(entities);
+                updateEntitySelection(entities, progress);
             }
         };
 
@@ -203,11 +174,15 @@ public final class ResponseViewTopComponent extends TopComponent {
         if (jTable1.getCellEditor() != null) {
             jTable1.getCellEditor().cancelCellEditing();
         }
-        updateEntitySelection = EventQueueUtilities.runOffEDT(r);
+        updateEntitySelection = EventQueueUtilities.runOffEDT(r, progress);
     }
 
-    protected List<Visualization> updateEntitySelection(Collection<? extends IEntityWrapper> entities) {
-
+    protected List<Visualization> updateEntitySelection(Collection<? extends IEntityWrapper> entities, ProgressHandle progress) {
+        if (progress != null) {
+            progress.switchToDeterminate(entities.size());
+        }
+        int progressWorkUnit = 0;
+        
         LinkedList<DataElement> responseList = new LinkedList<DataElement>();
 
         Iterator i = entities.iterator();
@@ -225,6 +200,10 @@ public final class ResponseViewTopComponent extends TopComponent {
 
             } else if (DataElement.class.isAssignableFrom(ew.getType())) {
                 responseList.add((DataElement) ew.getEntity());
+            }
+            
+            if (progress != null) {
+                progress.progress(progressWorkUnit++);
             }
         }
 
@@ -244,6 +223,9 @@ public final class ResponseViewTopComponent extends TopComponent {
             }
         }
 
+        if (progress != null) {
+            progress.switchToIndeterminate();
+        }
         EventQueueUtilities.runOnEDT(updateChartRunnable(responseGroups));
         return responseGroups;
     }

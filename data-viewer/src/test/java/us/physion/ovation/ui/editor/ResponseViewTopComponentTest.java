@@ -107,7 +107,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         double[] d = (double[])data.dataArray.get1DJavaArray(Double.class);
 
         Collection entities = Sets.newHashSet(new TestEntityWrapper(ctx, r));
-        List<Visualization> chartWrappers= t.updateEntitySelection(entities);
+        List<Visualization> chartWrappers= t.updateEntitySelection(entities, null);
 
         assertEquals(chartWrappers.size(), entities.size());
 
@@ -195,7 +195,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
 
         entities.add(new TestEntityWrapper(ctx, epoch));
 
-        Collection<Visualization> chartWrappers= t.updateEntitySelection(entities);
+        Collection<Visualization> chartWrappers= t.updateEntitySelection(entities, null);
 
         assertEquals(1, chartWrappers.size());
 
@@ -241,7 +241,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
 
         entities.add(new TestEntityWrapper(ctx, epoch));
 
-        Collection<Visualization> chartWrappers= t.updateEntitySelection(entities);
+        Collection<Visualization> chartWrappers= t.updateEntitySelection(entities, null);
 
         assertEquals(2, chartWrappers.size());
 
