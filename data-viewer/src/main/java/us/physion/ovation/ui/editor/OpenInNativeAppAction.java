@@ -25,14 +25,14 @@ public class OpenInNativeAppAction extends AbstractAction {
     private OpenInNativeAppAction(File file, Future<File> fileFuture) {
         //TODO: L10N
         super("Open in native application...");
-        this.file = null;
+        this.file = file;
         this.fileFuture = fileFuture;
     }
 
     @Override
     public void actionPerformed(ActionEvent ae) {
         try {
-            File f = file != null ? file : fileFuture.get();
+            File f = fileFuture != null ? fileFuture.get() : file;
             if (Desktop.isDesktopSupported()) {
                 if (f.getAbsolutePath().length() > 254) {
                     Desktop.getDesktop().open(f.getParentFile());
