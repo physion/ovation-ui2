@@ -1,27 +1,14 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.editor;
 
-import com.google.common.collect.Lists;
-import ij.ImageJ;
 import ij.ImagePlus;
 import ij.io.Opener;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.List;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import net.imglib2.img.*;
-import net.imglib2.io.ImgOpener;
-import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.mixin.DataElement;
-
 
 /**
  *
@@ -34,12 +21,10 @@ public class ImageJVisualization implements Visualization{
     {
         // open a file with ImageJ
         try {
-            //ImageJ ij = new ImageJ();
-            //Opener.setOpenUsingPlugins(true);
             final ImagePlus imp = new Opener().openImage(f.getAbsolutePath());
-            if (imp != null)
+            if (imp != null) {
                 panel = new BufferedImagePanel(imp.getBufferedImage());
-            else{
+            } else {
                 panel = new JPanel();
                 panel.setBackground(Color.WHITE);
                 panel.add(new JLabel("Currently unable to open image type."));
@@ -67,6 +52,8 @@ System.out.println(ex);
             {
                 panel.add(new JLabel("Unable to open image"));
             }
+            
+            panel.add(new JButton(new OpenInNativeAppAction(f)));
             System.out.println("Unable to open image at '" + f.getAbsolutePath() + "'  \n" + e.getMessage());
         }
     }
