@@ -1,20 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.editor;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -23,8 +13,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
-import us.physion.ovation.exceptions.OvationException;
-import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
 /**
  *
@@ -32,6 +20,18 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
  */
 public class TabularPanel extends JPanel implements StrictSizePanel {
    
+    private static class UnEditableTableModel extends DefaultTableModel {
+
+        private UnEditableTableModel(String[][] tabularData, String[] columnNames) {
+            super(tabularData, columnNames);
+        }
+
+        @Override
+        public boolean isCellEditable(int row, int col) {
+            return false;
+        }
+    }
+    
     /**
      * Creates new form TabularDataPanel
      */
@@ -39,11 +39,12 @@ public class TabularPanel extends JPanel implements StrictSizePanel {
     public TabularPanel(TabularDataWrapper w) {
         this.dataWrapper = w;
         initComponents();
-        jTable1.setModel(new DefaultTableModel(dataWrapper.tabularData, dataWrapper.columnNames));
+        jTable1.setModel(new UnEditableTableModel(dataWrapper.tabularData, dataWrapper.columnNames));
         
         jTable1.getTableHeader().setBorder(new LineBorder(Color.GRAY));
         //jTable1.getCellRenderer(). return text areas instead of labels
     }
+    
     private TabularDataWrapper dataWrapper;
     private JScrollPane jScrollPane1;
     private JTable jTable1;
@@ -52,44 +53,24 @@ public class TabularPanel extends JPanel implements StrictSizePanel {
     private JButton prevButton;
 
     private void initComponents() {
-
-        jScrollPane1 = new JScrollPane();
-        jTable1 = new JTable();
-
-        jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(25, 25, 0, 25));
-
-        jTable1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
-        jTable1.setGridColor(new java.awt.Color(204, 204, 204));
-        jScrollPane1.setViewportView(jTable1);
-        
-        openInExcelButton = new JButton("Open...");
-        openInExcelButton.addActionListener(new ActionListener() {
+        jTable1 = new JTable() {
 
             @Override
-            public void actionPerformed(ActionEvent e) {
-                EventQueueUtilities.runOffEDT(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            File file = dataWrapper.file;
-                            if (Desktop.isDesktopSupported()) {
-                                if (file.getAbsolutePath().length() > 254)
-                                {
-                                    Desktop.getDesktop().edit(file.getParentFile());
-                                }else{
-                                    Desktop.getDesktop().edit(file);
-                                }
-                            } else {
-                                throw new OvationException("Java Desktop not supported on this machine");
-                            }
-                        } catch (IOException ex) {
-                            throw new OvationException(ex);
-                        }
-                    }
-                });
+            public boolean getScrollableTracksViewportWidth() {
+                if (getPreferredSize().width < getParent().getWidth()) {
+                    //fill the scrollpane horizontally
+                    return true;
+                } else {
+                    //force horizontal scroll bars
+                    return false;
+                }
             }
-        });
-
+        };
+        jScrollPane1 = new JScrollPane(jTable1);
+        jTable1.setGridColor(new java.awt.Color(204, 204, 204));
+        
+        openInExcelButton = new JButton(new OpenInNativeAppAction(dataWrapper.file));
+        
         if (dataWrapper.hasNext()) {
             nextButton = new JButton(">>>");
             prevButton = new JButton("<<<");
@@ -99,7 +80,7 @@ public class TabularPanel extends JPanel implements StrictSizePanel {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     dataWrapper.next();
-                    jTable1.setModel(new DefaultTableModel(dataWrapper.tabularData, dataWrapper.columnNames));
+                    jTable1.setModel(new UnEditableTableModel(dataWrapper.tabularData, dataWrapper.columnNames));
                     nextButton.setEnabled(dataWrapper.hasNext());
                     prevButton.setEnabled(dataWrapper.hasPrevious());
                 }
@@ -108,7 +89,7 @@ public class TabularPanel extends JPanel implements StrictSizePanel {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     dataWrapper.previous();
-                    jTable1.setModel(new DefaultTableModel(dataWrapper.tabularData, dataWrapper.columnNames));
+                    jTable1.setModel(new UnEditableTableModel(dataWrapper.tabularData, dataWrapper.columnNames));
                     nextButton.setEnabled(dataWrapper.hasNext());
                     prevButton.setEnabled(dataWrapper.hasPrevious());
                 }
@@ -128,7 +109,7 @@ public class TabularPanel extends JPanel implements StrictSizePanel {
             buttons.add(nextButton, Component.RIGHT_ALIGNMENT);
             buttons.add(Box.createRigidArea(new Dimension(25, 0)));
         }
-        this.add(buttons);
+        add(buttons);
     }              
 
 
