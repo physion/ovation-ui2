@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.editor;
 
 //import net.imglib2.img.ImagePlusAdapter;
@@ -10,9 +6,7 @@ package us.physion.ovation.ui.editor;
 //import net.imglib2.img.display.imagej.ImageJFunctions;
 //import net.imglib2.io.ImgIOException;
 //import net.imglib2.io.ImgOpener;
-import java.net.MalformedURLException;
 import java.util.concurrent.ExecutionException;
-import org.openide.util.Exceptions;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;

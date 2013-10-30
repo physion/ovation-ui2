@@ -1,23 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.editor;
 
 import au.com.bytecode.opencsv.CSVReader;
-import com.google.common.collect.Lists;
-import com.pixelmed.dicom.DicomInputStream;
 import java.awt.Component;
-import java.io.*;
-import java.util.LinkedList;
+import java.io.File;
+import java.io.FileReader;
 import java.util.List;
-import java.util.Scanner;
-import java.util.concurrent.ExecutionException;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
-import org.openide.util.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.mixin.DataElement;
@@ -40,7 +27,6 @@ public class TabularDataWrapper implements Visualization {
     {
         try {
             file = r.getData().get();
-            InputStream in = new FileInputStream(file);
 
             CSVReader reader = new CSVReader(new FileReader(r.getData().get()));
             myEntries = reader.readAll();

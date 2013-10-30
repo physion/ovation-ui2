@@ -1,27 +1,15 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.editor;
 
-import com.google.common.collect.Lists;
 import java.awt.Component;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import org.openide.util.Exceptions;
-import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.mixin.DataElement;
 
 

@@ -1,13 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.editor;
 
 import java.awt.Font;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -24,8 +17,6 @@ import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.values.NumericData;
 
-import javax.swing.*;
-import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -78,6 +69,7 @@ class ChartGroupWrapper implements Visualization
         return new TextTitle(s, new Font("Times New Roman", 1, 20));
     }
 
+    @Override
     public JPanel generatePanel()
     {
         return generateChartPanel();

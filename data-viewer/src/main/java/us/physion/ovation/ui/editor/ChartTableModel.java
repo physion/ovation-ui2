@@ -1,14 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.editor;
 
-import java.awt.Component;
 import java.util.List;
-import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-import org.jfree.chart.ChartPanel;
 
 class ChartTableModel extends DefaultTableModel {
   List<ResponsePanel> data;
