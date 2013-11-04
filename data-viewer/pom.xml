@@ -12,7 +12,7 @@
     <artifactId>ovation-ui-data-viewer</artifactId>
     <packaging>nbm</packaging>
 
-    <name>ovation-ui-data-viewer</name>
+    <name>Ovation UI Data Viewer</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -71,6 +71,11 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-lookup</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-progress</artifactId>
         </dependency>
 
         <dependency>
