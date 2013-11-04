@@ -272,7 +272,7 @@
         <keystore.store.password>ovation-core-dev</keystore.store.password>
         <keystore.key.password>ovation-core-dev</keystore.key.password>
         <ovation.api.version>2.0.0</ovation.api.version>
-        <nbm.plugin.version>3.10.1</nbm.plugin.version>
+        <nbm.plugin.version>3.11.1</nbm.plugin.version>
     </properties>
 
     <profiles>
