@@ -1,12 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.browser.insertion;
 
 import com.google.common.collect.Lists;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -24,6 +19,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
@@ -32,6 +28,12 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
  *
  * @author huecotanks
  */
+@Messages({
+    "ProtocolSelector_Name=Select an existing Protocol, or create your own",
+    "ProtocolSelector_Protocol_None=<none>",
+    "ProtocolSelector_New_Protocol=New Protocol:",
+    "ProtocolSelector_Add_Protocol_Button=+"
+})
 public class ProtocolSelector extends JScrollPane{
     DefaultListModel listModel;
     
@@ -47,7 +49,7 @@ public class ProtocolSelector extends JScrollPane{
     
     @Override
     public String getName() {
-        return "Select an existing Protocol, or create your own";
+        return Bundle.ProtocolSelector_Name();
     }
     
     public ProtocolSelector(ChangeSupport cs, boolean noneSelectable)
@@ -81,7 +83,7 @@ public class ProtocolSelector extends JScrollPane{
                         jTextArea1.setEditable(true);
                     }else{
                         //this happens when <none> is selected
-                        jTextArea1.setText("");
+                        jTextArea1.setText(""); //NOI18N
                         jTextArea1.setEditable(false);
                     }
                 }else{
@@ -101,7 +103,7 @@ public class ProtocolSelector extends JScrollPane{
                 if (protocolName == null || protocolName.isEmpty())
                     return;
                 addToNewProtocolList(protocolName);
-                jTextField1.setText("");
+                jTextField1.setText(""); //NOI18N
                 //TODO: uncomment
                 //ProtocolSelector.this.cs.fireChange();
             }
@@ -153,7 +155,7 @@ public class ProtocolSelector extends JScrollPane{
             newModel.addElement(p.getName());
         }
         if (noneSelectable)
-            newModel.addElement("<none>");
+            newModel.addElement(Bundle.ProtocolSelector_Protocol_None());
 
         jList1.setModel(newModel);
         listModel = newModel;
@@ -171,7 +173,7 @@ public class ProtocolSelector extends JScrollPane{
     protected void addToNewProtocolList(String name)
     {
         listModel.add(listModel.size() -1, name);
-        newProtocols.put(name, "");
+        newProtocols.put(name, ""); //NOI18N
     }
     
     public Map<String, String> getNewProtocols()
@@ -189,7 +191,7 @@ public class ProtocolSelector extends JScrollPane{
         int selected = jList1.getSelectedIndex();
         if (selected >= 0 && selected < listModel.getSize()-1)
             return (String)listModel.get(selected);
-        return "";
+        return ""; //NOI18N
     }
     
     public void initComponents()
@@ -209,11 +211,13 @@ public class ProtocolSelector extends JScrollPane{
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
+        jTextArea1.setLineWrap(true);
+        jTextArea1.setWrapStyleWord(true);
         protocolDocPane.setViewportView(jTextArea1);
 
         jSplitPane1.setRightComponent(protocolDocPane);
 
-        jLabel1.setText("New Protocol:");
+        jLabel1.setText(Bundle.ProtocolSelector_New_Protocol());
 
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -221,7 +225,7 @@ public class ProtocolSelector extends JScrollPane{
             }
         });
 
-        addProtocolButton.setText("+");
+        addProtocolButton.setText(Bundle.ProtocolSelector_Add_Protocol_Button());
         addProtocolButton.addActionListener(new ActionListener() {
 
             @Override

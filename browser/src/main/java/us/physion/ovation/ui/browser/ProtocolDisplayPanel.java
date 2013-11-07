@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.browser;
 
 import java.awt.Color;
@@ -17,12 +13,22 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.domain.Protocol;
 
 /**
  *
  * @author jackie
  */
+@Messages({
+    "Protocol_Name=Protocol Name:",
+    "Protocol_URI=Protocol URI:",
+    "Protocol_Function=Function:",
+    "Protocol_Scm_URL=Scm URL:",
+    "Protocol_Scm_Revision=Scm Revision:",
+    "Protocol_Document=Protocol Document:",
+    "Protocol_NA=N/A"
+})
 public class ProtocolDisplayPanel extends JScrollPane{
     
     JComboBox protocolBox;
@@ -43,7 +49,7 @@ public class ProtocolDisplayPanel extends JScrollPane{
         panel.setBorder(new EmptyBorder(15, 15, 15, 15));
         panel.setLayout(new GridBagLayout());
         protocolBox = new JComboBox();
-        protocolBox.setSelectedItem("");
+        protocolBox.setSelectedItem(""); //NOI18N
         uriField = new JTextField();
         uriField.setEditable(false);
         functionField = new JTextField();
@@ -54,15 +60,17 @@ public class ProtocolDisplayPanel extends JScrollPane{
         scmRevisionField.setEditable(false);
         protocolDocArea = new JTextArea();
         protocolDocArea.setEditable(false);
+        protocolDocArea.setLineWrap(true);
+        protocolDocArea.setWrapStyleWord(true);
         
         protocolDocArea.setPreferredSize(new Dimension(getWidth(), 200));
         
-        addLabeledComponent("Protocol Name:", protocolBox, 0, false);
-        addLabeledComponent("Protocol URI:", uriField, 1, false);
-        addLabeledComponent("Function:", functionField, 2, false);
-        addLabeledComponent("Scm URL:", scmUrlField, 3, false);
-        addLabeledComponent("Scm Revision:", scmRevisionField, 4, false);
-        addLabeledComponent("Protocol Document:", protocolDocArea, 5, true);
+        addLabeledComponent(Bundle.Protocol_Name(), protocolBox, 0, false);
+        addLabeledComponent(Bundle.Protocol_URI(), uriField, 1, false);
+        addLabeledComponent(Bundle.Protocol_Function(), functionField, 2, false);
+        addLabeledComponent(Bundle.Protocol_Scm_URL(), scmUrlField, 3, false);
+        addLabeledComponent(Bundle.Protocol_Scm_Revision(), scmRevisionField, 4, false);
+        addLabeledComponent(Bundle.Protocol_Document(), new JScrollPane(protocolDocArea), 5, true);
         
         this.setViewportView(panel);
     }
@@ -94,28 +102,28 @@ public class ProtocolDisplayPanel extends JScrollPane{
     {
         String uri = p.getURI().toString();
         if (uri == null || uri.isEmpty()) {
-            uriField.setText("N/A");
+            uriField.setText(Bundle.Protocol_NA());
             uriField.setForeground(Color.GRAY);
         } else {
             uriField.setText(uri);
         }
         String functionName = p.getFunctionName();
         if (functionName == null || functionName.isEmpty()) {
-            functionField.setText("N/A");
+            functionField.setText(Bundle.Protocol_NA());
             functionField.setForeground(Color.GRAY);
         } else {
             functionField.setText(functionName);
         }
         String scmUrl = p.getScmUrl();
         if (scmUrl == null || scmUrl.isEmpty()) {
-            scmUrlField.setText("N/A");
+            scmUrlField.setText(Bundle.Protocol_NA());
             scmUrlField.setForeground(Color.GRAY);
         } else {
             scmUrlField.setText(scmUrl);
         }
         String scmRevision = p.getScmRevision();
         if (scmRevision == null || scmRevision.isEmpty()) {
-            scmRevisionField.setText("N/A");
+            scmRevisionField.setText(Bundle.Protocol_NA());
             scmRevisionField.setForeground(Color.GRAY);
         } else {
             scmRevisionField.setText(scmRevision);

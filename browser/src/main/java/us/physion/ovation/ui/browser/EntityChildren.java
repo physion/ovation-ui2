@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.browser;
 
 import com.google.common.base.Function;
@@ -22,12 +18,21 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.util.NbBundle.Messages;
 
 
 /**
  *
  * @author huecotanks
  */
+@Messages({
+    "# {0} - parent display name",
+    "Loading_Entity_Children=Loading data for {0}",
+    "Loading_Epochs=Loading epochs",
+    "Loading_Epochs_Done=Done loading epochs"
+})
 public class EntityChildren extends Children.Keys<EntityWrapper> {
 
     EntityWrapper parent;
@@ -90,27 +95,33 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
     
     protected void initKeys()
     {
+        final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Loading_Entity_Children(parent.getDisplayName()));
+        ph.switchToIndeterminate();
+        
         EventQueueUtilities.runOffEDT(new Runnable(){
 
             @Override
             public void run() {
-                createKeys();
+                createKeys(ph);
             }
-        });
+        }, ph);
     }
     
-    protected void createKeys() {
+    protected void createKeys(ProgressHandle ph) {
         
         DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
         if (c == null) {
             return;
         }
-        updateWithKeys(createKeysForEntity(c, parent));
+        updateWithKeys(createKeysForEntity(c, parent, ph));
 
     }
 
     protected List<EntityWrapper> createKeysForEntity(DataContext c, EntityWrapper ew) {
+        return createKeysForEntity(c, ew, null);
+    }
 
+    private List<EntityWrapper> createKeysForEntity(DataContext c, EntityWrapper ew, /* @Nullable*/ ProgressHandle ph) {
         List<EntityWrapper> list = new LinkedList<EntityWrapper>();
         Class entityClass = ew.getType();
         if (Project.class.isAssignableFrom(entityClass)) {
@@ -118,10 +129,22 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
             List<Experiment> experiments = sortedExperiments(entity);
 
+            int progressCounter = 0;
+            if (ph != null) {
+                ph.switchToDeterminate(experiments.size());
+            }
+            
             for (Experiment e : experiments) {
                 list.add(new EntityWrapper(e));
+                
+                if (ph != null) {
+                    ph.progress(progressCounter++);
+                }
             }
 
+            if (ph != null) {
+                ph.switchToIndeterminate();
+            }
             for (User user : c.getUsers()) {
                 List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
                         new Function<AnalysisRecord, EntityWrapper>() {
@@ -165,6 +188,9 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                 list.add(new EntityWrapper(eg));
             }
 
+            if(ph!=null){
+                ph.progress(Bundle.Loading_Epochs());
+            }
             c.beginTransaction();//we wrap these in a transaction, because there may be a lot of epochs
             try {
                 for (Epoch e : sortedEpochs(entity)) {
@@ -172,6 +198,9 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                 }
             } finally {
                 c.commitTransaction();
+                if (ph != null) {
+                    ph.progress(Bundle.Loading_Epochs_Done());
+                }
             }
             return list;
         } else if (Epoch.class.isAssignableFrom(entityClass)) {

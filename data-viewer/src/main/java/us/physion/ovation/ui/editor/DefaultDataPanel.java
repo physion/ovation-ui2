@@ -24,7 +24,7 @@ public class DefaultDataPanel extends JPanel{
         GridBagConstraints c = new GridBagConstraints();
         elementName = new JLabel(data.getName());
         messageLabel = new JLabel("Cannot display data of type '" + data.getDataContentType() + "'");
-        JButton openButton = new JButton(new OpenInNativeAppAction(d.getData()));
+        JButton openButton = new JButton(new OpenInNativeAppAction(d));
 
         c.insets = new Insets(10, 10, 10, 10);
         c.anchor = GridBagConstraints.NORTH;

@@ -1,42 +1,24 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.detailviews;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Collection;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.openide.awt.ActionRegistration;
+import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
-import org.openide.awt.ActionID;
-import org.openide.explorer.ExplorerManager;
-import org.openide.util.Lookup;
-import org.openide.util.Lookup.Result;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle.Messages;
-import org.openide.util.Utilities;
-import org.openide.util.lookup.ServiceProvider;
-import org.openide.windows.TopComponent;
-import us.physion.ovation.domain.AnnotatableEntity;
-import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /*@ActionID(category = "Tools",
 id = "us.physion.ovation.ui.detailviews.NewNote")
 @ActionRegistration(displayName = "#CTL_NewNote")
 @ActionReferences({
-    @ActionReference(path = "Menu/File", position = 2350),
+    @ActionReference(path = "Menu/File", position = 1000),
     @ActionReference(path = "Shortcuts", name = "DS-N")
 })
 @Messages("CTL_NewNote=New Note")*/
 public final class NewNote implements ActionListener {
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         //Lookup entities
         /*Collection<? extends IEntityWrapper> entities = Utilities.actionsGlobalContext().lookupAll(IEntityWrapper.class);
