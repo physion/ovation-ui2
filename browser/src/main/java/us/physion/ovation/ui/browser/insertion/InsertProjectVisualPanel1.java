@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.browser.insertion;
 
 import java.beans.PropertyChangeEvent;
@@ -26,14 +22,14 @@ public final class InsertProjectVisualPanel1 extends JPanel {
     public InsertProjectVisualPanel1(ChangeSupport cs) {
         initComponents();
         change = cs;
-        projectName = "";
-        projectPurpose = "";
+        projectName = ""; //NOI18N
+        projectPurpose = ""; //NOI18N
         
         startPicker = DatePickers.createDateTimePicker();
         startPicker.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-                if ("date".equals(propertyChangeEvent.getPropertyName())) {
+                if ("date".equals(propertyChangeEvent.getPropertyName())) { //NOI18N
                     startDateTimeChanged();
                 }
             }
@@ -130,11 +126,11 @@ public final class InsertProjectVisualPanel1 extends JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(InsertProjectVisualPanel1.class, "InsertProjectVisualPanel1.jLabel2.text")); // NOI18N
 
-        purposeTextArea.setColumns(12);
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(550, 82));
+
         purposeTextArea.setLineWrap(true);
-        purposeTextArea.setRows(5);
+        purposeTextArea.setWrapStyleWord(true);
         purposeTextArea.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
-        purposeTextArea.setPreferredSize(new java.awt.Dimension(550, 82));
         purposeTextArea.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 purposeTextAreaKeyTyped(evt);
@@ -197,7 +193,7 @@ public final class InsertProjectVisualPanel1 extends JPanel {
                         .addComponent(startPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(startTimezoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(40, Short.MAX_VALUE))
+                .addContainerGap(44, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
