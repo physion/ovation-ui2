@@ -30,7 +30,7 @@ displayName = "#CTL_LoginLogout")
     //@ActionReference(path = "Toolbars/Edit", position = 20),
     @ActionReference(path = "Shortcuts", name = "D-L")
 })
-@Messages("CTL_LoginLogout=Change Connection")
+@Messages("CTL_LoginLogout=Login")
 public final class LoginLogout extends AbstractAction {// implements Presenter.Toolbar
 
     public void actionPerformed(ActionEvent e) {
@@ -38,9 +38,7 @@ public final class LoginLogout extends AbstractAction {// implements Presenter.T
         if (cp == null)
         {
             cp = new DatabaseConnectionProvider();
-            cp.getDefaultContext();
-        }else {
-            cp.resetConnection();
         }
+        cp.resetConnection();
     }
 }

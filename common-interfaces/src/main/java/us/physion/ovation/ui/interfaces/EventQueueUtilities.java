@@ -25,6 +25,18 @@ public class EventQueueUtilities
 	}
     }
     
+    public static void runOnEDT(Runnable r, ProgressHandle ph) {
+	if (EventQueue.isDispatchThread()) {
+            ph.start();
+	    r.run();
+            ph.finish();
+	} else {
+            start(ph);
+	    SwingUtilities.invokeLater(r);
+            finish(ph);
+	}
+    }
+    
     public static void runAndWaitOnEDT(Runnable r) throws InterruptedException {
 	if (EventQueue.isDispatchThread()) {
 	    r.run();

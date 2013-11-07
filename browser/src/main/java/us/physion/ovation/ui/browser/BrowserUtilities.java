@@ -88,8 +88,6 @@ public class BrowserUtilities{
                 etp.addQueryListener(ql);
             }
         }
-        
-       resetView(em, projectView);
     }
     
     static List<EntityWrapper> getEntityList(boolean projectView, DataContext ctx)

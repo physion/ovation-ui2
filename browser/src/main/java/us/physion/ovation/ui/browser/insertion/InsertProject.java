@@ -17,6 +17,7 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
+import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.RootInsertable;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
@@ -45,5 +46,7 @@ public class InsertProject extends InsertEntity implements RootInsertable {
             c.insertProject((String)wiz.getProperty("project.name"), 
                     (String)wiz.getProperty("project.purpose"), 
                     (DateTime)wiz.getProperty("project.start"));
+            
+            BrowserUtilities.resetView();
     }
 }
