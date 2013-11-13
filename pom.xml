@@ -261,6 +261,7 @@
         <module>annotation-views</module>
         <module>image-importer</module>
         <module>query</module>
+        <module>osx</module>
     </modules>
 
     <properties>

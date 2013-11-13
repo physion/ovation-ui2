@@ -1,30 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.browser;
 
-import java.awt.Component;
-import java.awt.Image;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeListener;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import javax.swing.AbstractAction;
 import javax.swing.Action;
-import org.openide.actions.CopyAction;
-import org.openide.explorer.propertysheet.DefaultPropertyModel;
 import org.openide.nodes.*;
-import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
-import org.openide.util.Utilities;
-import org.openide.util.datatransfer.ExTransferable;
-import org.openide.util.datatransfer.NewType;
-import org.openide.util.datatransfer.PasteType;
 import us.physion.ovation.domain.*;
+import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.ui.actions.RevealElementAction;
 import us.physion.ovation.ui.interfaces.*;
 
 /**
@@ -87,6 +69,15 @@ public class EntityNode extends AbstractNode implements ResettableNode{
                    Collections.sort(l);
                    actionList = l.toArray(new EntityInsertable[l.size()]);
                }
+               
+               if(DataElement.class.isAssignableFrom(entityClass)){
+                   Action[] expanded = new Action[actionList.length + 1];
+                   System.arraycopy(actionList, 0, expanded, 0, actionList.length);
+                   actionList = expanded;
+                   
+                   actionList[actionList.length - 1] = new RevealElementAction((DataElement) parent.getEntity());
+               }
+               
            }
        }
         return actionList;

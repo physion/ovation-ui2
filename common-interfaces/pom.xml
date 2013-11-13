@@ -60,6 +60,7 @@
                 <configuration>
                     <useOSGiDependencies>false</useOSGiDependencies>
                     <publicPackages>
+                        <publicPackage>us.physion.ovation.ui.actions.*</publicPackage>
                         <publicPackage>us.physion.ovation.ui.interfaces.*</publicPackage>
                         <publicPackage>us.physion.ovation.ui.*</publicPackage>
                         <publicPackage>us.physion.ovation.*</publicPackage>
