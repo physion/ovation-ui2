@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.editor;
 
+import us.physion.ovation.ui.actions.OpenInNativeAppAction;
 import ij.ImagePlus;
 import ij.io.Opener;
 import java.awt.Color;
