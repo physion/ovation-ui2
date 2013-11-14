@@ -68,6 +68,9 @@ public class DefaultImageWrapper implements Visualization{
     }
     
 }
+/**
+ * <b>Note</b>: This component is not opaque. Use with an opaque container.
+ */
 class BufferedImagePanel extends JPanel
 {
     BufferedImage img;

@@ -24,7 +24,7 @@ public class ImageJVisualization implements Visualization{
         try {
             final ImagePlus imp = new Opener().openImage(f.getAbsolutePath());
             if (imp != null) {
-                panel = new BufferedImagePanel(imp.getBufferedImage());
+                panel = new ImagePanel(f.getName(), new BufferedImagePanel(imp.getBufferedImage()));
             } else {
                 panel = new JPanel();
                 panel.setBackground(Color.WHITE);
