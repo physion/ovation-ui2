@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.editor;
 
+import us.physion.ovation.ui.actions.OpenInNativeAppAction;
 import ij.ImagePlus;
 import ij.io.Opener;
 import java.awt.Color;
@@ -23,7 +24,7 @@ public class ImageJVisualization implements Visualization{
         try {
             final ImagePlus imp = new Opener().openImage(f.getAbsolutePath());
             if (imp != null) {
-                panel = new BufferedImagePanel(imp.getBufferedImage());
+                panel = new ImagePanel(f.getName(), new BufferedImagePanel(imp.getBufferedImage()));
             } else {
                 panel = new JPanel();
                 panel.setBackground(Color.WHITE);

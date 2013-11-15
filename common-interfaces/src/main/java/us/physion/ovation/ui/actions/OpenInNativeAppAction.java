@@ -1,4 +1,4 @@
-package us.physion.ovation.ui.editor;
+package us.physion.ovation.ui.actions;
 
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
