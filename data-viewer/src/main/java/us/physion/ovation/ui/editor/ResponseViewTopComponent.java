@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.util.*;
 import java.util.concurrent.Future;
 import javax.swing.*;
+import org.netbeans.api.actions.Openable;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -19,11 +20,15 @@ import org.openide.util.LookupListener;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
+import org.openide.util.lookup.Lookups;
+import org.openide.util.lookup.ServiceProvider;
+import org.openide.windows.WindowManager;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.DataElementContainer;
+import us.physion.ovation.ui.actions.spi.DataElementLookupProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -45,9 +50,58 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 @Messages({
     "CTL_ResponseViewAction=Selection View",
     "CTL_ResponseViewTopComponent=Selection Viewer",
-    "HINT_ResponseViewTopComponent=Displays the current selected entity, if possible"
+    "HINT_ResponseViewTopComponent=Displays the current selected entity, if possible",
+    "# {0} - data element name",
+    "Temporary_Data_Viewer_Title=Data Viewer: {0}",
+    "Temporary_Data_Viewer_Loading=Opening..."
 })
 public final class ResponseViewTopComponent extends TopComponent {
+    
+    private final static class TemporaryViewTopComponent extends TopComponent {
+
+        public TemporaryViewTopComponent(final DataElement element) {
+            setName(Bundle.Temporary_Data_Viewer_Title(element.getName()));
+            setLayout(new BorderLayout());
+            EventQueueUtilities.runOffEDT(new Runnable() {
+
+                @Override
+                public void run() {
+                    final Visualization v = ResponseWrapperFactory.create(element).createVisualization(element);
+                    
+                    EventQueueUtilities.runOnEDT(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            add(v.generatePanel(), BorderLayout.CENTER);
+                        }
+                    });
+                }
+            }, ProgressHandleFactory.createHandle(Bundle.Temporary_Data_Viewer_Loading()));
+        }
+
+        @Override
+        public int getPersistenceType() {
+            return PERSISTENCE_NEVER;
+        }
+    }
+    
+    @ServiceProvider(service = DataElementLookupProvider.class)
+    public final static class DataElementViewer implements DataElementLookupProvider {
+
+        @Override
+        public Lookup getLookup(final DataElement element) {
+            return Lookups.singleton(new Openable() {
+
+                @Override
+                public void open() {
+                    TopComponent t = new TemporaryViewTopComponent(element);
+                    WindowManager.getDefault().findMode("editor").dockInto(t); //NOI18N
+                    t.open();
+                    t.requestActive();
+                }
+            });
+        }
+    }
 
     private final static class FixedHeightPanel extends JPanel {
 

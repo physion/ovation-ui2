@@ -6,6 +6,7 @@ import org.openide.nodes.*;
 import org.openide.util.Lookup;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.ui.actions.OpenInSeparateViewAction;
 import us.physion.ovation.ui.actions.RevealElementAction;
 import us.physion.ovation.ui.interfaces.*;
 
@@ -45,6 +46,17 @@ public class EntityNode extends AbstractNode implements ResettableNode{
    {
        actionList = actions;
    }
+
+    @Override
+    public Action getPreferredAction() {
+        if (!DataElement.class.isAssignableFrom(parent.getType())) {
+            return super.getPreferredAction();
+        }
+        
+        DataElement data = (DataElement) parent.getEntity();
+        
+        return new OpenInSeparateViewAction(data);
+    }
    
    @Override
     public Action[] getActions(boolean popup) {
