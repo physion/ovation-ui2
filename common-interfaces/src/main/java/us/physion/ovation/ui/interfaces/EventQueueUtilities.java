@@ -15,7 +15,7 @@ import org.netbeans.api.progress.ProgressHandle;
 public class EventQueueUtilities
 {
     private static ListeningExecutorService executorService = MoreExecutors.listeningDecorator(
-            Executors.newCachedThreadPool());
+            Executors.newFixedThreadPool(2));
 
     public static void runOnEDT(Runnable r) {
 	if (EventQueue.isDispatchThread()) {

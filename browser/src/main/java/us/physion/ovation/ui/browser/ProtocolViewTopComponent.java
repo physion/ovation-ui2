@@ -95,16 +95,18 @@ public final class ProtocolViewTopComponent extends TopComponent {
         setToolTipText(Bundle.HINT_ProtocolViewTopComponent());
         
         resetProtocols(context);
-        model = new DefaultComboBoxModel(protocols.toArray());
         JComboBox protocolBox = ((ProtocolDisplayPanel)jScrollPane1).getComboBox();
         protocolBox.setRenderer(new DefaultListCellRenderer() {
 
             @Override
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                if (value == null)
+                {
+                    return new JLabel();
+                }
                 return super.getListCellRendererComponent(list, ((Protocol)value).getName(), index, isSelected, cellHasFocus);
             }
         });
-        protocolBox.setModel(model);
         protocolBox.addActionListener(new ActionListener() {
 
             @Override
@@ -127,7 +129,11 @@ void resetProtocols()
     public void resetProtocols(DataContext context)
     {
         if (context == null)
+        {
+            //protocols = Lists.newArrayList();
             return;
+        }
+        
          protocols = Lists.newArrayList(context.getProtocols());
          Collections.sort(protocols, new Comparator<Protocol>() {
 
@@ -136,6 +142,9 @@ void resetProtocols()
                  return o1.getName().compareTo(o2.getName());
              }
          });
+         
+         model = new DefaultComboBoxModel(protocols.toArray());
+         ((ProtocolDisplayPanel)jScrollPane1).getComboBox().setModel(model);
          
     }
 

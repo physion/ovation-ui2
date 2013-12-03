@@ -96,12 +96,13 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
     protected void initKeys()
     {
         final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Loading_Entity_Children(parent.getDisplayName()));
-        ph.switchToIndeterminate();
-        
+
         EventQueueUtilities.runOffEDT(new Runnable(){
+            
 
             @Override
             public void run() {
+                ph.switchToIndeterminate();
                 createKeys(ph);
             }
         }, ph);
