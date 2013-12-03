@@ -1,28 +1,13 @@
 package us.physion.ovation.ui.database;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
-import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
-import us.physion.ovation.api.Ovation;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
-import us.physion.ovation.exceptions.AuthenticationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 /**
@@ -62,12 +47,11 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
     
     public synchronized void login()
     {
-        final ProgressHandle ph = ProgressHandleFactory.createHandle("Authenticating...");
-        
         final ConnectionListener[] listeners = connectionListeners.toArray(new ConnectionListener[0]);
 
         final Runnable r = new Runnable() {
 
+            @Override
             public void run() {
                     LoginModel m = new LoginWindow().showLoginDialog();
                     if (!m.isCancelled()) {
@@ -80,7 +64,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
             }
         };
 
-        EventQueueUtilities.runOnEDT(r, ph);
+        EventQueueUtilities.runOnEDT(r);
     }
 
     @Override

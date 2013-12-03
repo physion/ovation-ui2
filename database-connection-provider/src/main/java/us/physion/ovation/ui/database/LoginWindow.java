@@ -1,9 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.database;
 
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog;
@@ -13,10 +11,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -26,20 +21,37 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
+import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.api.Ovation;
-import static us.physion.ovation.ui.database.DatabaseConnectionProvider.logger;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
 /**
  *
  * @author jackie
  */
+@Messages({
+    "Login_Window_Title=Ovation",
+    "Login_Window_Remember_Me=Remember me",
+    "Login_Window_Email=Email: ",
+    "Login_Window_Password=Password: ",
+    "Login_Window_Invalid_Password=Invalid password",
+    "Login_Window_Login_Button=Login",
+    "Login_Window_Authenticating_Progress=Authenticating..."
+})
 public class LoginWindow {
+    private final static Color SPINNER_BACKGROUND = Color.WHITE;
+    private final static Color ERROR_BACKGROUND = Color.YELLOW;
+    
     LoginModel model;
+    private CardLayout loginLayout;
+    private JPanel loginWithSpinnerPanel;
+    private JTextField emailTB;
+    private JTextField passwordTB;
+    private JPanel errorPanel;
     JDialog dialog;
     JLabel errorMsg;
     JLabel spinner;
@@ -58,8 +70,12 @@ public class LoginWindow {
         //start timer
         
         spinner.setVisible(true);
-
+        loginLayout.last(loginWithSpinnerPanel);
+        emailTB.setEditable(false);
+        passwordTB.setEditable(false);
+                
         Runnable r = new Runnable() {
+            @Override
             public void run() {
                 //spinner.setVisible(true);
                 DataStoreCoordinator dsc = Ovation.newDataStoreCoordinator();
@@ -70,15 +86,18 @@ public class LoginWindow {
                         m.setDSC(dsc);
                         d.dispose();
                     }else{
-                        displayError("Invalid password");
+                        displayError(Bundle.Login_Window_Invalid_Password());
                     }
                 } catch (Exception ex) {
                     displayError(ex.getLocalizedMessage());
-                    return;
+                } finally{
+                    loginLayout.first(loginWithSpinnerPanel);
+                    emailTB.setEditable(true);
+                    passwordTB.setEditable(true);
                 }
             }
         };
-        EventQueueUtilities.runOffEDT(r);
+        EventQueueUtilities.runOffEDT(r, ProgressHandleFactory.createHandle(Bundle.Login_Window_Authenticating_Progress()));
     }
     
     private void displayError(final String error)
@@ -87,10 +106,19 @@ public class LoginWindow {
 
             @Override
             public void run() {
-                if (error == null)
-                    errorMsg.setText("");
-                else
+                boolean visible;
+                if (error == null) {
+                    errorMsg.setText(""); //NOI18N
+                    visible = false;
+                } else {
                     errorMsg.setText(error);
+                    visible = true;
+                }
+                
+                if(errorPanel.isVisible() != visible){
+                    errorPanel.setVisible(visible);
+                    dialog.pack();
+                }
             }
         });
     }
@@ -98,14 +126,15 @@ public class LoginWindow {
     private void initWindow()
     {
         model = new LoginModel();
-        dialog = new JDialog(new JFrame(), "Ovation", true);
-        spinner = new JLabel(new ImageIcon("us/physion/ovation/ui/database/ajax-loader.gif"));
-        //spinner.setVisible(false);
+        dialog = new JDialog(new JFrame(), Bundle.Login_Window_Title(), true);
+        spinner = new JLabel(new ImageIcon(LoginWindow.class.getResource("ajax-loader.gif"))); //NOI18N
+        spinner.setVisible(false);
         
         errorMsg = new JLabel();
         dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-        JPanel login = new JPanel();
+        final JPanel login = new JPanel();
+        login.setBackground(SPINNER_BACKGROUND);
         login.setAlignmentX(Component.LEFT_ALIGNMENT);
         login.setBorder(new EmptyBorder(15, 15, 15, 15));
         login.setLayout(new GridBagLayout());
@@ -116,7 +145,6 @@ public class LoginWindow {
             c.gridwidth = 1;
             c.anchor = GridBagConstraints.WEST;
             c.insets = new Insets(0, 0, 15, 15);
-            login.add(spinner, c);
         
         /*BufferedImage physionIcon;
         File f = null;
@@ -149,12 +177,12 @@ public class LoginWindow {
         //TODO: header if the error is not null
 
         //two text fields
-        final JTextField emailTB = addField(login, "Email: ", 1, false);
-        final JTextField passwordTB = addField(login, "Password: ", 2, true);
+        emailTB = addField(login, Bundle.Login_Window_Email(), 1, false);
+        passwordTB = addField(login, Bundle.Login_Window_Password(), 2, true);
 
         //Cancel/Ok buttons
         //JButton cancelButton = new JButton("Cancel");
-        JButton okButton = new JButton("Login");
+        JButton okButton = new JButton(Bundle.Login_Window_Login_Button());
         //okButton.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
         c = new GridBagConstraints();
         c.gridx = 2;
@@ -162,7 +190,13 @@ public class LoginWindow {
         c.gridwidth = 1;
         c.anchor = GridBagConstraints.EAST;
         c.insets = new Insets(15, 0, 0, 0);
-        login.add(okButton, c);
+        
+        loginWithSpinnerPanel = new JPanel(loginLayout = new CardLayout());
+        loginWithSpinnerPanel.setBackground(SPINNER_BACKGROUND);
+        loginWithSpinnerPanel.add(okButton, "login"); //NOI18N
+        loginWithSpinnerPanel.add(spinner, "spinner"); //NOI18N
+        
+        login.add(loginWithSpinnerPanel, c);
 
         okButton.addActionListener(new ActionListener() {
 
@@ -170,6 +204,7 @@ public class LoginWindow {
             public void actionPerformed(ActionEvent ae) {
                 model.setEmail(emailTB.getText());
                 model.setPassword(passwordTB.getText());
+                displayError(null);
                 authenticateInBackgroundThread(model, dialog);
             }
             
@@ -190,14 +225,9 @@ public class LoginWindow {
         login.add(cb, c);
         c.gridwidth = 1;
         c.gridx = 1;
-        JLabel rememberMe = new JLabel("Remember me");
+        JLabel rememberMe = new JLabel(Bundle.Login_Window_Remember_Me());
         login.add(rememberMe, c);
         
-        c.gridx = 0;
-        c.gridy = 4;
-        c.gridwidth = 3;
-        errorMsg.setForeground(Color.RED);
-        login.add(errorMsg, c);
         
 
         //SIGN UP
@@ -235,8 +265,32 @@ public class LoginWindow {
         d.getContentPane().add(tabs);
         login.getRootPane().setDefaultButton(okButton);
         */
+        
+        errorPanel = new JPanel(new BorderLayout()) {
+            @Override
+            //not resizing the UI if the error text is too long
+            public Dimension getPreferredSize() {
+                Dimension d = super.getPreferredSize();
+                Dimension ldim = login.getPreferredSize();
+                if (d.width > ldim.width) {
+                    return new Dimension(ldim.width, d.height);
+                } else {
+                    return d;
+                }
+            }
+        };
+        errorPanel.setBackground(ERROR_BACKGROUND);
+        errorMsg.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        errorPanel.add(errorMsg, BorderLayout.CENTER);
+        errorPanel.setVisible(false);
+        
+        JPanel mainPane = new JPanel(new BorderLayout());
+        mainPane.setBackground(SPINNER_BACKGROUND);
+        mainPane.add(login, BorderLayout.CENTER);
+        mainPane.add(errorPanel, BorderLayout.NORTH);
+        
         dialog.getContentPane().setBackground(Color.WHITE);
-        dialog.getContentPane().add(login);
+        dialog.getContentPane().add(mainPane);
         login.getRootPane().setDefaultButton(okButton);
         //show dialog
         dialog.pack();
