@@ -8,25 +8,24 @@ import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
-import org.openide.util.Lookup;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
+import org.openide.util.*;
 import org.openide.util.NbBundle.Messages;
-import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.domain.AnnotatableEntity;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.ResourceContainer;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.util.PlatformUtils;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import static java.awt.FileDialog.LOAD;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -36,12 +35,8 @@ import java.net.URLConnection;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import org.openide.util.Exceptions;
-import org.openide.util.NbBundle;
-import org.openide.windows.WindowManager;
-import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.mixin.ResourceContainer;
-import us.physion.ovation.util.PlatformUtils;
+
+import static java.awt.FileDialog.LOAD;
 
 /**
  * Top component which displays something.
@@ -426,9 +421,16 @@ public final class ResourceViewTopComponent extends TopComponent {
             ResourceContainer entity = (ResourceContainer) e.getEntity();
             Resource r;
             try {
+
+                //http://book.javanb.com/java-network-programming-3rd/javanp3-CHP-15-SECT-10.html
+                String contentType = URLConnection.guessContentTypeFromName(resourceFile.getName()) = !null ?
+                        URLConnection.guessContentTypeFromName(resourceFile.getName()) :
+                        "application/octet-stream";
+
                 r = entity.addResource(name,
-                        resourceFile.toURI().toURL(),
-                        URLConnection.guessContentTypeFromName(resourceFile.getName()));
+                                       resourceFile.toURI().toURL(),
+                                       contentType);
+
             } catch (MalformedURLException ex) {
                 throw new OvationException("Unable to add Resource", ex);
             }
