@@ -423,9 +423,9 @@ public final class ResourceViewTopComponent extends TopComponent {
             try {
 
                 //http://book.javanb.com/java-network-programming-3rd/javanp3-CHP-15-SECT-10.html
-                String contentType = URLConnection.guessContentTypeFromName(resourceFile.getName()) = !null ?
-                        URLConnection.guessContentTypeFromName(resourceFile.getName()) :
-                        "application/octet-stream";
+                String contentType = URLConnection.guessContentTypeFromName(resourceFile.getName()) == null ?
+                        "application/octet-stream" :
+                        URLConnection.guessContentTypeFromName(resourceFile.getName());
 
                 r = entity.addResource(name,
                                        resourceFile.toURI().toURL(),
