@@ -94,22 +94,26 @@ public class BrowserUtilities{
     {
         if (projectView)
         {
-            return Lists.newArrayList(Iterables.transform(ctx.getProjects(), new Function<Project, EntityWrapper>() {
+            List<EntityWrapper> projects =  Lists.newArrayList(Iterables.transform(ctx.getProjects(), new Function<Project, EntityWrapper>() {
 
                 @Override
                 public EntityWrapper apply(Project input) {
                     return new EntityWrapper(input);
                 }
             }));
+            Collections.sort(projects, new EntityComparator());
+            return projects;
         }
         else{
-            return Lists.newArrayList(Iterables.transform(ctx.getTopLevelSources(), new Function<Source, EntityWrapper>() {
+            List<EntityWrapper> sources = Lists.newArrayList(Iterables.transform(ctx.getTopLevelSources(), new Function<Source, EntityWrapper>() {
 
                 @Override
                 public EntityWrapper apply(Source input) {
                     return new EntityWrapper(input);
                 }
             }));
+            Collections.sort(sources, new EntityComparator());
+            return sources;
         }
     }
     

@@ -14,7 +14,7 @@ public class EntityComparator implements Comparator<EntityWrapper>{
 
     @Override
     public int compare(EntityWrapper o1, EntityWrapper o2) {
-        return o1.getDisplayName().compareTo(o2.getDisplayName());
+        return o1.getDisplayName().toLowerCase().compareTo(o2.getDisplayName().toLowerCase());
     }
     
 }

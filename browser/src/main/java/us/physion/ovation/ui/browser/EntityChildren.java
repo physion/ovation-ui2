@@ -146,7 +146,15 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
             if (ph != null) {
                 ph.switchToIndeterminate();
             }
-            for (User user : c.getUsers()) {
+            List<User> users = Lists.newArrayList(c.getUsers());
+            Collections.sort(users, new Comparator<User>() {
+
+                @Override
+                public int compare(User t, User t1) {
+                    return t.getUsername().compareTo(t1.getUsername());
+                }
+            });
+            for (User user : users) {
                 List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
                         new Function<AnalysisRecord, EntityWrapper>() {
                     @Override
