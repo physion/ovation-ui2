@@ -1,33 +1,14 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.browser;
 
-//import com.sun.source.tree.ExpressionTree;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import java.awt.EventQueue;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
-import javax.swing.ActionMap;
-import javax.swing.SwingUtilities;
-import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.explorer.ExplorerManager;
-import org.openide.explorer.ExplorerUtils;
-import org.openide.explorer.view.BeanTreeView;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
-import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
@@ -40,11 +21,9 @@ import us.physion.ovation.ui.interfaces.QueryListener;
  * @author jackie
  */
 public class BrowserUtilities{
-    protected static Map<String, Node> browserMap = new ConcurrentHashMap<String, Node>();
-    protected static Map<ExplorerManager, Boolean> registeredViewManagers = new HashMap<ExplorerManager, Boolean>();
+    protected static Map<ExplorerManager, TreeFilter> registeredViewManagers = new HashMap<ExplorerManager, TreeFilter>();
     protected static QueryListener ql;
     protected static ExecutorService executorService = Executors.newFixedThreadPool(2);
-    protected static BrowserCopyAction browserCopy = new BrowserCopyAction();
     
     protected static ConnectionListener cn = new ConnectionListener(new Runnable(){
 
@@ -55,18 +34,12 @@ public class BrowserUtilities{
             
         });
     
-    public static Map<String, Node> getNodeMap()
-    {
-        return browserMap;
-    } 
-    
-    
     static void submit(Runnable runnable) {
         executorService.submit(runnable);
     }
     
     public static void initBrowser(final ExplorerManager em, 
-                                   final boolean projectView)
+                                   final TreeFilter projectView)
     {
         registeredViewManagers.put(em, projectView);//TODO: don't need this. we should be able to look up the explorerManagers from TopComponents
         ConnectionProvider cp = Lookup.getDefault().lookup(ConnectionProvider.class);
@@ -80,7 +53,7 @@ public class BrowserUtilities{
 
                     @Override
                     public void run() {
-                        browserMap.clear();
+//                        browserMap.clear();
                         //ExpressionTree result = Lookup.getDefault().lookup(ExpressionTreeProvider.class).getExpressionTree();
                         //setTrees(result);
                     }
@@ -90,9 +63,9 @@ public class BrowserUtilities{
         }
     }
     
-    static List<EntityWrapper> getEntityList(boolean projectView, DataContext ctx)
+    static List<EntityWrapper> getEntityList(TreeFilter projectView, DataContext ctx)
     {
-        if (projectView)
+        if (projectView.isProjectView())
         {
             List<EntityWrapper> projects =  Lists.newArrayList(Iterables.transform(ctx.getProjects(), new Function<Project, EntityWrapper>() {
 
@@ -119,12 +92,13 @@ public class BrowserUtilities{
     
     public static void resetView()
     {
-        browserMap.clear();
+//        browserMap.clear();
         DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
         
         for (ExplorerManager mgr : registeredViewManagers.keySet()) {
-            List<EntityWrapper> list = getEntityList(registeredViewManagers.get(mgr), ctx);
-            mgr.setRootContext(new EntityNode(new EntityChildren(list), null));
+            TreeFilter filter = registeredViewManagers.get(mgr);
+            List<EntityWrapper> list = getEntityList(filter, ctx);
+            mgr.setRootContext(new EntityNode(new EntityChildren(list, filter), null));
         }
     }
     
@@ -153,10 +127,10 @@ public class BrowserUtilities{
         }
     }
 
-    protected static void resetView(ExplorerManager e, boolean projectView)
+    protected static void resetView(ExplorerManager e, TreeFilter projectView)
     {
         DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
-        e.setRootContext(new EntityNode(new EntityChildren(getEntityList(projectView, ctx)), null));
+        e.setRootContext(new EntityNode(new EntityChildren(getEntityList(projectView, ctx), projectView), null));
     }
 
     //TODO: uncomment when we have query capabiliites
@@ -179,15 +153,5 @@ public class BrowserUtilities{
         
     }*/
 
-    public static void runOnEDT(Runnable r)
-    {
-        if (EventQueue.isDispatchThread())
-        {
-            r.run();
-        }
-        else{
-            SwingUtilities.invokeLater(r);
-        }
-    }
     
 }

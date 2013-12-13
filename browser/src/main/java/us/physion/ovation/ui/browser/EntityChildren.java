@@ -10,6 +10,7 @@ import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
+import us.physion.ovation.ui.browser.TreeFilter;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
@@ -37,12 +38,18 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
     EntityWrapper parent;
     boolean projectView;
+    private final TreeFilter filter;
 
     public EntityChildren(EntityWrapper e) {
+        this(e, TreeFilter.NO_FILTER);
+    }
+    
+    public EntityChildren(EntityWrapper e, TreeFilter filter) {
         if (e == null)
             throw new OvationException("Pass in the list of Project/Source EntityWrappers, instead of null");
         
         parent = e;
+        this.filter = filter;
         //if its per user, we create 
         if (e instanceof PerUserEntityWrapper)
         {
@@ -53,7 +60,12 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
     }
     
     public EntityChildren(List<EntityWrapper> children) {
+        this(children, TreeFilter.NO_FILTER);
+    }
+    
+    public EntityChildren(List<EntityWrapper> children, TreeFilter filter) {
         parent = null;
+        this.filter = filter;
         updateWithKeys(children);
     }
     
@@ -63,7 +75,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
             @Override
             public Children call() throws Exception {
-                return new EntityChildren(key);
+                return new EntityChildren(key, filter);
             }
         };
     }
@@ -118,6 +130,13 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
     }
 
+    private void absorbFilteredChildren(boolean isVisible, List<EntityWrapper> list, DataContext c, /* @Nullable*/ ProgressHandle ph) {
+        if (!isVisible) {
+            EntityWrapper pop = list.remove(list.size() - 1);
+            list.addAll(createKeysForEntity(c, pop, ph));
+        }
+    }
+    
     protected List<EntityWrapper> createKeysForEntity(DataContext c, EntityWrapper ew) {
         return createKeysForEntity(c, ew, null);
     }
@@ -137,6 +156,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
             
             for (Experiment e : experiments) {
                 list.add(new EntityWrapper(e));
+                absorbFilteredChildren(filter.isExperimentsVisible(), list, c, ph);
                 
                 if (ph != null) {
                     ph.progress(progressCounter++);
@@ -177,6 +197,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
             }
             for (Epoch e : sortedEpochs(entity)) {
                 list.add(new EntityWrapper(e));
+                absorbFilteredChildren(filter.isEpochsVisible(), list, c, ph);
             }
             return list;
         }
@@ -185,9 +206,11 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
             for (EpochGroup eg : sortedEpochGroups(entity)) {
                 list.add(new EntityWrapper(eg));
+                absorbFilteredChildren(filter.isEpochGroupsVisible(), list, c, ph);
             }
             for (Epoch e : sortedEpochs(entity)) {
                 list.add(new EntityWrapper(e));
+                absorbFilteredChildren(filter.isEpochsVisible(), list, c, ph);
             }
             return list;
         } else if (EpochGroup.class.isAssignableFrom(entityClass)) {
@@ -195,6 +218,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
 
             for (EpochGroup eg : entity.getEpochGroups()) {
                 list.add(new EntityWrapper(eg));
+                absorbFilteredChildren(filter.isEpochGroupsVisible(), list, c, ph);
             }
 
             if(ph!=null){
@@ -204,6 +228,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
             try {
                 for (Epoch e : sortedEpochs(entity)) {
                     list.add(new EntityWrapper(e));
+                    absorbFilteredChildren(filter.isEpochsVisible(), list, c, ph);
                 }
             } finally {
                 c.commitTransaction();
