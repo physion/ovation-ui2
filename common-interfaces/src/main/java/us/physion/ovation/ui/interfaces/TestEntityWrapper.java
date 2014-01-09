@@ -1,15 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.interfaces;
 
-import ovation.*;
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.*;
-import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /**
  *
@@ -46,6 +42,11 @@ public class TestEntityWrapper implements IEntityWrapper{
     @Override
     public String getURI() {
         return uri;
+    }
+
+    @Override
+    public List<URI> getFilteredParentURIs() {
+        return Collections.EMPTY_LIST;
     }
     
     //TODO: call this on some static method in our iterfaces jar

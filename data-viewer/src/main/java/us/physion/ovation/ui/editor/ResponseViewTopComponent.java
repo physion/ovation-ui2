@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.net.URI;
 import java.util.*;
 import java.util.concurrent.Future;
 import javax.swing.*;
@@ -36,17 +37,17 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  * Top component which displays something.
  */
 @ConvertAsProperties(dtd = "-//us.physion.ovation.editor//ResponseView//EN",
-        autostore = false)
+autostore = false)
 @TopComponent.Description(preferredID = "ResponseViewTopComponent",
-        //iconBase="SET/PATH/TO/ICON/HERE", 
-        persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+//iconBase="SET/PATH/TO/ICON/HERE", 
+persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "editor", openAtStartup = true)
 @ActionID(category = "Window", id = "us.physion.ovation.editor.ResponseViewTopComponent")
 @ActionReference(path = "Menu/Window" /*
-         * , position = 333
-         */)
+ * , position = 333
+ */)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_ResponseViewAction",
-        preferredID = "ResponseViewTopComponent")
+preferredID = "ResponseViewTopComponent")
 @Messages({
     "CTL_ResponseViewAction=Selection View",
     "CTL_ResponseViewTopComponent=Selection Viewer",
@@ -56,8 +57,10 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
     "Temporary_Data_Viewer_Loading=Opening..."
 })
 public final class ResponseViewTopComponent extends TopComponent {
-    
+
     private final static class TemporaryViewTopComponent extends TopComponent {
+
+        private List<AbstractAction> tabActions = new ArrayList<AbstractAction>();
 
         public TemporaryViewTopComponent(final DataElement element) {
             setName(Bundle.Temporary_Data_Viewer_Title(element.getName()));
@@ -67,7 +70,7 @@ public final class ResponseViewTopComponent extends TopComponent {
                 @Override
                 public void run() {
                     final Visualization v = ResponseWrapperFactory.create(element).createVisualization(element);
-                    
+
                     EventQueueUtilities.runOnEDT(new Runnable() {
 
                         @Override
@@ -83,18 +86,48 @@ public final class ResponseViewTopComponent extends TopComponent {
         public int getPersistenceType() {
             return PERSISTENCE_NEVER;
         }
+
+        private void addTabAction(AbstractAction a) {
+            this.tabActions.add(a);
+        }
+
+        @Override
+        public Action[] getActions() {
+            Action[] other = super.getActions();
+            if(tabActions.isEmpty()){
+                return other;
+            }else{
+                Action[] merged = new Action[tabActions.size() + 1 + other.length];
+                System.arraycopy(tabActions.toArray(), 0, merged, 0, tabActions.size());
+                //separator
+                merged[tabActions.size()] = null;
+                System.arraycopy(other, 0, merged, tabActions.size() + 1, other.length);
+                
+                return merged;
+            }
+        }
+        
     }
-    
+
     @ServiceProvider(service = DataElementLookupProvider.class)
     public final static class DataElementViewer implements DataElementLookupProvider {
 
         @Override
         public Lookup getLookup(final DataElement element) {
-            return Lookups.singleton(new Openable() {
+            return getLookup(element, null);
+        }
 
+        @Override
+        public Lookup getLookup(final DataElement element, final List<URI> entityURI) {
+            return Lookups.singleton(new Openable() {
                 @Override
                 public void open() {
-                    TopComponent t = new TemporaryViewTopComponent(element);
+                    TemporaryViewTopComponent t = new TemporaryViewTopComponent(element);
+
+                    if (entityURI != null) {
+                        t.addTabAction(new OpenNodeInBrowserAction(entityURI));
+                    }
+
                     WindowManager.getDefault().findMode("editor").dockInto(t); //NOI18N
                     t.open();
                     t.requestActive();
@@ -120,7 +153,7 @@ public final class ResponseViewTopComponent extends TopComponent {
                 return d;
             }
         }
-        
+
         @Override
         public Dimension getMaximumSize() {
             Dimension d = super.getMaximumSize();
@@ -130,7 +163,7 @@ public final class ResponseViewTopComponent extends TopComponent {
                 return d;
             }
         }
-        
+
         @Override
         public Dimension getPreferredSize() {
             Dimension d = super.getPreferredSize();
@@ -166,13 +199,16 @@ public final class ResponseViewTopComponent extends TopComponent {
 
     private void initTopComponent() {
         initComponents();
+        
+        //Don't allow the user to close the data viewer
+        putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
 
         setName("Data Viewer");//Bundle.CTL_ResponseViewTopComponent());
         setToolTipText("Displays the selected DataElements");//Bundle.HINT_ResponseViewTopComponent());
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         global.addLookupListener(listener);
     }
-    
+
     private void initComponents() {
         contentPanel = new FixedHeightPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.PAGE_AXIS));
@@ -181,12 +217,12 @@ public final class ResponseViewTopComponent extends TopComponent {
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(responseListPane, javax.swing.GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE)
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(responseListPane, javax.swing.GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(responseListPane, javax.swing.GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(responseListPane, javax.swing.GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
         );
     }
 
@@ -214,7 +250,7 @@ public final class ResponseViewTopComponent extends TopComponent {
     }
 
     protected void updateEntitySelection() {
-        
+
         final ProgressHandle progress = ProgressHandleFactory.createHandle("Updating view");
         final Collection<? extends IEntityWrapper> entities = global.allInstances();
         Runnable r = new Runnable() {
@@ -236,7 +272,7 @@ public final class ResponseViewTopComponent extends TopComponent {
             progress.switchToDeterminate(entities.size());
         }
         int progressWorkUnit = 0;
-        
+
         LinkedList<DataElement> responseList = new LinkedList<DataElement>();
 
         Iterator i = entities.iterator();
@@ -255,7 +291,7 @@ public final class ResponseViewTopComponent extends TopComponent {
             } else if (DataElement.class.isAssignableFrom(ew.getType())) {
                 responseList.add((DataElement) ew.getEntity());
             }
-            
+
             if (progress != null) {
                 progress.progress(progressWorkUnit++);
             }
@@ -325,11 +361,11 @@ public final class ResponseViewTopComponent extends TopComponent {
                             rowHeights[row] = Integer.MAX_VALUE;
                             flexiblePanels++;
                         }
-                        
+
                         FixedHeightPanel wrap = new FixedHeightPanel();
                         wrap.setLayout(new BorderLayout());
                         wrap.add(p, BorderLayout.CENTER);
-                        
+
                         responsePanels.add(wrap);
                     }
                     int flexiblePanelHeight = minHeight;
@@ -341,7 +377,7 @@ public final class ResponseViewTopComponent extends TopComponent {
                             rowHeights[i] = flexiblePanelHeight;
                         }
                         responsePanels.get(i).setFixedHeight(rowHeights[i]);
-                        
+
                         contentPanel.add(responsePanels.get(i));
                     }
                 }

@@ -1,24 +1,18 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.interfaces;
 
-import java.util.LinkedList;
+import java.net.URI;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import org.openide.util.Lookup;
-import ovation.*;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
-import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /**
  *
  * @author huecotanks
  */
+//XXX: EMI: Not used?
+@Deprecated
 public class EntityWrapperBase implements IEntityWrapper {
 
     private String uri;
@@ -46,6 +40,11 @@ public class EntityWrapperBase implements IEntityWrapper {
         if (c == null)
             return null;
         return c.getObjectWithURI(uri);
+    }
+
+    @Override
+    public List<URI> getFilteredParentURIs() {
+        return Collections.EMPTY_LIST;
     }
     @Override
     public String getURI()

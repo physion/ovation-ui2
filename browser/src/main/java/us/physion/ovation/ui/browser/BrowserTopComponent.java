@@ -10,9 +10,11 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
+import org.openide.explorer.view.BeanTreeView;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
 /**
  * Top component which displays something.
@@ -34,10 +36,11 @@ preferredID = "BrowserTopComponent")
     "CTL_BrowserTopComponent=Project Navigator",
     "HINT_BrowserTopComponent=Browse your Ovation Database"
 })
-public final class BrowserTopComponent extends TopComponent implements ExplorerManager.Provider{
+public final class BrowserTopComponent extends TopComponent implements ExplorerManager.Provider, TreeViewProvider{
 
     private Lookup lookup;
     private final ExplorerManager explorerManager = new ExplorerManager();
+    private final BeanTreeView view;
 
     
     public BrowserTopComponent() {
@@ -45,7 +48,9 @@ public final class BrowserTopComponent extends TopComponent implements ExplorerM
         filter.setProjectView(true);
         
         setLayout(new BorderLayout());
-        add(new FilteredTreeViewPanel(filter), BorderLayout.CENTER);
+        FilteredTreeViewPanel panel = new FilteredTreeViewPanel(filter);
+        view = panel.getTreeView();
+        add(panel, BorderLayout.CENTER);
         
         setName(Bundle.CTL_BrowserTopComponent());
         setToolTipText(Bundle.HINT_BrowserTopComponent());
@@ -63,6 +68,11 @@ public final class BrowserTopComponent extends TopComponent implements ExplorerM
         ActionMap actionMap = this.getActionMap();
         actionMap.put("copy-to-clipboard", (Action) new BrowserCopyAction());
         
+    }
+
+    @Override
+    public Object getTreeView() {
+        return view;
     }
 
     @Override

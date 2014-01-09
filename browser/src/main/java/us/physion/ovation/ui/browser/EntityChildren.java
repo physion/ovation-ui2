@@ -3,6 +3,9 @@ package us.physion.ovation.ui.browser;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
@@ -10,7 +13,6 @@ import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
-import us.physion.ovation.ui.browser.TreeFilter;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
@@ -22,6 +24,7 @@ import java.util.concurrent.Callable;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.NbBundle.Messages;
+import us.physion.ovation.ui.interfaces.LazyChildren;
 
 
 /**
@@ -34,11 +37,12 @@ import org.openide.util.NbBundle.Messages;
     "Loading_Epochs=Loading epochs",
     "Loading_Epochs_Done=Done loading epochs"
 })
-public class EntityChildren extends Children.Keys<EntityWrapper> {
+public class EntityChildren extends Children.Keys<EntityWrapper> implements LazyChildren {
 
     EntityWrapper parent;
     boolean projectView;
     private final TreeFilter filter;
+    private boolean loadedKeys = false;
 
     public EntityChildren(EntityWrapper e) {
         this(e, TreeFilter.NO_FILTER);
@@ -53,6 +57,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
         //if its per user, we create 
         if (e instanceof PerUserEntityWrapper)
         {
+            loadedKeys = true;
             setKeys(((PerUserEntityWrapper)e).getChildren());
         }else{
             initKeys();
@@ -67,6 +72,11 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
         parent = null;
         this.filter = filter;
         updateWithKeys(children);
+    }
+    
+    @Override
+    public boolean isLoaded() {
+        return super.isInitialized() && loadedKeys;
     }
     
     protected Callable<Children> getChildrenCallable(final EntityWrapper key)
@@ -96,12 +106,14 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
                 setKeys(list);
                 addNotify();
                 refresh();
+                loadedKeys = true;
             }
         });
     }
-    
+
     public void resetNode()
     {
+        loadedKeys = false;
         initKeys();
     }
     
@@ -133,7 +145,20 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
     private void absorbFilteredChildren(boolean isVisible, List<EntityWrapper> list, DataContext c, /* @Nullable*/ ProgressHandle ph) {
         if (!isVisible) {
             EntityWrapper pop = list.remove(list.size() - 1);
-            list.addAll(createKeysForEntity(c, pop, ph));
+            List<URI> uris = new ArrayList<URI>();
+            uris.addAll(pop.getFilteredParentURIs());
+            URI u = null;
+            try {
+                u = pop.getURI() == null ? null : new URI(pop.getURI());
+            } catch (URISyntaxException ex) {
+            }
+            uris.add(u);
+            
+            List<EntityWrapper> children = createKeysForEntity(c, pop, ph);
+            for(EntityWrapper e : children){
+                e.addFilteredParentURIs(uris);
+            }
+            list.addAll(children);
         }
     }
     

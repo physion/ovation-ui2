@@ -22,6 +22,11 @@
     <dependencies>
         <dependency>
             <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-spi-quicksearch</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-annotations-common</artifactId>
         </dependency>
 
