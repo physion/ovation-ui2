@@ -4,29 +4,30 @@
  */
 package us.physion.ovation.ui.detailviews;
 
+import com.google.common.collect.Maps;
+import org.apache.commons.io.FilenameUtils;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
-import org.openide.util.Lookup;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
+import org.openide.util.*;
 import org.openide.util.NbBundle.Messages;
-import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.domain.AnnotatableEntity;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.ResourceContainer;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.util.PlatformUtils;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import static java.awt.FileDialog.LOAD;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -36,12 +37,8 @@ import java.net.URLConnection;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import org.openide.util.Exceptions;
-import org.openide.util.NbBundle;
-import org.openide.windows.WindowManager;
-import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.mixin.ResourceContainer;
-import us.physion.ovation.util.PlatformUtils;
+
+import static java.awt.FileDialog.LOAD;
 
 /**
  * Top component which displays something.
@@ -422,13 +419,37 @@ public final class ResourceViewTopComponent extends TopComponent {
         File resourceFile = new File(path);
         String name = resourceFile.getName();
 
+        final Map<String,String> customContentTypes = Maps.newHashMap();
+        customContentTypes.put("doc", "application/msword");
+        customContentTypes.put("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+
+        customContentTypes.put("xls", "application/vnd.ms-excel");
+        customContentTypes.put("xlsx",  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+        customContentTypes.put("ppt", "application/vnd.ms-powerpoint");
+        customContentTypes.put("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+
+
         for (IEntityWrapper e : entities) {
             ResourceContainer entity = (ResourceContainer) e.getEntity();
             Resource r;
             try {
+                String contentType;
+                final String guessedType = URLConnection.guessContentTypeFromName(resourceFile.getName());
+                if (guessedType == null) {
+                    final String extension = FilenameUtils.getExtension(resourceFile.getName());
+                    if (customContentTypes.containsKey(extension)) {
+                        contentType = customContentTypes.get(extension);
+                    } else {
+                        contentType = "application/octet-stream"; // fallback to binary
+                    }
+                } else {
+                    contentType = guessedType;
+                }
+
                 r = entity.addResource(name,
-                        resourceFile.toURI().toURL(),
-                        URLConnection.guessContentTypeFromName(resourceFile.getName()));
+                                       resourceFile.toURI().toURL(),
+                        contentType);
             } catch (MalformedURLException ex) {
                 throw new OvationException("Unable to add Resource", ex);
             }
