@@ -55,7 +55,7 @@ public class InsertEpochAndMeasurement extends InsertEntity implements Experimen
         
         panels.add(new DataElementController());
         panels.add(new SourceNameSelectionController("epoch.inputs"));
-        panels.add(new DeviceNameSelectionController((EpochContainer)parent.getEntity()));
+        //panels.add(new DeviceNameSelectionController((EpochContainer)parent.getEntity()));
         return panels;
     }
 

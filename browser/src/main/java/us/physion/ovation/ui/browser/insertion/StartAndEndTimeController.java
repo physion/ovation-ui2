@@ -23,7 +23,7 @@ public class StartAndEndTimeController extends BasicWizardPanel{
     public Component getComponent() {
         if (component == null)
         {
-            component = new StartAndEndPanel();
+            component = new StartAndEndPanel(true);
         }
         return component;
     }
@@ -37,6 +37,19 @@ public class StartAndEndTimeController extends BasicWizardPanel{
         StartAndEndPanel c = (StartAndEndPanel)getComponent();
         data.putProperty(objectPrefix + ".start", c.getStart());
         data.putProperty(objectPrefix + ".end", c.getEnd());
+        changeSupport.fireChange();//let the InsertEntityIterator know to check the protocol and device info checkboxes
+    }
+    
+    public boolean includeProtocolInfo()
+    {
+        StartAndEndPanel c = (StartAndEndPanel)getComponent();
+        return c.includeProtocolInfo();
+    }
+    
+    public boolean includeDeviceInfo()
+    {
+        StartAndEndPanel c = (StartAndEndPanel)getComponent();
+        return c.includeDeviceInfo();
     }
     
 }
