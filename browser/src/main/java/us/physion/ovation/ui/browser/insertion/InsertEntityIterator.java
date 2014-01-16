@@ -16,6 +16,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.ChangeSupport;
+import us.physion.ovation.domain.Epoch;
 
 public final class InsertEntityIterator implements WizardDescriptor.Iterator<WizardDescriptor> {
 
@@ -144,6 +145,9 @@ public final class InsertEntityIterator implements WizardDescriptor.Iterator<Wiz
             if (panel instanceof SelectProtocolController && !includeProtocolInfo)
             {
                 continue;
+            }else if(panel instanceof DeviceNameSelectionController && !includeDeviceInfo)
+            {
+                continue;
             }
             else if (panel instanceof KeyValueController)
             {
@@ -156,9 +160,13 @@ public final class InsertEntityIterator implements WizardDescriptor.Iterator<Wiz
                 {
                     continue;
                 }
-            }else if(panel instanceof SourceNameSelectionController && ((SourceNameSelectionController)panel).epoch.getInputSources().size() < 2)
+            }else if(panel instanceof SourceNameSelectionController)
             {
-                continue;
+                Epoch epoch = ((SourceNameSelectionController)panel).epoch;
+                if (epoch!= null && epoch.getInputSources() != null)
+                {
+                    continue;
+                }
             }
             filteredPanels.add(panel);
         }
