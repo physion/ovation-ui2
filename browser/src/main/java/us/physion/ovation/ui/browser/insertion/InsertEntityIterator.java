@@ -58,20 +58,7 @@ public final class InsertEntityIterator implements WizardDescriptor.Iterator<Wiz
                 });
             }
         }
-        String[] steps = new String[panels.size()];
-        for (int i = 0; i < panels.size(); i++) {
-            Component c = panels.get(i).getComponent();
-            // Default step name to component name of panel.
-            steps[i] = c.getName();
-            if (c instanceof JComponent) { // assume Swing components
-                JComponent jc = (JComponent) c;
-                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_SELECTED_INDEX, i);
-                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DATA, steps);
-                jc.putClientProperty(WizardDescriptor.PROP_AUTO_WIZARD_STYLE, true);
-                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DISPLAYED, true);
-                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_NUMBERED, true);
-            }
-        }
+        updateSteps();
     }
     private int index;
     private List<WizardDescriptor.Panel<WizardDescriptor>> panels;
@@ -169,6 +156,38 @@ public final class InsertEntityIterator implements WizardDescriptor.Iterator<Wiz
                 }
             }
             filteredPanels.add(panel);
+        }
+        updateSteps();
+    }
+    
+    public void updateSteps()
+    {
+        String[] steps = new String[filteredPanels.size()];
+        int stepNumber = 0;
+        for (int i = 0; i < panels.size(); i++) {
+            WizardDescriptor.Panel<WizardDescriptor> panel = panels.get(i);
+            Component c = panel.getComponent();
+            // Default step name to component name of panel.
+            if (filteredPanels.contains(panel)) {
+                steps[i] = c.getName();
+                if (c instanceof JComponent) { // assume Swing components
+                    JComponent jc = (JComponent) c;
+                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_SELECTED_INDEX, ++stepNumber);
+                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DATA, steps);
+                    jc.putClientProperty(WizardDescriptor.PROP_AUTO_WIZARD_STYLE, true);
+                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DISPLAYED, true);
+                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_NUMBERED, true);
+                }
+            }else{
+               if (c instanceof JComponent) { // assume Swing components
+                    JComponent jc = (JComponent) c;
+                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_SELECTED_INDEX, -1);
+                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DATA, new String[0]);
+                    jc.putClientProperty(WizardDescriptor.PROP_AUTO_WIZARD_STYLE, true);
+                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DISPLAYED, false);
+                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_NUMBERED, false);
+                } 
+            }
         }
     }
     
