@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import java.util.*;
 import java.util.concurrent.*;
 import org.openide.explorer.ExplorerManager;
+import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import us.physion.ovation.DataContext;
@@ -16,6 +17,14 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.ExpressionTreeProvider;
 import us.physion.ovation.ui.interfaces.QueryListener;
 
+import javax.swing.*;
+import java.awt.*;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  *
  * @author jackie
@@ -24,16 +33,23 @@ public class BrowserUtilities{
     protected static Map<ExplorerManager, TreeFilter> registeredViewManagers = new HashMap<ExplorerManager, TreeFilter>();
     protected static QueryListener ql;
     protected static ExecutorService executorService = Executors.newFixedThreadPool(2);
-    
+    protected static BrowserCopyAction browserCopy = new BrowserCopyAction();
+
     protected static ConnectionListener cn = new ConnectionListener(new Runnable(){
 
             @Override
             public void run() {
                 resetView();
             }
-            
+
         });
-    
+
+    /*public static Map<String, Node> getNodeMap()
+    {
+        return browserMap;
+    }*/
+
+
     static void submit(Runnable runnable) {
         executorService.submit(runnable);
     }
@@ -44,7 +60,7 @@ public class BrowserUtilities{
         registeredViewManagers.put(em, projectView);//TODO: don't need this. we should be able to look up the explorerManagers from TopComponents
         ConnectionProvider cp = Lookup.getDefault().lookup(ConnectionProvider.class);
         cp.addConnectionListener(cn);
-        
+
         if (ql == null)
         {
             final ExpressionTreeProvider etp = Lookup.getDefault().lookup(ExpressionTreeProvider.class);
@@ -89,19 +105,20 @@ public class BrowserUtilities{
             return sources;
         }
     }
-    
+
     public static void resetView()
     {
 //        browserMap.clear();
         DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
-        
+        ctx.getRepository().clear();
+
         for (ExplorerManager mgr : registeredViewManagers.keySet()) {
             TreeFilter filter = registeredViewManagers.get(mgr);
             List<EntityWrapper> list = getEntityList(filter, ctx);
             mgr.setRootContext(new EntityNode(new EntityChildren(list, filter), null));
         }
     }
-    
+
     public static void switchToSourceView()
     {
         Set<TopComponent> components = TopComponent.getRegistry().getOpened();
@@ -138,19 +155,19 @@ public class BrowserUtilities{
     {
         if (result == null)
             return;
-        
+
         Set<ExplorerManager> mgrs = new HashSet<ExplorerManager>();
         for (ExplorerManager em : registeredViewManagers.keySet())
         {
             em.setRootContext(new EntityNode(new QueryChildren(registeredViewManagers.get(em)), null));
             mgrs.add(em);
         }
-        
+
         final DataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
         Iterator itr = dsc.getContext().query(result);
-        
+
         EntityWrapperUtilities.createNodesFromQuery(mgrs, itr);
-        
+
     }*/
 
     

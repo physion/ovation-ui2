@@ -1,8 +1,13 @@
 package us.physion.ovation.ui.browser;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.SetMultimap;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -18,12 +23,16 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.NbBundle.Messages;
+import us.physion.ovation.domain.mixin.ProcedureElement;
 import us.physion.ovation.ui.interfaces.LazyChildren;
 
 
@@ -141,8 +150,13 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
         updateWithKeys(createKeysForEntity(c, parent, ph));
 
     }
-
-    private void absorbFilteredChildren(boolean isVisible, List<EntityWrapper> list, DataContext c, /* @Nullable*/ ProgressHandle ph) {
+    
+    private void absorbFilteredChildren(boolean isVisible, List<EntityWrapper> list, DataContext c, ProgressHandle ph) {
+        if (!isVisible)
+            absorbFilteredChildren(isVisible, list, createKeysForEntity(c, list.get(list.size()-1), ph));
+    }
+    
+    private void absorbFilteredChildren(boolean isVisible, List<EntityWrapper> list, List<EntityWrapper> children) {
         if (!isVisible) {
             EntityWrapper pop = list.remove(list.size() - 1);
             List<URI> uris = new ArrayList<URI>();
@@ -154,7 +168,6 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
             }
             uris.add(u);
             
-            List<EntityWrapper> children = createKeysForEntity(c, pop, ph);
             for(EntityWrapper e : children){
                 e.addFilteredParentURIs(uris);
             }
@@ -219,6 +232,24 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
             Source entity = (Source) ew.getEntity();
             for (Source e : entity.getChildrenSources()) {
                 list.add(new EntityWrapper(e));
+            }
+            
+            List<Epoch> epochs = sortedEpochs(entity);
+            Multimap<EpochGroup, Epoch> epochGroups = ArrayListMultimap.create();
+            Multimap<Experiment, ProcedureElement> experiments = ArrayListMultimap.create();
+            if (filter.isExperimentsVisible())
+            {
+                for (Epoch epoch : epochs)
+                {
+                    EpochContainer ec = epoch.getParent();
+                    if (ec instanceof EpochGroup)
+                    {
+                        epochGroups.put((EpochGroup)ec, epoch);
+                    }else if (ec instanceof Experiment)
+                    {
+                        experiments.put((Experiment)ec, epoch);
+                    }
+                }
             }
             for (Epoch e : sortedEpochs(entity)) {
                 list.add(new EntityWrapper(e));
