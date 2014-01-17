@@ -20,8 +20,8 @@ import us.physion.ovation.domain.Epoch;
 
 public final class InsertEntityIterator implements WizardDescriptor.Iterator<WizardDescriptor> {
 
-    boolean includeProtocolInfo = true;
-    boolean includeDeviceInfo = true;
+    boolean includeProtocolInfo = false;
+    boolean includeDeviceInfo = false;
     public InsertEntityIterator(List<WizardDescriptor.Panel<WizardDescriptor>> panels)
     {
         this.panels = panels;
@@ -29,63 +29,41 @@ public final class InsertEntityIterator implements WizardDescriptor.Iterator<Wiz
         {
             panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
         }
-        this.filteredPanels = Sets.newHashSet(panels);
-        
-        for(WizardDescriptor.Panel<WizardDescriptor> panel : panels)
-        {
-            if (panel instanceof StartAndEndTimeController)
-            {
-                ((StartAndEndTimeController)panel).changeSupport.addChangeListener(new ChangeListener() {
-
-                    @Override
-                    public void stateChanged(ChangeEvent e) {
-                        boolean refilterPanels = false;
-                        if (includeProtocolInfo != ((StartAndEndTimeController)e.getSource()).includeProtocolInfo())
-                        {
-                            includeProtocolInfo = !includeProtocolInfo;
-                            refilterPanels = true;
-                        }
-                        if(includeDeviceInfo != ((StartAndEndTimeController)e.getSource()).includeDeviceInfo())
-                        {
-                            includeDeviceInfo = !includeDeviceInfo;
-                            refilterPanels = true;
-                        }
-                        if (refilterPanels)
-                        {
-                            hideOrDisplayPanels();
-                        }
-                    }
-                });
-            }
-        }
-        updateSteps();
+        createSteps();
+        addProtocolAndDeviceListener();
+        hideOrDisplayPanels();
     }
     private int index;
     private List<WizardDescriptor.Panel<WizardDescriptor>> panels;
-    private Set<WizardDescriptor.Panel<WizardDescriptor>> filteredPanels;
-
-    private List<WizardDescriptor.Panel<WizardDescriptor>> getPanels() {
-        return panels;
-    }
+    private List<WizardDescriptor.Panel<WizardDescriptor>> filteredPanels;
+    private String[] steps;
+    private String[] currentSteps;
 
     @Override
     public WizardDescriptor.Panel<WizardDescriptor> current() {
-        return getPanels().get(index);
+        WizardDescriptor.Panel<WizardDescriptor> panel = filteredPanels.get(index);
+        Component c = panel.getComponent();
+        if (c instanceof JComponent) { // assume Swing components
+            JComponent jc = (JComponent) c;
+            jc.putClientProperty(WizardDescriptor.PROP_CONTENT_SELECTED_INDEX, index);
+            jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DATA, currentSteps);
+        }
+        return panel;
     }
 
     @Override
     public String name() {
-        return index + 1 + " of " + getPanels().size();
+        return index + 1 + " of " + filteredPanels.size();
     }
 
     @Override
     public boolean hasNext() {
-        return findNextPanel() < getPanels().size();
+        return index < filteredPanels.size() -1;
     }
 
     @Override
     public boolean hasPrevious() {
-        return findPreviousPanel() > -1;
+        return index > 0;
     }
 
     @Override
@@ -94,7 +72,8 @@ public final class InsertEntityIterator implements WizardDescriptor.Iterator<Wiz
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
-        index = findNextPanel();
+        
+        index++;
     }
 
     @Override
@@ -102,10 +81,10 @@ public final class InsertEntityIterator implements WizardDescriptor.Iterator<Wiz
         if (!hasPrevious()) {
             throw new NoSuchElementException();
         }
-        index = findPreviousPanel();
+        index--;
     }
     
-    private int findNextPanel()
+    /*(private int findNextPanel()
     {
         int newIndex = index+1;
         while (newIndex < panels.size() &&!filteredPanels.contains(panels.get(newIndex)))
@@ -123,12 +102,15 @@ public final class InsertEntityIterator implements WizardDescriptor.Iterator<Wiz
             newIndex--;
         }
         return newIndex;
-    }
+    }*/
   
     private void hideOrDisplayPanels() {
-        filteredPanels = new HashSet<WizardDescriptor.Panel<WizardDescriptor>>();
+        filteredPanels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
+        List<String> updatedSteps = new ArrayList();
+        int panelCount = -1;
         for(WizardDescriptor.Panel<WizardDescriptor> panel : panels)
         {
+            panelCount++;
             if (panel instanceof SelectProtocolController && !includeProtocolInfo)
             {
                 continue;
@@ -156,41 +138,11 @@ public final class InsertEntityIterator implements WizardDescriptor.Iterator<Wiz
                 }
             }
             filteredPanels.add(panel);
+            updatedSteps.add(steps[panelCount]);
         }
-        updateSteps();
+        currentSteps = updatedSteps.toArray(new String[filteredPanels.size()]);
     }
-    
-    public void updateSteps()
-    {
-        String[] steps = new String[filteredPanels.size()];
-        int stepNumber = 0;
-        for (int i = 0; i < panels.size(); i++) {
-            WizardDescriptor.Panel<WizardDescriptor> panel = panels.get(i);
-            Component c = panel.getComponent();
-            // Default step name to component name of panel.
-            if (filteredPanels.contains(panel)) {
-                steps[i] = c.getName();
-                if (c instanceof JComponent) { // assume Swing components
-                    JComponent jc = (JComponent) c;
-                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_SELECTED_INDEX, ++stepNumber);
-                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DATA, steps);
-                    jc.putClientProperty(WizardDescriptor.PROP_AUTO_WIZARD_STYLE, true);
-                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DISPLAYED, true);
-                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_NUMBERED, true);
-                }
-            }else{
-               if (c instanceof JComponent) { // assume Swing components
-                    JComponent jc = (JComponent) c;
-                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_SELECTED_INDEX, -1);
-                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DATA, new String[0]);
-                    jc.putClientProperty(WizardDescriptor.PROP_AUTO_WIZARD_STYLE, true);
-                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DISPLAYED, false);
-                    jc.putClientProperty(WizardDescriptor.PROP_CONTENT_NUMBERED, false);
-                } 
-            }
-        }
-    }
-    
+ 
     // If nothing unusual changes in the middle of the wizard, simply:
     @Override
     public void addChangeListener(ChangeListener l) {
@@ -205,4 +157,53 @@ public final class InsertEntityIterator implements WizardDescriptor.Iterator<Wiz
     // the number of panels changes in response to user input, then use
     // ChangeSupport to implement add/removeChangeListener and call fireChange
     // when needed
+
+    private void addProtocolAndDeviceListener() {
+        for(WizardDescriptor.Panel<WizardDescriptor> panel : panels)
+        {
+            if (panel instanceof StartAndEndTimeController)
+            {
+                ((StartAndEndTimeController)panel).changeSupport.addChangeListener(new ChangeListener() {
+
+                    @Override
+                    public void stateChanged(ChangeEvent e) {
+                        boolean refilterPanels = false;
+                        if (includeProtocolInfo != ((StartAndEndTimeController)e.getSource()).includeProtocolInfo())
+                        {
+                            includeProtocolInfo = !includeProtocolInfo;
+                            refilterPanels = true;
+                        }
+                        if(includeDeviceInfo != ((StartAndEndTimeController)e.getSource()).includeDeviceInfo())
+                        {
+                            includeDeviceInfo = !includeDeviceInfo;
+                            refilterPanels = true;
+                        }
+                        if (refilterPanels)
+                        {
+                            hideOrDisplayPanels();
+                        }
+                    }
+                });
+            }
+        }
+    }
+    
+    private void createSteps()
+    {
+        steps = new String[panels.size()];
+        for (int i = 0; i < panels.size(); i++) {
+            WizardDescriptor.Panel<WizardDescriptor> panel = panels.get(i);
+            Component c = panel.getComponent();
+            // Default step name to component name of panel.
+            steps[i] = c.getName();
+            if (c instanceof JComponent) { // assume Swing components
+                JComponent jc = (JComponent) c;
+                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_SELECTED_INDEX, i);
+                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DATA, steps);
+                jc.putClientProperty(WizardDescriptor.PROP_AUTO_WIZARD_STYLE, true);
+                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DISPLAYED, true);
+                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_NUMBERED, true);
+            }
+        }
+    }
 }
