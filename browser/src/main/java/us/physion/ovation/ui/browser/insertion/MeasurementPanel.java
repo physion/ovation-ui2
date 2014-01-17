@@ -12,11 +12,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Map;
+
 import static javax.swing.JComponent.TOOL_TIP_TEXT_KEY;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+
+import com.google.common.collect.Maps;
+import org.apache.commons.io.FilenameUtils;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
@@ -41,12 +46,29 @@ public class MeasurementPanel extends javax.swing.JPanel {
 
     public void setFile(File f)
     {
+        final Map<String,String> customContentTypes = Maps.newHashMap();
+        customContentTypes.put("doc", "application/msword");
+        customContentTypes.put("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+
+        customContentTypes.put("xls", "application/vnd.ms-excel");
+        customContentTypes.put("xlsx",  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+        customContentTypes.put("ppt", "application/vnd.ms-powerpoint");
+        customContentTypes.put("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+
+        customContentTypes.put("csv", "text/csv");
+
         file = f;
         jTextField1.setText(f.getName());
         jTextField2.setText(f.getName());
         String contentType = URLConnection.guessContentTypeFromName(f.getName());
         if (contentType == null) {
-            contentType = "";
+            final String extension = FilenameUtils.getExtension(f.getName());
+            if (customContentTypes.containsKey(extension)) {
+                contentType = customContentTypes.get(extension);
+            } else {
+                contentType = "application/octet-stream"; // fallback to binary
+            }
         }
         jTextField3.setText(contentType);
         cs.fireChange();
