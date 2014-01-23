@@ -3,9 +3,14 @@ package us.physion.ovation.ui.browser;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+<<<<<<< HEAD
 import java.util.*;
 import java.util.concurrent.*;
 import org.openide.explorer.ExplorerManager;
+=======
+import org.openide.explorer.ExplorerManager;
+import org.openide.nodes.Node;
+>>>>>>> f13ba6d4b59c1c0a83af27ba61554f685c2835e1
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import us.physion.ovation.DataContext;
@@ -32,8 +37,12 @@ public class BrowserUtilities{
     protected static Map<ExplorerManager, TreeFilter> registeredViewManagers = new HashMap<ExplorerManager, TreeFilter>();
     protected static QueryListener ql;
     protected static ExecutorService executorService = Executors.newFixedThreadPool(2);
+<<<<<<< HEAD
+    
+=======
     protected static BrowserCopyAction browserCopy = new BrowserCopyAction();
 
+>>>>>>> f13ba6d4b59c1c0a83af27ba61554f685c2835e1
     protected static ConnectionListener cn = new ConnectionListener(new Runnable(){
 
             @Override
@@ -42,6 +51,7 @@ public class BrowserUtilities{
             }
 
         });
+<<<<<<< HEAD
     
     static void submit(Runnable runnable) {
         executorService.submit(runnable);
@@ -49,11 +59,26 @@ public class BrowserUtilities{
     
     public static void initBrowser(final ExplorerManager em, 
                                    final TreeFilter projectView)
+=======
+
+    public static Map<String, Node> getNodeMap()
+    {
+        return browserMap;
+    }
+
+
+    static void submit(Runnable runnable) {
+        executorService.submit(runnable);
+    }
+
+    public static void initBrowser(final ExplorerManager em,
+                                   final boolean projectView)
+>>>>>>> f13ba6d4b59c1c0a83af27ba61554f685c2835e1
     {
         registeredViewManagers.put(em, projectView);//TODO: don't need this. we should be able to look up the explorerManagers from TopComponents
         ConnectionProvider cp = Lookup.getDefault().lookup(ConnectionProvider.class);
         cp.addConnectionListener(cn);
-        
+
         if (ql == null)
         {
             final ExpressionTreeProvider etp = Lookup.getDefault().lookup(ExpressionTreeProvider.class);
@@ -71,8 +96,13 @@ public class BrowserUtilities{
             }
         }
     }
+<<<<<<< HEAD
     
     static List<EntityWrapper> getEntityList(TreeFilter projectView, DataContext ctx)
+=======
+
+    static List<EntityWrapper> getEntityList(boolean projectView, DataContext ctx)
+>>>>>>> f13ba6d4b59c1c0a83af27ba61554f685c2835e1
     {
         if (projectView.isProjectView())
         {
@@ -163,5 +193,19 @@ public class BrowserUtilities{
 
     }*/
 
+<<<<<<< HEAD
     
+=======
+    public static void runOnEDT(Runnable r)
+    {
+        if (EventQueue.isDispatchThread())
+        {
+            r.run();
+        }
+        else{
+            SwingUtilities.invokeLater(r);
+        }
+    }
+
+>>>>>>> f13ba6d4b59c1c0a83af27ba61554f685c2835e1
 }

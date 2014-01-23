@@ -54,7 +54,7 @@ public class InsertEpochAndMeasurement extends InsertEntity implements Experimen
         panels.add(new KeyValueController("Add Device Parameters", "Add optional device parameters", "epoch.deviceParameters"));
         
         panels.add(new DataElementController());
-        panels.add(new SourceNameSelectionController("epoch.inputs"));
+        //panels.add(new SourceNameSelectionController("epoch.inputs"));
         panels.add(new DeviceNameSelectionController((EpochContainer)parent.getEntity()));
         return panels;
     }
@@ -80,6 +80,10 @@ public class InsertEpochAndMeasurement extends InsertEntity implements Experimen
         String contentType = (String)wiz.getProperty("dataElement.contentType");
         URL file = (URL)wiz.getProperty("dataElement.file");
         Set<String> sourceNames = (Set<String>)wiz.getProperty("sourceNames");
+        if (sourceNames == null || sourceNames.isEmpty())
+        {
+            sourceNames = epoch.getInputSources().keySet();
+        }
         Set<String> deviceNames = (Set<String>)wiz.getProperty("deviceNames");
 
         epoch.insertMeasurement(name, sourceNames, deviceNames, file, contentType);

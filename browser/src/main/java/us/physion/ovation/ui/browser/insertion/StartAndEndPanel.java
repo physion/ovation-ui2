@@ -6,6 +6,7 @@ package us.physion.ovation.ui.browser.insertion;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.JCheckBox;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import us.physion.ovation.ui.interfaces.DateTimePicker;
@@ -31,7 +32,7 @@ public class StartAndEndPanel extends javax.swing.JPanel {
     /**
      * Creates new form StartAndEndPanel
      */
-    public StartAndEndPanel() {
+    public StartAndEndPanel(boolean checkboxes) {
         initComponents();//sets combo box models + layout
         startPicker = DatePickers.createDateTimePicker();
         startPicker.addPropertyChangeListener(new PropertyChangeListener() {
@@ -62,6 +63,15 @@ public class StartAndEndPanel extends javax.swing.JPanel {
         
         start = null;
         end = null;
+        
+        if (!checkboxes)
+        {
+            includeProtocolInfo.setSelected(true);
+            includeDeviceInfo.setSelected(true);
+            includeProtocolInfo.setVisible(false);
+            includeDeviceInfo.setVisible(false);
+            
+        }
     }
     
     protected void startDateTimeChanged() {
@@ -78,6 +88,14 @@ public class StartAndEndPanel extends javax.swing.JPanel {
         return end;
     }
 
+    public boolean includeProtocolInfo()
+    {
+        return includeProtocolInfo.isSelected();
+    }
+    public boolean includeDeviceInfo()
+    {
+        return includeDeviceInfo.isSelected();
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -93,6 +111,8 @@ public class StartAndEndPanel extends javax.swing.JPanel {
         jComboBox2 = new javax.swing.JComboBox();
         startPanel = new javax.swing.JScrollPane();
         endPanel = new javax.swing.JScrollPane();
+        includeProtocolInfo = new javax.swing.JCheckBox();
+        includeDeviceInfo = new javax.swing.JCheckBox();
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(StartAndEndPanel.class, "StartAndEndPanel.jLabel1.text")); // NOI18N
 
@@ -102,24 +122,40 @@ public class StartAndEndPanel extends javax.swing.JPanel {
 
         jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(us.physion.ovation.ui.browser.insertion.DatePickers.getTimeZoneIDs()));
 
+        org.openide.awt.Mnemonics.setLocalizedText(includeProtocolInfo, org.openide.util.NbBundle.getMessage(StartAndEndPanel.class, "StartAndEndPanel.includeProtocolInfo.text")); // NOI18N
+        includeProtocolInfo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                includeProtocolInfoActionPerformed(evt);
+            }
+        });
+
+        org.openide.awt.Mnemonics.setLocalizedText(includeDeviceInfo, org.openide.util.NbBundle.getMessage(StartAndEndPanel.class, "StartAndEndPanel.includeDeviceInfo.text")); // NOI18N
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel2)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                        .add(endPanel))
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(startPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 192, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+            .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jComboBox1, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jComboBox2, 0, 193, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                            .add(layout.createSequentialGroup()
+                                .add(jLabel2)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                .add(endPanel))
+                            .add(layout.createSequentialGroup()
+                                .add(jLabel1)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(startPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 192, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jComboBox1, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(jComboBox2, 0, 193, Short.MAX_VALUE)))
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(includeProtocolInfo)
+                            .add(includeDeviceInfo))
+                        .add(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -135,11 +171,22 @@ public class StartAndEndPanel extends javax.swing.JPanel {
                     .add(jComboBox2)
                     .add(jLabel2)
                     .add(endPanel))
-                .addContainerGap(229, Short.MAX_VALUE))
+                .add(18, 18, 18)
+                .add(includeProtocolInfo)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(includeDeviceInfo)
+                .addContainerGap(159, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void includeProtocolInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_includeProtocolInfoActionPerformed
+
+    }//GEN-LAST:event_includeProtocolInfoActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane endPanel;
+    private javax.swing.JCheckBox includeDeviceInfo;
+    private javax.swing.JCheckBox includeProtocolInfo;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox2;
     private javax.swing.JLabel jLabel1;
