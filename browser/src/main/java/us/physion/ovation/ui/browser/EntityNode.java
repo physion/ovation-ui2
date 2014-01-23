@@ -1,5 +1,7 @@
 package us.physion.ovation.ui.browser;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import javax.swing.Action;
 import org.openide.nodes.*;
@@ -14,22 +16,64 @@ import us.physion.ovation.ui.interfaces.*;
  *
  * @author huecotanks
  */
-public class EntityNode extends AbstractNode implements ResettableNode{
+public class EntityNode extends AbstractNode implements ResettableNode, URINode {
 
     private Action[] actionList;
     private IEntityWrapper parent;
     private static Map<String, Class> insertableMap = createMap();
+    private URI uri;
         
     public EntityNode(Children c, Lookup l, IEntityWrapper parent) {
         super (c, l);
         this.parent = parent;
+        loadURI();
     }
   
    public EntityNode(Children c, IEntityWrapper parent)
    {
        super(c);
        this.parent = parent;
+       loadURI();
    }
+   
+   private void loadURI() {
+       try {
+           this.uri = (parent != null && parent.getURI() != null) ? new URI(parent.getURI()) : null;
+       } catch (URISyntaxException ex) {
+           //XXX: Log?
+           this.uri = null;
+       }
+   }
+
+    @Override
+    public URI getURI() {
+        return uri;
+    }
+
+    @Override
+    public List<URI> getFilteredParentURIs() {
+        return parent == null ? Collections.EMPTY_LIST : parent.getFilteredParentURIs();
+    }
+    
+    private List<URI> buildURITreePath() {
+        List<URI> paths = new ArrayList<URI>();
+
+        Node n = this;
+        while (n != null) {
+            if (n instanceof URINode) {
+                //put in reverse
+                paths.add(((URINode) n).getURI());
+                
+                paths.addAll(((URINode) n).getFilteredParentURIs());
+            }
+            n = n.getParentNode();
+        }
+
+        Collections.reverse(paths);
+
+        return paths;
+    }
+
    @Override
    public void resetNode()
    {
@@ -54,10 +98,9 @@ public class EntityNode extends AbstractNode implements ResettableNode{
         }
         
         DataElement data = (DataElement) parent.getEntity();
-        
-        return new OpenInSeparateViewAction(data);
+        return new OpenInSeparateViewAction(data, buildURITreePath());
     }
-   
+    
    @Override
     public Action[] getActions(boolean popup) {
        if (actionList == null)

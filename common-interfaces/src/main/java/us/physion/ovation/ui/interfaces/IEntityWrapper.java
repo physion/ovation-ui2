@@ -1,9 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.interfaces;
 
+import java.net.URI;
+import java.util.List;
 import us.physion.ovation.domain.OvationEntity;
 
 /**
@@ -21,4 +19,6 @@ public interface IEntityWrapper {
     Class getType();
 
     String getURI();
+    
+    List<URI> getFilteredParentURIs();
 }

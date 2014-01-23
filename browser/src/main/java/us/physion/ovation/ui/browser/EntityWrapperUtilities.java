@@ -1,32 +1,17 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.browser;
 
 import com.google.common.collect.Sets;
-import us.physion.ovation.ui.browser.insertion.InsertProject;
-import java.beans.PropertyVetoException;
 import java.util.*;
-import javax.swing.Action;
-import javax.swing.SwingUtilities;
-import javax.swing.tree.TreePath;
 import org.openide.explorer.ExplorerManager;
-import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
-import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
-import ovation.*;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.Owned;
 import us.physion.ovation.domain.mixin.ProcedureElement;
-import us.physion.ovation.ui.browser.insertion.InsertSource;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /**
@@ -35,10 +20,8 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  */
 public class EntityWrapperUtilities {
 
-    private static String SEPARATOR = ";";
-
     protected static Set<IEntityWrapper> createNodesFromQuery(Set<ExplorerManager> mgrs, Iterator<OvationEntity> itr) {
-        Map<String, Node> treeMap = BrowserUtilities.getNodeMap();
+        Map<String, Node> treeMap = Collections.EMPTY_MAP; //BrowserUtilities.getNodeMap();
         Set<IEntityWrapper> resultSet = new HashSet<IEntityWrapper>();
         while (itr.hasNext()) {
             OvationEntity e = itr.next();
@@ -155,7 +138,7 @@ public class EntityWrapperUtilities {
             return createNewNode(key, c);
         }
 
-        Map<String, Node> treeMap = BrowserUtilities.getNodeMap();
+        Map<String, Node> treeMap = Collections.EMPTY_MAP; // BrowserUtilities.getNodeMap();
         String uri = key.getURI();
         if (treeMap.containsKey(uri)) {
             return new FilterNode(treeMap.get(uri));
@@ -163,7 +146,7 @@ public class EntityWrapperUtilities {
 
         //otherwise, create an AbstractNode representing this object
         EntityNode n = createNewNode(key, c);
-        treeMap.put(uri, n);
+//        treeMap.put(uri, n);
         return n;
     }
     

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="QuickSearch">
+        <folder name="OvationProjectNavigatorSearchID">
+            <!--Attribute for localization - provide localized display name of category!-->
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="us.physion.ovation.ui.editor.Bundle"/>
+            <!--Attribute for command prefix - used to narrow search to this category only!-->
+            <attr name="command" stringvalue="o"/>
+            <!--Attribute for category ordering!-->
+            <attr name="position" intvalue="200"/>
+            <!--Note that multiple providers can contribute to one category!-->
+            <file name="us-physion-ovation-ui-search-OvationSearchProvider.instance"/>
+        </folder>
+    </folder>
+</filesystem>

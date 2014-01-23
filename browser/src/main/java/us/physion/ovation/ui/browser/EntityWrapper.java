@@ -1,14 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.browser;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import org.joda.time.DateTime;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
@@ -21,6 +19,8 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 public class EntityWrapper implements IEntityWrapper {
 
     private String uri;
+    private List<URI> filteredParentURIs = new ArrayList<URI>();
+    
     private Class type;
     private String displayName;
 
@@ -67,6 +67,22 @@ public class EntityWrapper implements IEntityWrapper {
     {
         return uri;
     }
+
+    public void addFilteredParentURIs(List<URI> list) {
+        for (URI u : list) {
+            filteredParentURIs.add(u);
+        }
+    }
+    
+    public void addFilteredParentURI(URI uri) {
+        filteredParentURIs.add(uri);
+    }
+    
+    @Override
+    public List<URI> getFilteredParentURIs() {
+        return filteredParentURIs;
+    }
+    
     @Override
     public String getDisplayName() {return displayName;}
     @Override
