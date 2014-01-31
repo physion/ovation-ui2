@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.openide.util.Exceptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -98,7 +101,7 @@ public class BrowserUtilities{
             return sources;
         }
     }
-
+    
     public static void resetView()
     {
 //        browserMap.clear();
@@ -107,9 +110,18 @@ public class BrowserUtilities{
 
         for (ExplorerManager mgr : registeredViewManagers.keySet()) {
             TreeFilter filter = registeredViewManagers.get(mgr);
-            List<EntityWrapper> list = getEntityList(filter, ctx);
-            mgr.setRootContext(new EntityNode(new EntityChildren(list, filter), null));
+            mgr.setRootContext(createRootNode(filter));
         }
+    }
+    
+    private static EntityNode createRootNode(final TreeFilter filter){
+        return new EntityRootNode(new Callable<List<EntityWrapper>>() {
+            @Override
+            public List<EntityWrapper> call() throws Exception {
+                DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+                return getEntityList(filter, ctx);
+            }
+        }, filter);
     }
 
     public static void switchToSourceView()
@@ -139,8 +151,7 @@ public class BrowserUtilities{
 
     protected static void resetView(ExplorerManager e, TreeFilter projectView)
     {
-        DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
-        e.setRootContext(new EntityNode(new EntityChildren(getEntityList(projectView, ctx), projectView), null));
+        e.setRootContext(createRootNode(projectView));
     }
 
     //TODO: uncomment when we have query capabiliites

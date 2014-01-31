@@ -6,6 +6,7 @@ import java.util.*;
 import javax.swing.Action;
 import org.openide.nodes.*;
 import org.openide.util.Lookup;
+import org.openide.util.actions.SystemAction;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.actions.OpenInSeparateViewAction;
@@ -126,17 +127,25 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
                }
                
                if(DataElement.class.isAssignableFrom(entityClass)){
-                   Action[] expanded = new Action[actionList.length + 1];
-                   System.arraycopy(actionList, 0, expanded, 0, actionList.length);
-                   actionList = expanded;
-                   
-                   actionList[actionList.length - 1] = new RevealElementAction((DataElement) parent.getEntity());
+                   actionList = appendToArray(actionList, new RevealElementAction((DataElement) parent.getEntity()));
+               }
+               
+               if(OvationEntity.class.isAssignableFrom(entityClass)){
+                   actionList = appendToArray(actionList, null, SystemAction.get(TrashEntityAction.class));
                }
                
            }
        }
         return actionList;
     }
+   
+   private Action[] appendToArray(Action[] list, Action... e) {
+       Action[] expanded = new Action[list.length + e.length];
+       System.arraycopy(list, 0, expanded, 0, list.length);
+       System.arraycopy(e, 0, expanded, list.length, e.length);
+
+       return expanded;
+   }
 
     private static Map<String, Class> createMap() {
         Map<String, Class> insertables = new HashMap<String, Class>();
