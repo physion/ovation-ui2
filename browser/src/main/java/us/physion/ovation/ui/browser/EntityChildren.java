@@ -144,7 +144,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
 
     }
 
-    private void absorbFilteredChildren(boolean isVisible, List<EntityWrapper> list, DataContext c, /* @Nullable*/ ProgressHandle ph) {
+    private void absorbFilteredChildren(boolean isVisible, List<EntityWrapper> list, DataContext c, /* @Nullable*/ ProgressHandle ph, Comparator entityComparator) {
         if (!isVisible) {
             EntityWrapper pop = list.remove(list.size() - 1);
             List<URI> uris = new ArrayList<URI>();
@@ -162,13 +162,28 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
             }
             list.addAll(children);
         }else{
-            displayUpdatedList(list);
+            displayUpdatedList(list, entityComparator);
         }
     }
     
-    private void displayUpdatedList(List<EntityWrapper> list)
+    private void displayUpdatedList(List<EntityWrapper> list, Comparator entityComparator)
     {
         if (childcount % UPDATE_FACTOR == 0) {
+            for (int i = 0; i < Math.min(UPDATE_FACTOR, list.size()); i++)
+            {
+                EntityWrapper last = list.get(list.size()-1);
+                for (int j = 0; j < list.size(); j++)
+                {
+                    //if last element < jth element of the list
+                    if (entityComparator.compare(last, list.get(j)) < 0)
+                    {
+                        list.remove(list.size()-1);
+                        list.add(j, last);
+                        break;
+                    }
+                }
+                
+            }
             setKeys(list);
             addNotify();
         }
@@ -180,6 +195,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
     }
 
     private List<EntityWrapper> createKeysForEntity(DataContext c, EntityWrapper ew, /* @Nullable*/ ProgressHandle ph) {
+        EntityComparator entityComparator = new EntityComparator();
         List<EntityWrapper> list = new LinkedList<EntityWrapper>();
         Class entityClass = ew.getType();
         if (Project.class.isAssignableFrom(entityClass)) {
@@ -194,7 +210,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
             
             for (Experiment e : experiments) {
                 list.add(new EntityWrapper(e));
-                absorbFilteredChildren(filter.isExperimentsVisible(), list, c, ph);
+                absorbFilteredChildren(filter.isExperimentsVisible(), list, c, ph, entityComparator);
                 
                 if (ph != null) {
                     ph.progress(progressCounter++);
@@ -232,11 +248,11 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
             Source entity = (Source) ew.getEntity();
             for (Source e : entity.getChildrenSources()) {
                 list.add(new EntityWrapper(e));
-                displayUpdatedList(list);
+                displayUpdatedList(list, entityComparator);
             }
             for (Epoch e : sortedEpochs(entity)) {
                 list.add(new EntityWrapper(e));
-                absorbFilteredChildren(filter.isEpochsVisible(), list, c, ph);
+                absorbFilteredChildren(filter.isEpochsVisible(), list, c, ph, entityComparator);
             }
             return list;
         }
@@ -245,11 +261,11 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
 
             for (EpochGroup eg : sortedEpochGroups(entity)) {
                 list.add(new EntityWrapper(eg));
-                absorbFilteredChildren(filter.isEpochGroupsVisible(), list, c, ph);
+                absorbFilteredChildren(filter.isEpochGroupsVisible(), list, c, ph, entityComparator);
             }
             for (Epoch e : sortedEpochs(entity)) {
                 list.add(new EntityWrapper(e));
-                absorbFilteredChildren(filter.isEpochsVisible(), list, c, ph);
+                absorbFilteredChildren(filter.isEpochsVisible(), list, c, ph, entityComparator);
             }
             return list;
         } else if (EpochGroup.class.isAssignableFrom(entityClass)) {
@@ -257,7 +273,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
 
             for (EpochGroup eg : entity.getEpochGroups()) {
                 list.add(new EntityWrapper(eg));
-                absorbFilteredChildren(filter.isEpochGroupsVisible(), list, c, ph);
+                absorbFilteredChildren(filter.isEpochGroupsVisible(), list, c, ph, entityComparator);
             }
 
             if(ph!=null){
@@ -268,7 +284,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
                 for (Epoch e : sortedEpochs(entity)) {
                     
                     list.add(new EntityWrapper(e));
-                    absorbFilteredChildren(filter.isEpochsVisible(), list, c, ph);
+                    absorbFilteredChildren(filter.isEpochsVisible(), list, c, ph, entityComparator);
                 }
             } finally {
                 c.commitTransaction();
@@ -283,7 +299,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
                 Epoch entity = (Epoch) ew.getEntity();
                 for (Measurement m : entity.getMeasurements()) {
                     list.add(new EntityWrapper(m));
-                    displayUpdatedList(list);
+                    displayUpdatedList(list, entityComparator);
                 }
                 
                 Collections.sort(list, new EntityComparator());
@@ -312,7 +328,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
             for(DataElement d : entity.getOutputs().values())
             {
                 list.add(new EntityWrapper(d));
-                displayUpdatedList(list);
+                displayUpdatedList(list, entityComparator);
             }
             
             Collections.sort(list, new EntityComparator());
