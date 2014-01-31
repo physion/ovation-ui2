@@ -43,6 +43,8 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
     boolean projectView;
     private final TreeFilter filter;
     private boolean loadedKeys = false;
+    private int childcount = 0;
+    private final int UPDATE_FACTOR = 1;
 
     public EntityChildren(EntityWrapper e) {
         this(e, TreeFilter.NO_FILTER);
@@ -110,7 +112,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
             }
         });
     }
-
+    
     public void resetNode()
     {
         loadedKeys = false;
@@ -159,7 +161,18 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
                 e.addFilteredParentURIs(uris);
             }
             list.addAll(children);
+        }else{
+            displayUpdatedList(list);
         }
+    }
+    
+    private void displayUpdatedList(List<EntityWrapper> list)
+    {
+        if (childcount % UPDATE_FACTOR == 0) {
+            setKeys(list);
+            addNotify();
+        }
+        childcount++;
     }
     
     protected List<EntityWrapper> createKeysForEntity(DataContext c, EntityWrapper ew) {
@@ -219,6 +232,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
             Source entity = (Source) ew.getEntity();
             for (Source e : entity.getChildrenSources()) {
                 list.add(new EntityWrapper(e));
+                displayUpdatedList(list);
             }
             for (Epoch e : sortedEpochs(entity)) {
                 list.add(new EntityWrapper(e));
@@ -252,6 +266,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
             c.beginTransaction();//we wrap these in a transaction, because there may be a lot of epochs
             try {
                 for (Epoch e : sortedEpochs(entity)) {
+                    
                     list.add(new EntityWrapper(e));
                     absorbFilteredChildren(filter.isEpochsVisible(), list, c, ph);
                 }
@@ -268,6 +283,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
                 Epoch entity = (Epoch) ew.getEntity();
                 for (Measurement m : entity.getMeasurements()) {
                     list.add(new EntityWrapper(m));
+                    displayUpdatedList(list);
                 }
                 
                 Collections.sort(list, new EntityComparator());
@@ -296,6 +312,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
             for(DataElement d : entity.getOutputs().values())
             {
                 list.add(new EntityWrapper(d));
+                displayUpdatedList(list);
             }
             
             Collections.sort(list, new EntityComparator());
