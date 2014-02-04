@@ -8,6 +8,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.EpochGroup;
+import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.exceptions.OvationException;
 
