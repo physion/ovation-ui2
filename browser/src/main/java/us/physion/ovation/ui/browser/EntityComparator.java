@@ -10,10 +10,10 @@ import java.util.Comparator;
  *
  * @author huecotanks
  */
-public class EntityComparator implements Comparator<EntityWrapper>{
+public class EntityComparator<T extends EntityWrapper> implements Comparator<T>{
 
     @Override
-    public int compare(EntityWrapper o1, EntityWrapper o2) {
+    public int compare(T o1, T o2) {
         return o1.getDisplayName().toLowerCase().compareTo(o2.getDisplayName().toLowerCase());
     }
     
