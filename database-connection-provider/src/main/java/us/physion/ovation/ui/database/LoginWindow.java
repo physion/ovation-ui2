@@ -1,5 +1,8 @@
 package us.physion.ovation.ui.database;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -11,6 +14,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.Future;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -23,6 +27,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
+import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.DataStoreCoordinator;
@@ -73,6 +78,8 @@ public class LoginWindow {
         loginLayout.last(loginWithSpinnerPanel);
         emailTB.setEditable(false);
         passwordTB.setEditable(false);
+        
+        final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Login_Window_Authenticating_Progress());
                 
         Runnable r = new Runnable() {
             @Override
@@ -84,6 +91,12 @@ public class LoginWindow {
                     if (success) {
                         m.cancelled = false;
                         m.setDSC(dsc);
+                        EventQueueUtilities.runOnEDT(new Runnable() {
+                            @Override
+                            public void run() {
+                                ph.start();
+                            }
+                        });
                         d.dispose();
                     }else{
                         displayError(Bundle.Login_Window_Invalid_Password());
@@ -97,7 +110,41 @@ public class LoginWindow {
                 }
             }
         };
-        EventQueueUtilities.runOffEDT(r, ProgressHandleFactory.createHandle(Bundle.Login_Window_Authenticating_Progress()));
+        Future f = EventQueueUtilities.runOffEDT(r);
+        if (f == null)
+        {
+            EventQueueUtilities.runOnEDT(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            ph.finish();
+                        }
+                    });
+        }else if (f instanceof ListenableFuture){
+            Futures.addCallback((ListenableFuture)f, new FutureCallback() {
+                @Override
+                public void onSuccess(Object result) {
+                    EventQueueUtilities.runOnEDT(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            ph.finish();
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    EventQueueUtilities.runOnEDT(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            ph.finish();
+                        }
+                    });
+                }
+            });
+        }
     }
     
     private void displayError(final String error)
