@@ -37,6 +37,7 @@ class ChartGroupWrapper implements Visualization
     ChartGroupWrapper(DefaultXYDataset ds, NumericData data)
     {
         NumericData.Data d = data.getData().values().iterator().next();
+       
         String xAxis = convertSamplingRateUnitsToGraphUnits(d.samplingRateUnits[0]);
         String yAxis = d.units;
 
