@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.Stack;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
+import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochGroup;
@@ -26,6 +27,7 @@ import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.mixin.Owned;
 import us.physion.ovation.domain.mixin.ProcedureElement;
+import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /**

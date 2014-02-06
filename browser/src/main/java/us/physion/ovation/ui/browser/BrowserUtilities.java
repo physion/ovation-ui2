@@ -41,6 +41,7 @@ public class BrowserUtilities{
 
             @Override
             public void run() {
+                Lookup.getDefault().lookup(QueryProvider.class).setQuerySet(null);
                 resetView();
             }
 
@@ -104,7 +105,6 @@ public class BrowserUtilities{
     
     public static void resetView()
     {
-//        browserMap.clear();
         DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
         ctx.getRepository().clear();
 

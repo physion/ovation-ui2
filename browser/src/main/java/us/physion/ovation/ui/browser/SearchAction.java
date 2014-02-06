@@ -44,6 +44,7 @@ public final class SearchAction implements ActionListener {
             public void run() {
                 DataContext context = Lookup.getDefault().lookup(ConnectionProvider.class).getNewContext();
                 QuerySet querySet = new QuerySet();
+                Lookup.getDefault().lookup(QueryProvider.class).setQuerySet(querySet);
                 for (Taggable entity: context.getObjectsWithTag("tag"))
                 {
                     querySet.add((OvationEntity)entity);
