@@ -21,19 +21,19 @@ public class QueryChildren extends Children.Keys<IEntityWrapper> {
 
     Set<IEntityWrapper> keys = new HashSet<IEntityWrapper>();
     private boolean projectView;
-    private HashMap<String, Set<Stack<IEntityWrapper>>> pathMap = new HashMap<String, Set<Stack<IEntityWrapper>>>();
+    private HashMap<String, Set<List<IEntityWrapper>>> pathMap = new HashMap<String, Set<List<IEntityWrapper>>>();
 
     protected QueryChildren(boolean pView) {
         projectView = pView;
     }
 
-    protected QueryChildren(Set<Stack<IEntityWrapper>> paths, boolean pView) {
+    protected QueryChildren(Set<List<IEntityWrapper>> paths, boolean pView) {
         this(pView);
 
         if (paths == null) {
             return;
         }
-        for (Stack<IEntityWrapper> path : paths) {
+        for (List<IEntityWrapper> path : paths) {
             addPath(path);
         }
     }
@@ -41,7 +41,7 @@ public class QueryChildren extends Children.Keys<IEntityWrapper> {
     @Override
     protected Node[] createNodes(IEntityWrapper child) {
         Children children;
-        Set<Stack<IEntityWrapper>> childPaths = pathMap.get(child.getURI());
+        Set<List<IEntityWrapper>> childPaths = pathMap.get(child.getURI());
         if (childPaths == null || childPaths.isEmpty())
         {
             children = new EntityChildren((EntityWrapper)child);
@@ -74,23 +74,23 @@ public class QueryChildren extends Children.Keys<IEntityWrapper> {
         return true;
     }
 
-    protected void addPath(Stack<IEntityWrapper> path) {
+    protected void addPath(List<IEntityWrapper> path) {
         if (path == null || path.isEmpty()) {
             return;
         }
-        IEntityWrapper child = path.pop();
+        IEntityWrapper child = path.get(path.size()-1);
 
         if (shouldAdd(child)) {// projects don't belong in source view, and vice versa
-            
-            Set<Stack<IEntityWrapper>> paths = pathMap.get(child.getURI());
+            Set<List<IEntityWrapper>> paths = pathMap.get(child.getURI());
             boolean childIsNew = paths == null;
-            if (paths == null)
+            if (childIsNew)
             {
-                paths = new HashSet<Stack<IEntityWrapper>>();
+                paths = new HashSet<List<IEntityWrapper>>();
             }
             
-            if (!path.isEmpty())
-                paths.add(path);
+            List<IEntityWrapper> childPath = path.subList(0, path.size()-1);
+            if (!childPath.isEmpty())
+                paths.add(childPath);
             pathMap.put(child.getURI(), paths);
             if (childIsNew){
                 keys.add(child);
