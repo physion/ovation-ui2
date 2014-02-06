@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
 import org.openide.util.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.physion.ovation.QueryService;
 
 /**
  *
@@ -78,6 +79,8 @@ public class BrowserUtilities{
     
     static List<EntityWrapper> getEntityList(TreeFilter projectView, DataContext ctx)
     {
+        //check that I'm 
+        QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
         if (projectView.isProjectView())
         {
             List<EntityWrapper> projects =  Lists.newArrayList(Iterables.transform(ctx.getProjects(), new Function<Project, EntityWrapper>() {
@@ -107,14 +110,20 @@ public class BrowserUtilities{
     {
         DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
         ctx.getRepository().clear();
-
-        for (ExplorerManager mgr : registeredViewManagers.keySet()) {
-            TreeFilter filter = registeredViewManagers.get(mgr);
-            mgr.setRootContext(createRootNode(filter));
+        
+        QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
+        
+        if (qs == null) {
+            for (ExplorerManager mgr : registeredViewManagers.keySet()) {
+                TreeFilter filter = registeredViewManagers.get(mgr);
+                mgr.setRootContext(createRootNode(filter));
+            }
+        } else {
+            qs.reset();
         }
     }
-    
-    private static EntityNode createRootNode(final TreeFilter filter){
+
+    private static EntityNode createRootNode(final TreeFilter filter) {
         return new EntityRootNode(new Callable<List<EntityWrapper>>() {
             @Override
             public List<EntityWrapper> call() throws Exception {
@@ -124,8 +133,7 @@ public class BrowserUtilities{
         }, filter);
     }
 
-    public static void switchToSourceView()
-    {
+    public static void switchToSourceView() {
         Set<TopComponent> components = TopComponent.getRegistry().getOpened();
         for (TopComponent c : components)
         {
@@ -151,8 +159,15 @@ public class BrowserUtilities{
 
     protected static void resetView(ExplorerManager e, TreeFilter projectView)
     {
-        e.setRootContext(createRootNode(projectView));
+        QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
+        
+        if (qs == null) {
+            e.setRootContext(createRootNode(projectView));
+        }else{
+            qs.reset(e, projectView);
+        }
     }
+  
 
     //TODO: uncomment when we have query capabiliites
     /*protected static void setTrees(final ExpressionTree result)

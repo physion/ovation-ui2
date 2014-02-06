@@ -7,6 +7,9 @@ package us.physion.ovation.ui.browser;
 import java.util.*;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.EpochGroup;
+import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Source;
 
@@ -20,15 +23,15 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 public class QueryChildren extends Children.Keys<IEntityWrapper> {
 
     Set<IEntityWrapper> keys = new HashSet<IEntityWrapper>();
-    private boolean projectView;
+    private TreeFilter filter;
     private HashMap<String, Set<List<IEntityWrapper>>> pathMap = new HashMap<String, Set<List<IEntityWrapper>>>();
 
-    protected QueryChildren(boolean pView) {
-        projectView = pView;
+    protected QueryChildren(TreeFilter filter) {
+        this.filter = filter;
     }
 
-    protected QueryChildren(Set<List<IEntityWrapper>> paths, boolean pView) {
-        this(pView);
+    protected QueryChildren(Set<List<IEntityWrapper>> paths, TreeFilter filter) {
+        this(filter);
 
         if (paths == null) {
             return;
@@ -44,9 +47,9 @@ public class QueryChildren extends Children.Keys<IEntityWrapper> {
         Set<List<IEntityWrapper>> childPaths = pathMap.get(child.getURI());
         if (childPaths == null || childPaths.isEmpty())
         {
-            children = new EntityChildren((EntityWrapper)child);
+            children = new EntityChildren((EntityWrapper)child, filter);
         }else{
-            children = new QueryChildren(childPaths, projectView);
+            children = new QueryChildren(childPaths, filter);
         }
         return new Node[]{EntityWrapperUtilities.createNode(child, children)};
     }
@@ -62,12 +65,12 @@ public class QueryChildren extends Children.Keys<IEntityWrapper> {
     }
 
     protected boolean shouldAdd(IEntityWrapper e) {
-        if (projectView) {
-            if (e.getType().isAssignableFrom(Source.class)) {
+        if (filter.isProjectView()) {
+            if (Source.class.isAssignableFrom(e.getType())) {
                 return false;
             }
         } else {
-            if (e.getType().isAssignableFrom(Project.class)) {
+            if (Project.class.isAssignableFrom(e.getType())) {
                 return false;
             }
         }
@@ -81,22 +84,42 @@ public class QueryChildren extends Children.Keys<IEntityWrapper> {
         IEntityWrapper child = path.get(path.size()-1);
 
         if (shouldAdd(child)) {// projects don't belong in source view, and vice versa
-            Set<List<IEntityWrapper>> paths = pathMap.get(child.getURI());
-            boolean childIsNew = paths == null;
-            if (childIsNew)
-            {
-                paths = new HashSet<List<IEntityWrapper>>();
-            }
             
             List<IEntityWrapper> childPath = path.subList(0, path.size()-1);
-            if (!childPath.isEmpty())
-                paths.add(childPath);
-            pathMap.put(child.getURI(), paths);
-            if (childIsNew){
-                keys.add(child);
-                addNotify();
-                refresh();//in case the node is already created
+            if (hide(child))
+            {
+                //TODO: instead of just adding the hidden entity's children to the children set,
+                //we should be creating some sort of intermediate hidden node, or some representation
+                //of the hidden element in the child key
+                addPath(childPath);
+            } else {
+                Set<List<IEntityWrapper>> paths = pathMap.get(child.getURI());
+                boolean childIsNew = paths == null;
+                if (childIsNew) {
+                    paths = new HashSet<List<IEntityWrapper>>();
+                }
+
+                if (!childPath.isEmpty()) {
+                    paths.add(childPath);
+                }
+                pathMap.put(child.getURI(), paths);
+                if (childIsNew) {
+                    keys.add(child);
+                    addNotify();
+                    refresh();//in case the node is already created
+                }
             }
         }
+    }
+
+    private boolean hide(IEntityWrapper child) {
+        if (Experiment.class.isAssignableFrom(child.getType()) && !filter.isExperimentsVisible()) {
+            return true;
+        } else if (EpochGroup.class.isAssignableFrom(child.getType()) && !filter.isEpochGroupsVisible()) {
+            return true;
+        } else if (Epoch.class.isAssignableFrom(child.getType()) && !filter.isEpochsVisible()) {
+            return true;
+        }
+        return false;
     }
 }

@@ -43,11 +43,50 @@ public class QuerySet {
         nodeCache = new HashMap();
         for(ExplorerManager em : BrowserUtilities.registeredViewManagers.keySet())
         {
-            em.setRootContext(new EntityNode(new QueryChildren(BrowserUtilities.registeredViewManagers.get(em).isProjectView()), null));
+            em.setRootContext(new EntityNode(new QueryChildren(BrowserUtilities.registeredViewManagers.get(em)), null));
         }
     }
+    
+    public void reset()
+    {
+        Set<IEntityWrapper> oldResults = results;
+        results = new HashSet();
+        
+        nodeCache = new HashMap();
+        for(ExplorerManager em : BrowserUtilities.registeredViewManagers.keySet())
+        {
+            em.setRootContext(new EntityNode(new QueryChildren(BrowserUtilities.registeredViewManagers.get(em)), null));
+        }
+        for (IEntityWrapper entity: oldResults)
+        {
+            add(entity.getEntity());
+        }
+    }
+    
+    public void reset(ExplorerManager em, TreeFilter filter)
+    {
+        Set<IEntityWrapper> oldResults = results;
+        results = new HashSet();
+        
+        em.setRootContext(new EntityNode(new QueryChildren(filter), null));
+        Set<ExplorerManager> mgrs = Sets.newHashSet(em);
+        for (IEntityWrapper entity: oldResults)
+        {
+            add(entity.getEntity(), mgrs);
+        }
+    }
+    
+    
     public void add(OvationEntity e)
     {
+        add(e, BrowserUtilities.registeredViewManagers.keySet());
+    }
+    
+    public void add(OvationEntity e, Set<ExplorerManager> mgrs)
+    {
+        if (e.isTrashed() )
+            return;
+        
         EntityWrapper ew = new EntityWrapper(e);
         results.add(ew);
         
