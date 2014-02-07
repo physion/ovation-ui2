@@ -12,6 +12,7 @@ import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionID;
 import org.openide.nodes.Children;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
 import us.physion.ovation.ui.interfaces.ResetBrowser;
@@ -29,6 +30,7 @@ displayName = "#CTL_ResetQueryAction")
 public final class ResetQueryAction implements ResetBrowser{
 
     public void actionPerformed(ActionEvent e) {
+        Lookup.getDefault().lookup(QueryProvider.class).setQuerySet(null);
         BrowserUtilities.resetView();
     }
 }
