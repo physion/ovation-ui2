@@ -20,6 +20,7 @@ import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.editor.OpenNodeInBrowserAction;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
@@ -43,9 +44,10 @@ public class OvationSearchProvider implements SearchProvider {
         }
         DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
         OvationEntity ent = ctx.getObjectWithURI(uri);
-        final List<URI> path = getURIPath(ent);
+        final List<URI> path = new ArrayList<URI>();
         //XXX: This is needed because in the views the root node has no URI and is hidden
-        path.add(0, null);
+        path.add(null);
+        path.addAll(getURIPath(ent));
         
         //TODO: Use EntityWrapper.inferDisplayName(OvationEntity) somehow.
         response.addResult(new Runnable() {
@@ -91,6 +93,9 @@ public class OvationSearchProvider implements SearchProvider {
             return concatenate(getURIPath(firstNonNull(s.getParentSources())), s.getURI());
         } else if (ent instanceof Project) {
             return Collections.singletonList(ent.getURI());
+        } else if (ent instanceof Resource) {
+            Resource res = (Resource) ent;
+            return concatenate(getURIPath(res.getContainingEntity()), res.getURI());
         } else {
             log.warn("Cannot get URI path for unexpected class " + ent.getClass() + " " + ent);
             return Collections.EMPTY_LIST;
