@@ -54,6 +54,7 @@ public class OvationSearchProvider implements SearchProvider {
 
             @Override
             public void run() {
+                //TODO: Get display name from the OvationEntity ent
                 new OpenNodeInBrowserAction(path).actionPerformed(null);
             }
         }, Bundle.Search_Open_Entity(ent.getURI()));
