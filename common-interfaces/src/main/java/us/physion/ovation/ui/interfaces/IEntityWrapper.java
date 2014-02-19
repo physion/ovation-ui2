@@ -21,4 +21,6 @@ public interface IEntityWrapper {
     String getURI();
     
     List<URI> getFilteredParentURIs();
+    
+    boolean isLeaf();
 }
