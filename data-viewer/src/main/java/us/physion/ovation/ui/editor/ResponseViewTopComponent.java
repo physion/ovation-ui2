@@ -125,7 +125,7 @@ public final class ResponseViewTopComponent extends TopComponent {
                     TemporaryViewTopComponent t = new TemporaryViewTopComponent(element);
 
                     if (entityURI != null) {
-                        t.addTabAction(new OpenNodeInBrowserAction(entityURI));
+                        t.addTabAction(new OpenNodeInBrowserAction(entityURI, element.getName()));
                     }
 
                     WindowManager.getDefault().findMode("editor").dockInto(t); //NOI18N

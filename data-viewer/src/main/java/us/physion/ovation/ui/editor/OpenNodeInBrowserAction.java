@@ -17,6 +17,7 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Cancellable;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import us.physion.ovation.ui.interfaces.LazyChildren;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
 import us.physion.ovation.ui.interfaces.URINode;
+import us.physion.ovation.ui.jumpto.api.JumpHistory;
 
 @NbBundle.Messages({
     "OpenNodeInBrowserAction=Select in Project Navigator",
@@ -39,8 +41,23 @@ public class OpenNodeInBrowserAction extends AbstractAction {
     private final TopComponent tc;
     private final List<URI> entityPath;
     private final TreeView view;
+    private final String nodeDisplayName;
+    private final boolean addToHistory;
+    private final List<URI> historySource;
 
     public OpenNodeInBrowserAction(List<URI> entityURI) {
+        this(entityURI, null);
+    }
+    
+    public OpenNodeInBrowserAction(List<URI> entityURI, /* @Nullable */ String nodeDisplayName) {
+        this(entityURI, nodeDisplayName, false, null);
+    }
+    /**
+     * 
+     * @param entityURI
+     * @param nodeDisplayName The corresponding node display name. It will be added to the history
+     */
+    public OpenNodeInBrowserAction(List<URI> entityURI, /* @Nullable */ String nodeDisplayName, boolean addToHistory, List<URI> source) {
         super(Bundle.OpenNodeInBrowserAction());
         tc = WindowManager.getDefault().findTopComponent(BROWSER_ID);
         if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
@@ -51,6 +68,9 @@ public class OpenNodeInBrowserAction extends AbstractAction {
         view = (TreeView) ((TreeViewProvider) tc).getTreeView();
 
         this.entityPath = entityURI;
+        this.nodeDisplayName = nodeDisplayName;
+        this.addToHistory = addToHistory;
+        this.historySource = source;
     }
 
     SelectInTreeViewRunnable<URI> createSelectRunnable(int id, Node root, Provider em, List<URI> entityPath, int entityPathIndex, TreeView view, ProgressHandle ph, boolean rootIsLoading, AtomicBoolean cancelled){
@@ -101,6 +121,12 @@ public class OpenNodeInBrowserAction extends AbstractAction {
     
     @Override
     public void actionPerformed(ActionEvent e) {
+        if (addToHistory) {
+            JumpHistory history = Lookup.getDefault().lookup(JumpHistory.class);
+            if (history != null) {
+                history.add(nodeDisplayName, entityPath, historySource);
+            }
+        }
         try {
             //search without expanding
             Node node = findNodeByURI(em.getExplorerManager().getRootContext(), entityPath.get(entityPath.size() - 1));

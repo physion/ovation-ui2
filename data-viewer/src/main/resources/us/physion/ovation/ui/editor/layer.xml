@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
+    <folder name="Toolbars">
+        <folder name="JumpTo">
+            <attr name="displayName" bundlevalue="us.physion.ovation.ui.editor.Bundle#Toolbar/JumpTo"/>
+        </folder>
+    </folder>
     <folder name="QuickSearch">
         <folder name="OvationProjectNavigatorSearchID">
             <!--Attribute for localization - provide localized display name of category!-->

@@ -87,5 +87,10 @@ public class TestEntityWrapper implements IEntityWrapper{
     public <T extends OvationEntity> T getEntity(Class<T> clazz) {
         return (T)getEntity();
     }
+
+    @Override
+    public boolean isLeaf() {
+        return false;
+    }
     
 }

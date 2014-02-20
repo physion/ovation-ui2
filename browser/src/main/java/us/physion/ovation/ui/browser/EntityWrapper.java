@@ -137,4 +137,13 @@ public class EntityWrapper implements IEntityWrapper {
         }
         return null;
     }
+
+    @Override
+    public boolean isLeaf() {
+        return Measurement.class.isAssignableFrom(getType()) ||
+                Resource.class.isAssignableFrom(getType()) ||
+                //not sure if EquipmentSetup even has a Node...
+                EquipmentSetup.class.isAssignableFrom(getType()) ||
+                Protocol.class.isAssignableFrom(getType());
+    }
 }

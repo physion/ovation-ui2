@@ -7,6 +7,8 @@ import javax.swing.Action;
 import org.openide.nodes.*;
 import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.lookup.Lookups;
+import org.openide.util.lookup.ProxyLookup;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.actions.OpenInSeparateViewAction;
@@ -23,9 +25,33 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
     private IEntityWrapper parent;
     private static Map<String, Class> insertableMap = createMap();
     private URI uri;
+    
+    private static class URITreePathProviderImpl implements URITreePathProvider {
+
+        private EntityNode delegate;
+
+        public void setDelegate(EntityNode delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public List<URI> getTreePath() {
+            if (delegate != null) {
+                return delegate.buildURITreePath();
+            } else {
+                return Collections.EMPTY_LIST;
+            }
+        }
+    }
         
     public EntityNode(Children c, Lookup l, IEntityWrapper parent) {
-        super (c, l);
+        this(c, l, new URITreePathProviderImpl(), parent);
+    }
+    
+    private EntityNode(Children c, Lookup l, URITreePathProviderImpl pathProvider, IEntityWrapper parent) {
+        super (c, new ProxyLookup(l, Lookups.singleton(pathProvider)));
+        
+        pathProvider.setDelegate(this);
         this.parent = parent;
         loadURI();
     }
@@ -128,6 +154,10 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
                
                if(DataElement.class.isAssignableFrom(entityClass)){
                    actionList = appendToArray(actionList, new RevealElementAction((DataElement) parent.getEntity()));
+               }
+               
+               if(AnalysisRecord.class.isAssignableFrom(entityClass)) {
+                   actionList = appendToArray(actionList, SystemAction.get(AnalysisRecordInputsAction.class));
                }
                
                if(OvationEntity.class.isAssignableFrom(entityClass)){

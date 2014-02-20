@@ -44,7 +44,7 @@ public class EntityWrapperUtilities {
     
     public static EntityNode createNewNode(IEntityWrapper key, Children c)
     {
-        EntityNode n = new EntityNode(c, Lookups.singleton(key), key);
+        EntityNode n = new EntityNode(key.isLeaf() ? Children.LEAF : c, Lookups.singleton(key), key);
         n.setDisplayName(key.getDisplayName());
         setIconForType(n, key.getType());
         return n;

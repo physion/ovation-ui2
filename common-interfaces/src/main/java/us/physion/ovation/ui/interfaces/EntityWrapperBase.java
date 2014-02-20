@@ -98,4 +98,9 @@ public class EntityWrapperBase implements IEntityWrapper {
         }
         return null;
     }
+
+    @Override
+    public boolean isLeaf() {
+        return false;
+    }
 }
