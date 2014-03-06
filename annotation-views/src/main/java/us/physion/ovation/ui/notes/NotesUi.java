@@ -1,18 +1,8 @@
 package us.physion.ovation.ui.notes;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.Polygon;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
+import javax.swing.*;
+import javax.swing.border.AbstractBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -25,28 +15,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JToggleButton;
-import javax.swing.JToolBar;
-import javax.swing.JViewport;
-import javax.swing.ListModel;
-import javax.swing.Scrollable;
-import javax.swing.SwingConstants;
-import javax.swing.SwingWorker;
-import javax.swing.border.AbstractBorder;
 
 public abstract class NotesUi extends JPanel {
 
@@ -64,7 +32,7 @@ public abstract class NotesUi extends JPanel {
         messages.revalidate();
         messages.repaint();
     }
-    
+
     protected void refresh() {
         refreshMessages();
     }
@@ -113,9 +81,9 @@ public abstract class NotesUi extends JPanel {
         public String getUsername();
 
         public String getEmail();
-        
+
         public String getTimestampTooltip();
-        
+
         public String getTimestamp();
     }
     ExecutorService executors = Executors.newSingleThreadExecutor();
@@ -151,6 +119,8 @@ public abstract class NotesUi extends JPanel {
                 gravatarToggled();
             }
         }));
+
+        /*
         toolbar.add(new JToggleButton(new AbstractAction(getAskBeforeDeletingText(), getAskBeforeDeletingIcon()) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -158,6 +128,7 @@ public abstract class NotesUi extends JPanel {
                 NotesUi.this.askBeforeDeleting = b.getModel().isSelected();
             }
         }));
+        */
 
         this.add(toolbar, BorderLayout.NORTH);
 
@@ -193,7 +164,7 @@ public abstract class NotesUi extends JPanel {
         if (model == null) {
             return;
         }
-        
+
         Message previousMessage = null;
         Box perUserMessages = null;
         boolean arrowLeft = false;
@@ -230,7 +201,7 @@ public abstract class NotesUi extends JPanel {
                                         return;
                                     }
                                 }
-                                
+
                                 NotesUi.this.delete(deleteIndex, message);
                             }
                         }));
@@ -325,11 +296,11 @@ public abstract class NotesUi extends JPanel {
 
         public final static int DEFAULT_ARROW_SIZE = 7;
         public final static int DEFAULT_RADIUS = 8;
-        
+
         private final RenderingHints antialias = new RenderingHints(
                 RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
-        
+
         private final Color color;
         private final int radius = DEFAULT_RADIUS;
         private final int tickHeight;
