@@ -7,11 +7,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.ListModel;
 import javax.swing.event.ListDataListener;
 import org.joda.time.Instant;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.openide.util.ImageUtilities;
 import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.NoteAnnotatable;
@@ -56,6 +59,7 @@ class OvationNotes extends NotesUi {
     };
     
     private NoteAnnotatable noteSource;
+    private final DateTimeFormatter dateFormatter = DateTimeFormat.forStyle("MM").withLocale(Locale.getDefault()); //NOI18N
     
     ListModel model = EMPTY_LIST_MODEL;
 
@@ -217,7 +221,7 @@ class OvationNotes extends NotesUi {
 
                     @Override
                     public String getTimestamp() {
-                        return getTimestampTooltip();
+                        return dateFormatter.print(note.getTimeStamp());
                     }
                 };
             }

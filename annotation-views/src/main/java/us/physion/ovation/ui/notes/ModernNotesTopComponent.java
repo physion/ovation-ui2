@@ -27,7 +27,7 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
     displayName = "#CTL_ModernNotesAction",
 preferredID = "ModernNotesTopComponent")
 @Messages({
-    "CTL_ModernNotesAction=Notes (Modern)",
+    "CTL_ModernNotesAction=Notes",
     "CTL_ModernNotesTopComponent=Notes",
     "HINT_ModernNotesTopComponent=See notes",
     "CTL_AskBeforeDeleting=Ask before deletion",
