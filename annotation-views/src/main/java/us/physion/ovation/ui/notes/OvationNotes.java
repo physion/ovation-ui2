@@ -1,4 +1,4 @@
-package us.physion.ovation.ui.notes.api;
+package us.physion.ovation.ui.notes;
 
 import com.google.common.collect.Multimap;
 import java.awt.Toolkit;
@@ -16,7 +16,6 @@ import org.openide.util.ImageUtilities;
 import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.NoteAnnotatable;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
-import us.physion.ovation.ui.notes.NotesUi;
 import us.physion.ovation.values.NoteAnnotation;
 
 class OvationNotes extends NotesUi {
