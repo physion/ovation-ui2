@@ -1,18 +1,6 @@
-package us.physion.ovation.ui.notes.api;
+package us.physion.ovation.ui.notes;
 
-import com.google.common.collect.Multimap;
 import java.awt.BorderLayout;
-import java.awt.Toolkit;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import javax.swing.Icon;
-import javax.swing.ListModel;
-import javax.swing.event.ListDataListener;
-import org.joda.time.Instant;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -22,11 +10,7 @@ import org.openide.util.LookupListener;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
-import us.physion.ovation.domain.User;
-import us.physion.ovation.domain.mixin.NoteAnnotatable;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
-import us.physion.ovation.ui.notes.NotesUi;
-import us.physion.ovation.values.NoteAnnotation;
 
 @ConvertAsProperties(
     dtd = "-//us.physion.ovation.ui.notes.api//ModernNotes//EN",
@@ -43,7 +27,7 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
     displayName = "#CTL_ModernNotesAction",
 preferredID = "ModernNotesTopComponent")
 @Messages({
-    "CTL_ModernNotesAction=Notes (Modern)",
+    "CTL_ModernNotesAction=Notes",
     "CTL_ModernNotesTopComponent=Notes",
     "HINT_ModernNotesTopComponent=See notes",
     "CTL_AskBeforeDeleting=Ask before deletion",
