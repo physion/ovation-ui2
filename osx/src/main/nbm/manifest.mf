@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Localizing-Bundle: us/physion/ovation/ui/osx/Bundle.properties
 OpenIDE-Module-Requires: org.openide.modules.os.MacOSX
-OpenIDE-Module-Specification-Version: 2.0.27
+OpenIDE-Module-Specification-Version: 2.0.28
