@@ -10,7 +10,7 @@
     <artifactId>ovation-ui-app</artifactId>
     <packaging>nbm-application</packaging>
 
-    <name>ovation-ui-app</name>
+    <name>Application</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -125,7 +125,7 @@
                     <etcConfFile>${basedir}/target/${brandingToken}.conf</etcConfFile>
                 </configuration>
             </plugin>
-            
+
             <!-- Permits NbModuleSuite to be run in integration-test phase: -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -220,6 +220,9 @@
                                 <app.ico.file>${basedir}\installer\ovation_48x48.ico</app.ico.file>
                                 <launchers.dir>${project.build.directory}\installer\launchers</launchers.dir>
                             </userSettings>
+
+                            <licenseName>GNU General Public License, Version 3</licenseName>
+                            <licenseFile>../licenses/license-GPL.txt</licenseFile>
                         </configuration>
 
                         <executions>

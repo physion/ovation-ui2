@@ -5,9 +5,9 @@
     <groupId>us.physion</groupId>
     <artifactId>ovation-ui-parent</artifactId>
     <version>2.0.29-SNAPSHOT</version>
-    <packaging>pom</packaging> 
+    <packaging>pom</packaging>
 
-    <name>ovation-ui-parent</name>
+    <name>Ovation Desktop</name>
     <url>http://ovation.io</url>
     <inceptionYear>2010</inceptionYear>
 
@@ -225,7 +225,7 @@
                 <artifactId>org-netbeans-api-progress</artifactId>
                 <version>${netbeans.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-netbeans-spi-quicksearch</artifactId>

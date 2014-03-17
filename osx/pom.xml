@@ -43,9 +43,12 @@
                 <artifactId>nbm-maven-plugin</artifactId>
 
                 <extensions>true</extensions>
-                
+
                 <configuration>
                     <moduleType>eager</moduleType>
+                    
+                    <licenseName>GNU General Public License, Version 3</licenseName>
+                    <licenseFile>../licenses/license-GPL.txt</licenseFile>
                 </configuration>
             </plugin>
 

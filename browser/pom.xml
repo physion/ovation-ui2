@@ -12,7 +12,7 @@
     <artifactId>ovation-ui-browser</artifactId>
     <packaging>nbm</packaging>
 
-    <name>ovation-ui-browser</name>
+    <name>Browser</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -136,6 +136,9 @@
                         <publicPackage>us.physion.ovation.ui.browser.*</publicPackage>
                         <publicPackage>us.physion.ovation.ui.browser.insertion.*</publicPackage>
                     </publicPackages>
+
+                    <licenseName>GNU General Public License, Version 3</licenseName>
+                    <licenseFile>../licenses/license-GPL.txt</licenseFile>
                 </configuration>
             </plugin>
 

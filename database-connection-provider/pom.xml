@@ -11,7 +11,7 @@
     <artifactId>ovation-ui-database-connection-provider</artifactId>
     <packaging>nbm</packaging>
 
-    <name>ovation-ui-database-connection-provider</name>
+    <name>Database Connection Provider</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -87,8 +87,13 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                
+
                 <extensions>true</extensions>
+
+                <configuration>
+                    <licenseName>GNU General Public License, Version 3</licenseName>
+                    <licenseFile>../licenses/license-GPL.txt</licenseFile>
+                </configuration>
             </plugin>
 
 

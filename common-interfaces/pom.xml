@@ -11,7 +11,7 @@
     <artifactId>ovation-ui-common-interfaces</artifactId>
     <packaging>nbm</packaging>
 
-    <name>ovation-ui-common-interfaces</name>
+    <name>Common Interfaces</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,12 +23,12 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-nodes</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-awt</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-annotations-common</artifactId>
@@ -86,6 +86,9 @@
                         <publicPackage>org.slf4j.impl.*</publicPackage>
                         <publicPackage>loci.formats.*</publicPackage>
                     </publicPackages>
+
+                    <licenseName>GNU General Public License, Version 3</licenseName>
+                    <licenseFile>../licenses/license-GPL.txt</licenseFile>
                 </configuration>
             </plugin>
 

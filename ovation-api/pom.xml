@@ -11,7 +11,7 @@
     <artifactId>ovation-api-module</artifactId>
     <packaging>nbm</packaging>
 
-    <name>ovation-api-module</name>
+    <name>Ovation API</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -61,7 +61,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                
+
                 <extensions>true</extensions>
                 <configuration>
                     <publicPackages>
@@ -103,6 +103,9 @@
                         <publicPackage>javax.inject.*</publicPackage>
                         <publicPackage>com.mchange.v2.c3p0.*</publicPackage>
                     </publicPackages>
+
+                    <licenseName>GNU General Public License, Version 3</licenseName>
+                    <licenseFile>../licenses/license-GPL.txt</licenseFile>
                 </configuration>
             </plugin>
 

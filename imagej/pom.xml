@@ -11,7 +11,7 @@
     <artifactId>ovation-ui-imagej</artifactId>
     <packaging>nbm</packaging>
 
-    <name>ovation-ui-imagej</name>
+    <name>ImageJ Integration</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -59,7 +59,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                
+
                 <extensions>true</extensions>
                 <configuration>
                     <publicPackages>
@@ -72,6 +72,9 @@
                         <publicPackage>loci.formats.meta.*</publicPackage>
                         <publicPackage>loci.formats.services.*</publicPackage>
                     </publicPackages>
+
+                    <licenseName>GNU General Public License, Version 3</licenseName>
+                    <licenseFile>../licenses/license-GPL.txt</licenseFile>
                 </configuration>
             </plugin>
 
