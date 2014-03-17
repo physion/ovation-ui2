@@ -12,7 +12,7 @@
     <artifactId>ovation-ui-data-viewer</artifactId>
     <packaging>nbm</packaging>
 
-    <name>Ovation UI Data Viewer</name>
+    <name>Data Viewer</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,7 +24,7 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-spi-quicksearch</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-annotations-common</artifactId>
@@ -146,8 +146,13 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                
+
                 <extensions>true</extensions>
+
+                <configuration>
+                    <licenseName>GNU General Public License, Version 3</licenseName>
+                    <licenseFile>../licenses/license-GPL.txt</licenseFile>
+                </configuration>
             </plugin>
 
 
