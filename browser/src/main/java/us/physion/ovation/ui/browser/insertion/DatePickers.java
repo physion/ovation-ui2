@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.TimeZone;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import us.physion.ovation.ui.interfaces.DateTimePicker;
 
@@ -57,5 +58,14 @@ public class DatePickers {
             availableIDs = ids.toArray(new String[ids.size()]);
         }
         return availableIDs;
+    }
+
+    public static DateTime zonedDate(DateTimePicker datePicker, javax.swing.JComboBox zonePicker) {
+
+        // datePicker.getDate() is giving us in local zone, so convert back to UTC
+        DateTime pickedDate = new DateTime(datePicker.getDate()).withZone(DateTimeZone.forID("UTC"));
+        //User entered date in UTC, but we want it in given zone
+        return pickedDate.withZoneRetainFields(
+                DateTimeZone.forID((String) zonePicker.getSelectedItem()));
     }
 }

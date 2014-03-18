@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.openide.util.ChangeSupport;
+import static us.physion.ovation.ui.browser.insertion.DatePickers.zonedDate;
 import us.physion.ovation.ui.interfaces.DateTimePicker;
 
 public final class InsertProjectVisualPanel1 extends JPanel {
@@ -14,7 +15,7 @@ public final class InsertProjectVisualPanel1 extends JPanel {
     private String projectName;
     private String projectPurpose;
     private DateTime start;
-    
+
     DateTimePicker startPicker;
     /**
      * Creates new form InsertProjectVisualPanel1
@@ -24,7 +25,7 @@ public final class InsertProjectVisualPanel1 extends JPanel {
         change = cs;
         projectName = ""; //NOI18N
         projectPurpose = ""; //NOI18N
-        
+
         startPicker = DatePickers.createDateTimePicker();
         startPicker.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
@@ -34,10 +35,10 @@ public final class InsertProjectVisualPanel1 extends JPanel {
                 }
             }
         });
-        
+
         startTimezoneComboBox.setSelectedItem(DatePickers.getID(startPicker));
         startPane.setViewportView(startPicker);
-        
+
         start = null;
     }
 
@@ -45,12 +46,12 @@ public final class InsertProjectVisualPanel1 extends JPanel {
     public String getName() {
         return "Insert Project";
     }
-    
+
     public String getProjectName()
     {
         return projectName;
     }
-    
+
     public String getPurpose()
     {
         return projectPurpose;
@@ -60,14 +61,14 @@ public final class InsertProjectVisualPanel1 extends JPanel {
     {
         return start;
     }
-    
+
     protected void setProjectName(String name)
     {
         boolean fireChange = true;
         if (projectName.isEmpty() == name.isEmpty())
             fireChange = false;
         projectName = name;
-        
+
         if (fireChange)
             change.fireChange();
     }
@@ -77,7 +78,7 @@ public final class InsertProjectVisualPanel1 extends JPanel {
         if (projectPurpose.isEmpty() == p.isEmpty())
             fireChange = false;
         projectPurpose = p;
-        
+
         if (fireChange)
             change.fireChange();
     }
@@ -86,10 +87,12 @@ public final class InsertProjectVisualPanel1 extends JPanel {
         start = d;
         change.fireChange();
     }
+
+
     protected void startDateTimeChanged() {
-        setStart(new DateTime(startPicker.getDate(), DateTimeZone.forID(((String)startTimezoneComboBox.getSelectedItem()))));
+        setStart(zonedDate(startPicker, startTimezoneComboBox));
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -201,11 +204,11 @@ public final class InsertProjectVisualPanel1 extends JPanel {
     }//GEN-LAST:event_projectNameTextFieldActionPerformed
 
     private void projectNameTextFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_projectNameTextFieldKeyTyped
-        
+
     }//GEN-LAST:event_projectNameTextFieldKeyTyped
 
     private void purposeTextAreaKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_purposeTextAreaKeyTyped
-        
+
     }//GEN-LAST:event_purposeTextAreaKeyTyped
 
     private void purposeTextAreaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_purposeTextAreaKeyReleased

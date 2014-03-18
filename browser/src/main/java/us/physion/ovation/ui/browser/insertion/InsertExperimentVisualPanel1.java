@@ -9,6 +9,7 @@ import java.beans.PropertyChangeListener;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.openide.util.ChangeSupport;
+import static us.physion.ovation.ui.browser.insertion.DatePickers.zonedDate;
 import us.physion.ovation.ui.interfaces.DateTimePicker;
 
 /**
@@ -18,7 +19,7 @@ import us.physion.ovation.ui.interfaces.DateTimePicker;
 public class InsertExperimentVisualPanel1 extends javax.swing.JPanel {
 
     ChangeSupport cs;
-    
+
     String purpose;
     DateTime start;
     DateTimePicker startPicker;
@@ -29,7 +30,7 @@ public class InsertExperimentVisualPanel1 extends javax.swing.JPanel {
     public InsertExperimentVisualPanel1(ChangeSupport cs) {
         initComponents();
         purpose = "";
-        
+
         this.cs = cs;
         startPicker = DatePickers.createDateTimePicker();
         startPicker.addPropertyChangeListener(new PropertyChangeListener() {
@@ -40,15 +41,15 @@ public class InsertExperimentVisualPanel1 extends javax.swing.JPanel {
                 }
             }
         });
-        
+
         jComboBox1.setSelectedItem(DatePickers.getID(startPicker));
         startPane.setViewportView(startPicker);
         start = null;
     }
 
-    
     protected void startDateTimeChanged() {
-        setStart(new DateTime(startPicker.getDate(),  DateTimeZone.forID(((String)jComboBox1.getSelectedItem()))));
+        DateTime startDate = zonedDate(startPicker, jComboBox1);
+        setStart(startDate);
     }
     @Override
     public String getName() {
@@ -69,7 +70,7 @@ public class InsertExperimentVisualPanel1 extends javax.swing.JPanel {
         if (purpose.isEmpty() == p.isEmpty())
             fireChange = false;
         purpose = p;
-        
+
         if (fireChange)
             cs.fireChange();
     }

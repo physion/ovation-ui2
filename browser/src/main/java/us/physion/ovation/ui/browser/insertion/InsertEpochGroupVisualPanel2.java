@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.openide.util.ChangeSupport;
+import static us.physion.ovation.ui.browser.insertion.DatePickers.zonedDate;
 import us.physion.ovation.ui.interfaces.DateTimePicker;
 
 public final class InsertEpochGroupVisualPanel2 extends JPanel{
@@ -27,7 +28,7 @@ public final class InsertEpochGroupVisualPanel2 extends JPanel{
     private String label;
     private DateTime start;
     private DateTimePicker startPicker;
-    private String[] availableIDs; 
+    private String[] availableIDs;
     /**
      * Creates new form InsertEpochGroupVisualPanel2
      */
@@ -45,14 +46,14 @@ public final class InsertEpochGroupVisualPanel2 extends JPanel{
                 }
             }
         });
-        
+
         jComboBox1.setSelectedItem(DatePickers.getID(startPicker));
         startTimePane.setViewportView(startPicker);
         start = null;
     }
 
     protected void startDateTimeChanged() {
-        start = new DateTime(startPicker.getDate(), DateTimeZone.forID(((String)jComboBox1.getSelectedItem())));
+        start = zonedDate(startPicker, jComboBox1);
         setStart(start);
     }
     @Override
@@ -74,7 +75,7 @@ public final class InsertEpochGroupVisualPanel2 extends JPanel{
         if (label.isEmpty() == l.isEmpty())
             fireChange = false;
         label = l;
-        
+
         if (fireChange)
             cs.fireChange();
     }
