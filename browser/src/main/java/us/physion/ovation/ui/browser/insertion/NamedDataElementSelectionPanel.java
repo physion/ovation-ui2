@@ -5,6 +5,7 @@
 package us.physion.ovation.ui.browser.insertion;
 
 import com.google.common.collect.Sets;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.DataElementContainer;
 import us.physion.ovation.domain.mixin.EpochGroupContainer;
 import us.physion.ovation.ui.browser.EntityChildren;
+import us.physion.ovation.ui.browser.EntityComparator;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.browser.FilteredEntityChildren;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
@@ -38,11 +40,11 @@ public class NamedDataElementSelectionPanel extends NamedEntitySelectionPanel{
     }
     @Override
     public void resetEntities() {
-        List<EntityWrapper> wrappers = new LinkedList();
-        for (Project p : context.getProjects())
-        {
-            wrappers.add(new EntityWrapper(p));
-        }
+        List<EntityWrapper> wrappers = FilteredEntityChildren.wrap(
+                context.getProjects());
+        
+        Collections.sort(wrappers, new EntityComparator());
+        
         em.setRootContext(new AbstractNode(new EntityChildren(wrappers)));
     }
     
