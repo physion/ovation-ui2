@@ -85,8 +85,6 @@ public class StartAndEndPanel extends javax.swing.JPanel {
 
     protected void startDateTimeChanged() {
         start = zonedDate(startPicker, startZonePicker);
-        System.out.println(startPicker.getDate());
-        System.out.println(start);
     }
 
     protected void endDateTimeChanged() {
