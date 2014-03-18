@@ -19,16 +19,16 @@ public class StartAndEndPanel extends javax.swing.JPanel {
 
     DateTimePicker startPicker;
     DateTimePicker endPicker;
-    
+
     DateTime start;
     DateTime end;
-    
+
     @Override
     public String getName()
     {
         return "Epoch: Set start and end";
     }
-    
+
     /**
      * Creates new form StartAndEndPanel
      */
@@ -43,46 +43,61 @@ public class StartAndEndPanel extends javax.swing.JPanel {
                 }
             }
         });
-        
-        jComboBox1.setSelectedItem(DatePickers.getID(startPicker));
+
+        startZonePicker.setSelectedItem(DatePickers.getID(startPicker));
         startPanel.setViewportView(startPicker);
-        
-       
+
+
         endPicker = DatePickers.createDateTimePicker();
         endPicker.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
                 if ("date".equals(propertyChangeEvent.getPropertyName())) {
-                    startDateTimeChanged();
+                    endDateTimeChanged();
                 }
             }
         });
-        
-        jComboBox2.setSelectedItem(DatePickers.getID(endPicker));
+
+        endZonePicker.setSelectedItem(DatePickers.getID(endPicker));
         endPanel.setViewportView(endPicker);
-        
+
         start = null;
         end = null;
-        
+
         if (!checkboxes)
         {
             includeProtocolInfo.setSelected(true);
             includeDeviceInfo.setSelected(true);
             includeProtocolInfo.setVisible(false);
             includeDeviceInfo.setVisible(false);
-            
+
         }
     }
-    
-    protected void startDateTimeChanged() {
-        start = new DateTime(startPicker.getDate(), DateTimeZone.forID(((String)jComboBox1.getSelectedItem())));
+
+    private DateTime zonedDate(DateTimePicker datePicker, javax.swing.JComboBox zonePicker) {
+
+        // datePicker.getDate() is giving us in local zone, so convert back to UTC
+        DateTime pickedDate = new DateTime(datePicker.getDate()).withZone(DateTimeZone.forID("UTC"));
+        //User entered date in UTC, but we want it in given zone
+        return pickedDate.withZoneRetainFields(
+                DateTimeZone.forID((String) zonePicker.getSelectedItem()));
     }
-    
+
+    protected void startDateTimeChanged() {
+        start = zonedDate(startPicker, startZonePicker);
+        System.out.println(startPicker.getDate());
+        System.out.println(start);
+    }
+
+    protected void endDateTimeChanged() {
+        end = zonedDate(endPicker, endZonePicker);
+    }
+
     public DateTime getStart()
     {
         return start;
     }
-    
+
     public DateTime getEnd()
     {
         return end;
@@ -107,8 +122,8 @@ public class StartAndEndPanel extends javax.swing.JPanel {
 
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox();
-        jComboBox2 = new javax.swing.JComboBox();
+        startZonePicker = new javax.swing.JComboBox();
+        endZonePicker = new javax.swing.JComboBox();
         startPanel = new javax.swing.JScrollPane();
         endPanel = new javax.swing.JScrollPane();
         includeProtocolInfo = new javax.swing.JCheckBox();
@@ -118,9 +133,9 @@ public class StartAndEndPanel extends javax.swing.JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(StartAndEndPanel.class, "StartAndEndPanel.jLabel2.text")); // NOI18N
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(us.physion.ovation.ui.browser.insertion.DatePickers.getTimeZoneIDs()));
+        startZonePicker.setModel(new javax.swing.DefaultComboBoxModel(us.physion.ovation.ui.browser.insertion.DatePickers.getTimeZoneIDs()));
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(us.physion.ovation.ui.browser.insertion.DatePickers.getTimeZoneIDs()));
+        endZonePicker.setModel(new javax.swing.DefaultComboBoxModel(us.physion.ovation.ui.browser.insertion.DatePickers.getTimeZoneIDs()));
 
         org.openide.awt.Mnemonics.setLocalizedText(includeProtocolInfo, org.openide.util.NbBundle.getMessage(StartAndEndPanel.class, "StartAndEndPanel.includeProtocolInfo.text")); // NOI18N
         includeProtocolInfo.addActionListener(new java.awt.event.ActionListener() {
@@ -140,17 +155,18 @@ public class StartAndEndPanel extends javax.swing.JPanel {
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                             .add(layout.createSequentialGroup()
+                                .addContainerGap()
                                 .add(jLabel2)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(endPanel))
                             .add(layout.createSequentialGroup()
                                 .add(jLabel1)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(startPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 192, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                .add(startPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jComboBox1, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(jComboBox2, 0, 193, Short.MAX_VALUE)))
+                            .add(startZonePicker, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(endZonePicker, 0, 193, Short.MAX_VALUE)))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(includeProtocolInfo)
@@ -162,14 +178,15 @@ public class StartAndEndPanel extends javax.swing.JPanel {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(jLabel1)
-                    .add(jComboBox1)
-                    .add(startPanel))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                        .add(startZonePicker)
+                        .add(startPanel))
+                    .add(jLabel1))
                 .add(11, 11, 11)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(jComboBox2)
-                    .add(jLabel2)
+                    .add(endZonePicker)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
                     .add(endPanel))
                 .add(18, 18, 18)
                 .add(includeProtocolInfo)
@@ -185,12 +202,12 @@ public class StartAndEndPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane endPanel;
+    private javax.swing.JComboBox endZonePicker;
     private javax.swing.JCheckBox includeDeviceInfo;
     private javax.swing.JCheckBox includeProtocolInfo;
-    private javax.swing.JComboBox jComboBox1;
-    private javax.swing.JComboBox jComboBox2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane startPanel;
+    private javax.swing.JComboBox startZonePicker;
     // End of variables declaration//GEN-END:variables
 }

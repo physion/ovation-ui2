@@ -27,8 +27,8 @@
         <windows.ico>${basedir}\installer\ovation_48x48.ico</windows.ico>
         <bin.dir>${basedir}\bin</bin.dir>
         <dmg.artifact>${project.build.directory}/Ovation-${project.version}.dmg</dmg.artifact>
-        <netbeans.run.params.ide />
         <netbeans.run.params>${netbeans.run.params.ide}</netbeans.run.params>
+        <netbeans.run.params.ide/>
     </properties>
 
     <dependencies>
