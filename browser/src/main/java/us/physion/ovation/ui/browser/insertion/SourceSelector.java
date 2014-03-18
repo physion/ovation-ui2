@@ -46,6 +46,7 @@ import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.browser.ResetQueryAction;
 import us.physion.ovation.ui.*;
+import us.physion.ovation.ui.browser.EntityComparator;
 import us.physion.ovation.ui.browser.FilteredEntityChildren;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
@@ -73,6 +74,9 @@ public class SourceSelector extends javax.swing.JPanel implements Lookup.Provide
                     return new EntityWrapper(input);
                 }
             }));
+        
+        Collections.sort(topLevelSources, new EntityComparator());
+        
         em.setRootContext(new AbstractNode(new FilteredEntityChildren(topLevelSources, Sets.<Class>newHashSet(Source.class))));
     }
 

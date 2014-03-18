@@ -5,6 +5,8 @@
 package us.physion.ovation.ui.browser.insertion;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.awt.Color;
 import java.awt.Component;
@@ -13,7 +15,9 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JLabel;
@@ -39,6 +43,7 @@ import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.User;
 import us.physion.ovation.ui.ScrollableTableTree;
 import us.physion.ovation.ui.TableTreeKey;
+import us.physion.ovation.ui.browser.EntityComparator;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.browser.FilteredEntityChildren;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
@@ -46,11 +51,13 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
 import us.physion.ovation.util.PlatformUtils;
+
 /**
  *
  * @author jackie
  */
-public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Provider, ExplorerManager.Provider{
+public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Provider, ExplorerManager.Provider {
+
     final ChangeSupport cs;
     private DataContext context;
 
@@ -58,13 +65,12 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
     Lookup l;
     ExplorerManager em;
 
-
     public NamedSourceSelector(ChangeSupport cs, Map<String, Source> defaults, String labelText) {
-         this(cs, null, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
-         addSources(defaults);
-         jLabel1.setText(labelText);
+        this(cs, null, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
+        addSources(defaults);
+        jLabel1.setText(labelText);
 
-         if (PlatformUtils.isMac()) {
+        if (PlatformUtils.isMac()) {
             addButton.putClientProperty("JButton.buttonType", "gradient");
             addButton.setPreferredSize(new Dimension(34, 34));
 
@@ -74,43 +80,36 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
         }
     }
 
-     public void finish()
-     {
-         if (jTable1.getCellEditor() != null)
-         {
+    public void finish() {
+        if (jTable1.getCellEditor() != null) {
             jTable1.getCellEditor().stopCellEditing();
-         }
-     }
+        }
+    }
 
-     public void addSources(Map<String, Source> sources)
-     {
-         if (sources == null)
-             return;
-         Map<String, Source> existingSources = getNamedSources();
-         for (String name : sources.keySet())
-         {
-             Source s = sources.get(name);
-             if (existingSources.containsValue(s))
-             {
-                 if(!existingSources.containsKey(name) || !existingSources.get(name).equals(s))
-                 {
-                     //replace the existing source's name with the corresponding name in the 'sources' map
-                     int row = -1;
-                     for (int i =0; i< tableModel.getRowCount(); i++)
-                     {
-                         if (s.equals(tableModel.getValueAt(i, 1)))
-                         {
-                             row = i;
-                             break;
-                         }
-                     }
-                     tableModel.setValueAt(name, row, 0);
-                 }
-             }else{
+    public void addSources(Map<String, Source> sources) {
+        if (sources == null) {
+            return;
+        }
+        Map<String, Source> existingSources = getNamedSources();
+        for (String name : sources.keySet()) {
+            Source s = sources.get(name);
+            if (existingSources.containsValue(s)) {
+                if (!existingSources.containsKey(name) || !existingSources.get(name).equals(s)) {
+                    //replace the existing source's name with the corresponding name in the 'sources' map
+                    int row = -1;
+                    for (int i = 0; i < tableModel.getRowCount(); i++) {
+                        if (s.equals(tableModel.getValueAt(i, 1))) {
+                            row = i;
+                            break;
+                        }
+                    }
+                    tableModel.setValueAt(name, row, 0);
+                }
+            } else {
                 tableModel.addParameter(name, sources.get(name));
-             }
-         }
-     }
+            }
+        }
+    }
 
     /**
      * Creates new form NamedSourceSelector
@@ -130,17 +129,16 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
 
         initComponents();
 
-         jTable1.setDefaultRenderer(Object.class, new TableCellRenderer() {
+        jTable1.setDefaultRenderer(Object.class, new TableCellRenderer() {
 
             @Override
             public Component getTableCellRendererComponent(JTable jtable, Object o, boolean bln, boolean bln1, int i, int i1) {
-                if (o instanceof Source)
-                {
-                Source s = (Source)o;
-                return new JLabel(s.getLabel() + " | " + s.getIdentifier());
-                }
-                else
+                if (o instanceof Source) {
+                    Source s = (Source) o;
+                    return new JLabel(s.getLabel() + " | " + s.getIdentifier());
+                } else {
                     return new JLabel(o.toString());
+                }
             }
         });
         jSplitPane1.setDividerLocation(300);
@@ -153,10 +151,8 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
 
         resetSources();
 
-        if (defaultSources != null)
-        {
-            for (String sourceName : defaultSources.keySet())
-            {
+        if (defaultSources != null) {
+            for (String sourceName : defaultSources.keySet()) {
                 tableModel.addParameter(sourceName, defaultSources.get(sourceName));
             }
         }
@@ -166,10 +162,8 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
             @Override
             public void actionPerformed(ActionEvent ae) {
                 Source s = getSource();
-                if (s != null)
-                {
-                    if (getNamedSources().containsValue(s))
-                    {
+                if (s != null) {
+                    if (getNamedSources().containsValue(s)) {
                         return;
                     }
                     tableModel.addParameter(s.getLabel() + " | " + s.getIdentifier(), s);
@@ -182,31 +176,31 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
 
             @Override
             public void actionPerformed(ActionEvent ae) {
-                int num = table.getSelectedRow();
-                tableModel.remove(num);
-                NamedSourceSelector.this.cs.fireChange();
+                for (int num : table.getSelectedRows()) {
+                    tableModel.remove(num);
+                    NamedSourceSelector.this.cs.fireChange();
+                }
             }
         });
     }
 
-    private Source getSource()
-    {
-        IEntityWrapper ew  = l.lookup(IEntityWrapper.class);
-        if (ew == null)
+    private Source getSource() {
+        IEntityWrapper ew = l.lookup(IEntityWrapper.class);
+        if (ew == null) {
             return null;
+        }
 
-         if (Source.class.isAssignableFrom(ew.getType()))
-             return (Source)ew.getEntity();
-         return null;
+        if (Source.class.isAssignableFrom(ew.getType())) {
+            return (Source) ew.getEntity();
+        }
+        return null;
     }
 
-    public Map<String, Source> getNamedSources()
-    {
+    public Map<String, Source> getNamedSources() {
         Map<String, Source> sourceMap = new HashMap();
         Map<String, Object> tableModelParams = tableModel.getParams();
-        for (String key : tableModelParams.keySet())
-        {
-            sourceMap.put(key, (Source)tableModelParams.get(key));
+        for (String key : tableModelParams.keySet()) {
+            sourceMap.put(key, (Source) tableModelParams.get(key));
         }
         return sourceMap;
     }
@@ -217,7 +211,15 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
     }
 
     private void resetSources() {
-        em.setRootContext(new AbstractNode(new FilteredEntityChildren(FilteredEntityChildren.wrap(context.getTopLevelSources()), Sets.<Class>newHashSet(Source.class))));
+        List<EntityWrapper> topLevelSources = FilteredEntityChildren.wrap(
+                context.getTopLevelSources());
+
+        Collections.sort(topLevelSources, new EntityComparator());
+
+        em.setRootContext(
+                new AbstractNode(
+                        new FilteredEntityChildren(topLevelSources,
+                                Sets.<Class>newHashSet(Source.class))));
     }
 
     /**
