@@ -4,6 +4,8 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import org.joda.time.DateTime;
@@ -42,13 +44,20 @@ public class InsertExperimentVisualPanel1 extends javax.swing.JPanel {
             }
         });
 
-        jComboBox1.setSelectedItem(DatePickers.getID(startPicker));
+        zonePicker.setSelectedItem(DatePickers.getID(startPicker));
+        zonePicker.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startDateTimeChanged();
+            }
+        });
         startPane.setViewportView(startPicker);
         start = null;
     }
 
     protected void startDateTimeChanged() {
-        DateTime startDate = zonedDate(startPicker, jComboBox1);
+        DateTime startDate = zonedDate(startPicker, zonePicker);
         setStart(startDate);
     }
     @Override
@@ -92,7 +101,7 @@ public class InsertExperimentVisualPanel1 extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
         startPane = new javax.swing.JScrollPane();
-        jComboBox1 = new javax.swing.JComboBox();
+        zonePicker = new javax.swing.JComboBox();
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(InsertExperimentVisualPanel1.class, "InsertExperimentVisualPanel1.jLabel1.text")); // NOI18N
 
@@ -113,11 +122,11 @@ public class InsertExperimentVisualPanel1 extends javax.swing.JPanel {
         startPane.setBorder(null);
         startPane.setPreferredSize(new java.awt.Dimension(200, 30));
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(DatePickers.getTimeZoneIDs()));
-        jComboBox1.setPreferredSize(new java.awt.Dimension(180, 30));
-        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+        zonePicker.setModel(new javax.swing.DefaultComboBoxModel(us.physion.ovation.ui.browser.insertion.DatePickers.getTimeZoneIDs()));
+        zonePicker.setPreferredSize(new java.awt.Dimension(180, 30));
+        zonePicker.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox1ActionPerformed(evt);
+                zonePickerActionPerformed(evt);
             }
         });
 
@@ -136,7 +145,7 @@ public class InsertExperimentVisualPanel1 extends javax.swing.JPanel {
                     .add(layout.createSequentialGroup()
                         .add(startPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jComboBox1, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .add(zonePicker, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -148,7 +157,7 @@ public class InsertExperimentVisualPanel1 extends javax.swing.JPanel {
                     .add(jTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(jComboBox1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(zonePicker, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(startPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(82, Short.MAX_VALUE))
@@ -163,15 +172,15 @@ public class InsertExperimentVisualPanel1 extends javax.swing.JPanel {
         setPurpose(jTextField1.getText());
     }//GEN-LAST:event_jTextField1KeyReleased
 
-    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
-        setStart(new DateTime(startPicker.getDate(),  DateTimeZone.forID(((String)jComboBox1.getSelectedItem()))));
-    }//GEN-LAST:event_jComboBox1ActionPerformed
+    private void zonePickerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zonePickerActionPerformed
+        setStart(new DateTime(startPicker.getDate(), DateTimeZone.forID(((String) zonePicker.getSelectedItem()))));
+    }//GEN-LAST:event_zonePickerActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JScrollPane startPane;
+    private javax.swing.JComboBox zonePicker;
     // End of variables declaration//GEN-END:variables
 }

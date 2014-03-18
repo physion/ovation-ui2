@@ -1,5 +1,7 @@
 package us.physion.ovation.ui.browser.insertion;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JPanel;
@@ -37,6 +39,13 @@ public final class InsertProjectVisualPanel1 extends JPanel {
         });
 
         startTimezoneComboBox.setSelectedItem(DatePickers.getID(startPicker));
+        startTimezoneComboBox.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startDateTimeChanged();
+            }
+        });
         startPane.setViewportView(startPicker);
 
         start = null;

@@ -14,6 +14,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DateFormat;
 import java.util.*;
+import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import org.joda.time.DateTime;
@@ -47,13 +48,20 @@ public final class InsertEpochGroupVisualPanel2 extends JPanel{
             }
         });
 
-        jComboBox1.setSelectedItem(DatePickers.getID(startPicker));
+        zonePicker.setSelectedItem(DatePickers.getID(startPicker));
+        zonePicker.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startDateTimeChanged();
+            }
+        });
         startTimePane.setViewportView(startPicker);
         start = null;
     }
 
     protected void startDateTimeChanged() {
-        start = zonedDate(startPicker, jComboBox1);
+        start = zonedDate(startPicker, zonePicker);
         setStart(start);
     }
     @Override
@@ -97,7 +105,7 @@ public final class InsertEpochGroupVisualPanel2 extends JPanel{
         jLabel2 = new javax.swing.JLabel();
         labelTextField = new javax.swing.JTextField();
         startTimePane = new javax.swing.JScrollPane();
-        jComboBox1 = new javax.swing.JComboBox();
+        zonePicker = new javax.swing.JComboBox();
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(InsertEpochGroupVisualPanel2.class, "InsertEpochGroupVisualPanel2.jLabel1.text")); // NOI18N
 
@@ -119,12 +127,12 @@ public final class InsertEpochGroupVisualPanel2 extends JPanel{
         startTimePane.setBorder(null);
         startTimePane.setPreferredSize(new java.awt.Dimension(200, 30));
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(DatePickers.getTimeZoneIDs()));
-        jComboBox1.setMaximumSize(new java.awt.Dimension(300, 32767));
-        jComboBox1.setPreferredSize(new java.awt.Dimension(180, 30));
-        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+        zonePicker.setModel(new javax.swing.DefaultComboBoxModel(us.physion.ovation.ui.browser.insertion.DatePickers.getTimeZoneIDs()));
+        zonePicker.setMaximumSize(new java.awt.Dimension(300, 32767));
+        zonePicker.setPreferredSize(new java.awt.Dimension(180, 30));
+        zonePicker.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox1ActionPerformed(evt);
+                zonePickerActionPerformed(evt);
             }
         });
 
@@ -142,7 +150,7 @@ public final class InsertEpochGroupVisualPanel2 extends JPanel{
                         .addGap(14, 14, 14)
                         .addComponent(startTimePane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jComboBox1, 0, 0, Short.MAX_VALUE))
+                        .addComponent(zonePicker, 0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(labelTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)))
@@ -163,7 +171,7 @@ public final class InsertEpochGroupVisualPanel2 extends JPanel{
                             .addComponent(jLabel2)
                             .addContainerGap(186, Short.MAX_VALUE))
                         .addGroup(layout.createSequentialGroup()
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(zonePicker, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addContainerGap(178, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(startTimePane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -179,15 +187,15 @@ public final class InsertEpochGroupVisualPanel2 extends JPanel{
         setLabel(labelTextField.getText());
     }//GEN-LAST:event_labelTextFieldKeyReleased
 
-    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
-        setStart(new DateTime(startPicker.getDate(),  DateTimeZone.forID(((String)jComboBox1.getSelectedItem()))));
-    }//GEN-LAST:event_jComboBox1ActionPerformed
+    private void zonePickerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zonePickerActionPerformed
+        setStart(new DateTime(startPicker.getDate(), DateTimeZone.forID(((String) zonePicker.getSelectedItem()))));
+    }//GEN-LAST:event_zonePickerActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField labelTextField;
     private javax.swing.JScrollPane startTimePane;
+    private javax.swing.JComboBox zonePicker;
     // End of variables declaration//GEN-END:variables
 }

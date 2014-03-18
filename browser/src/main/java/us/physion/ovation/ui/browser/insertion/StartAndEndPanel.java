@@ -4,6 +4,8 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JCheckBox;
@@ -47,6 +49,12 @@ public class StartAndEndPanel extends javax.swing.JPanel {
 
         startZonePicker.setSelectedItem(DatePickers.getID(startPicker));
         startPanel.setViewportView(startPicker);
+        startZonePicker.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startDateTimeChanged();
+            }
+        });
 
 
         endPicker = DatePickers.createDateTimePicker();
@@ -60,6 +68,14 @@ public class StartAndEndPanel extends javax.swing.JPanel {
         });
 
         endZonePicker.setSelectedItem(DatePickers.getID(endPicker));
+        endZonePicker.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                endDateTimeChanged();
+            }
+        });
+
         endPanel.setViewportView(endPicker);
 
         start = null;
