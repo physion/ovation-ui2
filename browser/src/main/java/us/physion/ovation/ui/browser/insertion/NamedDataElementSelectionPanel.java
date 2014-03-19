@@ -42,7 +42,7 @@ public class NamedDataElementSelectionPanel extends NamedEntitySelectionPanel
         
         Collections.sort(wrappers, new EntityComparator());
         
-        explorerManager.setRootContext(new AbstractNode(new EntityChildren(wrappers)));
+        getExplorerManager().setRootContext(new AbstractNode(new EntityChildren(wrappers)));
     }
     
     @Override
@@ -59,7 +59,8 @@ public class NamedDataElementSelectionPanel extends NamedEntitySelectionPanel
         }
     }
 
-    private void getDataElementsFromEntity(OvationEntity e, List<DataElement> list)
+    private void getDataElementsFromEntity(OvationEntity e, 
+            List<DataElement> list)
     {
         if (e instanceof Project)
         {

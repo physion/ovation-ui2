@@ -36,7 +36,8 @@ import us.physion.ovation.ui.interfaces.ParameterTableModel;
  *
  * @author huecotanks
  */
-public abstract class NamedEntitySelectionPanel extends JPanel implements ExplorerManager.Provider, Lookup.Provider{
+public abstract class NamedEntitySelectionPanel extends JPanel implements 
+        ExplorerManager.Provider, Lookup.Provider {
     
     private JLabel descriptionLabel;
     final ChangeSupport cs;
@@ -47,11 +48,12 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
     private JButton addButton;
     private JButton removeButton;
     private String labelText;
-    private Set<IEntityWrapper> selectedEntities;
+    private final Set<IEntityWrapper> selectedEntities;
     
-    ParameterTableModel tableModel;
-    Lookup entitiesLookup;
-    ExplorerManager explorerManager;
+    private ParameterTableModel tableModel;
+    private Lookup entitiesLookup;
+    private ExplorerManager explorerManager;
+    
     NamedEntitySelectionPanel(ChangeSupport cs, String labelText)
     {
         super();
@@ -67,6 +69,9 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
                 return input.x == 0; //only the first column is editable
             }
         });
+        
+        selectedEntities = Sets.newHashSet();
+        
         initComponents();
     }
 
@@ -119,6 +124,8 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
         buttonPanel.setAlignmentX(buttonPanel.LEFT_ALIGNMENT);
         this.add(jSplitPane1);
         this.add(buttonPanel);
+        
+        addButton.setEnabled(false);
 
         final Lookup.Result<IEntityWrapper> selectionResult
                 = entitiesLookup.lookupResult(IEntityWrapper.class);
@@ -126,12 +133,14 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
 
             @Override
             public void resultChanged(LookupEvent le) {
+                selectedEntities.clear();
                 Collection<? extends IEntityWrapper> selection = selectionResult.allInstances();
                 if (!selection.isEmpty()) {
-                    selectedEntities = Sets.newHashSet(selection);
-                } else {
-                    selectedEntities = Sets.newHashSet();
+                    addButton.setEnabled(true);
+                    selectedEntities.addAll(selection);
                 }
+                
+                addButton.setEnabled(selectedEntities.size() > 0);
             }
         });
 
