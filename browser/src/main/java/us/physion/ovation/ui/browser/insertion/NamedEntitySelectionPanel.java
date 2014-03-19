@@ -5,11 +5,13 @@
 package us.physion.ovation.ui.browser.insertion;
 
 import com.google.common.base.Function;
-import java.awt.Component;
+import com.google.common.collect.Sets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -17,15 +19,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
@@ -45,6 +47,7 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
     private JButton addButton;
     private JButton removeButton;
     private String labelText;
+    private Set<IEntityWrapper> selectedEntities;
     
     ParameterTableModel tableModel;
     Lookup l;
@@ -90,6 +93,7 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
         sourcesTree.setRootVisible(false);
         entityScrollPane.setViewportView(sourcesTree);
         
+
         addButton = new JButton("+");
         removeButton = new JButton("-");
         JPanel buttonPanel = new JPanel();
@@ -100,7 +104,7 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
 
             @Override
             public void actionPerformed(ActionEvent ae) {
-                addSelectedEntity();
+                addSelection();
             }
         });
         
@@ -108,13 +112,28 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
 
             @Override
             public void actionPerformed(ActionEvent ae) {
-                removeSelectedEntity();
+                removeSelection();
             }
         });
         jSplitPane1.setAlignmentX(jSplitPane1.LEFT_ALIGNMENT);
         buttonPanel.setAlignmentX(buttonPanel.LEFT_ALIGNMENT);
         this.add(jSplitPane1);
         this.add(buttonPanel);  
+        
+                final Lookup.Result<IEntityWrapper> selectionResult = 
+                l.lookupResult(IEntityWrapper.class);
+        selectionResult.addLookupListener(new LookupListener() {
+
+            @Override
+            public void resultChanged(LookupEvent le) {
+                Collection<? extends IEntityWrapper> selection = selectionResult.allInstances();
+                if (!selection.isEmpty()) {
+                    selectedEntities = Sets.newHashSet(selection);
+                } else {
+                    selectedEntities = Sets.newHashSet();
+                }
+            }
+        });
         
         resetEntities();
     }
@@ -127,15 +146,18 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
     
     abstract String getTitle();
     
-    public void addSelectedEntity()
+    public void addSelection()
     {
-        IEntityWrapper e = getSelectedEntity();
-        if (e != null)
-        {
+        for(IEntityWrapper e : getSelectedEntities()) {
             addEntity(e.getDisplayName(), e.getEntity());
         }
     }
-    public void removeSelectedEntity()
+    
+    protected Set<IEntityWrapper> getSelectedEntities() {
+        return selectedEntities;
+    }
+    
+    public void removeSelection()
     {
         int num = jTable1.getSelectedRow();
         tableModel.remove(num);

@@ -4,21 +4,17 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
-import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import org.openide.nodes.AbstractNode;
 import org.openide.util.ChangeSupport;
-import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochContainer;
 import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
-import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.DataElementContainer;
 import us.physion.ovation.domain.mixin.EpochGroupContainer;
@@ -32,7 +28,8 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  *
  * @author huecotanks
  */
-public class NamedDataElementSelectionPanel extends NamedEntitySelectionPanel{
+public class NamedDataElementSelectionPanel extends NamedEntitySelectionPanel 
+{
 
     public NamedDataElementSelectionPanel(ChangeSupport cs)
     {
@@ -49,16 +46,15 @@ public class NamedDataElementSelectionPanel extends NamedEntitySelectionPanel{
     }
     
     @Override
-    public void addSelectedEntity()
-    {
-        IEntityWrapper e = getSelectedEntity();
-        if (e != null)
-        {
-            LinkedList<DataElement> dataElements = new LinkedList();
-            getDataElementsFromEntity(e.getEntity(), dataElements);
-            for (DataElement element : dataElements)
-            {
-                addEntity(element.getName(), element);
+    public void addSelection() {
+        //IEntityWrapper e = getSelectedEntity();
+        for (IEntityWrapper e : getSelectedEntities()) {
+            if (e != null) {
+                LinkedList<DataElement> dataElements = new LinkedList();
+                getDataElementsFromEntity(e.getEntity(), dataElements);
+                for (DataElement element : dataElements) {
+                    addEntity(element.getName(), element);
+                }
             }
         }
     }
