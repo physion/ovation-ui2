@@ -42,7 +42,7 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
     final ChangeSupport cs;
     public DataContext context;
     private JScrollPane entityScrollPane;
-    private JTable jTable1;
+    private JTable namedEntitiesTable;
     private JSplitPane jSplitPane1;
     private JButton addButton;
     private JButton removeButton;
@@ -50,8 +50,8 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
     private Set<IEntityWrapper> selectedEntities;
     
     ParameterTableModel tableModel;
-    Lookup l;
-    ExplorerManager em;
+    Lookup entitiesLookup;
+    ExplorerManager explorerManager;
     NamedEntitySelectionPanel(ChangeSupport cs, String labelText)
     {
         super();
@@ -81,17 +81,17 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
         jSplitPane1 = new JSplitPane();
         entityScrollPane = new JScrollPane();
         jSplitPane1.setLeftComponent(entityScrollPane);
-        jTable1 = new JTable();
-        jTable1.setModel(tableModel);
-        jTable1.setEnabled(true);
-        jSplitPane1.setRightComponent(jTable1);
+        namedEntitiesTable = new JTable();
+        namedEntitiesTable.setModel(tableModel);
+        namedEntitiesTable.setEnabled(true);
+        jSplitPane1.setRightComponent(namedEntitiesTable);
         jSplitPane1.setDividerLocation(300);
         
-        em = new ExplorerManager();
-        l = ExplorerUtils.createLookup(em, getActionMap());
-        BeanTreeView sourcesTree = new BeanTreeView();
-        sourcesTree.setRootVisible(false);
-        entityScrollPane.setViewportView(sourcesTree);
+        explorerManager = new ExplorerManager();
+        entitiesLookup = ExplorerUtils.createLookup(explorerManager, getActionMap());
+        BeanTreeView entitiesTree = new BeanTreeView();
+        entitiesTree.setRootVisible(false);
+        entityScrollPane.setViewportView(entitiesTree);
         
 
         addButton = new JButton("+");
@@ -118,10 +118,10 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
         jSplitPane1.setAlignmentX(jSplitPane1.LEFT_ALIGNMENT);
         buttonPanel.setAlignmentX(buttonPanel.LEFT_ALIGNMENT);
         this.add(jSplitPane1);
-        this.add(buttonPanel);  
-        
-                final Lookup.Result<IEntityWrapper> selectionResult = 
-                l.lookupResult(IEntityWrapper.class);
+        this.add(buttonPanel);
+
+        final Lookup.Result<IEntityWrapper> selectionResult
+                = entitiesLookup.lookupResult(IEntityWrapper.class);
         selectionResult.addLookupListener(new LookupListener() {
 
             @Override
@@ -134,10 +134,10 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
                 }
             }
         });
-        
+
         resetEntities();
     }
-    
+
     @Override
     public String getName()
     {
@@ -159,7 +159,7 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
     
     public void removeSelection()
     {
-        int num = jTable1.getSelectedRow();
+        int num = namedEntitiesTable.getSelectedRow();
         tableModel.remove(num);
         NamedEntitySelectionPanel.this.cs.fireChange();
     }
@@ -198,24 +198,24 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements Explor
    
     public void finishEditing()
      {
-         if (jTable1.getCellEditor() != null)
+         if (namedEntitiesTable.getCellEditor() != null)
          {
-            jTable1.getCellEditor().stopCellEditing();
+            namedEntitiesTable.getCellEditor().stopCellEditing();
          }
      }
 
     @Override
     public ExplorerManager getExplorerManager() {
-        return em;
+        return explorerManager;
     }
 
     @Override
     public Lookup getLookup() {
-        return l;
+        return entitiesLookup;
     }
 
     public IEntityWrapper getSelectedEntity() {
-        return l.lookup(IEntityWrapper.class);
+        return entitiesLookup.lookup(IEntityWrapper.class);
     }
     
 }
