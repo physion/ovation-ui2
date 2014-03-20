@@ -14,6 +14,7 @@ import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.actions.OpenInSeparateViewAction;
 import us.physion.ovation.ui.actions.RevealElementAction;
+import static us.physion.ovation.ui.browser.ActionUtils.appendToArray;
 import us.physion.ovation.ui.interfaces.*;
 
 /**
@@ -198,14 +199,6 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
         return actionList;
     }
    
-   private Action[] appendToArray(Action[] list, Action... e) {
-       Action[] expanded = new Action[list.length + e.length];
-       System.arraycopy(list, 0, expanded, 0, list.length);
-       System.arraycopy(e, 0, expanded, list.length, e.length);
-
-       return expanded;
-   }
-
     private static Map<String, Class> createMap() {
         Map<String, Class> insertables = new HashMap<String, Class>();
         insertables.put(Project.class.getSimpleName(), ProjectInsertable.class);

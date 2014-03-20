@@ -41,6 +41,11 @@ public class EntityWrapper implements IEntityWrapper {
 
     @Override
     public OvationEntity getEntity(){
+        return getEntity(false);
+    }
+    
+    @Override
+    public OvationEntity getEntity(boolean includeTrash){
         OvationEntity b = null;
         try{
             DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
@@ -48,7 +53,7 @@ public class EntityWrapper implements IEntityWrapper {
             {
                 return null;
             }
-            b = c.getObjectWithURI(uri);
+            b = c.getObjectWithURI(uri, includeTrash);
 
         } catch (RuntimeException e)
         {

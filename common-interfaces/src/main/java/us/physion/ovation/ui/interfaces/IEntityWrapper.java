@@ -14,6 +14,8 @@ public interface IEntityWrapper {
 
     OvationEntity getEntity();
     
+    OvationEntity getEntity(boolean includingTrash);
+    
     <T extends OvationEntity> T getEntity(Class<T> clazz);
 
     Class getType();

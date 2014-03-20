@@ -71,6 +71,11 @@ public final class BrowserTopComponent extends TopComponent implements ExplorerM
     }
 
     @Override
+    public Action[] getActions() {
+        return ActionUtils.appendToArray(new Action[]{new ResettableAction(this), null}, super.getActions());
+    }
+
+    @Override
     public Object getTreeView() {
         return view;
     }

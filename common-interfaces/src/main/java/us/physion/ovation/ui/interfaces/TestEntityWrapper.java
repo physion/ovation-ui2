@@ -33,6 +33,11 @@ public class TestEntityWrapper implements IEntityWrapper{
     public OvationEntity getEntity() {
         return ctx.getObjectWithURI(uri);
     }
+    
+    @Override
+    public OvationEntity getEntity(boolean includeTrash) {
+        return ctx.getObjectWithURI(uri, includeTrash);
+    }
 
     @Override
     public Class getType() {
