@@ -7,6 +7,7 @@ package us.physion.ovation.ui.browser.insertion;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,6 +38,7 @@ import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
+import us.physion.ovation.util.PlatformUtils;
 
 /**
  *
@@ -108,8 +110,19 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements
         removeButton = new JButton("-");
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+        
+        if (PlatformUtils.isMac()) {
+            addButton.putClientProperty("JButton.buttonType", "gradient");
+            addButton.setPreferredSize(new Dimension(34, 34));
+
+            removeButton.putClientProperty("JButton.buttonType", "gradient");
+            removeButton.setPreferredSize(new Dimension(34, 34));
+            invalidate();
+        }
+        
         buttonPanel.add(addButton);
         buttonPanel.add(removeButton);
+        
         addButton.addActionListener(new ActionListener() {
 
             @Override
@@ -125,6 +138,7 @@ public abstract class NamedEntitySelectionPanel extends JPanel implements
                 removeSelection();
             }
         });
+        
         jSplitPane1.setAlignmentX(jSplitPane1.LEFT_ALIGNMENT);
         buttonPanel.setAlignmentX(buttonPanel.LEFT_ALIGNMENT);
         this.add(jSplitPane1);
