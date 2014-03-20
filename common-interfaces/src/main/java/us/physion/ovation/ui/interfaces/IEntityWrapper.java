@@ -23,4 +23,10 @@ public interface IEntityWrapper {
     List<URI> getFilteredParentURIs();
     
     boolean isLeaf();
+
+    public boolean canRename();
+
+    public void setName(String s);
+
+    public String getName();
 }

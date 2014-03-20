@@ -92,5 +92,20 @@ public class TestEntityWrapper implements IEntityWrapper{
     public boolean isLeaf() {
         return false;
     }
+
+    @Override
+    public boolean canRename() {
+        return false;
+    }
+
+    @Override
+    public void setName(String s) {
+        throw new IllegalStateException("Cannot rename");
+    }
+
+    @Override
+    public String getName() {
+        return null;
+    }
     
 }

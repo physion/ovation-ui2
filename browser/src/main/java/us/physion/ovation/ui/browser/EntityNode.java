@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import javax.swing.Action;
+import org.openide.actions.RenameAction;
 import org.openide.nodes.*;
 import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
@@ -54,6 +55,29 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
         pathProvider.setDelegate(this);
         this.parent = parent;
         loadURI();
+    }
+
+    @Override
+    public boolean canRename() {
+        return parent != null ? parent.canRename() : super.canRename();
+    }
+
+    @Override
+    public void setName(String s) {
+        super.setName(s);
+        if (parent != null) {
+            String oldDisplay = getDisplayName();
+
+            parent.setName(s);
+
+            setDisplayName(parent.getDisplayName());
+            fireDisplayNameChange(oldDisplay, getDisplayName());
+        }
+    }
+
+    @Override
+    public String getName() {
+        return parent != null ? parent.getName() : super.getName();
     }
   
    public EntityNode(Children c, IEntityWrapper parent)
@@ -158,6 +182,11 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
                
                if(AnalysisRecord.class.isAssignableFrom(entityClass)) {
                    actionList = appendToArray(actionList, SystemAction.get(AnalysisRecordInputsAction.class));
+               }
+               
+               //XXX: right now canRename will never change for a given node so it's safe to use it during initialization
+               if (canRename()) {
+                   actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
                }
                
                if(OvationEntity.class.isAssignableFrom(entityClass)){
