@@ -5,16 +5,14 @@
 package us.physion.ovation.ui.browser.insertion;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -22,32 +20,24 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.JLabel;
 import javax.swing.JTable;
-import javax.swing.JTree;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeCellRenderer;
-import javax.swing.tree.TreePath;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.AbstractNode;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
-import us.physion.ovation.domain.AnnotatableEntity;
 import us.physion.ovation.domain.Source;
-import us.physion.ovation.domain.User;
-import us.physion.ovation.ui.ScrollableTableTree;
-import us.physion.ovation.ui.TableTreeKey;
 import us.physion.ovation.ui.browser.EntityComparator;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.browser.FilteredEntityChildren;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
 import us.physion.ovation.util.PlatformUtils;
@@ -62,13 +52,17 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
     private DataContext context;
 
     ParameterTableModel tableModel;
-    Lookup l;
+    Lookup entitiesLookup;
     ExplorerManager em;
+    
+    private final Set<IEntityWrapper> selectedEntities;
+    private final Set<Integer> selectedTableRows;
 
     public NamedSourceSelector(ChangeSupport cs, Map<String, Source> defaults, String labelText) {
         this(cs, null, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
         addSources(defaults);
         jLabel1.setText(labelText);
+        
 
         if (PlatformUtils.isMac()) {
             addButton.putClientProperty("JButton.buttonType", "gradient");
@@ -115,6 +109,10 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
      * Creates new form NamedSourceSelector
      */
     public NamedSourceSelector(ChangeSupport cs, Map<String, Source> defaultSources, DataContext c) {
+        
+        selectedEntities = Sets.newHashSet();
+        selectedTableRows = Sets.newHashSet();
+        
         this.cs = cs;
         this.context = c;
         tableModel = new ParameterTableModel(false);//doesnt have the extra row for ui editing
@@ -128,6 +126,10 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
         });
 
         initComponents();
+        
+        
+        addButton.setEnabled(false);
+        removeButton.setEnabled(false);
 
         jTable1.setDefaultRenderer(Object.class, new TableCellRenderer() {
 
@@ -144,7 +146,7 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
         jSplitPane1.setDividerLocation(300);
 
         em = new ExplorerManager();
-        l = ExplorerUtils.createLookup(em, getActionMap());
+        entitiesLookup = ExplorerUtils.createLookup(em, getActionMap());
         BeanTreeView sourcesTree = new BeanTreeView();
         sourcesTree.setRootVisible(false);
         sourcesScrollPane.setViewportView(sourcesTree);
@@ -161,14 +163,7 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
 
             @Override
             public void actionPerformed(ActionEvent ae) {
-                Source s = getSource();
-                if (s != null) {
-                    if (getNamedSources().containsValue(s)) {
-                        return;
-                    }
-                    tableModel.addParameter(s.getLabel() + " | " + s.getIdentifier(), s);
-                    NamedSourceSelector.this.cs.fireChange();
-                }
+                addSelection();
             }
         });
 
@@ -176,16 +171,90 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
 
             @Override
             public void actionPerformed(ActionEvent ae) {
-                for (int num : table.getSelectedRows()) {
-                    tableModel.remove(num);
-                    NamedSourceSelector.this.cs.fireChange();
-                }
+                removeSelection();
             }
         });
+        
+        final Lookup.Result<IEntityWrapper> selectionResult
+                = entitiesLookup.lookupResult(IEntityWrapper.class);
+        selectionResult.addLookupListener(new LookupListener() {
+
+            @Override
+            public void resultChanged(LookupEvent le) {
+                selectedEntities.clear();
+                Collection<? extends IEntityWrapper> selection = selectionResult.allInstances();
+                if (!selection.isEmpty()) {
+                    addButton.setEnabled(true);
+                    selectedEntities.addAll(selection);
+                }
+
+                addButton.setEnabled(selectedEntities.size() > 0);
+            }
+        });
+        
+        table.getSelectionModel().addListSelectionListener(
+                new ListSelectionListener() {
+
+                    @Override
+                    public void valueChanged(ListSelectionEvent e) {
+                        if(e.getValueIsAdjusting()) {
+                            return;
+                        }
+                        
+                        ListSelectionModel lsm = (ListSelectionModel) e.getSource();
+
+                        selectedTableRows.clear();
+                        if (!lsm.isSelectionEmpty()) {
+
+                            // Find out which indexes are selected.
+                            int minIndex = lsm.getMinSelectionIndex();
+                            int maxIndex = lsm.getMaxSelectionIndex();
+                            for (int i = minIndex; i <= maxIndex; i++) {
+                                if (lsm.isSelectedIndex(i)) {
+                                    selectedTableRows.add(i);
+                                }
+                            }
+                        }
+                        
+                        removeButton.setEnabled(selectedTableRows.size() > 0);
+
+                    }
+                });
+        
+    }
+
+    public void addSelection() {
+        for (IEntityWrapper e : getSelectedEntities()) {
+            Source s = e.getEntity(Source.class);
+            if (s != null) {
+                if (getNamedSources().containsValue(s)) {
+                    return;
+                }
+                tableModel.addParameter(s.getLabel() + " | " + s.getIdentifier(), s);
+                NamedSourceSelector.this.cs.fireChange();
+            }
+        }
+    }
+
+    protected Set<IEntityWrapper> getSelectedEntities() {
+        return selectedEntities;
+    }
+
+    protected Set<Integer> getSelectedTableRows() {
+        return selectedTableRows;
+    }
+
+    public void removeSelection() {
+        List<Integer> selection = Lists.newArrayList(getSelectedTableRows());
+        Collections.sort(selection, Collections.reverseOrder());
+        for (int i : selection) {
+            tableModel.remove(i);
+            NamedSourceSelector.this.cs.fireChange();
+        }
     }
 
     private Source getSource() {
-        IEntityWrapper ew = l.lookup(IEntityWrapper.class);
+        IEntityWrapper ew = entitiesLookup.lookup(IEntityWrapper.class);
         if (ew == null) {
             return null;
         }
@@ -350,7 +419,7 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
 
     @Override
     public Lookup getLookup() {
-        return l;
+        return entitiesLookup;
     }
 
     @Override

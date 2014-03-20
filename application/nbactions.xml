@@ -26,10 +26,11 @@
         </action>
         <action>
             <actionName>debug</actionName>
+            <preAction>build-with-dependencies</preAction>
             <goals>
-                <goal>install</goal>
-                <goal>-DskipTests</goal>
+                <goal>nbm:cluster-app</goal>
                 <goal>nbm:run-platform</goal>
+                
             </goals>
             <properties>
                 <jpda.listen>true</jpda.listen>
@@ -40,6 +41,7 @@
             <actionName>build-with-dependencies</actionName>
             <reactor>also-make</reactor>
             <goals>
+                <goal>-am</goal>
                 <goal>install</goal>
                 <goal>-DskipTests</goal>
             </goals>

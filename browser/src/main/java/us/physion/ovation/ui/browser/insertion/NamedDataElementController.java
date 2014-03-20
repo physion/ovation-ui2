@@ -5,28 +5,21 @@
 package us.physion.ovation.ui.browser.insertion;
 
 import java.awt.Component;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import org.openide.WizardDescriptor;
-import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.Source;
-import us.physion.ovation.domain.mixin.DataElement;
 
 /**
  *
  * @author huecotanks
  */
 public class NamedDataElementController extends BasicWizardPanel{
-    String analysisRecordsKey;
+    String recordsKey;
     
     public NamedDataElementController(String key)
     {
         super();
-        analysisRecordsKey = key;
+        recordsKey = key;
     }
     
     @Override
@@ -39,7 +32,7 @@ public class NamedDataElementController extends BasicWizardPanel{
 
     @Override
     public void readSettings(WizardDescriptor data) {
-        Map<String, OvationEntity> dataelements = (Map<String, OvationEntity>)data.getProperty(analysisRecordsKey);
+        Map<String, OvationEntity> dataelements = (Map<String, OvationEntity>)data.getProperty(recordsKey);
         
         NamedDataElementSelectionPanel c = (NamedDataElementSelectionPanel)getComponent();
         c.addSelectedEntities(dataelements);
@@ -49,7 +42,7 @@ public class NamedDataElementController extends BasicWizardPanel{
        
         NamedDataElementSelectionPanel c = (NamedDataElementSelectionPanel)getComponent();
         c.finishEditing();
-        data.putProperty(analysisRecordsKey, c.getNamedEntities());
+        data.putProperty(recordsKey, c.getNamedEntities());
     }
 
     @Override
