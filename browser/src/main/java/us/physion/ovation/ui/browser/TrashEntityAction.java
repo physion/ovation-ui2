@@ -43,7 +43,7 @@ id = "us.physion.ovation.ui.browser.TrashEntityAction")
     "# {0} - delete entity UUID",
     "Deleted=Deleted {0}"
 })
-public final class TrashEntityAction extends SystemAction {
+public class TrashEntityAction extends SystemAction {
     private final static Logger log = LoggerFactory.getLogger(TrashEntityAction.class);
 
     @Override
@@ -66,13 +66,9 @@ public final class TrashEntityAction extends SystemAction {
                     return null;
                 }
                 
-                OvationEntity entity = wrapper.getEntity();
+                OvationEntity entity = wrapper.getEntity(isIncludingTrashEntities());
                 
-                if (entity != null && entity.isTrashed()) {
-                    return null;
-                }
-
-                return entity;
+                return filter(entity);
             }
         }));
         int nonNullEntitites = Collections2.filter(entities, Predicates.notNull()).size();
@@ -89,7 +85,7 @@ public final class TrashEntityAction extends SystemAction {
         //XXX: Remove this call when trashing will automatically refresh the entity (and entity parents) properly.
         c.getRepository().clear();
         
-        final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Progress_MovingToTrash());
+        final ProgressHandle ph = ProgressHandleFactory.createHandle(getProgressText());
         ph.start();
 
         for (int i = 0; i < nodes.length; i++) {
@@ -100,12 +96,12 @@ public final class TrashEntityAction extends SystemAction {
 
             final Node node = nodes[i];
 
-            ListenableFuture<Iterable<UUID>> future = c.trash(entity);
+            ListenableFuture<Iterable<UUID>> future = call(c, entity);
             Futures.addCallback(future, new FutureCallback<Iterable<UUID>>() {
                 @Override
                 public void onSuccess(Iterable<UUID> v) {
                     if (v.iterator().hasNext()) {
-                        ph.progress(Bundle.Deleted(v.iterator().next()));
+                        ph.progress(getProgressSuccessText(v.iterator().next()));
                     }
                     finish();
                     Node n = node.getParentNode();
@@ -138,4 +134,32 @@ public final class TrashEntityAction extends SystemAction {
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }
+
+    protected String getProgressText() {
+        return Bundle.Progress_MovingToTrash();
+    }
+    
+    protected String getProgressSuccessText(UUID file){
+        return Bundle.Deleted(file);  
+    }
+    
+    protected ListenableFuture<Iterable<UUID>> call(DataContext c, OvationEntity entity){
+        return c.trash(entity);
+    }
+    
+    protected boolean isIncludingTrashEntities(){
+        return false;
+    }
+
+    /**
+     * Filter thrashed entities.
+     */
+    protected OvationEntity filter(OvationEntity entity) {
+        if (entity != null && entity.isTrashed()) {
+            return null;
+        }
+
+        return entity;
+    }
+    
 }

@@ -2,6 +2,7 @@ package us.physion.ovation.ui.browser;
 
 import java.util.List;
 import java.util.concurrent.Callable;
+import javax.swing.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,5 +33,10 @@ class EntityRootNode extends EntityNode {
     public void resetNode() {
         EntityChildren children = (EntityChildren) getChildren();
         children.updateWithKeys(safeCall(childrenKeysFactory));
+    }
+
+    @Override
+    public Action[] getActions(boolean context) {
+        return ActionUtils.appendToArray(super.getActions(context), new Action[]{null, new ResettableAction(this)});
     }
 }

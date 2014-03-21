@@ -14,6 +14,8 @@ public interface IEntityWrapper {
 
     OvationEntity getEntity();
     
+    OvationEntity getEntity(boolean includingTrash);
+    
     <T extends OvationEntity> T getEntity(Class<T> clazz);
 
     Class getType();
@@ -23,4 +25,10 @@ public interface IEntityWrapper {
     List<URI> getFilteredParentURIs();
     
     boolean isLeaf();
+
+    public boolean canRename();
+
+    public void setName(String s);
+
+    public String getName();
 }

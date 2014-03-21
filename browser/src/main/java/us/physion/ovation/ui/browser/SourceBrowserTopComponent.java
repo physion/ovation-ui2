@@ -63,6 +63,11 @@ public final class SourceBrowserTopComponent extends TopComponent implements Exp
     }
 
     @Override
+    public Action[] getActions() {
+        return ActionUtils.appendToArray(new Action[]{new ResettableAction(this), null}, super.getActions());
+    }
+
+    @Override
     public void componentOpened() {
         // TODO add custom code on component opening
     }

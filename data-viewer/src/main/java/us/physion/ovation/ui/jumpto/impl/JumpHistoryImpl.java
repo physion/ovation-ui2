@@ -1,5 +1,7 @@
 package us.physion.ovation.ui.jumpto.impl;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.URI;
@@ -10,6 +12,7 @@ import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.ServiceProvider;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.jumpto.api.JumpHistory;
 
@@ -39,6 +42,21 @@ public class JumpHistoryImpl extends JumpHistory {
             @Override
             public void resultChanged(LookupEvent le) {
                 Collection<? extends IEntityWrapper> selection = result.allInstances();
+                
+                //ignore trash nodes
+                selection = Collections2.filter(selection, new Predicate<IEntityWrapper>() {
+                    @Override
+                    public boolean apply(IEntityWrapper w) {
+                        if (w == null) {
+                            return false;
+                        }
+                        OvationEntity entity = w.getEntity();
+                        if (entity == null || entity.isTrashed()) {
+                            return false;
+                        }
+                        return true;
+                    }
+                });
                 if (selection.size() > 1) {
                     //only single selection supported
                     clear();

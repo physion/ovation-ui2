@@ -41,6 +41,11 @@ public class EntityWrapper implements IEntityWrapper {
 
     @Override
     public OvationEntity getEntity(){
+        return getEntity(false);
+    }
+    
+    @Override
+    public OvationEntity getEntity(boolean includeTrash){
         OvationEntity b = null;
         try{
             DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
@@ -48,7 +53,7 @@ public class EntityWrapper implements IEntityWrapper {
             {
                 return null;
             }
-            b = c.getObjectWithURI(uri);
+            b = c.getObjectWithURI(uri, includeTrash);
 
         } catch (RuntimeException e)
         {
@@ -127,6 +132,53 @@ public class EntityWrapper implements IEntityWrapper {
             return ((AnalysisRecord)e).getName();
         }
         return "<no name>";
+    }
+
+    @Override
+    public boolean canRename() {
+        if (Source.class.isAssignableFrom(type)) {
+            return true;
+        } else if (Project.class.isAssignableFrom(type)) {
+            return true;
+        } else if (Experiment.class.isAssignableFrom(type)) {
+            return true;
+        } else if (EpochGroup.class.isAssignableFrom(type)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void setName(String s) {
+        OvationEntity e = getEntity();
+        if (Source.class.isAssignableFrom(type)) {
+            ((Source) e).setLabel(s);
+        } else if (Project.class.isAssignableFrom(type)) {
+            ((Project) e).setName(s);
+//        } else if (Experiment.class.isAssignableFrom(type)) {
+//            ((Experiment) e).setPurpose(s);
+//        } else if (EpochGroup.class.isAssignableFrom(type)) {
+//            ((EpochGroup) e).setLabel(s);
+        }
+        
+        displayName = EntityWrapper.inferDisplayName(e);
+    }
+
+    @Override
+    public String getName() {
+        OvationEntity e = getEntity();
+        if (Source.class.isAssignableFrom(type)) {
+            return ((Source) e).getLabel();
+        } else if (Project.class.isAssignableFrom(type)) {
+            return ((Project) e).getName();
+        } else if (Experiment.class.isAssignableFrom(type)) {
+            return ((Experiment) e).getPurpose();
+        } else if (EpochGroup.class.isAssignableFrom(type)) {
+            return ((EpochGroup) e).getLabel();
+        } else {
+            return null;
+        }
     }
 
     @Override

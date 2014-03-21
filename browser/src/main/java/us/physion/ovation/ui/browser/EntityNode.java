@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import javax.swing.Action;
+import org.openide.actions.RenameAction;
 import org.openide.nodes.*;
 import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
@@ -13,6 +14,7 @@ import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.actions.OpenInSeparateViewAction;
 import us.physion.ovation.ui.actions.RevealElementAction;
+import static us.physion.ovation.ui.browser.ActionUtils.appendToArray;
 import us.physion.ovation.ui.interfaces.*;
 
 /**
@@ -54,6 +56,29 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
         pathProvider.setDelegate(this);
         this.parent = parent;
         loadURI();
+    }
+
+    @Override
+    public boolean canRename() {
+        return parent != null ? parent.canRename() : super.canRename();
+    }
+
+    @Override
+    public void setName(String s) {
+        super.setName(s);
+        if (parent != null) {
+            String oldDisplay = getDisplayName();
+
+            parent.setName(s);
+
+            setDisplayName(parent.getDisplayName());
+            fireDisplayNameChange(oldDisplay, getDisplayName());
+        }
+    }
+
+    @Override
+    public String getName() {
+        return parent != null ? parent.getName() : super.getName();
     }
   
    public EntityNode(Children c, IEntityWrapper parent)
@@ -160,6 +185,11 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
                    actionList = appendToArray(actionList, SystemAction.get(AnalysisRecordInputsAction.class));
                }
                
+               //XXX: right now canRename will never change for a given node so it's safe to use it during initialization
+               if (canRename()) {
+                   actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
+               }
+               
                if(OvationEntity.class.isAssignableFrom(entityClass)){
                    actionList = appendToArray(actionList, null, SystemAction.get(TrashEntityAction.class));
                }
@@ -169,14 +199,6 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
         return actionList;
     }
    
-   private Action[] appendToArray(Action[] list, Action... e) {
-       Action[] expanded = new Action[list.length + e.length];
-       System.arraycopy(list, 0, expanded, 0, list.length);
-       System.arraycopy(e, 0, expanded, list.length, e.length);
-
-       return expanded;
-   }
-
     private static Map<String, Class> createMap() {
         Map<String, Class> insertables = new HashMap<String, Class>();
         insertables.put(Project.class.getSimpleName(), ProjectInsertable.class);
