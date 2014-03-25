@@ -1,8 +1,5 @@
 package us.physion.ovation.ui.browser;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import org.joda.time.DateTime;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
@@ -12,6 +9,10 @@ import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author huecotanks
@@ -20,7 +21,7 @@ public class EntityWrapper implements IEntityWrapper {
 
     private String uri;
     private List<URI> filteredParentURIs = new ArrayList<URI>();
-    
+
     private Class type;
     private String displayName;
 
@@ -43,7 +44,7 @@ public class EntityWrapper implements IEntityWrapper {
     public OvationEntity getEntity(){
         return getEntity(false);
     }
-    
+
     @Override
     public OvationEntity getEntity(boolean includeTrash){
         OvationEntity b = null;
@@ -78,16 +79,16 @@ public class EntityWrapper implements IEntityWrapper {
             filteredParentURIs.add(u);
         }
     }
-    
+
     public void addFilteredParentURI(URI uri) {
         filteredParentURIs.add(uri);
     }
-    
+
     @Override
     public List<URI> getFilteredParentURIs() {
         return filteredParentURIs;
     }
-    
+
     @Override
     public String getDisplayName() {return displayName;}
     @Override
@@ -156,12 +157,12 @@ public class EntityWrapper implements IEntityWrapper {
             ((Source) e).setLabel(s);
         } else if (Project.class.isAssignableFrom(type)) {
             ((Project) e).setName(s);
-//        } else if (Experiment.class.isAssignableFrom(type)) {
-//            ((Experiment) e).setPurpose(s);
-//        } else if (EpochGroup.class.isAssignableFrom(type)) {
-//            ((EpochGroup) e).setLabel(s);
+        } else if (Experiment.class.isAssignableFrom(type)) {
+            ((Experiment) e).setPurpose(s);
+        } else if (EpochGroup.class.isAssignableFrom(type)) {
+            ((EpochGroup) e).setLabel(s);
         }
-        
+
         displayName = EntityWrapper.inferDisplayName(e);
     }
 

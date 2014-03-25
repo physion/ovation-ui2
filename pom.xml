@@ -12,8 +12,8 @@
     <inceptionYear>2010</inceptionYear>
 
     <organization>
-        <name>Physion Consulting LLC</name>
-        <url>http://www.physionconsulting.com</url>
+        <name>Physion LLC</name>
+        <url>http://www.physion.us</url>
     </organization>
 
 
@@ -42,7 +42,7 @@
             <extension>
                 <groupId>org.springframework.build</groupId>
                 <artifactId>aws-maven</artifactId>
-                <version>4.4.0.RELEASE</version>
+                <version>5.0.0.RELEASE</version>
             </extension>
         </extensions>
 
@@ -278,7 +278,7 @@
         <keystore.alias>dev</keystore.alias>
         <keystore.store.password>ovation-core-dev</keystore.store.password>
         <keystore.key.password>ovation-core-dev</keystore.key.password>
-        <ovation.api.version>2.1.12</ovation.api.version>
+        <ovation.api.version>2.1.12-SNAPSHOT</ovation.api.version>
         <nbm.plugin.version>3.11.1</nbm.plugin.version>
     </properties>
 
@@ -309,43 +309,6 @@
                 </plugins>
             </build>
         </profile>
-	<profile>
-            <id>rebel</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.zeroturnaround</groupId>
-                        <artifactId>jrebel-maven-plugin</artifactId>
-                        <version>1.1.1</version>
-                        <executions>
-                            <execution>
-                                <id>generate-rebel-xml</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>generate</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>nbm-maven-plugin</artifactId>
-                            <configuration>
-                                <!-- only works if additionalArguments not defined in the application's pom -->
-                                <additionalArguments>-J-javaagent:${jrebel.jar}=org.netbeans.JarClassLoader,org.netbeans.StandardModule.OneModuleClassLoader</additionalArguments>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-            <properties>
-                <netbeans.compile.on.save>app</netbeans.compile.on.save>
-            </properties>
-        </profile>
     </profiles>
 
 
@@ -353,6 +316,5 @@
         <connection>scm:git:git@github.com:physion/ovation-ui2.git</connection>
         <developerConnection>scm:git:git@github.com:physion/ovation-ui2.git</developerConnection>
         <url>scm:git:git@github.com:physion/ovation-ui2.git</url>
-      <tag>ovation-ui-parent-2.0.11</tag>
-  </scm>
+    </scm>
 </project>
