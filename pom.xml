@@ -86,6 +86,17 @@
                     <preparationGoals>clean verify</preparationGoals>
                 </configuration>
             </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <includes>
+                        <include>us.physion:*</include>
+                    </includes>
+                </configuration>
+            </plugin>
         </plugins>
 
         <pluginManagement>
@@ -278,7 +289,6 @@
         <keystore.alias>dev</keystore.alias>
         <keystore.store.password>ovation-core-dev</keystore.store.password>
         <keystore.key.password>ovation-core-dev</keystore.key.password>
-        <ovation.api.version>2.1.12</ovation.api.version>
         <nbm.plugin.version>3.11.1</nbm.plugin.version>
     </properties>
 
