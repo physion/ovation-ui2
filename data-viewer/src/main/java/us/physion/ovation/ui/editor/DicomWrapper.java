@@ -9,6 +9,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import org.openide.util.Exceptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.mixin.DataElement;
 
 /**
@@ -16,6 +18,7 @@ import us.physion.ovation.domain.mixin.DataElement;
  * @author huecotanks
  */
 public class DicomWrapper implements Visualization {
+    private final static Logger log = LoggerFactory.getLogger(DicomWrapper.class);
 
     String name;
     SourceImage src;
@@ -27,24 +30,24 @@ public class DicomWrapper implements Visualization {
             src = new SourceImage(in);
             this.name = r.getName();
         } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-            throw new RuntimeException(ex.getLocalizedMessage());
+            log.info("", ex);
+            throw new RuntimeException(ex.getLocalizedMessage(), ex);
         } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-            throw new RuntimeException(ex.getLocalizedMessage());
+            log.info("", ex);
+            throw new RuntimeException(ex.getLocalizedMessage(), ex);
         } catch (DicomException ex) {
             Exceptions.printStackTrace(ex);
-            throw new RuntimeException(ex.getLocalizedMessage());
+            throw new RuntimeException(ex.getLocalizedMessage(), ex);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
-            throw new RuntimeException(ex.getLocalizedMessage());
+            throw new RuntimeException(ex.getLocalizedMessage(), ex);
         } finally {
             if (in != null) {
                 try {
                     in.close();
                 } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
-                    throw new RuntimeException(ex.getLocalizedMessage());
+                    log.warn("", ex);
+                    throw new RuntimeException(ex.getLocalizedMessage(), ex);
                 }
             }
         }
