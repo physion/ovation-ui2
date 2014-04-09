@@ -381,6 +381,9 @@ public final class ResponseViewTopComponent extends TopComponent {
                         contentPanel.add(responsePanels.get(i));
                     }
                 }
+                
+                contentPanel.revalidate();
+                contentPanel.repaint();
             }
         };
     }
