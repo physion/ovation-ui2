@@ -19,14 +19,25 @@ package us.physion.ovation.ui.editor;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.swing.AbstractAction;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 import org.apache.commons.io.IOUtils;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.lookup.ServiceProvider;
@@ -39,7 +50,8 @@ import us.physion.ovation.exceptions.ResourceNotFoundException;
 @Messages({
     "# {0} - resource name",
     "LBL_TextLoadingFailed=Loading {0} failed :-(",
-    "LBL_TextLoading=Loading"
+    "LBL_TextLoading=Loading",
+    "LBL_LineWrap=Line wrap"
 })
 public class PlainTextVisualizationFactory implements VisualizationFactory {
 
@@ -52,7 +64,22 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
         return new Visualization() {
             @Override
             public Component generatePanel() {
-                final JTextArea t = new JTextArea() {
+                class PlainTextArea extends JTextArea {
+                    
+                    private boolean scrollableTracksViewportWidth = false;
+
+                    @Override
+                    public boolean getScrollableTracksViewportWidth() {
+                        return scrollableTracksViewportWidth;
+                    }
+
+                    private void setScrollableTracksViewportWidth(boolean b) {
+                        if (b == scrollableTracksViewportWidth) {
+                            return;
+                        }
+                        scrollableTracksViewportWidth = b;
+                    }
+
                     private void failed() {
                         setText(Bundle.LBL_TextLoadingFailed(r.getName()));
                     }
@@ -83,6 +110,7 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
                                             @Override
                                             public void run() {
                                                 setText(text);
+                                                setCaretPosition(0);
                                                 repaint();
                                             }
                                         });
@@ -102,12 +130,39 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
                             }
                         }, loadFileExecutors);
                     }
-                };
+                }
+                
+                final PlainTextArea t = new PlainTextArea();
 
                 t.setEditable(false);
                 t.setText(Bundle.LBL_TextLoading());
 
-                return t;
+                ParentWidthPanel panel = new ParentWidthPanel();
+                
+                panel.add(new JScrollPane(t), BorderLayout.CENTER);
+                
+                {
+                    JToolBar toolbar = new JToolBar(SwingConstants.HORIZONTAL);
+                    toolbar.setBackground(Color.WHITE);
+
+                    toolbar.add(new JToggleButton(new AbstractAction(Bundle.LBL_LineWrap()) {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            boolean selected = ((JToggleButton) e.getSource()).isSelected();
+                            
+                            t.setLineWrap(selected);
+                            t.setScrollableTracksViewportWidth(selected);
+                            t.setCaretPosition(0);
+                            
+                            t.revalidate();
+                            t.repaint();
+                        }
+                    }));
+
+                    panel.add(toolbar, BorderLayout.NORTH);
+                }
+                
+                return panel;
             }
 
             @Override
@@ -129,4 +184,38 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
         }
         return -1;
     }
+
+    private static class ParentWidthPanel extends JPanel {
+
+        ParentWidthPanel() {
+            super(new BorderLayout());
+        }
+
+        public boolean getScrollableTracksViewportWidth() {
+            return true;
+        }
+
+        public boolean getScrollableTracksViewportHeight() {
+            return false;
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            Dimension d = new Dimension(super.getPreferredSize());
+
+            Container parent = getParent();
+            if (parent != null) {
+                Dimension parentSize = parent.getSize();
+                if (getScrollableTracksViewportWidth()) {
+                    d.width = parentSize.width;
+                }
+                if (getScrollableTracksViewportHeight()) {
+                    d.height = parentSize.height;
+                }
+            }
+
+            return d;
+        }
+    }
+
 }
