@@ -17,7 +17,7 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 autostore = false)
 @TopComponent.Description(
     preferredID = "ModernNotesTopComponent",
-//iconBase="SET/PATH/TO/ICON/HERE", 
+//iconBase="SET/PATH/TO/ICON/HERE",
 persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 //XXX: should be rightSlidingSide
 @TopComponent.Registration(mode = "properties", openAtStartup = true)
@@ -45,7 +45,7 @@ public final class ModernNotesTopComponent extends TopComponent {
 
     private final Lookup.Result<IEntityWrapper> result;
     private final OvationNotes notes;
-    
+
     public ModernNotesTopComponent() {
         setName(Bundle.CTL_ModernNotesTopComponent());
         setToolTipText(Bundle.HINT_ModernNotesTopComponent());
@@ -53,7 +53,7 @@ public final class ModernNotesTopComponent extends TopComponent {
         setLayout(new BorderLayout());
 
         add(notes = new OvationNotes(), BorderLayout.CENTER);
-        
+
         result = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         result.addLookupListener(new LookupListener() {
             @Override
