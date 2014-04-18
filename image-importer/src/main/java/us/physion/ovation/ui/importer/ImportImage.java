@@ -4,8 +4,6 @@
  */
 package us.physion.ovation.ui.importer;
 
-import us.physion.ovation.ui.browser.insertion.NamedSourceController;
-import us.physion.ovation.ui.browser.insertion.KeyValueController;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -19,41 +17,47 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
-import org.openide.WizardDescriptor;
-import org.openide.WizardDescriptor.Panel;
-import us.physion.ovation.ui.interfaces.*;
 import loci.common.DateTools;
 import loci.common.services.DependencyException;
 import loci.common.services.ServiceException;
 import loci.common.services.ServiceFactory;
 import loci.formats.FormatException;
-import loci.formats.in.PrairieReader;
 import loci.formats.FormatReader;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
+import loci.formats.in.PrairieReader;
 import loci.formats.meta.IMetadata;
 import loci.formats.meta.MetadataRetrieve;
 import loci.formats.ome.OMEXMLMetadata;
 import loci.formats.services.OMEXMLService;
 import org.joda.time.DateTime;
 import org.openide.DialogDisplayer;
+import org.openide.WizardDescriptor;
+import org.openide.WizardDescriptor.Panel;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.ServiceProvider;
+import org.openide.util.lookup.ServiceProviders;
 import ovation.*;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
+import us.physion.ovation.domain.mixin.EpochGroupContainer;
 import us.physion.ovation.exceptions.OvationException;
+import us.physion.ovation.ui.browser.insertion.KeyValueController;
+import us.physion.ovation.ui.browser.insertion.NamedSourceController;
+import us.physion.ovation.ui.interfaces.*;
 
-@ServiceProvider(service = EpochGroupInsertable.class)
+@ServiceProviders(value = {
+    @ServiceProvider(service = EpochGroupInsertable.class),
+    @ServiceProvider(service = ExperimentInsertable.class)
+})
 /**
  *
  * @author huecotanks
  */
-public class ImportImage extends InsertEntity implements EpochGroupInsertable
-{
+public class ImportImage extends InsertEntity implements EpochGroupInsertable, ExperimentInsertable {
     ArrayList<FileMetadata> files;
     public ImportImage()
     {
@@ -131,11 +135,16 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
 
     @Override
     public void wizardFinished(final WizardDescriptor wd, DataContext c, IEntityWrapper iew) {
-        EpochGroup eg = ((EpochGroup)iew.getEntity());
-        Experiment exp = eg.getExperiment();
+        EpochContainer eg = ((EpochContainer) iew.getEntity());
+        Experiment exp = null;
+        if (eg instanceof EpochGroup) {
+            exp = ((EpochGroup) eg).getExperiment();
+        } else if (eg instanceof Experiment) {
+            exp = (Experiment) eg;
+        }
 
         Map<String, Object> equipmentSetup = (Map<String, Object>) wd.getProperty("equipmentSetup");
-        EquipmentSetup es = exp.getEquipmentSetup();
+        EquipmentSetup es = exp == null ? null : exp.getEquipmentSetup();
 
         if (es == null)
         {
@@ -219,7 +228,7 @@ public class ImportImage extends InsertEntity implements EpochGroupInsertable
                 Map<String, Object> protocolParameters = (Map<String, Object>) parentEpochGroup.get("protocolParameters");//set by wherever
                 Map<String, Object> deviceParameters = (Map<String, Object>) parentEpochGroup.get("deviceParameters");//set by which panel
                 Map<String, Object> parentEpochGroupProperties = (Map<String, Object>) parentEpochGroup.get("properties");
-                EpochGroup parent = eg.insertEpochGroup(label, start, protocol, protocolParameters, deviceParameters);
+                EpochGroup parent = ((EpochGroupContainer) eg).insertEpochGroup(label, start, protocol, protocolParameters, deviceParameters);
                 for (String key : parentEpochGroupProperties.keySet()) {
                     Object val = parentEpochGroupProperties.get(key);
                     if (val != null) {
