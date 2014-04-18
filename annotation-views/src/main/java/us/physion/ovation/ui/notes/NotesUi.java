@@ -15,6 +15,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import us.physion.ovation.util.PlatformUtils;
 
 public abstract class NotesUi extends JPanel {
 
@@ -91,46 +92,7 @@ public abstract class NotesUi extends JPanel {
     public NotesUi() {
         super(new BorderLayout());
 
-        JToolBar toolbar = new JToolBar();
-        toolbar.setBackground(Color.WHITE);
-
-//        toolbar.add(new JLabel(getUserGreetingText()));
-//        toolbar.addSeparator();
-        toolbar.add(new AbstractAction(getRefreshText(), getRefreshIcon()) {
-            {
-                putValue(SHORT_DESCRIPTION, getRefreshTooltip());
-            }
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                refresh();
-            }
-        });
-        toolbar.addSeparator();
-        toolbar.add(new JToggleButton(new AbstractAction(getShowGravatarText(), getShowGravatarIcon()) {
-            {
-                putValue(SHORT_DESCRIPTION, getShowGravatarTooltip());
-            }
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JToggleButton b = (JToggleButton) e.getSource();
-                showGravatar = b.getModel().isSelected();
-                gravatarToggled();
-            }
-        }));
-
-        /*
-        toolbar.add(new JToggleButton(new AbstractAction(getAskBeforeDeletingText(), getAskBeforeDeletingIcon()) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JToggleButton b = (JToggleButton) e.getSource();
-                NotesUi.this.askBeforeDeleting = b.getModel().isSelected();
-            }
-        }));
-        */
-
-        this.add(toolbar, BorderLayout.NORTH);
+        showGravatar = true;
 
         {
             messages = new ScrollableBox(BoxLayout.Y_AXIS);
@@ -145,16 +107,27 @@ public abstract class NotesUi extends JPanel {
             JPanel bottom = new JPanel(new BorderLayout());
             bottom.setBackground(Color.WHITE);
             final JTextArea message = new JTextArea();
-            message.setRows(3);
+            message.setRows(2);
+            message.setWrapStyleWord(true);
+            message.setLineWrap(true);
+
             bottom.add(new JScrollPane(message), BorderLayout.CENTER);
-            bottom.add(new JButton(new AbstractAction(getSaveText()) {
+
+            JButton saveButton = new JButton(new AbstractAction(getSaveText()) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String text = message.getText();
                     message.setText(null);
                     save(text);
                 }
-            }), BorderLayout.EAST);
+            });
+
+            if (PlatformUtils.isMac()) {
+                saveButton.putClientProperty("JButton.buttonType", "gradient");
+                saveButton.setPreferredSize(new Dimension(63, saveButton.getPreferredSize().height));
+            }
+
+            bottom.add(saveButton, BorderLayout.EAST);
 
             this.add(bottom, BorderLayout.SOUTH);
         }
@@ -175,6 +148,7 @@ public abstract class NotesUi extends JPanel {
             final JTextArea t = new JTextArea(message.getText());
             t.setEditable(false);
             t.setLineWrap(true);
+            t.setWrapStyleWord(true);
 
             final int deleteIndex = i;
             t.addMouseListener(new MouseAdapter() {

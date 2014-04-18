@@ -16,26 +16,27 @@ import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.WizardDescriptor;
 import org.openide.util.lookup.ServiceProvider;
+import org.openide.util.lookup.ServiceProviders;
 import ovation.*;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.ui.interfaces.EpochGroupInsertable;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
+import us.physion.ovation.ui.interfaces.ExperimentInsertable;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
-@ServiceProvider(service = EpochGroupInsertable.class)
-/**
- *
- * @author huecotanks
- */
-public class ImportPrairie extends ImportImage{
- 
+//@ServiceProviders(value = {
+//    @ServiceProvider(service = EpochGroupInsertable.class),
+//    @ServiceProvider(service = ExperimentInsertable.class)
+//})
+public class ImportPrairie extends ImportImage {
+
     public ImportPrairie()
     {
         putValue(NAME, "Import Prairie Data...");
     }
-    
+
     @Override
     public int getPosition() {
         return 105;
@@ -59,7 +60,7 @@ public class ImportPrairie extends ImportImage{
             }
         }
     }
-    
+
     @Override
     public List<WizardDescriptor.Panel<WizardDescriptor>> getPanels(IEntityWrapper iew) {
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
@@ -73,12 +74,12 @@ public class ImportPrairie extends ImportImage{
 
         return panels;
     }
-    
+
     @Override
     public void wizardFinished(final WizardDescriptor wd, final DataContext c, final IEntityWrapper iew) {
 /*
         EventQueueUtilities.runOffEDT(new Runnable() {
-            
+
             @Override
             public void run() {
                 ProgressHandle h = ProgressHandleFactory.createHandle("Importing data...");
@@ -183,6 +184,6 @@ public class ImportPrairie extends ImportImage{
         }
 
     }
-    * 
+    *
     */
 }
