@@ -36,7 +36,8 @@ import us.physion.ovation.ui.jumpto.api.JumpHistory;
 public class OpenNodeInBrowserAction extends AbstractAction {
 
     private final static Logger log = LoggerFactory.getLogger(OpenNodeInBrowserAction.class);
-    private final static String BROWSER_ID = "BrowserTopComponent"; //NOI18N
+    public final static String BROWSER_ID = "BrowserTopComponent"; //NOI18N
+    public final static String SOURCE_BROWSER_ID = "SourceBrowserTopComponent"; //NOI18N
     private final Provider em;
     private final TopComponent tc;
     private final List<URI> entityPath;
@@ -46,7 +47,11 @@ public class OpenNodeInBrowserAction extends AbstractAction {
     private final List<URI> historySource;
 
     public OpenNodeInBrowserAction(List<URI> entityURI) {
-        this(entityURI, null);
+        this(BROWSER_ID, entityURI);
+    }
+    
+    public OpenNodeInBrowserAction(String explorerTopComponentID, List<URI> entityURI) {
+        this(entityURI, null, false, null, explorerTopComponentID);
     }
     
     public OpenNodeInBrowserAction(List<URI> entityURI, /* @Nullable */ String nodeDisplayName) {
@@ -58,8 +63,12 @@ public class OpenNodeInBrowserAction extends AbstractAction {
      * @param nodeDisplayName The corresponding node display name. It will be added to the history
      */
     public OpenNodeInBrowserAction(List<URI> entityURI, /* @Nullable */ String nodeDisplayName, boolean addToHistory, List<URI> source) {
+        this(entityURI, nodeDisplayName, addToHistory, source, BROWSER_ID);
+    }
+    
+    public OpenNodeInBrowserAction(List<URI> entityURI, /* @Nullable */ String nodeDisplayName, boolean addToHistory, List<URI> source, String explorerTopComponentID) {
         super(Bundle.OpenNodeInBrowserAction());
-        tc = WindowManager.getDefault().findTopComponent(BROWSER_ID);
+        tc = WindowManager.getDefault().findTopComponent(explorerTopComponentID);
         if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
             throw new IllegalStateException();
         }

@@ -185,6 +185,14 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
                    actionList = appendToArray(actionList, SystemAction.get(AnalysisRecordInputsAction.class));
                }
                
+               if(Epoch.class.isAssignableFrom(entityClass)) {
+                   actionList = appendToArray(actionList, SystemAction.get(EpochInputSourcesAction.class));
+               }
+               
+               if(Measurement.class.isAssignableFrom(entityClass)) {
+                   actionList = appendToArray(actionList, SystemAction.get(MeasurementInputSourcesAction.class));
+               }
+               
                //XXX: right now canRename will never change for a given node so it's safe to use it during initialization
                if (canRename()) {
                    actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
@@ -210,93 +218,4 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
         insertables.put(AnalysisRecord.class.getSimpleName(), AnalysisRecordInsertable.class);
         return insertables;
     }
-   
-   /*@Override
-   public Sheet createSheet()
-   {
-       Sheet sheet = Sheet.createDefault();
-       IEntityWrapper obj = getLookup().lookup(IEntityWrapper.class);
-
-       IAuthenticatedDataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
-       DataContext c = dsc.getContext();
-       IEntityBase e = obj.getEntity();
-       
-       Sheet.Set myProperties = createPropertySetForUser(obj, e, c.currentAuthenticatedUser());
-       
-       if (e.getOwner().getUuid().equals(c.currentAuthenticatedUser().getUuid()))
-       {
-           myProperties.setDisplayName("My Properties (Owner)");
-           sheet.put(myProperties);
-       }
-       else{
-           myProperties.setDisplayName("My Properties");
-           sheet.put(myProperties);
-
-           Sheet.Set ownerProperties = createPropertySetForUser(obj, e, e.getOwner());
-           
-           ownerProperties.setDisplayName("Owner Properties (" + e.getOwner().getUsername() + ")");
-           sheet.put(ownerProperties);
-       }
-       
-       Iterator<User> userItr = c.getUsersIterator();
-       while (userItr.hasNext())
-       {
-           User u = userItr.next();
-           
-           Sheet.Set userProperties = createPropertySetForUser(obj, e, u);
-           userProperties.setDisplayName(u.getUsername() + "'s Properties");
-           sheet.put(userProperties);
-       }
-       
-       return sheet;
-   }
-   
-   protected Sheet.Set createPropertySetForUser(IEntityWrapper obj, IEntityBase e, User u)
-   {
-       Sheet.Set properties = Sheet.createPropertiesSet();
-       properties.setName(u.getUsername() + "'s Properties");
-       Map<String, Object> props = e.getUserProperties(u);
-       for (String propKey :props.keySet())
-       {
-           Property entityProp = new EntityProperty(obj, propKey, props.get(propKey), e.canWrite());
-           entityProp.setName(propKey);
-           properties.put(entityProp);
-       }
-       return properties;
-   }
-   
-    @Override
-    public Action[] getActions(boolean popup) {
-        return actionList;
-    }*/
-    //TODO: figure out how to make this work
-    /*
-    @Override
-    public boolean canCopy() {
-        return true;
-    }
-    
-     @Override
-    public Transferable clipboardCopy() throws IOException {
-        Transferable deflt = super.clipboardCopy();
-        ExTransferable added = ExTransferable.create(deflt);
-        added.put(new ExTransferable.Single(DataFlavor.stringFlavor) {
-            @Override
-            protected String getData() {
-                Lookup.Result global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
-                Collection<? extends IEntityWrapper> entities = global.allInstances();
-                String selection = "";
-                if (entities.size() == 1) {
-                    selection += entities.iterator().next().getURI();
-                } else {
-                    for (IEntityWrapper ew : entities) {
-                        selection += ew.getURI() + "\n";
-                    }
-                }
-                System.out.println("Selection: " + selection);
-                return selection;
-            }
-        });
-        return added;
-    }*/
 }
