@@ -9,29 +9,37 @@ import javax.swing.Action;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.User;
-import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.Identity;
 import us.physion.ovation.ui.actions.SelectInProjectNavigatorActionFactory;
 
 @ServiceProvider(service = SelectInProjectNavigatorActionFactory.class)
 public class SelectInProjectNavigatorActionFactoryImpl implements SelectInProjectNavigatorActionFactory {
 
+    private enum PathType {
+        ProjectPath, SourcePath
+    }
+    
     @Override
-    public Action select(DataElement data, List<URI> source) {
+    public Action select(Identity data, String displayName, List<URI> source) {
         List<URI> path = new ArrayList<URI>();
-        buildPath(data, path);
+        PathType kind = buildPath(data, path);
         path.add(null);
         Collections.reverse(path);
-        return new OpenNodeInBrowserAction(path, data.getName(), true, source);
+        return new OpenNodeInBrowserAction(path, displayName,
+                kind == PathType.ProjectPath, source,
+                kind == PathType.ProjectPath ? OpenNodeInBrowserAction.BROWSER_ID : OpenNodeInBrowserAction.SOURCE_BROWSER_ID);
     }
 
     //XXX: This should be moved in some Utils class
-    private void buildPath(DataElement data, List<URI> path) {
+    //XXX: Also see OvationSearchProvider.getURIPath
+    private PathType buildPath(Identity data, List<URI> path) {
         Identity id = data;
 
         while (id != null) {
@@ -53,7 +61,9 @@ public class SelectInProjectNavigatorActionFactoryImpl implements SelectInProjec
                 id = record.getParent();
                 
             } else if (id instanceof Epoch) {
-                id = ((Epoch) id).getExperiment();
+                id = ((Epoch) id).getParent();
+            } else if (id instanceof EpochGroup) {
+                id = ((EpochGroup) id).getParent();
             } else if (id instanceof Experiment) {
                 //XXX: 1:N mapping
                 Experiment e = (Experiment) id;
@@ -65,10 +75,23 @@ public class SelectInProjectNavigatorActionFactoryImpl implements SelectInProjec
                 }
             } else if (id instanceof Project) {
                 //reached top level
-                id = null;
+                return PathType.ProjectPath;
+            } else if (id instanceof Source) {
+                //XXX: 1:N mapping
+                Source s = (Source) id;
+                
+                Iterator<Source> parents = s.getParentSources().iterator();
+                
+                if (parents.hasNext()) {
+                    id = parents.next();
+                } else {
+                    return PathType.SourcePath;
+                }
             } else {
                 throw new IllegalStateException("Cannot build a path for DateElement of class " + data.getClass());
             }
         }
+        
+        throw new IllegalStateException("No top-level Project or Source found");
     }
 }

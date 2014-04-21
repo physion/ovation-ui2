@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2014 Physion LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package us.physion.ovation.ui.browser;
 
 import java.awt.Toolkit;
@@ -8,26 +24,16 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
-import org.openide.util.NbBundle.Messages;
 import org.openide.util.actions.NodeAction;
-import us.physion.ovation.domain.AnalysisRecord;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.mixin.Identity;
 import us.physion.ovation.ui.actions.SelectInProjectNavigatorActionFactory;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.URITreePathProvider;
 
-@ActionID(
-    category = "Navigate",
-id = "us.physion.ovation.ui.browser.AnalysisRecordInputsAction")
-@ActionRegistration(
-    displayName = "#CTL_AnalysisRecordInputsAction")
-@Messages("CTL_AnalysisRecordInputsAction=Inputs")
-public final class AnalysisRecordInputsAction extends NodeAction {
+public abstract class AbstractInputsAction<Record, Input extends Identity> extends NodeAction {
 
     @Override
     public JMenuItem getPopupPresenter() {
@@ -42,7 +48,7 @@ public final class AnalysisRecordInputsAction extends NodeAction {
         }
 
         IEntityWrapper wrapper = nodes[0].getLookup().lookup(IEntityWrapper.class);
-        AnalysisRecord record = wrapper.getEntity(AnalysisRecord.class);
+        Record record = getRecord(wrapper);
 
         if (record == null) {
             return null;
@@ -50,24 +56,24 @@ public final class AnalysisRecordInputsAction extends NodeAction {
 
         URITreePathProvider pathProvider = nodes[0].getLookup().lookup(URITreePathProvider.class);
         final List<URI> analysisURI = pathProvider != null ? pathProvider.getTreePath() : null;
-        
-        Map<String, DataElement> inputs = record.getInputs();
-        
+
+        Map<String, Input> inputs = getInputs(record);
+
         if (inputs.isEmpty()) {
             return null;
         }
 
-        JMenuItem presenters = new JMenu(Bundle.CTL_AnalysisRecordInputsAction());
+        JMenuItem presenters = new JMenu(getMenuDisplayName());
 
-        for (Map.Entry<String, DataElement> e : inputs.entrySet()) {
-            final DataElement data = e.getValue();
+        for (Map.Entry<String, Input> e : inputs.entrySet()) {
+            final Input data = e.getValue();
             //XXX: input key == data.getName()?
             presenters.add(new JMenuItem(new AbstractAction(e.getKey()) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     SelectInProjectNavigatorActionFactory f = Lookup.getDefault().lookup(SelectInProjectNavigatorActionFactory.class);
                     if (f != null) {
-                        f.select(data, data.getName(), analysisURI).actionPerformed(null);
+                        f.select(data, getDisplayName(data), analysisURI).actionPerformed(null);
                     } else {
                         Toolkit.getDefaultToolkit().beep();
                     }
@@ -77,7 +83,11 @@ public final class AnalysisRecordInputsAction extends NodeAction {
 
         return presenters;
     }
-
+    
+    protected abstract Record getRecord(IEntityWrapper wrapper);
+    protected abstract Map<String, Input> getInputs(Record record);
+    protected abstract String getDisplayName(Input i);
+    protected abstract String getMenuDisplayName();
 
     @Override
     protected void performAction(Node[] nodes) {
@@ -93,13 +103,8 @@ public final class AnalysisRecordInputsAction extends NodeAction {
         if (wrapper == null) {
             return false;
         }
-        AnalysisRecord record = wrapper.getEntity(AnalysisRecord.class);
-        return record != null && !record.getInputs().isEmpty();
-    }
-
-    @Override
-    public String getName() {
-        return Bundle.CTL_AnalysisRecordInputsAction();
+        Record record = getRecord(wrapper);
+        return record != null && !getInputs(record).isEmpty();
     }
 
     @Override

@@ -1,20 +1,25 @@
 package us.physion.ovation.ui.editor;
 
+import java.awt.EventQueue;
 import java.beans.PropertyVetoException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.swing.SwingUtilities;
 import org.netbeans.api.progress.ProgressHandle;
+import org.openide.awt.StatusDisplayer;
 import org.openide.explorer.ExplorerManager.Provider;
 import org.openide.explorer.view.TreeView;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle.Messages;
+import org.openide.windows.TopComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Messages({
     "# {0} - node display name",
-    "Expanding_Node=Expanding {0}"
+    "Expanding_Node=Expanding {0}",
+    "LBL_CouldNotFindNode=Could not find node to select"
 })
 public abstract class SelectInTreeViewRunnable<Path> implements Runnable {
 
@@ -45,10 +50,26 @@ public abstract class SelectInTreeViewRunnable<Path> implements Runnable {
 
     @Override
     public void run() {
-        expandNodeByFilterablePath(root, path, entityPathIndex, view);
+        boolean found = expandNodeByFilterablePath(root, path, entityPathIndex, view);
 
         if (!asyncPosted) {
             ph.finish();
+        }
+        
+        if (found) {
+            EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    TopComponent tc = (TopComponent) SwingUtilities.getAncestorOfClass(TopComponent.class, view);
+                    if (tc != null) {
+                        tc.requestActive();
+                    }
+                    view.requestFocusInWindow();
+                }
+            });
+        } else if (!asyncPosted) {
+            StatusDisplayer.getDefault().setStatusText(Bundle.LBL_CouldNotFindNode());
+            log.warn("Could not select " + path);
         }
     }
 
