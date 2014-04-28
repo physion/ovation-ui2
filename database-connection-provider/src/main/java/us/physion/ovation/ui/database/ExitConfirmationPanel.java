@@ -42,7 +42,6 @@ public class ExitConfirmationPanel extends javax.swing.JPanel {
         msgLabel = new javax.swing.JLabel();
 
         org.openide.awt.Mnemonics.setLocalizedText(msgLabel, org.openide.util.NbBundle.getMessage(ExitConfirmationPanel.class, "ExitConfirmationPanel.msgLabel.text")); // NOI18N
-        msgLabel.setMaximumSize(new java.awt.Dimension(300, 16));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
