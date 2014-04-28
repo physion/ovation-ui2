@@ -14,37 +14,47 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package us.physion.ovation.ui.database;
 
-import java.util.Collection;
+package us.physion.ovation.ui.browser;
+
 import org.openide.DialogDisplayer;
-import org.openide.LifecycleManager;
 import org.openide.NotifyDescriptor;
+import org.openide.modules.ModuleInstall;
 import org.openide.util.Lookup;
-import org.openide.util.NbBundle.Messages;
-import org.openide.util.lookup.ServiceProvider;
+import org.openide.util.NbBundle;
+import org.openide.windows.WindowManager;
 import us.physion.ovation.DataContext;
+import us.physion.ovation.logging.Logging;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 /**
- * Life cycle manager for Ovation. Prompts for exit if uploads are pending.
  *
  * @author barry
  */
-@ServiceProvider(service = LifecycleManager.class, position = 1)
-@Messages({
+@NbBundle.Messages({
     "ExitConfirmationPanel_title=Exit Ovation?",
     "ExitConfirmationPanel_quitButton=Quit",
     "ExitConfirmationPanel_dontQuitButton=Don't Quit"
 })
-public class OvationLifecycleManager extends LifecycleManager {
-
-    @Override
-    public void saveAll() {
+public class Installer extends ModuleInstall {
+    
+        @Override
+    public synchronized void restored() {
+        
+        // Trigger login when the UI is ready
+        WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
+            @Override
+            public void run() {
+                
+                Logging.configureRootLoggerRollingAppender();
+                Lookup.getDefault().lookup(ConnectionProvider.class).login();
+            }
+        });
+        
     }
-
+    
     @Override
-    public void exit() {
+    public synchronized boolean closing() {
         DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
         if (ctx != null && ctx.getFileService().hasPendingUploads()) {
 
@@ -60,22 +70,9 @@ public class OvationLifecycleManager extends LifecycleManager {
                     dontQuitOption // default option is "Yes"
             );
 
-            if (DialogDisplayer.getDefault().notify(nd) == quitOption) {
-                exitAll();
-            }
-        } else {
-            exitAll();
-        }
-    }
-
-    private void exitAll() {
-        Collection<LifecycleManager> c = Lookup.getDefault().lookup(new Lookup.Template(LifecycleManager.class)).allInstances();
+            return (DialogDisplayer.getDefault().notify(nd) == quitOption);
+        } 
         
-        for (LifecycleManager lm : c) {
-            if (lm != this) {
-                lm.exit();
-            }
-        }
+        return true;
     }
-
 }

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package us.physion.ovation.ui.database;
+package us.physion.ovation.ui.browser;
 
 /**
  *

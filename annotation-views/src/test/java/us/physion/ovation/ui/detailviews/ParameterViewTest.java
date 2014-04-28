@@ -11,7 +11,6 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.ScrollableTableTree;
@@ -304,5 +303,10 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
     @Override
     public DataContext getNewContext() {
        return ctx.getCoordinator().getContext();
+    }
+
+    @Override
+    public void login() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
