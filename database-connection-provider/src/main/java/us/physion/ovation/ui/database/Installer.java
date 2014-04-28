@@ -12,6 +12,15 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
 public class Installer extends ModuleInstall {
 
     private ConnectionProvider dbc;
+    
+    @Override
+    public synchronized void validate() {
+        // Set the displayed version number from API marketing version
+        if(Ovation.getVersion() != null) {
+            System.setProperty("netbeans.buildnumber", Ovation.getVersion());
+        }
+    }
+    
     @Override
     public synchronized void restored() {
 
@@ -19,10 +28,6 @@ public class Installer extends ModuleInstall {
         {
             Logging.configureRootLoggerRollingAppender();
             dbc = new DatabaseConnectionProvider();
-        }
-        // Set the displayed version number from API marketing version
-        if(Ovation.getVersion() != null) {
-            System.setProperty("netbeans.buildnumber", Ovation.getVersion());
         }
     }
 }
