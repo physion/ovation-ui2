@@ -39,36 +39,30 @@ public class ExitConfirmationPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        msgTextScrollPane = new javax.swing.JScrollPane();
-        msgTextArea = new javax.swing.JTextArea();
+        msgLabel = new javax.swing.JLabel();
 
-        msgTextScrollPane.setBorder(null);
-
-        msgTextArea.setEditable(false);
-        msgTextArea.setBackground(javax.swing.UIManager.getDefaults().getColor("Label.background"));
-        msgTextArea.setColumns(20);
-        msgTextArea.setLineWrap(true);
-        msgTextArea.setRows(5);
-        msgTextArea.setText(org.openide.util.NbBundle.getMessage(ExitConfirmationPanel.class, "ExitConfirmationPanel.msgTextArea.text")); // NOI18N
-        msgTextArea.setWrapStyleWord(true);
-        msgTextArea.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        msgTextScrollPane.setViewportView(msgTextArea);
+        org.openide.awt.Mnemonics.setLocalizedText(msgLabel, org.openide.util.NbBundle.getMessage(ExitConfirmationPanel.class, "ExitConfirmationPanel.msgLabel.text")); // NOI18N
+        msgLabel.setMaximumSize(new java.awt.Dimension(300, 16));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(msgTextScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(msgLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 380, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(msgTextScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(msgLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextArea msgTextArea;
-    private javax.swing.JScrollPane msgTextScrollPane;
+    private javax.swing.JLabel msgLabel;
     // End of variables declaration//GEN-END:variables
 }

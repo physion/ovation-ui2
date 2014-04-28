@@ -46,7 +46,7 @@ public class OvationLifecycleManager extends LifecycleManager {
     @Override
     public void exit() {
         DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
-        if (true) {//ctx != null && ctx.getFileService().hasPendingUploads()) {
+        if (ctx != null && ctx.getFileService().hasPendingUploads()) {
 
             String quitOption = Bundle.ExitConfirmationPanel_quitButton();
             String dontQuitOption = Bundle.ExitConfirmationPanel_dontQuitButton();
