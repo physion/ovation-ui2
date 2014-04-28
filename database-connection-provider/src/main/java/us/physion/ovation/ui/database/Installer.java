@@ -19,15 +19,7 @@ public class Installer extends ModuleInstall {
         if(Ovation.getVersion() != null) {
             System.setProperty("netbeans.buildnumber", Ovation.getVersion());
         }
-    }
-    
-    @Override
-    public synchronized void restored() {
-
-        if (dbc == null)
-        {
-            Logging.configureRootLoggerRollingAppender();
-            dbc = new DatabaseConnectionProvider();
-        }
+        
+        Logging.configureRootLoggerRollingAppender();
     }
 }
