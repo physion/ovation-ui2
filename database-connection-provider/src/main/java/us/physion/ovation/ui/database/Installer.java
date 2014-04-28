@@ -6,20 +6,14 @@ package us.physion.ovation.ui.database;
 
 import org.openide.modules.ModuleInstall;
 import us.physion.ovation.api.Ovation;
-import us.physion.ovation.logging.Logging;
-import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 public class Installer extends ModuleInstall {
-
-    private ConnectionProvider dbc;
     
     @Override
-    public synchronized void validate() {
+    public synchronized void restored() {
         // Set the displayed version number from API marketing version
         if(Ovation.getVersion() != null) {
             System.setProperty("netbeans.buildnumber", Ovation.getVersion());
         }
-        
-        Logging.configureRootLoggerRollingAppender();
     }
 }

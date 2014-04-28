@@ -4,24 +4,18 @@
  */
 package us.physion.ovation.ui.detailviews;
 
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.JTable;
-import javax.swing.JTree;
-import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
 import org.joda.time.DateTime;
 import org.junit.*;
 import static org.junit.Assert.*;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ServiceProvider;
-import ovation.*;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
@@ -237,6 +231,11 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
     @Override
     public DataContext getNewContext() {
         return ctx.getCoordinator().getContext();
+    }
+
+    @Override
+    public void login() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     private class TestTreeKey extends UserPropertySet {

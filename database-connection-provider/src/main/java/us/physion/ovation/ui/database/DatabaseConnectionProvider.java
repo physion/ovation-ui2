@@ -45,6 +45,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
         return context;
     }
     
+    @Override
     public synchronized void login()
     {
         final ConnectionListener[] listeners = connectionListeners.toArray(new ConnectionListener[0]);

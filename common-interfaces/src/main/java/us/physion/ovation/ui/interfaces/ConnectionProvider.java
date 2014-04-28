@@ -17,4 +17,5 @@ public interface ConnectionProvider {
     public void addConnectionListener(ConnectionListener cl);
     public void removeConnectionListener(ConnectionListener cl);
     public void resetConnection();
+    public void login();
 }
