@@ -5,7 +5,6 @@
 package us.physion.ovation.ui.detailviews;
 
 import java.util.*;
-import javax.swing.table.DefaultTableModel;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -13,14 +12,13 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
-import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
-import ovation.*;
+import org.openide.windows.TopComponent;
 import us.physion.ovation.domain.AnalysisRecord;
-import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.Protocol;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.domain.mixin.ProcedureElement;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -32,7 +30,7 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 @ConvertAsProperties(dtd = "-//us.physion.ovation.detailviews//Parameters//EN",
 autostore = false)
 @TopComponent.Description(preferredID = "ParametersTopComponent",
-//iconBase="SET/PATH/TO/ICON/HERE", 
+//iconBase="SET/PATH/TO/ICON/HERE",
 persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "leftSlidingSide", openAtStartup = true)
 @ActionID(category = "Window", id = "us.physion.ovation.detailviews.ParametersTopComponent")
@@ -63,7 +61,7 @@ public final class ParametersTopComponent extends TopComponent {
             }
         }
     };
-    
+
     public void update()
     {
         EventQueueUtilities.runOffEDT(new Runnable() {
@@ -73,7 +71,7 @@ public final class ParametersTopComponent extends TopComponent {
             }
         });
     }
-    
+
     public List<TableTreeKey> setEntities(final Collection<? extends IEntityWrapper> entities)
     {
         this.entities = entities;
@@ -90,6 +88,11 @@ public final class ParametersTopComponent extends TopComponent {
             {
                 addParams(tables, "Device Parameters", ((ProcedureElement)eb).getDeviceParameters());
                 addParams(tables, "Protocol Parameters", ((ProcedureElement)eb).getProtocolParameters());
+            } else if (eb instanceof Measurement) {
+                addParams(tables, "Device Parameters", ((Measurement) eb).getEpoch().getDeviceParameters());
+                addParams(tables, "Protocol Parameters", ((Measurement) eb).getEpoch().getProtocolParameters());
+            } else if (eb instanceof Resource) {
+                addParams(tables, "Analysis Parameters", ((AnalysisRecord) ((Resource) eb).getContainingEntity()).getProtocolParameters());
             }
         }
         ArrayList<TableTreeKey> tableKeys = new ArrayList<TableTreeKey>();
@@ -100,31 +103,31 @@ public final class ParametersTopComponent extends TopComponent {
         ((ScrollableTableTree)jScrollPane2).setKeys(tableKeys);
         return tableKeys;
     }
-    
+
     public Collection<? extends IEntityWrapper> getEntities()
     {
         return entities;
     }
-    
+
     public ScrollableTableTree getTableTree()
     {
         return ((ScrollableTableTree)jScrollPane2);
     }
-    
+
     protected void setTableTree(ScrollableTableTree t)
     {
         jScrollPane2 = t;
     }
-    
+
     public ParametersTopComponent() {
         initComponents();
         setName(Bundle.CTL_ParametersTopComponent());
         setToolTipText(Bundle.HINT_ParametersTopComponent());
-        
+
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         global.addLookupListener(listener);
     }
-    
+
 
     /**
      * This method is called from within the constructor to initialize the form.
