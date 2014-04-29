@@ -86,7 +86,7 @@
                     <preparationGoals>clean verify</preparationGoals>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
@@ -282,7 +282,7 @@
     </modules>
 
     <properties>
-        <netbeans.version>RELEASE731</netbeans.version>
+        <netbeans.version>RELEASE74</netbeans.version>
         <brandingToken>ovation</brandingToken>
         <keystore.path>../cert/dev.keystore</keystore.path>
         <keystore.type>JKS</keystore.type>

@@ -12,8 +12,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.swing.*;
 import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
@@ -23,16 +21,16 @@ import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
+//@ActionReferences({
+//    @ActionReference(path = "Menu/Tools", position = 1100),
+//    @ActionReference(path = "Shortcuts", name = "DS-S")
+//})
 @ActionID(
         category = "Edit",
         id = "us.physion.ovation.ui.browser.SearchAction")
 @ActionRegistration(
         //iconBase = "us/physion/ovation/ui/browser/reset-query.png",
         displayName = "#CTL_SearchAction")
-@ActionReferences({
-    @ActionReference(path = "Menu/Tools", position = 1100),
-    @ActionReference(path = "Shortcuts", name = "DS-S")
-})
 @Messages({
     "CTL_SearchAction=Search",
     "CTL_SearchAction_Button=Search"

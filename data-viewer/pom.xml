@@ -43,6 +43,12 @@
         </dependency>
 
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-ui-browser</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-actions</artifactId>
             <type>jar</type>
@@ -137,8 +143,7 @@
             <artifactId>bioFormats</artifactId>
 	    <version>1.0</version>
 	    <type>jar</type>
-	</dependency>
-
+        </dependency>
     </dependencies>
 
     <build>
