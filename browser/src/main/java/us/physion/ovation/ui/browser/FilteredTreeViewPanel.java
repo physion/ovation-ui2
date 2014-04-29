@@ -2,17 +2,21 @@ package us.physion.ovation.ui.browser;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.JToggleButton;
 import org.openide.explorer.view.BeanTreeView;
 
 public class FilteredTreeViewPanel extends javax.swing.JPanel {
 
+    private final TreeFilter filter;
     public FilteredTreeViewPanel(TreeFilter info) {
+        filter = info;
         initComponents();
-        
+
         getTreeView().setRootVisible(false);
-        
-        bindToggleButtons(info);
+
+        bindToggleButtons(filter);
     }
 
     public JToggleButton getEpochGroupToggle() {
@@ -37,6 +41,8 @@ public class FilteredTreeViewPanel extends javax.swing.JPanel {
             experimentToggle.setEnabled(false);
         }
         
+
+        experimentToggle.setSelected(info.isExperimentsVisible());
         experimentToggle.addActionListener(new ActionListener() {
 
             @Override
@@ -44,6 +50,8 @@ public class FilteredTreeViewPanel extends javax.swing.JPanel {
                 info.setExperimentsVisible(experimentToggle.isSelected());
             }
         });
+        
+        epochGroupToggle.setSelected(info.isEpochGroupsVisible());
         epochGroupToggle.addActionListener(new ActionListener() {
 
             @Override
@@ -51,6 +59,8 @@ public class FilteredTreeViewPanel extends javax.swing.JPanel {
                 info.setEpochGroupsVisible(epochGroupToggle.isSelected());
             }
         });
+        
+        epochToggle.setSelected(info.isEpochsVisible());
         epochToggle.addActionListener(new ActionListener() {
 
             @Override
@@ -58,8 +68,28 @@ public class FilteredTreeViewPanel extends javax.swing.JPanel {
                 info.setEpochsVisible(epochToggle.isSelected());
             }
         });
-    }    
-    
+
+        info.addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                boolean newValue = (Boolean) evt.getNewValue();
+
+                if (evt.getPropertyName().equals("experimentsVisible")) {
+                    experimentToggle.setSelected(newValue);
+                }
+
+                if (evt.getPropertyName().equals("epochGroupsVisible")) {
+                    epochGroupToggle.setSelected(newValue);
+                }
+                
+                if(evt.getPropertyName().equals("epochsVisible")) {
+                    epochToggle.setSelected(newValue);
+                }
+            }
+        });
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

@@ -3,6 +3,7 @@ package us.physion.ovation.ui.browser;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.prefs.Preferences;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -13,23 +14,24 @@ import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.NbPreferences;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
 /**
  * Top component which displays something.
  */
 @ConvertAsProperties(dtd = "-//us.physion.ovation.ui.browser//SourceBrowser//EN",
-autostore = false)
+        autostore = false)
 @TopComponent.Description(preferredID = "SourceBrowserTopComponent",
-//iconBase="SET/PATH/TO/ICON/HERE",
-persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+        //iconBase="SET/PATH/TO/ICON/HERE",
+        persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "explorer", openAtStartup = true)
 @ActionID(category = "Window", id = "us.physion.ovation.ui.browser.SourceBrowserTopComponent")
 @ActionReference(path = "Menu/Window" /*
  * , position = 333
  */)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_SourceBrowserAction",
-preferredID = "SourceBrowserTopComponent")
+        preferredID = "SourceBrowserTopComponent")
 @Messages({
     "CTL_SourceBrowserAction=Source Navigator",
     "CTL_SourceBrowserTopComponent=Source Navigator",
@@ -39,19 +41,46 @@ public final class SourceBrowserTopComponent extends TopComponent implements Exp
 
     private final ExplorerManager em = new ExplorerManager();
     private final BeanTreeView view;
+    private final TreeFilter filter;
 
     public SourceBrowserTopComponent() {
-        final TreeFilter filter = new TreeFilter();
+        filter = new TreeFilter();
         filter.setProjectView(false);
+
+        final Preferences prefs = NbPreferences.forModule(SourceBrowserTopComponent.class);
+        
+        filter.setExperimentsVisible(prefs.getBoolean("experiments-visible", true));
+        filter.setEpochGroupsVisible(prefs.getBoolean("epoch-groups-visible", false));
+        filter.setEpochsVisible(prefs.getBoolean("epochs-visible", false));
+        
+        filter.addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                boolean newValue = (Boolean) evt.getNewValue();
+
+                if (evt.getPropertyName().equals("experimentsVisible")) {
+                    prefs.putBoolean("experiments-visible", newValue);
+                }
+
+                if (evt.getPropertyName().equals("epochGroupsVisible")) {
+                    prefs.putBoolean("epoch-groups-visible", newValue);
+                }
+                
+                if(evt.getPropertyName().equals("epochsVisible")) {
+                    prefs.putBoolean("epochs-visible", newValue);
+                }
+            }
+        });
         
         setLayout(new BorderLayout());
         FilteredTreeViewPanel panel = new FilteredTreeViewPanel(filter);
         view = panel.getTreeView();
         add(panel, BorderLayout.CENTER);
-        
+
         setName(Bundle.CTL_SourceBrowserTopComponent());
         setToolTipText(Bundle.HINT_SourceBrowserTopComponent());
-        
+
         associateLookup(ExplorerUtils.createLookup(em, getActionMap()));
 
         BrowserUtilities.initBrowser(em, filter);
@@ -61,7 +90,7 @@ public final class SourceBrowserTopComponent extends TopComponent implements Exp
                 BrowserUtilities.resetView(em, filter);
             }
         });
-        
+
         ActionMap actionMap = this.getActionMap();
         actionMap.put("copy-to-clipboard", (Action) new BrowserCopyAction());
     }
@@ -90,12 +119,10 @@ public final class SourceBrowserTopComponent extends TopComponent implements Exp
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
-        // TODO store your settings
     }
 
     void readProperties(java.util.Properties p) {
-        String version = p.getProperty("version");
-        // TODO read your settings according to their version
+        //String version = p.getProperty("version");
     }
 
     @Override

@@ -33,7 +33,10 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
     @ActionReference(path = "Menu/Tools", position = 1100),
     @ActionReference(path = "Shortcuts", name = "DS-S")
 })
-@Messages("CTL_SearchAction=Search")
+@Messages({
+    "CTL_SearchAction=Search",
+    "CTL_SearchAction_Button=Search"
+})
 public final class SearchAction implements ActionListener {
 
     @Override
@@ -50,7 +53,7 @@ public final class SearchAction implements ActionListener {
         text.setPreferredSize(new Dimension(200, 20));
         f.add(text, c);
 
-        JButton submit = new JButton("Search");
+        JButton submit = new JButton(Bundle.CTL_SearchAction_Button());
         submit.setEnabled(true);
         submit.setMnemonic(KeyEvent.VK_ENTER);
         f.getRootPane().setDefaultButton(submit);
