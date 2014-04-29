@@ -35,8 +35,8 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
 @TopComponent.OpenActionRegistration(displayName = "#CTL_BrowserAction",
         preferredID = "BrowserTopComponent")
 @Messages({
-    "CTL_BrowserAction=Project Navigator",
-    "CTL_BrowserTopComponent=Project Navigator",
+    "CTL_BrowserAction=Projects Navigator",
+    "CTL_BrowserTopComponent=Projects",
     "HINT_BrowserTopComponent=Browse your Ovation Database"
 })
 public final class BrowserTopComponent extends TopComponent implements ExplorerManager.Provider, TreeViewProvider {

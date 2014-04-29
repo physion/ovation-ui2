@@ -51,7 +51,7 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
         preferredID = "SourceBrowserTopComponent")
 @Messages({
     "CTL_SourceBrowserAction=Source Navigator",
-    "CTL_SourceBrowserTopComponent=Source Navigator",
+    "CTL_SourceBrowserTopComponent=Sources",
     "HINT_SourceBrowserTopComponent=Browse your Ovation Dataset starting from the Source hierarchy"
 })
 public final class SourceBrowserTopComponent extends TopComponent implements ExplorerManager.Provider, TreeViewProvider {
