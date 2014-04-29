@@ -15,6 +15,9 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.Future;
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
+import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -30,6 +33,7 @@ import javax.swing.border.EmptyBorder;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.NbPreferences;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.api.Ovation;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -193,36 +197,6 @@ public class LoginWindow {
             c.anchor = GridBagConstraints.WEST;
             c.insets = new Insets(0, 0, 15, 15);
         
-        /*BufferedImage physionIcon;
-        File f = null;
-        try {
-            f = new File ("installer/ovation_48x48.png");
-            physionIcon = ImageIO.read(f);
-            JLabel image = new JLabel(new ImageIcon( physionIcon ));
-            c.gridx = 0;
-            c.gridy = 0;
-            c.gridwidth = 1;
-            c.anchor = GridBagConstraints.WEST;
-            c.insets = new Insets(0, 0, 15, 15);
-            login.add(image, c);
-            image.setAlignmentX(Component.LEFT_ALIGNMENT);
-        }
-        catch (IOException ex) {
-            String s = "";
-            if (f != null)
-                s = " at '" + f.getAbsolutePath() + "'";
-            logger.error("Could not find Physion icon" + s);
-        }*/
-
-        //tabs.addTab("Login", login);
-
-        //JPanel signUp = new JPanel();
-        //tabs.addTab("Sign up", signUp);
-
-        //LOGIN
-        //------------------------------------------------------
-        //TODO: header if the error is not null
-
         //two text fields
         emailTB = addField(login, Bundle.Login_Window_Email(), 1, false);
         passwordTB = addField(login, Bundle.Login_Window_Password(), 2, true);
@@ -259,59 +233,38 @@ public class LoginWindow {
         
         c.gridx = 0;
         c.gridwidth = 1;
-        JCheckBox cb = new JCheckBox();
-        cb.setSelected(false);
+        final JCheckBox cb = new JCheckBox();
+        final Preferences prefs = NbPreferences.forModule(LoginWindow.class);
+        boolean save = prefs.getBoolean(SAVE_LOGIN_FOR_OFFLINE, false);
+        cb.setSelected(save);
         cb.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent ae) {
                 boolean checked = ((JCheckBox)(ae.getSource())).isSelected();
                 model.setRememberMe(checked);
+                prefs.putBoolean(SAVE_LOGIN_FOR_OFFLINE, checked);
             }
         });
+        
+        prefs.addPreferenceChangeListener(new PreferenceChangeListener() {
+
+            @Override
+            public void preferenceChange(PreferenceChangeEvent evt) {
+                if(evt.getKey().equals(SAVE_LOGIN_FOR_OFFLINE)) {
+                    boolean b = Boolean.valueOf(evt.getNewValue());
+                    cb.setSelected(b);
+                    model.setRememberMe(b);
+                }
+            }
+        });
+        
         login.add(cb, c);
         c.gridwidth = 1;
         c.gridx = 1;
         JLabel rememberMe = new JLabel(Bundle.Login_Window_Remember_Me());
         login.add(rememberMe, c);
         
-        
-
-        //SIGN UP
-        //-----------------------------------------------------------
-       /* JLabel header = new JLabel("New to Ovation? Sign up");
-
-        //two text fields
-        JPanel s_form = new JPanel(new GridBagLayout());
-        final JTextField nameTB = addField(s_form, "Name: ", 0, false);
-        final JTextField s_emailTB = addField(s_form, "Email: ", 1, false);
-        final JTextField s_passwordTB = addField(s_form, "Password: ", 2, true);
-
-        JPanel s_buttonPane = new JPanel();
-        JButton signUpButton = new JButton("Sign Up");
-        s_buttonPane.setLayout(new BoxLayout(s_buttonPane, BoxLayout.LINE_AXIS));
-        s_buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        s_buttonPane.add(signUpButton);
-
-        signUpButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                //sign up through the website
-                //when that's completed,
-                model.setEmail(s_emailTB.getText());
-                model.setPassword(s_passwordTB.getText());
-                model.cancelled = false;
-                d.dispose();
-            }
-        });
-        signUp.add(header, BorderLayout.PAGE_START);
-        signUp.add(s_form, BorderLayout.CENTER);
-        signUp.add(s_buttonPane, BorderLayout.PAGE_END);
-
-        d.getContentPane().add(tabs);
-        login.getRootPane().setDefaultButton(okButton);
-        */
         
         errorPanel = new JPanel(new BorderLayout()) {
             @Override
@@ -344,6 +297,7 @@ public class LoginWindow {
         //Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         dialog.setLocationRelativeTo(null);
     }
+    private static final String SAVE_LOGIN_FOR_OFFLINE = "save-login-for-offline";
     
     private JTextField addField(JPanel form, String name, int row, boolean passwordField) {
         JTextField f;
