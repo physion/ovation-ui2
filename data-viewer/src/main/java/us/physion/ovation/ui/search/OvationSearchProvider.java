@@ -1,10 +1,13 @@
 package us.physion.ovation.ui.search;
 
+import java.awt.Toolkit;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.netbeans.spi.quicksearch.SearchProvider;
 import org.netbeans.spi.quicksearch.SearchRequest;
 import org.netbeans.spi.quicksearch.SearchResponse;
@@ -22,42 +25,89 @@ import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Resource;
 import us.physion.ovation.domain.Source;
+import us.physion.ovation.exceptions.OvationException;
+import us.physion.ovation.ui.browser.QueryProvider;
+import us.physion.ovation.ui.browser.QuerySet;
 import us.physion.ovation.ui.editor.OpenNodeInBrowserAction;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 @Messages({
     "# {0} - entity url",
-    "Search_Open_Entity=Select {0}"
+    "Search_Open_Entity=Select {0}",
+    "Search_Run_Query=Run query {0}"
 })
 public class OvationSearchProvider implements SearchProvider {
+
     private final static Logger log = LoggerFactory.getLogger(OvationSearchProvider.class);
-    
-    public OvationSearchProvider(){
+
+    public OvationSearchProvider() {
         //nothing
     }
 
     @Override
     public void evaluate(SearchRequest search, SearchResponse response) {
-        String uri = search.getText();
-        if (uri == null) {
+        final String query = search.getText();
+        if (query == null) {
             return;
         }
-        DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
-        OvationEntity ent = ctx.getObjectWithURI(uri);
-        final List<URI> path = new ArrayList<URI>();
-        //XXX: This is needed because in the views the root node has no URI and is hidden
-        path.add(null);
-        path.addAll(getURIPath(ent));
-        
-        //TODO: Use EntityWrapper.inferDisplayName(OvationEntity) somehow.
+
+        final DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+
+        if (query.startsWith("ovation")) { // Select entity
+            String uriString = null;
+            try {
+                URI uri = new URI(query);
+                uriString = uri.toString();
+            } catch (URISyntaxException ex) {
+                uriString = null;
+            }
+
+            if (uriString != null) {
+                OvationEntity ent;
+
+                ent = ctx.getObjectWithURI(uriString);
+
+                if (ent != null) {
+                    final List<URI> path = new ArrayList<URI>();
+                    //XXX: This is needed because in the views the root node has no URI and is hidden
+                    path.add(null);
+                    path.addAll(getURIPath(ent));
+
+                    //TODO: Use EntityWrapper.inferDisplayName(OvationEntity) somehow.
+                    response.addResult(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            //TODO: Get display name from the OvationEntity ent
+                            new OpenNodeInBrowserAction(path).actionPerformed(null);
+                        }
+                    }, Bundle.Search_Open_Entity(ent.getURI()));
+                }
+            }
+        }
+
+        // Run search query
         response.addResult(new Runnable() {
 
             @Override
             public void run() {
-                //TODO: Get display name from the OvationEntity ent
-                new OpenNodeInBrowserAction(path).actionPerformed(null);
+                QuerySet querySet = new QuerySet();
+                Lookup.getDefault().lookup(QueryProvider.class).setQuerySet(querySet);
+                try {
+                    for (OvationEntity entity : ctx.query(OvationEntity.class, query).get()) {
+                        querySet.add(entity);
+                    }
+                } catch (InterruptedException e1) {
+                    //pass
+                } catch (ExecutionException e1) {
+                    //pass — invalid query
+                    Toolkit.getDefaultToolkit().beep();
+                } catch (OvationException e1) {
+                    //pass — invalid query
+                    Toolkit.getDefaultToolkit().beep();
+                }
             }
-        }, Bundle.Search_Open_Entity(ent.getURI()));
+        }, Bundle.Search_Run_Query(query));
     }
 
     private List<URI> getURIPath(OvationEntity ent) {
