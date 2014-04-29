@@ -13,9 +13,10 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.util.Lookup;
-import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.NbPreferences;
+import org.openide.windows.TopComponent;
+import us.physion.ovation.ui.browser.TreeFilter.NavigatorType;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
 /**
@@ -47,15 +48,14 @@ public final class BrowserTopComponent extends TopComponent implements ExplorerM
 
     public BrowserTopComponent() {
 
-        filter = new TreeFilter();
-        filter.setProjectView(true);
+        filter = new TreeFilter(NavigatorType.PROJECT);
 
         final Preferences prefs = NbPreferences.forModule(BrowserTopComponent.class);
-        
+
         filter.setExperimentsVisible(prefs.getBoolean("experiments-visible", true));
         filter.setEpochGroupsVisible(prefs.getBoolean("epoch-groups-visible", false));
         filter.setEpochsVisible(prefs.getBoolean("epochs-visible", false));
-        
+
         filter.addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
@@ -69,7 +69,7 @@ public final class BrowserTopComponent extends TopComponent implements ExplorerM
                 if (evt.getPropertyName().equals("epochGroupsVisible")) {
                     prefs.putBoolean("epoch-groups-visible", newValue);
                 }
-                
+
                 if(evt.getPropertyName().equals("epochsVisible")) {
                     prefs.putBoolean("epochs-visible", newValue);
                 }

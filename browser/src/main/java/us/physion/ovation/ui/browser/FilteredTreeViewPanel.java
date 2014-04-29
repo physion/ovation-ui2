@@ -6,6 +6,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JToggleButton;
 import org.openide.explorer.view.BeanTreeView;
+import us.physion.ovation.ui.browser.TreeFilter.NavigatorType;
 
 public class FilteredTreeViewPanel extends javax.swing.JPanel {
 
@@ -36,11 +37,11 @@ public class FilteredTreeViewPanel extends javax.swing.JPanel {
     }
 
     private void bindToggleButtons(final TreeFilter info) {
-        if (info.isProjectView()) {
+        if (info.getNavigatorType() == NavigatorType.PROJECT) {
             //only source gets this, disable otherwise
             experimentToggle.setEnabled(false);
         }
-        
+
 
         experimentToggle.setSelected(info.isExperimentsVisible());
         experimentToggle.addActionListener(new ActionListener() {
@@ -50,7 +51,7 @@ public class FilteredTreeViewPanel extends javax.swing.JPanel {
                 info.setExperimentsVisible(experimentToggle.isSelected());
             }
         });
-        
+
         epochGroupToggle.setSelected(info.isEpochGroupsVisible());
         epochGroupToggle.addActionListener(new ActionListener() {
 
@@ -59,7 +60,7 @@ public class FilteredTreeViewPanel extends javax.swing.JPanel {
                 info.setEpochGroupsVisible(epochGroupToggle.isSelected());
             }
         });
-        
+
         epochToggle.setSelected(info.isEpochsVisible());
         epochToggle.addActionListener(new ActionListener() {
 
@@ -82,7 +83,7 @@ public class FilteredTreeViewPanel extends javax.swing.JPanel {
                 if (evt.getPropertyName().equals("epochGroupsVisible")) {
                     epochGroupToggle.setSelected(newValue);
                 }
-                
+
                 if(evt.getPropertyName().equals("epochsVisible")) {
                     epochToggle.setSelected(newValue);
                 }

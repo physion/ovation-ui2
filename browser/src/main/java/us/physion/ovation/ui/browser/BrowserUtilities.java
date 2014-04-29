@@ -4,21 +4,22 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.*;
+
+import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.openide.explorer.ExplorerManager;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.ExpressionTreeProvider;
 import us.physion.ovation.ui.interfaces.QueryListener;
-
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  *
@@ -72,28 +73,42 @@ public class BrowserUtilities{
     static List<EntityWrapper> getEntityList(TreeFilter filter, DataContext ctx)    {
         //check that I'm
         QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
-        if (filter.isProjectView())        {
-            List<EntityWrapper> projects =  Lists.newArrayList(Iterables.transform(ctx.getProjects(), new Function<Project, EntityWrapper>() {
+        switch (filter.getNavigatorType()) {
+            case PROJECT:
+                List<EntityWrapper> projects = Lists.newArrayList(Iterables.transform(ctx.getProjects(), new Function<Project, EntityWrapper>() {
 
-                @Override
-                public EntityWrapper apply(Project input) {
-                    return new EntityWrapper(input);
-                }
-            }));
-            Collections.sort(projects, new EntityComparator());
-            return projects;
-        }
-        else{
-            List<EntityWrapper> sources = Lists.newArrayList(Iterables.transform(ctx.getTopLevelSources(), new Function<Source, EntityWrapper>() {
+                    @Override
+                    public EntityWrapper apply(Project input) {
+                        return new EntityWrapper(input);
+                    }
+                }));
+                Collections.sort(projects, new EntityComparator());
+                return projects;
 
-                @Override
-                public EntityWrapper apply(Source input) {
-                    return new EntityWrapper(input);
-                }
-            }));
-            Collections.sort(sources, new EntityComparator());
-            return sources;
+            case SOURCE:
+                List<EntityWrapper> sources = Lists.newArrayList(Iterables.transform(ctx.getTopLevelSources(), new Function<Source, EntityWrapper>() {
+
+                    @Override
+                    public EntityWrapper apply(Source input) {
+                        return new EntityWrapper(input);
+                    }
+                }));
+                Collections.sort(sources, new EntityComparator());
+                return sources;
+
+            case PROTOCOL:
+                List<EntityWrapper> protocols = Lists.newArrayList(Iterables.transform(ctx.getProtocols(), new Function<Protocol, EntityWrapper>() {
+
+                    @Override
+                    public EntityWrapper apply(Protocol input) {
+                        return new EntityWrapper(input);
+                    }
+                }));
+                Collections.sort(protocols, new EntityComparator());
+                return protocols;
         }
+
+        return Lists.newArrayList();
     }
 
     public static void resetView()

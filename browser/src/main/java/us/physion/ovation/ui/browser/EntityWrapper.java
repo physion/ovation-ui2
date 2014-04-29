@@ -25,52 +25,46 @@ public class EntityWrapper implements IEntityWrapper {
     private Class type;
     private String displayName;
 
-    public EntityWrapper(OvationEntity e)
-    {
+    public EntityWrapper(OvationEntity e) {
         uri = e.getURI().toString();
         type = e.getClass();
         displayName = EntityWrapper.inferDisplayName(e);
     }
 
     //used by the PerUserEntityWrapper object
-    protected EntityWrapper(String name, Class clazz, String uri)
-    {
+    protected EntityWrapper(String name, Class clazz, String uri) {
         type = clazz;
         displayName = name;
         this.uri = uri;
     }
 
     @Override
-    public OvationEntity getEntity(){
+    public OvationEntity getEntity() {
         return getEntity(false);
     }
 
     @Override
-    public OvationEntity getEntity(boolean includeTrash){
+    public OvationEntity getEntity(boolean includeTrash) {
         OvationEntity b = null;
-        try{
+        try {
             DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
-            if (c == null)
-            {
+            if (c == null) {
                 return null;
             }
             b = c.getObjectWithURI(uri, includeTrash);
 
-        } catch (RuntimeException e)
-        {
+        } catch (RuntimeException e) {
             ErrorManager.getDefault().notify(e);
             throw e;
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             ErrorManager.getDefault().notify(e);
             throw new RuntimeException(e.getLocalizedMessage());
         }
         return b;
     }
+
     @Override
-    public String getURI()
-    {
+    public String getURI() {
         return uri;
     }
 
@@ -90,25 +84,24 @@ public class EntityWrapper implements IEntityWrapper {
     }
 
     @Override
-    public String getDisplayName() {return displayName;}
+    public String getDisplayName() {
+        return displayName;
+    }
+
     @Override
-    public Class getType() { return type;}
+    public Class getType() {
+        return type;
+    }
 
     public static String inferDisplayName(OvationEntity e) {
-	Class type = e.getClass();
-        if (Source.class.isAssignableFrom(type))
-        {
+        Class type = e.getClass();
+        if (Source.class.isAssignableFrom(type)) {
             return ((Source) e).getLabel() + " (" + ((Source) e).getIdentifier() + ")";
-        }
-        else if (Project.class.isAssignableFrom(type))
-        {
-            return ((Project)e).getName();
-        }else if (Experiment.class.isAssignableFrom(type))
-        {
+        } else if (Project.class.isAssignableFrom(type)) {
+            return ((Project) e).getName();
+        } else if (Experiment.class.isAssignableFrom(type)) {
             return ((Experiment) e).getPurpose() + " (" + ((Experiment) e).getStart().toString("MM/dd/yyyy") + ")";
-        }
-        else if (EpochGroup.class.isAssignableFrom(type))
-        {
+        } else if (EpochGroup.class.isAssignableFrom(type)) {
             return ((EpochGroup) e).getLabel();
         } else if (Epoch.class.isAssignableFrom(type)) {
             if (((Epoch) e).getProtocol() != null) {
@@ -125,12 +118,12 @@ public class EntityWrapper implements IEntityWrapper {
             } else {
                 return ((Epoch) e).getStart().toString("MM/dd/yyyy hh:mm:ss");
             }
-        } else if (DataElement.class.isAssignableFrom(type))
-        {
-            return ((DataElement)e).getName();
-        } else if (AnalysisRecord.class.isAssignableFrom(type))
-        {
-            return ((AnalysisRecord)e).getName();
+        } else if (DataElement.class.isAssignableFrom(type)) {
+            return ((DataElement) e).getName();
+        } else if (AnalysisRecord.class.isAssignableFrom(type)) {
+            return ((AnalysisRecord) e).getName();
+        } else if (Protocol.class.isAssignableFrom(type)) {
+            return ((Protocol) e).getName();
         }
         return "<no name>";
     }
@@ -184,19 +177,19 @@ public class EntityWrapper implements IEntityWrapper {
 
     @Override
     public <T extends OvationEntity> T getEntity(Class<T> clazz) {
-        if (clazz.isAssignableFrom(getType()))
-        {
-            return (T)getEntity();
+        if (clazz.isAssignableFrom(getType())) {
+            return (T) getEntity();
         }
         return null;
     }
 
     @Override
     public boolean isLeaf() {
-        return Measurement.class.isAssignableFrom(getType()) ||
-                Resource.class.isAssignableFrom(getType()) ||
-                //not sure if EquipmentSetup even has a Node...
-                EquipmentSetup.class.isAssignableFrom(getType()) ||
-                Protocol.class.isAssignableFrom(getType());
+        return Measurement.class.isAssignableFrom(getType())
+                || Resource.class.isAssignableFrom(getType());
+
+        //not sure if EquipmentSetup even has a Node...
+        //EquipmentSetup.class.isAssignableFrom(getType()) ||
+        //Protocol.class.isAssignableFrom(getType());
     }
 }
