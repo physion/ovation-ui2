@@ -153,19 +153,11 @@ public class BrowserUtilities {
     protected static void resetView(final ExplorerManager e, final TreeFilter projectView) {
         final QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
 
-        ProgressUtils.showProgressDialogAndRun(new ProgressRunnable<Void>() {
-
-            @Override
-            public Void run(ProgressHandle ph) {
-                if (qs == null) {
-                    e.setRootContext(createRootNode(projectView));
-                } else {
-                    qs.reset(e, projectView);
-                }
-
-                return null;
-            }
-        }, "Loading data...", false);
+        if (qs == null) {
+            e.setRootContext(createRootNode(projectView));
+        } else {
+            qs.reset(e, projectView);
+        }
     }
 
     //TODO: uncomment when we have query capabiliites
