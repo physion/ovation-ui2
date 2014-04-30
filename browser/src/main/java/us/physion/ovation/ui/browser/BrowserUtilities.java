@@ -96,15 +96,15 @@ public class BrowserUtilities {
                 return sources;
 
             case PROTOCOL:
-                List<EntityWrapper> protocols = Lists.newArrayList(Iterables.transform(ctx.getProtocols(), new Function<Protocol, EntityWrapper>() {
-
-                    @Override
-                    public EntityWrapper apply(Protocol input) {
-                        return new EntityWrapper(input);
-                    }
-                }));
-                Collections.sort(protocols, new EntityComparator());
-                return protocols;
+                List<Protocol> protocols = Lists.newArrayList(ctx.getProtocols());
+                List<EntityWrapper> protocolWrappers = Lists.newArrayListWithExpectedSize(protocols.size());
+                
+                for(Protocol p : protocols) {
+                    protocolWrappers.add(new EntityWrapper(p));
+                }
+                
+                Collections.sort(protocolWrappers, new EntityComparator());
+                return protocolWrappers;
         }
 
         return Lists.newArrayList();

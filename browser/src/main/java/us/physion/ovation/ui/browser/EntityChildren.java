@@ -74,7 +74,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
     public EntityChildren(List<EntityWrapper> children, TreeFilter filter) {
         parent = null;
         this.filter = filter;
-        updateWithKeys(children);
+        updateWithKeys(children == null ? Lists.<EntityWrapper>newArrayList() : children);
     }
 
     @Override

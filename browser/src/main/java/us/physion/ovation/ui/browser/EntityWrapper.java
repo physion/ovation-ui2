@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.browser;
 
+import java.awt.Toolkit;
 import org.joda.time.DateTime;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
@@ -12,6 +13,7 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import us.physion.ovation.exceptions.EntityNotFoundException;
 
 /**
  *
@@ -53,6 +55,8 @@ public class EntityWrapper implements IEntityWrapper {
             }
             b = c.getObjectWithURI(uri, includeTrash);
 
+        } catch(EntityNotFoundException e) {
+            Toolkit.getDefaultToolkit().beep();
         } catch (RuntimeException e) {
             ErrorManager.getDefault().notify(e);
             throw e;

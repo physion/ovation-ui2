@@ -50,7 +50,7 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
 @TopComponent.OpenActionRegistration(displayName = "#CTL_SourceBrowserAction",
         preferredID = "SourceBrowserTopComponent")
 @Messages({
-    "CTL_SourceBrowserAction=Source Navigator",
+    "CTL_SourceBrowserAction=Sources Navigator",
     "CTL_SourceBrowserTopComponent=Sources",
     "HINT_SourceBrowserTopComponent=Browse your Ovation Dataset starting from the Source hierarchy"
 })
