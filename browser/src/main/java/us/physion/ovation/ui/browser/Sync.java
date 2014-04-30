@@ -31,7 +31,7 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 @ActionReferences({
     @ActionReference(path = "Menu/Tools", position = 1300),
     @ActionReference(path = "Toolbars/Memory", position = 300),//QuickSearch, Find, Standard
-    @ActionReference(path = "Shortcuts", name = "DS-S")
+    @ActionReference(path = "Shortcuts", name = "D-S")
 })
 @Messages("CTL_Sync=Sync")
 public final class Sync implements ActionListener {

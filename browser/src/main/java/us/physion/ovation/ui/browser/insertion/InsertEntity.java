@@ -7,28 +7,21 @@ package us.physion.ovation.ui.browser.insertion;
 import java.awt.event.ActionEvent;
 import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractAction;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
-import org.openide.WizardDescriptor.Panel;
-import org.openide.nodes.Children;
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.Protocol;
-import us.physion.ovation.ui.browser.BrowserUtilities;
-import us.physion.ovation.ui.browser.EntityChildren;
-import us.physion.ovation.ui.browser.EntityNode;
 import us.physion.ovation.ui.interfaces.*;
 
 /**
  *
  * @author jackie
  */
-abstract public class InsertEntity extends AbstractAction implements EntityInsertable{
+abstract public class InsertEntity extends AbstractAction implements EntityInsertable {
 
     @Override
     public void actionPerformed(ActionEvent ae) {
@@ -49,15 +42,6 @@ abstract public class InsertEntity extends AbstractAction implements EntityInser
                     ResetBrowser b = entities.iterator().next();
                     b.actionPerformed(null);
                 }
-                /*if (this instanceof InsertSource)
-                {
-                    BrowserUtilities.switchToSourceView();
-                }
-                else if (this instanceof InsertProject)
-                {
-                    BrowserUtilities.switchToProjectView();
-                }*/
-                           
             }else{
                 node.resetNode();
             }
@@ -77,7 +61,7 @@ abstract public class InsertEntity extends AbstractAction implements EntityInser
         }
         return -1;
     }
-    
+
     public IEntityWrapper getEntity()
     {
         Collection<? extends IEntityWrapper> entities = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class).allInstances();
@@ -87,7 +71,7 @@ abstract public class InsertEntity extends AbstractAction implements EntityInser
         }
         return null;
     }
-    
+
     public ResettableNode getEntityNode()
     {
         Collection<? extends ResettableNode> entities = Utilities.actionsGlobalContext().lookupResult(ResettableNode.class).allInstances();
@@ -97,15 +81,15 @@ abstract public class InsertEntity extends AbstractAction implements EntityInser
         }
         return null;
     }
-    
+
     protected Protocol getProtocolFromProtocolSelector(DataContext context, Map<String, String> newProtocols, String selectedProtocolName, Protocol existingProtocol)
     {
         if (existingProtocol != null)
             return existingProtocol;
-        
+
         if (newProtocols == null)
             return null;
-        
+
         Protocol protocol = null;
         for(String name : newProtocols.keySet())
         {
@@ -113,14 +97,14 @@ abstract public class InsertEntity extends AbstractAction implements EntityInser
             Protocol p = context.insertProtocol(
                     name,
                     newProtocols.get(name));
-            if (name.equals(selectedProtocolName)) 
+            if (name.equals(selectedProtocolName))
             {
                 protocol = p;
             }
         }
         return protocol;
     }
-    
+
     String combine(String prefix, String key)
     {
         if (prefix == null || prefix.isEmpty())
