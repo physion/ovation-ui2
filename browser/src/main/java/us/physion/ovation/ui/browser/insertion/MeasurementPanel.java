@@ -6,27 +6,19 @@ package us.physion.ovation.ui.browser.insertion;
 
 import java.awt.FileDialog;
 import static java.awt.FileDialog.LOAD;
-import java.awt.Frame;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.Map;
 
-import static javax.swing.JComponent.TOOL_TIP_TEXT_KEY;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FilenameUtils;
 import org.openide.util.ChangeSupport;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
-import us.physion.ovation.exceptions.OvationException;
 
 /**
  *
@@ -163,8 +155,8 @@ public class MeasurementPanel extends javax.swing.JPanel {
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel2)
-                    .add(jLabel3)
-                    .add(jLabel1))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jTextField1)
