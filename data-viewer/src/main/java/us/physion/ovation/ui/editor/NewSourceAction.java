@@ -58,7 +58,5 @@ public final class NewSourceAction implements ActionListener {
                 false,
                 Lists.<URI>newArrayList(),
                 "SourceBrowserTopComponent").actionPerformed(e);
-
-        //BrowserUtilities.switchToSourceView();
     }
 }

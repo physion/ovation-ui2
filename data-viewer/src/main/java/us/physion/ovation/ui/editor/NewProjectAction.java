@@ -14,16 +14,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package us.physion.ovation.ui.browser.insertion;
+package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Lists;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URI;
+import org.joda.time.DateTime;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.domain.Project;
 import us.physion.ovation.ui.browser.BrowserUtilities;
+import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.ui.interfaces.RootInsertable;
 
 @ActionID(
         category = "Edit",
@@ -36,12 +44,24 @@ import us.physion.ovation.ui.browser.BrowserUtilities;
     @ActionReference(path = "Menu/File/New", position = 1300),
     @ActionReference(path = "Shortcuts", name = "SD-P")
 })
-@Messages("CTL_NewProjectAction=Project...")
-public final class NewProjectAction implements ActionListener {
+@Messages({"CTL_NewProjectAction=Project...",
+    "CTL_Default_Project_Name=New Project"
+})
+public final class NewProjectAction implements ActionListener, RootInsertable {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        new InsertProject().actionPerformed(e);
-        BrowserUtilities.switchToProjectView();
+        DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+
+        Project p = ctx.insertProject(Bundle.CTL_Default_Project_Name(),
+                "",
+                new DateTime());
+
+        BrowserUtilities.resetView();
+        new OpenNodeInBrowserAction(Lists.<URI>newArrayList(p.getURI()),
+                p.getName(), //protocol name
+                false,
+                Lists.<URI>newArrayList(),
+                "BrowserTopComponent").actionPerformed(e);
     }
 }

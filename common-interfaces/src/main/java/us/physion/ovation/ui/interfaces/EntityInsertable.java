@@ -13,7 +13,7 @@ import us.physion.ovation.DataContext;
  *
  * @author huecotanks
  */
-public interface EntityInsertable extends Action, Comparable{
+public interface EntityInsertable extends Action, Comparable {
     public int getPosition();
     public List<WizardDescriptor.Panel<WizardDescriptor>> getPanels(IEntityWrapper parent);
     public void wizardFinished(WizardDescriptor wiz, DataContext ctx, IEntityWrapper ew);
