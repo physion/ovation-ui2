@@ -6,6 +6,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JToggleButton;
 import org.openide.explorer.view.BeanTreeView;
+import org.openide.util.Lookup;
+import org.openide.util.Lookup.Item;
+import org.openide.util.Lookup.Template;
 import us.physion.ovation.ui.browser.TreeFilter.NavigatorType;
 
 public final class FilteredTreeViewPanel extends javax.swing.JPanel {
@@ -23,13 +26,13 @@ public final class FilteredTreeViewPanel extends javax.swing.JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-//                Template<ActionListener> template = new Lookup.Template<ActionListener>(
-//                        ActionListener.class,
-//                        actionId,
-//                        null);
-//                Item<ActionListener> item = Lookup.getDefault().lookupItem(template);
-//
-//                item.getInstance().actionPerformed(e);
+                Template<ActionListener> template = new Lookup.Template<ActionListener>(
+                        ActionListener.class,
+                        actionId,
+                        null);
+                Item<ActionListener> item = Lookup.getDefault().lookupItem(template);
+
+                item.getInstance().actionPerformed(e);
             }
         });
     }
