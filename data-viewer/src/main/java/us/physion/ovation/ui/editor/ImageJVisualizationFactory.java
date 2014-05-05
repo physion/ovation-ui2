@@ -19,7 +19,7 @@ import us.physion.ovation.exceptions.OvationException;
     public class ImageJVisualizationFactory implements VisualizationFactory{
 
     @Override
-    public Visualization createVisualization(DataElement r) {
+    public DataVisualization createVisualization(DataElement r) {
         try {
             return new ImageJVisualization(r.getData().get());
             /*try {

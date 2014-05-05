@@ -17,10 +17,11 @@
 
 package us.physion.ovation.ui.editor;
 
-import java.awt.Component;
+import us.physion.ovation.domain.OvationEntity;
 
+public interface ContainerVisualizationFactory {
 
-public interface Visualization {
+    public ContainerVisualization createVisualization(OvationEntity e);
 
-    public Component generatePanel();
+    public int getPreferenceForContainer(OvationEntity e);
 }

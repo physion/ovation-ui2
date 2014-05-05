@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 
-public class TabularDataWrapper implements Visualization {
+public class TabularDataWrapper implements DataVisualization {
 
     String[] columnNames;
     String[][] tabularData;

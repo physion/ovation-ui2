@@ -60,8 +60,8 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
     private ExecutorService loadFileExecutors = Executors.newSingleThreadExecutor();
 
     @Override
-    public Visualization createVisualization(final DataElement r) {
-        return new Visualization() {
+    public DataVisualization createVisualization(final DataElement r) {
+        return new DataVisualization() {
             @Override
             public Component generatePanel() {
                 class PlainTextArea extends JTextArea {

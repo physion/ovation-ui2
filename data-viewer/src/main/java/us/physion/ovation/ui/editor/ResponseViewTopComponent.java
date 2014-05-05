@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.awt.BorderLayout;
@@ -28,6 +29,7 @@ import org.openide.windows.WindowManager;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.DataElementContainer;
 import us.physion.ovation.ui.actions.spi.DataElementLookupProvider;
@@ -70,7 +72,7 @@ public final class ResponseViewTopComponent extends TopComponent {
 
                 @Override
                 public void run() {
-                    final Visualization v = ResponseWrapperFactory.create(element).createVisualization(element);
+                    final DataVisualization v = ResponseWrapperFactory.create(element).createVisualization(element);
 
                     EventQueueUtilities.runOnEDT(new Runnable() {
 
@@ -268,17 +270,17 @@ public final class ResponseViewTopComponent extends TopComponent {
         updateEntitySelection = EventQueueUtilities.runOffEDT(r, progress);
     }
 
-    protected List<Visualization> updateEntitySelection(Collection<? extends IEntityWrapper> entities, ProgressHandle progress) {
+    protected List<DataVisualization> updateEntitySelection(Collection<? extends IEntityWrapper> entities, ProgressHandle progress) {
         if (progress != null) {
             progress.switchToDeterminate(entities.size());
         }
         int progressWorkUnit = 0;
 
-        LinkedList<DataElement> responseList = new LinkedList<DataElement>();
+        List<DataElement> responseList = Lists.newLinkedList();
+        List<OvationEntity> containerList = Lists.newLinkedList();
 
-        Iterator i = entities.iterator();
-        while (i.hasNext()) {
-            IEntityWrapper ew = (IEntityWrapper) i.next();
+        for (IEntityWrapper ew : entities) {
+
             if (DataElementContainer.class.isAssignableFrom(ew.getType())) {
                 DataElementContainer container = (DataElementContainer) (ew.getEntity());//getEntity gets the context for the given thread
 
@@ -295,9 +297,10 @@ public final class ResponseViewTopComponent extends TopComponent {
                 } else {
                     responseList.addAll(Sets.newHashSet(container.getDataElements().values()));
                 }
-
             } else if (DataElement.class.isAssignableFrom(ew.getType())) {
                 responseList.add((DataElement) ew.getEntity());
+            } else {
+                containerList.add(ew.getEntity());
             }
 
             if (progress != null) {
@@ -305,11 +308,12 @@ public final class ResponseViewTopComponent extends TopComponent {
             }
         }
 
-        List<Visualization> responseGroups = new LinkedList<Visualization>();
+        List<DataVisualization> responseGroups = Lists.newLinkedList();
+        List<ContainerVisualization> containerGroups = Lists.newLinkedList();
 
         for (DataElement rw : responseList) {
             boolean added = false;
-            for (Visualization group : responseGroups) {
+            for (DataVisualization group : responseGroups) {
                 if (group.shouldAdd(rw)) {
                     group.add(rw);
                     added = true;
@@ -321,10 +325,17 @@ public final class ResponseViewTopComponent extends TopComponent {
             }
         }
 
+        for (OvationEntity e : containerList) {
+            containerGroups.add(ResponseWrapperFactory.create(e).createVisualization(e));
+        }
+
         if (progress != null) {
             progress.switchToIndeterminate();
         }
-        EventQueueUtilities.runOnEDT(updateChartRunnable(responseGroups));
+
+        List<Visualization> visualizations = Lists.newLinkedList(Iterables.concat(containerGroups, responseGroups));
+        EventQueueUtilities.runOnEDT(updateChartRunnable(visualizations));
+
         return responseGroups;
     }
 
@@ -340,7 +351,7 @@ public final class ResponseViewTopComponent extends TopComponent {
         d.setVisible(true);
     }
 
-    private Runnable updateChartRunnable(final List<Visualization> responseGroups) {
+    private Runnable updateChartRunnable(final List<? extends Visualization> responseGroups) {
         final int height = contentPanel.getParent().getHeight();
         return new Runnable() {
             @Override

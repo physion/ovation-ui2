@@ -1,8 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package us.physion.ovation.ui.browser.insertion;
+package us.physion.ovation.ui.editor;
+
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -12,47 +9,56 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import us.physion.ovation.ui.interfaces.DateTimePicker;
 
-/**
+/*
+ * Copyright (C) 2014 Physion LLC
  *
- * @author huecotanks
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+
 public class DatePickers {
+
     static String[] availableIDs;
-    static DateTimePicker createDateTimePicker()
-    {
+
+    static DateTimePicker createDateTimePicker() {
         DateTimePicker startPicker = new DateTimePicker();
-	startPicker.setTimeZone(TimeZone.getTimeZone("UTC"));
+        startPicker.setTimeZone(TimeZone.getTimeZone("UTC"));
         startPicker.setFormats(
                 new DateFormat[]{DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM),
-                        DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)}
+                    DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)}
         );
         startPicker.setTimeFormat(DateFormat.getTimeInstance(DateFormat.MEDIUM));
         return startPicker;
     }
 
-    static String getID(DateTimePicker p)
-    {
+    static String getID(DateTimePicker p) {
         boolean found = false;
         String id = TimeZone.getDefault().getID();
-        for (String s : getTimeZoneIDs())
-        {
-            if (s.equals(id))
-            {
+        for (String s : getTimeZoneIDs()) {
+            if (s.equals(id)) {
                 found = true;
                 break;
             }
         }
-        if (!found)
-        {
+        if (!found) {
             id = p.getTimeZone().getID();
         }
         return id;
     }
 
-    static String[] getTimeZoneIDs()
-    {
-        if (availableIDs == null)
-        {
+    static String[] getTimeZoneIDs() {
+        if (availableIDs == null) {
             ArrayList<String> ids = new ArrayList(DateTimeZone.getAvailableIDs());
             Collections.sort(ids);
             availableIDs = ids.toArray(new String[ids.size()]);

@@ -107,11 +107,11 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         double[] d = (double[])data.dataArray.get1DJavaArray(Double.class);
 
         Collection entities = Sets.newHashSet(new TestEntityWrapper(ctx, r));
-        List<Visualization> chartWrappers= t.updateEntitySelection(entities, null);
+        List<DataVisualization> chartWrappers= t.updateEntitySelection(entities, null);
 
         assertEquals(chartWrappers.size(), entities.size());
 
-        for (Visualization w : chartWrappers)
+        for (DataVisualization w : chartWrappers)
         {
             if (w instanceof ChartGroupWrapper) {
                 ChartGroupWrapper p = (ChartGroupWrapper) w;
@@ -195,12 +195,12 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
 
         entities.add(new TestEntityWrapper(ctx, epoch));
 
-        Collection<Visualization> chartWrappers= t.updateEntitySelection(entities, null);
+        Collection<DataVisualization> chartWrappers= t.updateEntitySelection(entities, null);
 
         assertEquals(1, chartWrappers.size());
 
         Set<String> series = new HashSet();
-        for (Visualization w : chartWrappers)
+        for (DataVisualization w : chartWrappers)
         {
             if (w instanceof ChartGroupWrapper) {
                 ChartGroupWrapper p = (ChartGroupWrapper) w;
@@ -241,12 +241,12 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
 
         entities.add(new TestEntityWrapper(ctx, epoch));
 
-        Collection<Visualization> chartWrappers= t.updateEntitySelection(entities, null);
+        Collection<DataVisualization> chartWrappers= t.updateEntitySelection(entities, null);
 
         assertEquals(2, chartWrappers.size());
 
         Set<String> series = new HashSet();
-        for (Visualization w : chartWrappers)
+        for (DataVisualization w : chartWrappers)
         {
             if (w instanceof ChartGroupWrapper) {
                 ChartGroupWrapper p = (ChartGroupWrapper) w;

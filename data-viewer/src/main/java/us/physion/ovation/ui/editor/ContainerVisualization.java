@@ -17,10 +17,10 @@
 
 package us.physion.ovation.ui.editor;
 
-import java.awt.Component;
+/**
+ *
+ * @author barry
+ */
+public interface ContainerVisualization extends Visualization {
 
-
-public interface Visualization {
-
-    public Component generatePanel();
 }

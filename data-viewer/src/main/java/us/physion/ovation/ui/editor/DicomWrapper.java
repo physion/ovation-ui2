@@ -17,7 +17,7 @@ import us.physion.ovation.domain.mixin.DataElement;
  *
  * @author huecotanks
  */
-public class DicomWrapper implements Visualization {
+public class DicomWrapper implements DataVisualization {
     private final static Logger log = LoggerFactory.getLogger(DicomWrapper.class);
 
     String name;
