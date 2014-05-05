@@ -14,8 +14,16 @@ SourceVisualizationPanel.jLabel1.text=Identifier:
 EpochGroupVisualizationPanel.titleLabel.text=Epoch group:
 EpochGroupVisualizationPanel.dateLabel.text=Date:
 ProtocolVisualizationPanel.titleLabel.text=Protocol:
+<<<<<<< HEAD
+ProtocolVisualizationPanel.jScrollPane1.border.title=Protocol
+ProtocolVisualizationPanel.jLabel1.text=Function:
+ProtocolVisualizationPanel.jLabel2.text=URL:
+ProtocolVisualizationPanel.jLabel3.text=Revision:
+ProtocolVisualizationPanel.codePanel.border.title=Code
+=======
 ProtocolVisualizationPanel.codePanel.border.title=Code
 ProtocolVisualizationPanel.functionLabel.text=Function:
 ProtocolVisualizationPanel.scmUrlLabel.text=URL:
 ProtocolVisualizationPanel.scmRevisionLabel.text=Revision:
 ProtocolVisualizationPanel.documentScrollPane.border.title=Protocol
+>>>>>>> protocol-navigator

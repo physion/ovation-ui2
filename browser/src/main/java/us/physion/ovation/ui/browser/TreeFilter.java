@@ -5,42 +5,45 @@ import java.beans.PropertyChangeSupport;
 
 public class TreeFilter {
 
-    public static final TreeFilter NO_FILTER = new TreeFilter(true) {
+    public static final TreeFilter NO_FILTER = new TreeFilter(NavigatorType.NONE_TYPE) {
         @Override
         public String toString() {
             return "NO_FILTER"; //NOI18N
         }
     };
-    
+
+    public static enum NavigatorType {
+        PROJECT,
+        SOURCE,
+        PROTOCOL,
+        NONE_TYPE
+    }
+
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-    private boolean projectView;
+    private NavigatorType navigatorType;
     private boolean experimentsVisible;
     private boolean epochGroupsVisible;
     private boolean epochsVisible;
 
     public TreeFilter() {
-        this(true);
+        this(NavigatorType.PROJECT);
     }
 
-    private TreeFilter(boolean b) {
-        projectView = b;
-        experimentsVisible = b;
-        epochGroupsVisible = b;
-        epochsVisible = b;
+    public TreeFilter(NavigatorType t) {
+        navigatorType = t;
+        experimentsVisible = t == NavigatorType.PROJECT;
+        epochGroupsVisible = false;
+        epochsVisible = false;
     }
 
-    public boolean isProjectView() {
-        return projectView;
+    public NavigatorType getNavigatorType() {
+        return navigatorType;
     }
 
-    public void setProjectView(boolean projectView) {
-        if (this.projectView == projectView) {
-            return;
-        }
-        boolean old = this.projectView;
-        this.projectView = projectView;
-        pcs.firePropertyChange("projectView", old, projectView); //NOI18N
+    public void setNavigatorType(NavigatorType navigatorType) {
+        this.navigatorType = navigatorType;
     }
+
 
     public boolean isExperimentsVisible() {
         return experimentsVisible;
@@ -91,6 +94,6 @@ public class TreeFilter {
 
     @Override
     public String toString() {
-        return "Info: project " + this.projectView + " exp " + this.experimentsVisible + " epochgroups " + this.epochGroupsVisible + " epoch " + this.epochsVisible; //NOI18N
+        return "Info: project " + this.navigatorType + " exp " + this.experimentsVisible + " epochgroups " + this.epochGroupsVisible + " epoch " + this.epochsVisible; //NOI18N
     }
 }

@@ -32,7 +32,11 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="codePanel" max="32767" attributes="0"/>
+<<<<<<< HEAD
+                  <Component id="jScrollPane1" alignment="0" pref="384" max="32767" attributes="0"/>
+=======
                   <Component id="documentScrollPane" alignment="0" pref="384" max="32767" attributes="0"/>
+>>>>>>> protocol-navigator
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="titleLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -52,7 +56,11 @@
                   <Component id="nameField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
+<<<<<<< HEAD
+              <Component id="jScrollPane1" pref="190" max="32767" attributes="0"/>
+=======
               <Component id="documentScrollPane" pref="190" max="32767" attributes="0"/>
+>>>>>>> protocol-navigator
               <EmptySpace max="-2" attributes="0"/>
               <Component id="codePanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
@@ -86,12 +94,20 @@
         </BindingProperty>
       </BindingProperties>
     </Component>
+<<<<<<< HEAD
+    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+=======
     <Container class="javax.swing.JScrollPane" name="documentScrollPane">
+>>>>>>> protocol-navigator
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
             <TitledBorder title="Protocol">
+<<<<<<< HEAD
+              <ResourceString PropertyName="titleX" bundle="us/physion/ovation/ui/editor/Bundle.properties" key="ProtocolVisualizationPanel.jScrollPane1.border.title" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+=======
               <ResourceString PropertyName="titleX" bundle="us/physion/ovation/ui/editor/Bundle.properties" key="ProtocolVisualizationPanel.documentScrollPane.border.title" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+>>>>>>> protocol-navigator
             </TitledBorder>
           </Border>
         </Property>
@@ -137,9 +153,15 @@
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
+<<<<<<< HEAD
+                      <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+=======
                       <Component id="scmRevisionLabel" min="-2" max="-2" attributes="0"/>
                       <Component id="functionLabel" min="-2" max="-2" attributes="0"/>
                       <Component id="scmUrlLabel" min="-2" max="-2" attributes="0"/>
+>>>>>>> protocol-navigator
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -156,17 +178,29 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
+<<<<<<< HEAD
+                      <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+=======
                       <Component id="functionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+>>>>>>> protocol-navigator
                       <Component id="functionField" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="urlField" alignment="3" min="-2" max="-2" attributes="0"/>
+<<<<<<< HEAD
+                      <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
+=======
                       <Component id="scmUrlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="scmRevisionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+>>>>>>> protocol-navigator
                       <Component id="revisionField" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
@@ -175,6 +209,26 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
+<<<<<<< HEAD
+        <Component class="javax.swing.JLabel" name="jLabel1">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="ProtocolVisualizationPanel.jLabel1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+            </Property>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel2">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="ProtocolVisualizationPanel.jLabel2.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+            </Property>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel3">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="ProtocolVisualizationPanel.jLabel3.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+=======
         <Component class="javax.swing.JLabel" name="functionLabel">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
@@ -193,6 +247,7 @@
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="ProtocolVisualizationPanel.scmRevisionLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+>>>>>>> protocol-navigator
             </Property>
           </Properties>
         </Component>

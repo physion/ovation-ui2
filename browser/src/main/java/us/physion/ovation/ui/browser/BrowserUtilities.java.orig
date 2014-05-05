@@ -75,6 +75,20 @@ public class BrowserUtilities {
     static List<EntityWrapper> getEntityList(TreeFilter filter, DataContext ctx) {
         //check that I'm
         QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
+<<<<<<< HEAD
+        if (filter.isProjectView()) {
+            List<EntityWrapper> projects = Lists.newArrayList(Iterables.transform(ctx.getProjects(), new Function<Project, EntityWrapper>() {
+
+                @Override
+                public EntityWrapper apply(Project input) {
+                    return new EntityWrapper(input);
+                }
+            }));
+            Collections.sort(projects, new EntityComparator());
+            return projects;
+        } else {
+            List<EntityWrapper> sources = Lists.newArrayList(Iterables.transform(ctx.getTopLevelSources(), new Function<Source, EntityWrapper>() {
+=======
         switch (filter.getNavigatorType()) {
             case PROJECT:
                 List<EntityWrapper> projects = Lists.newArrayList(Iterables.transform(ctx.getProjects(), new Function<Project, EntityWrapper>() {
@@ -89,6 +103,7 @@ public class BrowserUtilities {
 
             case SOURCE:
                 List<EntityWrapper> sources = Lists.newArrayList(Iterables.transform(ctx.getTopLevelSources(), new Function<Source, EntityWrapper>() {
+>>>>>>> protocol-navigator
 
                     @Override
                     public EntityWrapper apply(Source input) {
@@ -166,6 +181,15 @@ public class BrowserUtilities {
         }
     }
 
+<<<<<<< HEAD
+    protected static void resetView(final ExplorerManager e, final TreeFilter projectView) {
+        final QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
+
+        if (qs == null) {
+            e.setRootContext(createRootNode(projectView));
+        } else {
+            qs.reset(e, projectView);
+=======
     public static void switchToProtocolView() {
         Set<TopComponent> components = TopComponent.getRegistry().getOpened();
         for (TopComponent c : components) {
@@ -183,6 +207,7 @@ public class BrowserUtilities {
             e.setRootContext(createRootNode(filter));
         } else {
             qs.reset(e, filter);
+>>>>>>> protocol-navigator
         }
     }
 
