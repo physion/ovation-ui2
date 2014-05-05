@@ -4,10 +4,6 @@ import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.mixin.DataElement;
 
 @ServiceProvider(service = VisualizationFactory.class)
-/**
- *
- * @author jackie
- */
 public class DicomVisualizationFactory implements VisualizationFactory{
 
     @Override
@@ -18,10 +14,10 @@ public class DicomVisualizationFactory implements VisualizationFactory{
         }
         return -1;
     }
-    
+
     @Override
-    public Visualization createVisualization(DataElement r) {
+    public DataVisualization createVisualization(DataElement r) {
         return new DicomWrapper(r);
     }
-    
+
 }

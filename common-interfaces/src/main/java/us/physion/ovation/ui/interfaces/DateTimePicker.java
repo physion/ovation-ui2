@@ -7,25 +7,33 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 //TODO: move this out into its own library
-public class DateTimePicker extends JXDatePicker {
+public final class DateTimePicker extends JXDatePicker {
     private DateFormat timeFormat;
 
     public DateTimePicker() {
         super();
         getMonthView().setSelectionModel(new SingleDaySelectionModel());
+        setTimeZone(DateTimeZone.getDefault().toTimeZone());
     }
 
     public DateTimePicker( DateTime d ) {
         this();
-        setDate(d.toDate());
+        setDateTime(d);
+        setTimeZone(d.getZone().toTimeZone());
     }
 
     public DateFormat getTimeFormat() {
         return timeFormat;
     }
 
-    public void setDate(DateTime d) {
-        super.setDate(d.withZone(DateTimeZone.forTimeZone(getTimeZone())).toDate());
+    public void setDateTime(DateTime d) {
+        setTimeZone(d.getZone().toTimeZone());
+        setDate(d.toDate());
+    }
+
+
+    public DateTime getDateTime() {
+        return new DateTime(getDate()).withZone(DateTimeZone.forTimeZone(getTimeZone()));
     }
 
     public void setTimeFormat(DateFormat timeFormat) {

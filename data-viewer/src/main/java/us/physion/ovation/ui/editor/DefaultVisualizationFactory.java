@@ -10,7 +10,7 @@ import us.physion.ovation.domain.mixin.DataElement;
 public class DefaultVisualizationFactory implements VisualizationFactory
 {
     @Override
-    public Visualization createVisualization(DataElement r) {
+    public DataVisualization createVisualization(DataElement r) {
         return new DefaultVisualization(r);
     }
 
@@ -19,7 +19,7 @@ public class DefaultVisualizationFactory implements VisualizationFactory
         return 2;
     }
     
-    class DefaultVisualization implements Visualization
+    class DefaultVisualization implements DataVisualization
     {
         DataElement data;
         DefaultVisualization(DataElement d)

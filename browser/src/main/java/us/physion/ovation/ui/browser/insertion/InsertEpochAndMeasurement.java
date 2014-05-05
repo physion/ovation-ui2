@@ -6,7 +6,6 @@ package us.physion.ovation.ui.browser.insertion;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +31,7 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  *
  * @author jackie
  */
-public class InsertEpochAndMeasurement extends InsertEntity implements ExperimentInsertable, EpochGroupInsertable{
+public class InsertEpochAndMeasurement extends InsertEntity implements ExperimentInsertable, EpochGroupInsertable {
     public InsertEpochAndMeasurement() {
         putValue(NAME, "Insert Measurement...");
     }
@@ -52,7 +51,7 @@ public class InsertEpochAndMeasurement extends InsertEntity implements Experimen
         panels.add(new SelectProtocolController("epoch"));//protocol
         panels.add(new KeyValueController("Add Protocol Parameters", "Add optional protocol parameters", "epoch.protocolParameters"));
         panels.add(new KeyValueController("Add Device Parameters", "Add optional device parameters", "epoch.deviceParameters"));
-        
+
         panels.add(new DataElementController());
         //panels.add(new SourceNameSelectionController("epoch.inputs"));
         panels.add(new DeviceNameSelectionController((EpochContainer)parent.getEntity()));
@@ -63,7 +62,7 @@ public class InsertEpochAndMeasurement extends InsertEntity implements Experimen
     public void wizardFinished(WizardDescriptor wiz, DataContext c, IEntityWrapper parent)
     {
         EpochContainer parentEntity = (EpochContainer)parent.getEntity();
-        
+
         Map<String, Source> inputSources = (Map<String, Source>) wiz.getProperty("epoch.inputs");
         DateTime start = (DateTime) wiz.getProperty("epoch.start");
         DateTime end = (DateTime) wiz.getProperty("epoch.end");
@@ -74,7 +73,7 @@ public class InsertEpochAndMeasurement extends InsertEntity implements Experimen
 
         Map<String, Object> protocolParameters = (Map<String, Object>) wiz.getProperty("epoch.protocolParameters");
         Map<String, Object> deviceParameters = (Map<String, Object>) wiz.getProperty("epoch.deviceParameters");
-            
+
         Epoch epoch = parentEntity.insertEpoch(inputSources, null, start, end, protocol, protocolParameters, deviceParameters);
         String name = (String)wiz.getProperty("dataElement.name");
         String contentType = (String)wiz.getProperty("dataElement.contentType");

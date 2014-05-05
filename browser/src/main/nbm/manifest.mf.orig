@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Layer: us/physion/ovation/ui/browser/layer.xml
+OpenIDE-Module-Localizing-Bundle: us/physion/ovation/ui/browser/Bundle.properties
+OpenIDE-Module-Requires: org.openide.windows.WindowManager
+OpenIDE-Module-Install: us/physion/ovation/ui/browser/Installer.class
+<<<<<<< HEAD
+OpenIDE-Module-Specification-Version: 2.0.42
+=======
+OpenIDE-Module-Specification-Version: 2.0.46
+>>>>>>> simplified-measurement-insertion

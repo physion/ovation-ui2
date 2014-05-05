@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressRunnable;
+import org.netbeans.api.progress.ProgressUtils;
 import org.openide.explorer.ExplorerManager;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
@@ -98,11 +101,11 @@ public class BrowserUtilities {
             case PROTOCOL:
                 List<Protocol> protocols = Lists.newArrayList(ctx.getProtocols());
                 List<EntityWrapper> protocolWrappers = Lists.newArrayListWithExpectedSize(protocols.size());
-                
+
                 for(Protocol p : protocols) {
                     protocolWrappers.add(new EntityWrapper(p));
                 }
-                
+
                 Collections.sort(protocolWrappers, new EntityComparator());
                 return protocolWrappers;
         }
@@ -111,19 +114,26 @@ public class BrowserUtilities {
     }
 
     public static void resetView() {
-        DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
-        ctx.getRepository().clear();
+        final DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+        final QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
 
-        QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
+        ProgressUtils.showProgressDialogAndRun(new ProgressRunnable<Void>() {
 
-        if (qs == null) {
-            for (ExplorerManager mgr : registeredViewManagers.keySet()) {
-                TreeFilter filter = registeredViewManagers.get(mgr);
-                mgr.setRootContext(createRootNode(filter));
+            @Override
+            public Void run(ProgressHandle ph) {
+                ctx.getRepository().clear();
+
+                if (qs == null) {
+                    for (ExplorerManager mgr : registeredViewManagers.keySet()) {
+                        TreeFilter filter = registeredViewManagers.get(mgr);
+                        mgr.setRootContext(createRootNode(filter));
+                    }
+                } else {
+                    qs.reset();
+                }
+                return null;
             }
-        } else {
-            qs.reset();
-        }
+        }, "Loading data...", false);
     }
 
     private static EntityNode createRootNode(final TreeFilter filter) {
@@ -156,8 +166,8 @@ public class BrowserUtilities {
         }
     }
 
-    protected static void resetView(ExplorerManager e, TreeFilter filter) {
-        QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
+    protected static void resetView(final ExplorerManager e, final TreeFilter filter) {
+        final QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
 
         if (qs == null) {
             e.setRootContext(createRootNode(filter));

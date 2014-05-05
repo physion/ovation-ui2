@@ -19,7 +19,7 @@ import us.physion.ovation.domain.mixin.DataElement;
  *
  * @author huecotanks
  */
-public class DefaultImageWrapper implements Visualization{
+public class DefaultImageWrapper implements DataVisualization{
     private final static Logger log = LoggerFactory.getLogger(DefaultImageWrapper.class);
 
     String name;

@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.editor;
 
+import java.awt.Color;
 import us.physion.ovation.ui.actions.OpenInNativeAppAction;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -14,14 +15,15 @@ import us.physion.ovation.domain.mixin.DataElement;
  * @author jackie
  */
 public class DefaultDataPanel extends JPanel{
-    
+
     DataElement d;
     JLabel elementName;
     JLabel messageLabel;
-    
+
     public DefaultDataPanel(DataElement data) {
         d = data;
         this.setLayout(new GridBagLayout());
+        this.setBackground(Color.white);
         GridBagConstraints c = new GridBagConstraints();
         elementName = new JLabel(data.getName());
         messageLabel = new JLabel("Cannot display data of type '" + data.getDataContentType() + "'");

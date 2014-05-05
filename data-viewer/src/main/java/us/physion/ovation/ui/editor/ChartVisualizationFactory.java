@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 public class ChartVisualizationFactory implements VisualizationFactory{
 
    @Override
-    public Visualization createVisualization(DataElement r) {
+    public DataVisualization createVisualization(DataElement r) {
        
         if (!NumericDataElements.isNumeric(r))
         {

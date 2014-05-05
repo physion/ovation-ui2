@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
  *
  * @author huecotanks
  */
-class ChartGroupWrapper implements Visualization
+class ChartGroupWrapper implements DataVisualization
 {
     static Logger logger = LoggerFactory.getLogger(ChartGroupWrapper.class);
     DefaultXYDataset _ds;

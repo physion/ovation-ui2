@@ -24,7 +24,7 @@ public class TabularDataVisualizationFactory implements VisualizationFactory {
     }
     
     @Override
-    public Visualization createVisualization(DataElement r) {
+    public DataVisualization createVisualization(DataElement r) {
         return new TabularDataWrapper(r);
     }
 

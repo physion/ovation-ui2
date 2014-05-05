@@ -12,7 +12,7 @@ import us.physion.ovation.domain.mixin.DataElement;
 public class DefaultImageVisualizationFactory implements VisualizationFactory{
 
     @Override
-    public Visualization createVisualization(DataElement r) {
+    public DataVisualization createVisualization(DataElement r) {
         return new DefaultImageWrapper(r);
     }
 

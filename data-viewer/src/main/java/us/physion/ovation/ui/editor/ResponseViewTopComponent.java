@@ -1,5 +1,7 @@
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -18,15 +20,16 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
-import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ServiceProvider;
+import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.DataElementContainer;
 import us.physion.ovation.ui.actions.spi.DataElementLookupProvider;
@@ -37,17 +40,17 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  * Top component which displays something.
  */
 @ConvertAsProperties(dtd = "-//us.physion.ovation.editor//ResponseView//EN",
-autostore = false)
+        autostore = false)
 @TopComponent.Description(preferredID = "ResponseViewTopComponent",
-//iconBase="SET/PATH/TO/ICON/HERE", 
-persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+        //iconBase="SET/PATH/TO/ICON/HERE",
+        persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "editor", openAtStartup = true)
 @ActionID(category = "Window", id = "us.physion.ovation.editor.ResponseViewTopComponent")
 @ActionReference(path = "Menu/Window" /*
  * , position = 333
  */)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_ResponseViewAction",
-preferredID = "ResponseViewTopComponent")
+        preferredID = "ResponseViewTopComponent")
 @Messages({
     "CTL_ResponseViewAction=Selection View",
     "CTL_ResponseViewTopComponent=Selection Viewer",
@@ -69,7 +72,7 @@ public final class ResponseViewTopComponent extends TopComponent {
 
                 @Override
                 public void run() {
-                    final Visualization v = ResponseWrapperFactory.create(element).createVisualization(element);
+                    final DataVisualization v = ResponseWrapperFactory.create(element).createVisualization(element);
 
                     EventQueueUtilities.runOnEDT(new Runnable() {
 
@@ -94,19 +97,19 @@ public final class ResponseViewTopComponent extends TopComponent {
         @Override
         public Action[] getActions() {
             Action[] other = super.getActions();
-            if(tabActions.isEmpty()){
+            if (tabActions.isEmpty()) {
                 return other;
-            }else{
+            } else {
                 Action[] merged = new Action[tabActions.size() + 1 + other.length];
                 System.arraycopy(tabActions.toArray(), 0, merged, 0, tabActions.size());
                 //separator
                 merged[tabActions.size()] = null;
                 System.arraycopy(other, 0, merged, tabActions.size() + 1, other.length);
-                
+
                 return merged;
             }
         }
-        
+
     }
 
     @ServiceProvider(service = DataElementLookupProvider.class)
@@ -173,9 +176,9 @@ public final class ResponseViewTopComponent extends TopComponent {
                 return d;
             }
         }
-        
+
     }
-    
+
     private FixedHeightPanel contentPanel;
     Lookup.Result global;
     List<FixedHeightPanel> responsePanels = new ArrayList<FixedHeightPanel>();
@@ -199,7 +202,7 @@ public final class ResponseViewTopComponent extends TopComponent {
 
     private void initTopComponent() {
         initComponents();
-        
+
         //Don't allow the user to close the data viewer
         putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
 
@@ -267,29 +270,37 @@ public final class ResponseViewTopComponent extends TopComponent {
         updateEntitySelection = EventQueueUtilities.runOffEDT(r, progress);
     }
 
-    protected List<Visualization> updateEntitySelection(Collection<? extends IEntityWrapper> entities, ProgressHandle progress) {
+    protected List<DataVisualization> updateEntitySelection(Collection<? extends IEntityWrapper> entities, ProgressHandle progress) {
         if (progress != null) {
             progress.switchToDeterminate(entities.size());
         }
         int progressWorkUnit = 0;
 
-        LinkedList<DataElement> responseList = new LinkedList<DataElement>();
+        List<DataElement> responseList = Lists.newLinkedList();
+        List<OvationEntity> containerList = Lists.newLinkedList();
 
-        Iterator i = entities.iterator();
-        while (i.hasNext()) {
-            IEntityWrapper ew = (IEntityWrapper) i.next();
+        for (IEntityWrapper ew : entities) {
+
             if (DataElementContainer.class.isAssignableFrom(ew.getType())) {
                 DataElementContainer container = (DataElementContainer) (ew.getEntity());//getEntity gets the context for the given thread
-                responseList.addAll(Sets.newHashSet(container.getDataElements().values()));
 
                 if (container instanceof Epoch) {
-                    for (AnalysisRecord a : ((Epoch) container).getAnalysisRecords()) {
-                        responseList.addAll(Sets.newHashSet(a.getOutputs().values()));
+                    List<AnalysisRecord> analysisRecords
+                            = Lists.newArrayList(((Epoch) container).getAnalysisRecords());
+                    if (analysisRecords.size() > 0) {
+                        for (AnalysisRecord a : analysisRecords) {
+                            responseList.addAll(Sets.newHashSet(a.getOutputs().values()));
+                        }
+                    } else {
+                        responseList.addAll(Sets.newHashSet(container.getDataElements().values()));
                     }
+                } else {
+                    responseList.addAll(Sets.newHashSet(container.getDataElements().values()));
                 }
-
             } else if (DataElement.class.isAssignableFrom(ew.getType())) {
                 responseList.add((DataElement) ew.getEntity());
+            } else {
+                containerList.add(ew.getEntity());
             }
 
             if (progress != null) {
@@ -297,11 +308,12 @@ public final class ResponseViewTopComponent extends TopComponent {
             }
         }
 
-        List<Visualization> responseGroups = new LinkedList<Visualization>();
+        List<DataVisualization> responseGroups = Lists.newLinkedList();
+        List<ContainerVisualization> containerGroups = Lists.newLinkedList();
 
         for (DataElement rw : responseList) {
             boolean added = false;
-            for (Visualization group : responseGroups) {
+            for (DataVisualization group : responseGroups) {
                 if (group.shouldAdd(rw)) {
                     group.add(rw);
                     added = true;
@@ -313,10 +325,17 @@ public final class ResponseViewTopComponent extends TopComponent {
             }
         }
 
+        for (OvationEntity e : containerList) {
+            containerGroups.add(ResponseWrapperFactory.create(e).createVisualization(e));
+        }
+
         if (progress != null) {
             progress.switchToIndeterminate();
         }
-        EventQueueUtilities.runOnEDT(updateChartRunnable(responseGroups));
+
+        List<Visualization> visualizations = Lists.newLinkedList(Iterables.concat(containerGroups, responseGroups));
+        EventQueueUtilities.runOnEDT(updateChartRunnable(visualizations));
+
         return responseGroups;
     }
 
@@ -332,7 +351,7 @@ public final class ResponseViewTopComponent extends TopComponent {
         d.setVisible(true);
     }
 
-    private Runnable updateChartRunnable(final List<Visualization> responseGroups) {
+    private Runnable updateChartRunnable(final List<? extends Visualization> responseGroups) {
         final int height = contentPanel.getParent().getHeight();
         return new Runnable() {
             @Override
@@ -381,7 +400,7 @@ public final class ResponseViewTopComponent extends TopComponent {
                         contentPanel.add(responsePanels.get(i));
                     }
                 }
-                
+
                 contentPanel.revalidate();
                 contentPanel.repaint();
             }

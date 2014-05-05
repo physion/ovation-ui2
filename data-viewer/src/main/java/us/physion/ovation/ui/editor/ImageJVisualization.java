@@ -15,7 +15,7 @@ import us.physion.ovation.domain.mixin.DataElement;
  *
  * @author huecotanks
  */
-public class ImageJVisualization implements Visualization{
+public class ImageJVisualization implements DataVisualization{
 
     JPanel panel;
     ImageJVisualization(File f)
