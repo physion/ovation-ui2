@@ -166,6 +166,16 @@ public class BrowserUtilities {
         }
     }
 
+    public static void switchToProtocolView() {
+        Set<TopComponent> components = TopComponent.getRegistry().getOpened();
+        for (TopComponent c : components) {
+            if (c instanceof ProtocolBrowserTopComponent) {
+                c.toFront();
+                break;
+            }
+        }
+    }
+
     protected static void resetView(final ExplorerManager e, final TreeFilter filter) {
         final QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
 
