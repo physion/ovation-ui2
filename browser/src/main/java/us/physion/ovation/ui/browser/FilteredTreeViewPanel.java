@@ -8,16 +8,30 @@ import javax.swing.JToggleButton;
 import org.openide.explorer.view.BeanTreeView;
 import us.physion.ovation.ui.browser.TreeFilter.NavigatorType;
 
-public class FilteredTreeViewPanel extends javax.swing.JPanel {
+public final class FilteredTreeViewPanel extends javax.swing.JPanel {
 
     private final TreeFilter filter;
-    public FilteredTreeViewPanel(TreeFilter info) {
+    public FilteredTreeViewPanel(TreeFilter info, final String actionId) {
         filter = info;
         initComponents();
 
         getTreeView().setRootVisible(false);
 
         bindToggleButtons(filter);
+
+        newRootEntityButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+//                Template<ActionListener> template = new Lookup.Template<ActionListener>(
+//                        ActionListener.class,
+//                        actionId,
+//                        null);
+//                Item<ActionListener> item = Lookup.getDefault().lookupItem(template);
+//
+//                item.getInstance().actionPerformed(e);
+            }
+        });
     }
 
     public JToggleButton getEpochGroupToggle() {
@@ -106,6 +120,8 @@ public class FilteredTreeViewPanel extends javax.swing.JPanel {
         experimentToggle = new javax.swing.JToggleButton();
         epochGroupToggle = new javax.swing.JToggleButton();
         epochToggle = new javax.swing.JToggleButton();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
+        newRootEntityButton = new javax.swing.JButton();
 
         jSplitPane1.setBorder(null);
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
@@ -142,6 +158,14 @@ public class FilteredTreeViewPanel extends javax.swing.JPanel {
         epochToggle.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         epochToggle.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(epochToggle);
+        jToolBar1.add(filler1);
+
+        org.openide.awt.Mnemonics.setLocalizedText(newRootEntityButton, org.openide.util.NbBundle.getMessage(FilteredTreeViewPanel.class, "FilteredTreeViewPanel.newRootEntityButton.text")); // NOI18N
+        newRootEntityButton.setToolTipText(org.openide.util.NbBundle.getMessage(FilteredTreeViewPanel.class, "FilteredTreeViewPanel.newRootEntityButton.toolTipText")); // NOI18N
+        newRootEntityButton.setFocusable(false);
+        newRootEntityButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        newRootEntityButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(newRootEntityButton);
 
         jSplitPane1.setRightComponent(jToolBar1);
 
@@ -166,6 +190,8 @@ public class FilteredTreeViewPanel extends javax.swing.JPanel {
     private javax.swing.JToggleButton epochGroupToggle;
     private javax.swing.JToggleButton epochToggle;
     private javax.swing.JToggleButton experimentToggle;
+    private javax.swing.Box.Filler filler1;
+    private javax.swing.JButton newRootEntityButton;
     private javax.swing.JScrollPane treeView;
     // End of variables declaration//GEN-END:variables
 }

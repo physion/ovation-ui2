@@ -31,7 +31,6 @@ import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import us.physion.ovation.ui.interfaces.RootInsertable;
 
 @ActionID(
         category = "Edit",
@@ -47,7 +46,7 @@ import us.physion.ovation.ui.interfaces.RootInsertable;
 @Messages({"CTL_NewProjectAction=Project...",
     "CTL_Default_Project_Name=New Project"
 })
-public final class NewProjectAction implements ActionListener, RootInsertable {
+public final class NewProjectAction implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {

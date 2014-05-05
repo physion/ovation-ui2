@@ -90,7 +90,7 @@ public final class SourceBrowserTopComponent extends TopComponent implements Exp
         });
 
         setLayout(new BorderLayout());
-        FilteredTreeViewPanel panel = new FilteredTreeViewPanel(filter);
+        FilteredTreeViewPanel panel = new FilteredTreeViewPanel(filter, "us.physion.ovation.ui.browser.insertion.NewSourceAction");
         view = panel.getTreeView();
         add(panel, BorderLayout.CENTER);
 

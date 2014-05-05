@@ -94,7 +94,7 @@ public final class ProtocolBrowserTopComponent extends TopComponent implements E
         });
 
         setLayout(new BorderLayout());
-        FilteredTreeViewPanel panel = new FilteredTreeViewPanel(filter);
+        FilteredTreeViewPanel panel = new FilteredTreeViewPanel(filter, "us.physion.ovation.ui.browser.insertion.NewProtocolAction");
         view = panel.getTreeView();
         add(panel, BorderLayout.CENTER);
 

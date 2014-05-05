@@ -77,7 +77,7 @@ public final class BrowserTopComponent extends TopComponent implements ExplorerM
         });
 
         setLayout(new BorderLayout());
-        FilteredTreeViewPanel panel = new FilteredTreeViewPanel(filter);
+        FilteredTreeViewPanel panel = new FilteredTreeViewPanel(filter, "us.physion.ovation.ui.browser.insertion.NewProjectAction");
         view = panel.getTreeView();
         add(panel, BorderLayout.CENTER);
 
