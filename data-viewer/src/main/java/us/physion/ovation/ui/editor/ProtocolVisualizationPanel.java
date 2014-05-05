@@ -50,12 +50,12 @@ public class ProtocolVisualizationPanel extends javax.swing.JPanel {
 
         titleLabel = new javax.swing.JLabel();
         nameField = new javax.swing.JTextField();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        documentScrollPane = new javax.swing.JScrollPane();
         docTextArea = new javax.swing.JTextArea();
         codePanel = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        functionLabel = new javax.swing.JLabel();
+        scmUrlLabel = new javax.swing.JLabel();
+        scmRevisionLabel = new javax.swing.JLabel();
         functionField = new javax.swing.JTextField();
         urlField = new javax.swing.JTextField();
         revisionField = new javax.swing.JTextField();
@@ -72,7 +72,7 @@ public class ProtocolVisualizationPanel extends javax.swing.JPanel {
         org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${protocol.name}"), nameField, org.jdesktop.beansbinding.BeanProperty.create("text_ON_ACTION_OR_FOCUS_LOST"));
         bindingGroup.addBinding(binding);
 
-        jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ProtocolVisualizationPanel.class, "ProtocolVisualizationPanel.jScrollPane1.border.title"))); // NOI18N
+        documentScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ProtocolVisualizationPanel.class, "ProtocolVisualizationPanel.documentScrollPane.border.title"))); // NOI18N
 
         docTextArea.setColumns(20);
         docTextArea.setLineWrap(true);
@@ -82,16 +82,16 @@ public class ProtocolVisualizationPanel extends javax.swing.JPanel {
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${protocol.protocolDocument}"), docTextArea, org.jdesktop.beansbinding.BeanProperty.create("text_ON_FOCUS_LOST"));
         bindingGroup.addBinding(binding);
 
-        jScrollPane1.setViewportView(docTextArea);
+        documentScrollPane.setViewportView(docTextArea);
 
         codePanel.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
         codePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ProtocolVisualizationPanel.class, "ProtocolVisualizationPanel.codePanel.border.title"))); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ProtocolVisualizationPanel.class, "ProtocolVisualizationPanel.jLabel1.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(functionLabel, org.openide.util.NbBundle.getMessage(ProtocolVisualizationPanel.class, "ProtocolVisualizationPanel.functionLabel.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(ProtocolVisualizationPanel.class, "ProtocolVisualizationPanel.jLabel2.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(scmUrlLabel, org.openide.util.NbBundle.getMessage(ProtocolVisualizationPanel.class, "ProtocolVisualizationPanel.scmUrlLabel.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(ProtocolVisualizationPanel.class, "ProtocolVisualizationPanel.jLabel3.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(scmRevisionLabel, org.openide.util.NbBundle.getMessage(ProtocolVisualizationPanel.class, "ProtocolVisualizationPanel.scmRevisionLabel.text")); // NOI18N
 
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${protocol.functionName}"), functionField, org.jdesktop.beansbinding.BeanProperty.create("text_ON_ACTION_OR_FOCUS_LOST"));
         bindingGroup.addBinding(binding);
@@ -109,9 +109,9 @@ public class ProtocolVisualizationPanel extends javax.swing.JPanel {
             .addGroup(codePanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(codePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2))
+                    .addComponent(scmRevisionLabel)
+                    .addComponent(functionLabel)
+                    .addComponent(scmUrlLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(codePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(functionField)
@@ -124,15 +124,15 @@ public class ProtocolVisualizationPanel extends javax.swing.JPanel {
             .addGroup(codePanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(codePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
+                    .addComponent(functionLabel)
                     .addComponent(functionField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(codePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(urlField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
+                    .addComponent(scmUrlLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(codePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
+                    .addComponent(scmRevisionLabel)
                     .addComponent(revisionField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -145,7 +145,7 @@ public class ProtocolVisualizationPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(codePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
+                    .addComponent(documentScrollPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(titleLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -160,7 +160,7 @@ public class ProtocolVisualizationPanel extends javax.swing.JPanel {
                     .addComponent(titleLabel)
                     .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
+                .addComponent(documentScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(codePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -173,13 +173,13 @@ public class ProtocolVisualizationPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel codePanel;
     private javax.swing.JTextArea docTextArea;
+    private javax.swing.JScrollPane documentScrollPane;
     private javax.swing.JTextField functionField;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel functionLabel;
     private javax.swing.JTextField nameField;
     private javax.swing.JTextField revisionField;
+    private javax.swing.JLabel scmRevisionLabel;
+    private javax.swing.JLabel scmUrlLabel;
     private javax.swing.JLabel titleLabel;
     private javax.swing.JTextField urlField;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
