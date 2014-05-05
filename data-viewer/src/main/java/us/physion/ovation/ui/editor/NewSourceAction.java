@@ -14,16 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package us.physion.ovation.ui.browser.insertion;
+package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Lists;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URI;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.browser.BrowserUtilities;
+import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 @ActionID(
         category = "Edit",
@@ -36,12 +42,23 @@ import us.physion.ovation.ui.browser.BrowserUtilities;
     @ActionReference(path = "Menu/File/New", position = 1350, separatorAfter = 1375),
     @ActionReference(path = "Shortcuts", name = "DS-S")
 })
-@Messages("CTL_NewSourceAction=Source...")
+@Messages({"CTL_NewSourceAction=Source...",
+    "CTL_NewSourceLabel=New Source"})
 public final class NewSourceAction implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        new InsertSource().actionPerformed(e);
-        BrowserUtilities.switchToSourceView();
+        DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+
+        Source s = ctx.insertSource(Bundle.CTL_NewSourceLabel(), "");
+
+        BrowserUtilities.resetView();
+        new OpenNodeInBrowserAction(Lists.<URI>newArrayList(s.getURI()),
+                s.getLabel(),
+                false,
+                Lists.<URI>newArrayList(),
+                "SourceBrowserTopComponent").actionPerformed(e);
+
+        //BrowserUtilities.switchToSourceView();
     }
 }

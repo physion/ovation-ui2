@@ -42,13 +42,14 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
     @ActionReference(path = "Menu/File/New", position = 3333),
     @ActionReference(path = "Shortcuts", name = "DC-P")
 })
-@Messages("CTL_NewProtocolAction=Protocol...")
+@Messages({"CTL_NewProtocolAction=Protocol...",
+    "CTL_NewProtocolName=New Protocol",})
 public final class NewProtocolAction implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
         DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
-        Protocol p = ctx.insertProtocol("New Protocol", "");
+        Protocol p = ctx.insertProtocol(Bundle.CTL_NewProtocolName(), "");
 
         BrowserUtilities.resetView();
         new OpenNodeInBrowserAction(Lists.<URI>newArrayList(p.getURI()),

@@ -107,7 +107,7 @@ public class EpochGroupVisualizationPanel extends javax.swing.JPanel {
         org.openide.awt.Mnemonics.setLocalizedText(titleLabel, org.openide.util.NbBundle.getMessage(EpochGroupVisualizationPanel.class, "EpochGroupVisualizationPanel.titleLabel.text")); // NOI18N
 
         labelTextField.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
-        labelTextField.setBorder(null);
+        labelTextField.setBorder(javax.swing.BorderFactory.createLineBorder(javax.swing.UIManager.getDefaults().getColor("Button.background")));
 
         org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${group.label}"), labelTextField, org.jdesktop.beansbinding.BeanProperty.create("text_ON_ACTION_OR_FOCUS_LOST"));
         bindingGroup.addBinding(binding);

@@ -129,7 +129,7 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
 
         projectNameField.setEditable(false);
         projectNameField.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
-        projectNameField.setBorder(null);
+        projectNameField.setBorder(javax.swing.BorderFactory.createLineBorder(javax.swing.UIManager.getDefaults().getColor("Button.background")));
 
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${displayName}"), projectNameField, org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);

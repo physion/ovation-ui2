@@ -10,10 +10,10 @@ import java.util.concurrent.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressRunnable;
-import org.netbeans.api.progress.ProgressUtils;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.explorer.ExplorerManager;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Project;
@@ -21,6 +21,7 @@ import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.ExpressionTreeProvider;
 import us.physion.ovation.ui.interfaces.QueryListener;
 
@@ -28,6 +29,9 @@ import us.physion.ovation.ui.interfaces.QueryListener;
  *
  * @author jackie
  */
+@Messages({
+    "Reset_Loading_Data=Loading data"
+})
 public class BrowserUtilities {
 
     protected static Map<ExplorerManager, TreeFilter> registeredViewManagers = new HashMap<ExplorerManager, TreeFilter>();
@@ -113,14 +117,17 @@ public class BrowserUtilities {
         return Lists.newArrayList();
     }
 
+
     public static void resetView() {
         final DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
         final QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
 
-        ProgressUtils.showProgressDialogAndRun(new ProgressRunnable<Void>() {
+        final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Reset_Loading_Data());
+
+        EventQueueUtilities.runOffEDT(new Runnable() {
 
             @Override
-            public Void run(ProgressHandle ph) {
+            public void run() {
                 ctx.getRepository().clear();
 
                 if (qs == null) {
@@ -131,9 +138,8 @@ public class BrowserUtilities {
                 } else {
                     qs.reset();
                 }
-                return null;
             }
-        }, "Loading data...", false);
+        }, ph);
     }
 
     private static EntityNode createRootNode(final TreeFilter filter) {

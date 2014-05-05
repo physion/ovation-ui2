@@ -4,7 +4,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import javax.swing.Action;
-import org.openide.actions.RenameAction;
 import org.openide.nodes.*;
 import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
@@ -27,7 +26,7 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
     private IEntityWrapper parent;
     private static Map<String, Class> insertableMap = createMap();
     private URI uri;
-    
+
     private static class URITreePathProviderImpl implements URITreePathProvider {
 
         private EntityNode delegate;
@@ -45,14 +44,14 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
             }
         }
     }
-        
+
     public EntityNode(Children c, Lookup l, IEntityWrapper parent) {
         this(c, l, new URITreePathProviderImpl(), parent);
     }
-    
+
     private EntityNode(Children c, Lookup l, URITreePathProviderImpl pathProvider, IEntityWrapper parent) {
         super (c, new ProxyLookup(l, Lookups.singleton(pathProvider)));
-        
+
         pathProvider.setDelegate(this);
         this.parent = parent;
         loadURI();
@@ -80,14 +79,14 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
     public String getName() {
         return parent != null ? parent.getName() : super.getName();
     }
-  
+
    public EntityNode(Children c, IEntityWrapper parent)
    {
        super(c);
        this.parent = parent;
        loadURI();
    }
-   
+
    private void loadURI() {
        try {
            this.uri = (parent != null && parent.getURI() != null) ? new URI(parent.getURI()) : null;
@@ -106,7 +105,7 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
     public List<URI> getFilteredParentURIs() {
         return parent == null ? Collections.EMPTY_LIST : parent.getFilteredParentURIs();
     }
-    
+
     private List<URI> buildURITreePath() {
         List<URI> paths = new ArrayList<URI>();
 
@@ -115,7 +114,7 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
             if (n instanceof URINode) {
                 //put in reverse
                 paths.add(((URINode) n).getURI());
-                
+
                 paths.addAll(((URINode) n).getFilteredParentURIs());
             }
             n = n.getParentNode();
@@ -137,7 +136,7 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
            ((EntityChildren)c).initKeys();
        }
    }
-   
+
    protected void setActionList(Action[] actions)
    {
        actionList = actions;
@@ -148,11 +147,11 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
         if (!DataElement.class.isAssignableFrom(parent.getType())) {
             return super.getPreferredAction();
         }
-        
+
         DataElement data = (DataElement) parent.getEntity();
         return new OpenInSeparateViewAction(data, buildURITreePath());
     }
-    
+
    @Override
     public Action[] getActions(boolean popup) {
        if (actionList == null)
@@ -176,37 +175,37 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
                    Collections.sort(l);
                    actionList = l.toArray(new EntityInsertable[l.size()]);
                }
-               
+
                if(DataElement.class.isAssignableFrom(entityClass)){
                    actionList = appendToArray(actionList, new RevealElementAction((DataElement) parent.getEntity()));
                }
-               
+
                if(AnalysisRecord.class.isAssignableFrom(entityClass)) {
                    actionList = appendToArray(actionList, SystemAction.get(AnalysisRecordInputsAction.class));
                }
-               
+
                if(Epoch.class.isAssignableFrom(entityClass)) {
                    actionList = appendToArray(actionList, SystemAction.get(EpochInputSourcesAction.class));
                }
-               
+
                if(Measurement.class.isAssignableFrom(entityClass)) {
                    actionList = appendToArray(actionList, SystemAction.get(MeasurementInputSourcesAction.class));
                }
-               
+
                //XXX: right now canRename will never change for a given node so it's safe to use it during initialization
-               if (canRename()) {
-                   actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
-               }
-               
+               //if (canRename()) {
+               //   actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
+               //}
+
                if(OvationEntity.class.isAssignableFrom(entityClass)){
                    actionList = appendToArray(actionList, null, SystemAction.get(TrashEntityAction.class));
                }
-               
+
            }
        }
         return actionList;
     }
-   
+
     private static Map<String, Class> createMap() {
         Map<String, Class> insertables = new HashMap<String, Class>();
         insertables.put(Project.class.getSimpleName(), ProjectInsertable.class);
