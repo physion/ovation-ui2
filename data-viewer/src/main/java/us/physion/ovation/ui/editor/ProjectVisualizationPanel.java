@@ -17,20 +17,32 @@
 package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Lists;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.net.URI;
 import java.util.List;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.jdesktop.beansbinding.Binding;
 import org.jdesktop.beansbinding.BindingGroup;
 import org.jdesktop.beansbinding.Bindings;
 import org.joda.time.DateTime;
+import org.openide.util.NbBundle.Messages;
+import org.openide.util.Utilities;
+import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Project;
+import us.physion.ovation.ui.interfaces.ResettableNode;
 
 /**
  * Data viewer visualization for Project entities
  *
  * @author barry
  */
+@Messages({
+    "Default_Experiment_Purpose=New Experiment"
+})
 public class ProjectVisualizationPanel extends javax.swing.JPanel {
 
     final Project project;
@@ -38,9 +50,8 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
     /**
      * Creates new form ProjectVisualizationPanel
      */
-    public ProjectVisualizationPanel(Project p) {
+    public ProjectVisualizationPanel(final Project p) {
         project = p;
-
 
         initComponents();
 
@@ -63,6 +74,7 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
                     startDateTimeChanged();
                 }
             }
+
         });
 
         startPicker.setDateTime(new DateTime(p.getStart()));
@@ -74,6 +86,54 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
                 startDateTimeChanged();
             }
         });
+
+        addExperimentButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Experiment exp = project.insertExperiment(Bundle.Default_Experiment_Purpose(), new DateTime());
+                resetNodes();
+                new OpenNodeInBrowserAction(Lists.<URI>newArrayList(exp.getURI()),
+                        exp.getPurpose(),
+                        false,
+                        Lists.<URI>newArrayList(),
+                        "BrowserTopComponent").actionPerformed(e);
+
+            }
+        });
+
+        projectNameField.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                resetNodes();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                resetNodes();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                resetNodes();
+            }
+        });
+
+        purposeTextArea.addPropertyChangeListener("text", new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                //resetNodes();
+            }
+        });
+
+    }
+
+    private void resetNodes() {
+        for(ResettableNode n : Utilities.actionsGlobalContext().lookupAll(ResettableNode.class)) {
+            n.resetNode();
+        }
     }
 
     protected void startDateTimeChanged() {
@@ -105,6 +165,7 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
         startPicker = new us.physion.ovation.ui.interfaces.DateTimePicker();
         projectNameField = new javax.swing.JTextField();
         startZoneComboBox = new javax.swing.JComboBox();
+        addExperimentButton = new javax.swing.JButton();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
         setBorder(new javax.swing.border.LineBorder(new java.awt.Color(174, 212, 166), 2, true));
@@ -137,6 +198,8 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
         org.jdesktop.swingbinding.JComboBoxBinding jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, eLProperty, startZoneComboBox);
         bindingGroup.addBinding(jComboBoxBinding);
 
+        org.openide.awt.Mnemonics.setLocalizedText(addExperimentButton, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.addExperimentButton.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -155,7 +218,8 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(startPicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(addExperimentButton))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -168,12 +232,14 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
                     .addComponent(projectNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(dateLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(startPicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(addExperimentButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -182,6 +248,7 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addExperimentButton;
     private javax.swing.JLabel dateLabel;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField projectNameField;

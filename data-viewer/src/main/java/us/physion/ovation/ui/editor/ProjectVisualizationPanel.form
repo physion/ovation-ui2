@@ -45,6 +45,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="startZoneComboBox" min="-2" pref="180" max="-2" attributes="0"/>
                           </Group>
+                          <Component id="addExperimentButton" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
@@ -63,13 +64,15 @@
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="jScrollPane1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="dateLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="startPicker" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="startZoneComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Component id="addExperimentButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
@@ -160,6 +163,13 @@
       <BindingProperties>
         <BindingProperty name="elements" source="Form" sourcePath="${availableZoneIDs}" target="startZoneComboBox" targetPath="elements" updateStrategy="0" immediately="false"/>
       </BindingProperties>
+    </Component>
+    <Component class="javax.swing.JButton" name="addExperimentButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="ProjectVisualizationPanel.addExperimentButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

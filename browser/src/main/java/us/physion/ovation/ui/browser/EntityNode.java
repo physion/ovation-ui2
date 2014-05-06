@@ -23,7 +23,7 @@ import us.physion.ovation.ui.interfaces.*;
 public class EntityNode extends AbstractNode implements ResettableNode, URINode {
 
     private Action[] actionList;
-    private IEntityWrapper parent;
+    private IEntityWrapper entityWrapper;
     private static Map<String, Class> insertableMap = createMap();
     private URI uri;
 
@@ -53,43 +53,43 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
         super (c, new ProxyLookup(l, Lookups.singleton(pathProvider)));
 
         pathProvider.setDelegate(this);
-        this.parent = parent;
+        this.entityWrapper = parent;
         loadURI();
     }
 
     @Override
     public boolean canRename() {
-        return parent != null ? parent.canRename() : super.canRename();
+        return entityWrapper != null ? entityWrapper.canRename() : super.canRename();
     }
 
     @Override
     public void setName(String s) {
         super.setName(s);
-        if (parent != null) {
+        if (entityWrapper != null) {
             String oldDisplay = getDisplayName();
 
-            parent.setName(s);
+            entityWrapper.setName(s);
 
-            setDisplayName(parent.getDisplayName());
+            setDisplayName(entityWrapper.getDisplayName());
             fireDisplayNameChange(oldDisplay, getDisplayName());
         }
     }
 
     @Override
     public String getName() {
-        return parent != null ? parent.getName() : super.getName();
+        return entityWrapper != null ? entityWrapper.getName() : super.getName();
     }
 
    public EntityNode(Children c, IEntityWrapper parent)
    {
        super(c);
-       this.parent = parent;
+       this.entityWrapper = parent;
        loadURI();
    }
 
    private void loadURI() {
        try {
-           this.uri = (parent != null && parent.getURI() != null) ? new URI(parent.getURI()) : null;
+           this.uri = (entityWrapper != null && entityWrapper.getURI() != null) ? new URI(entityWrapper.getURI()) : null;
        } catch (URISyntaxException ex) {
            //XXX: Log?
            this.uri = null;
@@ -103,7 +103,7 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
 
     @Override
     public List<URI> getFilteredParentURIs() {
-        return parent == null ? Collections.EMPTY_LIST : parent.getFilteredParentURIs();
+        return entityWrapper == null ? Collections.EMPTY_LIST : entityWrapper.getFilteredParentURIs();
     }
 
     private List<URI> buildURITreePath() {
@@ -128,6 +128,7 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
    @Override
    public void resetNode()
    {
+       setDisplayName(entityWrapper.getDisplayName());
        Children c = getChildren();
        if (c == null || this.isLeaf())
            return;
@@ -144,11 +145,11 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
 
     @Override
     public Action getPreferredAction() {
-        if (!DataElement.class.isAssignableFrom(parent.getType())) {
+        if (!DataElement.class.isAssignableFrom(entityWrapper.getType())) {
             return super.getPreferredAction();
         }
 
-        DataElement data = (DataElement) parent.getEntity();
+        DataElement data = (DataElement) entityWrapper.getEntity();
         return new OpenInSeparateViewAction(data, buildURITreePath());
     }
 
@@ -156,7 +157,7 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
     public Action[] getActions(boolean popup) {
        if (actionList == null)
        {
-           if (parent == null)// root node
+           if (entityWrapper == null)// root node
            {
                Collection<? extends RootInsertable> insertables = Lookup.getDefault().lookupAll(RootInsertable.class);
                List<RootInsertable> l = new ArrayList(insertables);
@@ -164,7 +165,7 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
                actionList = l.toArray(new RootInsertable[l.size()]);
            }
            else{
-               Class entityClass = parent.getType();
+               Class entityClass = entityWrapper.getType();
                Class insertableClass = insertableMap.get(entityClass.getSimpleName());
                if (insertableClass == null)
                {
@@ -177,7 +178,7 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
                }
 
                if(DataElement.class.isAssignableFrom(entityClass)){
-                   actionList = appendToArray(actionList, new RevealElementAction((DataElement) parent.getEntity()));
+                   actionList = appendToArray(actionList, new RevealElementAction((DataElement) entityWrapper.getEntity()));
                }
 
                if(AnalysisRecord.class.isAssignableFrom(entityClass)) {

@@ -17,6 +17,7 @@ import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
+import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
@@ -54,10 +55,11 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 @Messages({
     "CTL_ResponseViewAction=Selection View",
     "CTL_ResponseViewTopComponent=Selection Viewer",
-    "HINT_ResponseViewTopComponent=Displays the current selected entity, if possible",
+    "HINT_ResponseViewTopComponent=Displays the current selected entity",
     "# {0} - data element name",
     "Temporary_Data_Viewer_Title=Data Viewer: {0}",
-    "Temporary_Data_Viewer_Loading=Opening..."
+    "Temporary_Data_Viewer_Loading=Opening...",
+    "Main_Data_Viewer_Name=Data Viewer"
 })
 public final class ResponseViewTopComponent extends TopComponent {
 
@@ -206,8 +208,8 @@ public final class ResponseViewTopComponent extends TopComponent {
         //Don't allow the user to close the data viewer
         putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
 
-        setName("Data Viewer");//Bundle.CTL_ResponseViewTopComponent());
-        setToolTipText("Displays the selected DataElements");//Bundle.HINT_ResponseViewTopComponent());
+        setName(Bundle.Main_Data_Viewer_Name());//Bundle.CTL_ResponseViewTopComponent());
+        setToolTipText(Bundle.HINT_ResponseViewTopComponent());//Bundle.HINT_ResponseViewTopComponent());
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         global.addLookupListener(listener);
     }
@@ -271,6 +273,7 @@ public final class ResponseViewTopComponent extends TopComponent {
     }
 
     protected List<DataVisualization> updateEntitySelection(Collection<? extends IEntityWrapper> entities, ProgressHandle progress) {
+        
         if (progress != null) {
             progress.switchToDeterminate(entities.size());
         }

@@ -17,6 +17,7 @@
 
 package us.physion.ovation.ui.editor;
 
+import org.openide.nodes.Node;
 import us.physion.ovation.domain.OvationEntity;
 
 public interface ContainerVisualizationFactory {
