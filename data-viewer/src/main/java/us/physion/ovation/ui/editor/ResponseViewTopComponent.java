@@ -272,7 +272,20 @@ public final class ResponseViewTopComponent extends TopComponent {
         updateEntitySelection = EventQueueUtilities.runOffEDT(r, progress);
     }
 
-    protected List<DataVisualization> updateEntitySelection(Collection<? extends IEntityNode> entityNodes, ProgressHandle progress) {
+    protected List<DataVisualization> updateEntitySelection(Collection<? extends IEntityNode> nodes, ProgressHandle progress) {
+
+        Set<IEntityNode> entityNodes = new TreeSet<IEntityNode>(new Comparator<IEntityNode>() {
+
+            @Override
+            public int compare(IEntityNode o1, IEntityNode o2) {
+                return o1.getEntity().getURI().compareTo(o2.getEntity().getURI());
+            }
+        });
+
+        for (IEntityNode n : nodes) {
+            entityNodes.add(n);
+        }
+
         if (progress != null) {
             progress.switchToDeterminate(entityNodes.size());
         }
