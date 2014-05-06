@@ -26,6 +26,7 @@ import org.jdesktop.beansbinding.BindingGroup;
 import org.jdesktop.beansbinding.Bindings;
 import org.joda.time.DateTime;
 import us.physion.ovation.domain.Experiment;
+import us.physion.ovation.ui.interfaces.IEntityNode;
 
 /**
  * Experiment visualization panel
@@ -38,8 +39,8 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
     /**
      * Creates new form ExperimentVisualizationPanel
      */
-    public ExperimentVisualizationPanel(Experiment exp) {
-        experiment = exp;
+    public ExperimentVisualizationPanel(IEntityNode exp) {
+        experiment = exp.getEntity(Experiment.class);
 
         initComponents();
 

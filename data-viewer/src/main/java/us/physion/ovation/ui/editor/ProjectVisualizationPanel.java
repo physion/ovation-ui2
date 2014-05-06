@@ -21,13 +21,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.net.URI;
 import java.util.List;
 import org.jdesktop.beansbinding.Binding;
 import org.jdesktop.beansbinding.BindingGroup;
 import org.jdesktop.beansbinding.Bindings;
 import org.joda.time.DateTime;
 import org.openide.util.NbBundle.Messages;
-import org.openide.util.Utilities;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.ui.interfaces.IEntityNode;
@@ -101,6 +101,20 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
                         node.resetNode();
                     }
                 }
+            }
+        });
+
+        addExperimentButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Experiment exp = project.insertExperiment(Bundle.Default_Experiment_Purpose(), new DateTime());
+                node.resetChildren();
+                new OpenNodeInBrowserAction(Lists.newArrayList(exp.getURI()),
+                        exp.getPurpose(),
+                        false,
+                        Lists.<URI>newArrayList(),
+                        "BrowserTopComponent").actionPerformed(e);
             }
         });
     }

@@ -18,6 +18,7 @@
 package us.physion.ovation.ui.editor;
 
 import us.physion.ovation.domain.Source;
+import us.physion.ovation.ui.interfaces.IEntityNode;
 
 /**
  *
@@ -26,11 +27,14 @@ import us.physion.ovation.domain.Source;
 public class SourceVisualizationPanel extends javax.swing.JPanel {
 
     final Source source;
+    final IEntityNode node;
     /**
      * Creates new form SourceVisualizationPanel
      */
-    public SourceVisualizationPanel(Source src) {
-        source = src;
+    public SourceVisualizationPanel(IEntityNode src) {
+        source = src.getEntity(Source.class);
+        node = src;
+
         initComponents();
     }
 

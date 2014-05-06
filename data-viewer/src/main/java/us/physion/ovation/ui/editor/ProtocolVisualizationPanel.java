@@ -1,6 +1,7 @@
 package us.physion.ovation.ui.editor;
 
 import us.physion.ovation.domain.Protocol;
+import us.physion.ovation.ui.interfaces.IEntityNode;
 
 /*
  * Copyright (C) 2014 Physion LLC
@@ -26,11 +27,13 @@ import us.physion.ovation.domain.Protocol;
 public class ProtocolVisualizationPanel extends javax.swing.JPanel {
 
     final Protocol protocol;
+    final IEntityNode node;
     /**
      * Creates new form ProtocolVisualizationPanel
      */
-    public ProtocolVisualizationPanel(Protocol p) {
-        protocol = p;
+    public ProtocolVisualizationPanel(IEntityNode p) {
+        protocol = p.getEntity(Protocol.class);
+        node = p;
         initComponents();
     }
 

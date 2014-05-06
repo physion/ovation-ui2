@@ -208,8 +208,8 @@ public final class ResponseViewTopComponent extends TopComponent {
         //Don't allow the user to close the data viewer
         putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
 
-        setName("Data Viewer");//Bundle.CTL_ResponseViewTopComponent());
-        setToolTipText("Displays the selected DataElements");//Bundle.HINT_ResponseViewTopComponent());
+        setName(Bundle.Main_Data_Viewer_Name());//Bundle.CTL_ResponseViewTopComponent());
+        setToolTipText(Bundle.HINT_ResponseViewTopComponent());//Bundle.HINT_ResponseViewTopComponent());
         global = Utilities.actionsGlobalContext().lookupResult(IEntityNode.class);
         global.addLookupListener(listener);
     }
