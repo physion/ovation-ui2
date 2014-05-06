@@ -57,7 +57,7 @@ public abstract class InsertEntity extends AbstractAction implements EntityInser
                 }*/
                            
             }else{
-                node.resetNode();
+                node.resetChildren();
             }
         }
     }

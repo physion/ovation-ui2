@@ -50,7 +50,7 @@ import us.physion.ovation.ui.interfaces.ResettableNode;
 autostore = false)
 @TopComponent.Description(
     preferredID = "TrashTopComponent",
-//iconBase="SET/PATH/TO/ICON/HERE", 
+//iconBase="SET/PATH/TO/ICON/HERE",
 persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "explorer", openAtStartup = false)
 @ActionID(category = "Window", id = "us.physion.ovation.ui.browser.TrashTopComponent")
@@ -95,7 +95,7 @@ public final class TrashTopComponent extends TopComponent implements ExplorerMan
                     };
         }
     }
-    
+
     class TrashRootNode extends AbstractNode implements ResettableNode {
 
         TrashRootNode(Children c) {
@@ -103,13 +103,18 @@ public final class TrashTopComponent extends TopComponent implements ExplorerMan
         }
 
         @Override
-        public void resetNode() {
+        public void resetChildren() {
             populateTrash();
         }
 
         @Override
         public Action[] getActions(boolean context) {
             return ActionUtils.appendToArray(new Action[]{new ResettableAction(this), null}, super.getActions(context));
+        }
+
+        @Override
+        public void resetNode() {
+            //pass
         }
 
     }
@@ -123,7 +128,7 @@ public final class TrashTopComponent extends TopComponent implements ExplorerMan
 
         final BeanTreeView tree = new BeanTreeView();
         tree.setRootVisible(false);
-        
+
         setLayout(new BorderLayout());
         add(tree, BorderLayout.CENTER);
 
@@ -134,14 +139,14 @@ public final class TrashTopComponent extends TopComponent implements ExplorerMan
     public Action[] getActions() {
         return ActionUtils.appendToArray(new Action[]{new ResettableAction(this), null}, super.getActions());
     }
-    
+
     private void populateTrash() {
         final DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
 
         if (c == null) {
             //adding this node just to have a ResettableNode as root
             explorerManager.setRootContext(new TrashRootNode(Children.LEAF));
-            
+
             log.warn("Null DataContext");
             Toolkit.getDefaultToolkit().beep();
             return;

@@ -21,6 +21,7 @@ import java.awt.Component;
 import java.lang.reflect.InvocationTargetException;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.ui.interfaces.IEntityNode;
 /**
  * Acts as a visualization factor for all containers that have a
  * {@code [Class]VisualizationPanel} defined.
@@ -31,7 +32,7 @@ import us.physion.ovation.domain.OvationEntity;
 public class ReflectionContainerVisualizationFactory implements ContainerVisualizationFactory {
 
     @Override
-    public ContainerVisualization createVisualization(OvationEntity e) {
+    public ContainerVisualization createVisualization(IEntityNode e) {
         return new ReflectionContainerVisualization(e);
     }
 
@@ -54,9 +55,9 @@ public class ReflectionContainerVisualizationFactory implements ContainerVisuali
 
     class ReflectionContainerVisualization implements ContainerVisualization {
 
-        final OvationEntity entity;
+        final IEntityNode entity;
 
-        public ReflectionContainerVisualization(OvationEntity e) {
+        public ReflectionContainerVisualization(IEntityNode e) {
             this.entity = e;
         }
 
@@ -64,13 +65,11 @@ public class ReflectionContainerVisualizationFactory implements ContainerVisuali
         public Component generatePanel() {
             try {
                 Class cls = Class.forName("us.physion.ovation.ui.editor."
-                        + entity.getClass().getSimpleName()
+                        + entity.getEntity().getClass().getSimpleName()
                         + "VisualizationPanel");
 
-                Class entityCls = Class.forName("us.physion.ovation.domain."
-                        + entity.getClass().getSimpleName());
 
-                return (Component) cls.getConstructor(entityCls).newInstance(entity);
+                return (Component) cls.getConstructor(IEntityNode.class).newInstance(entity);
             } catch (ClassNotFoundException ex) {
                 return new DefaultContainerVisualizationFactory()
                         .createVisualization(entity)

@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.interfaces;
 
+import java.awt.Color;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +34,7 @@ public class TestEntityWrapper implements IEntityWrapper{
     public OvationEntity getEntity() {
         return ctx.getObjectWithURI(uri);
     }
-    
+
     @Override
     public OvationEntity getEntity(boolean includeTrash) {
         return ctx.getObjectWithURI(uri, includeTrash);
@@ -53,7 +54,7 @@ public class TestEntityWrapper implements IEntityWrapper{
     public List<URI> getFilteredParentURIs() {
         return Collections.EMPTY_LIST;
     }
-    
+
     //TODO: call this on some static method in our iterfaces jar
     protected String inferDisplayName(OvationEntity e)
     {
@@ -112,5 +113,10 @@ public class TestEntityWrapper implements IEntityWrapper{
     public String getName() {
         return null;
     }
-    
+
+    @Override
+    public Color getDisplayColor() {
+        return Color.black;
+    }
+
 }

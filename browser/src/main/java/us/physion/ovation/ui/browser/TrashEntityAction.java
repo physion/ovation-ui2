@@ -106,7 +106,7 @@ public class TrashEntityAction extends SystemAction {
                     finish();
                     Node n = node.getParentNode();
                     if (n instanceof ResettableNode) {
-                        ((ResettableNode) n).resetNode();
+                        ((ResettableNode) n).resetChildren();
                     }
                 }
 

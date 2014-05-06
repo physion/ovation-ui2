@@ -29,11 +29,11 @@ import org.openide.windows.WindowManager;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
-import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.DataElementContainer;
 import us.physion.ovation.ui.actions.spi.DataElementLookupProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
+import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /**
@@ -63,7 +63,7 @@ public final class ResponseViewTopComponent extends TopComponent {
 
     private final static class TemporaryViewTopComponent extends TopComponent {
 
-        private List<AbstractAction> tabActions = new ArrayList<AbstractAction>();
+        private final List<AbstractAction> tabActions = new ArrayList<AbstractAction>();
 
         public TemporaryViewTopComponent(final DataElement element) {
             setName(Bundle.Temporary_Data_Viewer_Title(element.getName()));
@@ -191,6 +191,7 @@ public final class ResponseViewTopComponent extends TopComponent {
             //then we could get rid of the Library dependancy on the Explorer API
             if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider) {
                 //resetTableEditor();
+
                 updateEntitySelection();
             }
         }
@@ -208,7 +209,7 @@ public final class ResponseViewTopComponent extends TopComponent {
 
         setName("Data Viewer");//Bundle.CTL_ResponseViewTopComponent());
         setToolTipText("Displays the selected DataElements");//Bundle.HINT_ResponseViewTopComponent());
-        global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
+        global = Utilities.actionsGlobalContext().lookupResult(IEntityNode.class);
         global.addLookupListener(listener);
     }
 
@@ -255,11 +256,11 @@ public final class ResponseViewTopComponent extends TopComponent {
     protected void updateEntitySelection() {
 
         final ProgressHandle progress = ProgressHandleFactory.createHandle("Updating view");
-        final Collection<? extends IEntityWrapper> entities = global.allInstances();
+        final Collection<? extends IEntityNode> entityNodes = global.allInstances();
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                updateEntitySelection(entities, progress);
+                updateEntitySelection(entityNodes, progress);
             }
         };
 
@@ -270,17 +271,18 @@ public final class ResponseViewTopComponent extends TopComponent {
         updateEntitySelection = EventQueueUtilities.runOffEDT(r, progress);
     }
 
-    protected List<DataVisualization> updateEntitySelection(Collection<? extends IEntityWrapper> entities, ProgressHandle progress) {
+    protected List<DataVisualization> updateEntitySelection(Collection<? extends IEntityNode> entityNodes, ProgressHandle progress) {
         if (progress != null) {
-            progress.switchToDeterminate(entities.size());
+            progress.switchToDeterminate(entityNodes.size());
         }
         int progressWorkUnit = 0;
 
         List<DataElement> responseList = Lists.newLinkedList();
-        List<OvationEntity> containerList = Lists.newLinkedList();
+        List<IEntityNode> containerList = Lists.newLinkedList();
 
-        for (IEntityWrapper ew : entities) {
+        for (IEntityNode n : entityNodes) {
 
+            IEntityWrapper ew = n.getEntityWrapper();
             if (DataElementContainer.class.isAssignableFrom(ew.getType())) {
                 DataElementContainer container = (DataElementContainer) (ew.getEntity());//getEntity gets the context for the given thread
 
@@ -300,7 +302,7 @@ public final class ResponseViewTopComponent extends TopComponent {
             } else if (DataElement.class.isAssignableFrom(ew.getType())) {
                 responseList.add((DataElement) ew.getEntity());
             } else {
-                containerList.add(ew.getEntity());
+                containerList.add(n);
             }
 
             if (progress != null) {
@@ -325,8 +327,8 @@ public final class ResponseViewTopComponent extends TopComponent {
             }
         }
 
-        for (OvationEntity e : containerList) {
-            containerGroups.add(ResponseWrapperFactory.create(e).createVisualization(e));
+        for (IEntityNode n : containerList) {
+            containerGroups.add(ResponseWrapperFactory.create(n).createVisualization(n));
         }
 
         if (progress != null) {

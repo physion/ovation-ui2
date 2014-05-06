@@ -20,13 +20,14 @@ package us.physion.ovation.ui.editor;
 import java.awt.Component;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.ui.interfaces.IEntityNode;
 
 @ServiceProvider(service = ContainerVisualizationFactory.class)
 public class DefaultContainerVisualizationFactory implements ContainerVisualizationFactory {
 
     @Override
-    public ContainerVisualization createVisualization(OvationEntity e) {
-        return new DefaultVisualization(e);
+    public ContainerVisualization createVisualization(IEntityNode e) {
+        return new DefaultVisualization(e.getEntity());
     }
 
     @Override

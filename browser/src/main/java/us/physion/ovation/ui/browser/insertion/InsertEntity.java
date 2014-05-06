@@ -43,7 +43,7 @@ abstract public class InsertEntity extends AbstractAction implements EntityInser
                     b.actionPerformed(null);
                 }
             }else{
-                node.resetNode();
+                node.resetChildren();
             }
         }
     }

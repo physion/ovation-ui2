@@ -30,7 +30,7 @@ class EntityRootNode extends EntityNode {
      * reload the children keys in case a child is deleted.
      */
     @Override
-    public void resetNode() {
+    public void resetChildren() {
         EntityChildren children = (EntityChildren) getChildren();
         children.updateWithKeys(safeCall(childrenKeysFactory));
     }

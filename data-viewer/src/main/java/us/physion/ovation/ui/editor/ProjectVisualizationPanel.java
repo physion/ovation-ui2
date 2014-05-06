@@ -25,6 +25,7 @@ import org.jdesktop.beansbinding.BindingGroup;
 import org.jdesktop.beansbinding.Bindings;
 import org.joda.time.DateTime;
 import us.physion.ovation.domain.Project;
+import us.physion.ovation.ui.interfaces.IEntityNode;
 
 /**
  * Data viewer visualization for Project entities
@@ -34,16 +35,22 @@ import us.physion.ovation.domain.Project;
 public class ProjectVisualizationPanel extends javax.swing.JPanel {
 
     final Project project;
+    final IEntityNode node;
 
     /**
      * Creates new form ProjectVisualizationPanel
      */
-    public ProjectVisualizationPanel(Project p) {
-        project = p;
-
+    public ProjectVisualizationPanel(IEntityNode n) {
+        this.node = n;
+        project = n.getEntity(Project.class);
 
         initComponents();
+        initUI();
 
+        node.resetNode();
+    }
+
+    private void initUI() {
         Binding binding = Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
                 this,
                 org.jdesktop.beansbinding.ELProperty.create("${project.start}"),
@@ -54,7 +61,7 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
         group.addBinding(binding);
         group.bind();
 
-        startZoneComboBox.setSelectedItem(p.getStart().getZone().getID());
+        startZoneComboBox.setSelectedItem(project.getStart().getZone().getID());
 
         startPicker.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
@@ -65,13 +72,27 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
             }
         });
 
-        startPicker.setDateTime(new DateTime(p.getStart()));
+        startPicker.setDateTime(new DateTime(project.getStart()));
 
         startZoneComboBox.addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 startDateTimeChanged();
+            }
+        });
+
+        projectNameField.addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals("text")) {
+                    String current = project.getName();
+                    String newName = (String) evt.getNewValue();
+                    if (!current.equals(newName)) {
+                        node.resetNode();
+                    }
+                }
             }
         });
     }
