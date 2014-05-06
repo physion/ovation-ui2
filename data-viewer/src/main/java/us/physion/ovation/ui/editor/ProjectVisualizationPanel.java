@@ -120,7 +120,7 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
     }
 
     protected void startDateTimeChanged() {
-        //project.setStart(zonedDate(startPicker, startZoneComboBox));
+        project.setStart(zonedDate(startPicker, startZoneComboBox));
     }
 
     public Project getProject() {
