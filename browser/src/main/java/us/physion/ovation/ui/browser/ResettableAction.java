@@ -57,7 +57,7 @@ public class ResettableAction extends AbstractAction {
             }
         }
         if (target != null) {
-            target.resetNode();
+            target.resetChildren();
         } else {
             Toolkit.getDefaultToolkit().beep();
         }

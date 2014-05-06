@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.browser;
 
+import java.awt.Color;
 import java.awt.Toolkit;
 import org.joda.time.DateTime;
 import org.openide.ErrorManager;
@@ -26,11 +27,13 @@ public class EntityWrapper implements IEntityWrapper {
 
     private Class type;
     private String displayName;
+    private Color displayColor;
 
     public EntityWrapper(OvationEntity e) {
         uri = e.getURI().toString();
         type = e.getClass();
         displayName = EntityWrapper.inferDisplayName(e);
+        displayColor = inferDisplayColor(e);
     }
 
     //used by the PerUserEntityWrapper object
@@ -195,5 +198,33 @@ public class EntityWrapper implements IEntityWrapper {
         //not sure if EquipmentSetup even has a Node...
         //EquipmentSetup.class.isAssignableFrom(getType()) ||
         //Protocol.class.isAssignableFrom(getType());
+    }
+
+    @Override
+    public Color getDisplayColor() {
+        return displayColor;
+    }
+
+    private static Color inferDisplayColor(OvationEntity e) {
+        Class type = e.getClass();
+        if (Source.class.isAssignableFrom(type)) {
+            return new Color(161, 37, 127);
+        } else if (Project.class.isAssignableFrom(type)) {
+            return new Color(0, 89, 153);
+        } else if (Experiment.class.isAssignableFrom(type)) {
+            return Color.darkGray;
+        } else if (EpochGroup.class.isAssignableFrom(type)) {
+            return Color.black;
+        } else if (Epoch.class.isAssignableFrom(type)) {
+            return Color.black;
+        } else if (DataElement.class.isAssignableFrom(type)) {
+            return new Color(0, 126, 189);
+        } else if (AnalysisRecord.class.isAssignableFrom(type)) {
+            return new Color(51, 153, 0);
+        } else if (Protocol.class.isAssignableFrom(type)) {
+            return new Color(234, 147, 61);
+        }
+
+        return Color.BLACK;
     }
 }

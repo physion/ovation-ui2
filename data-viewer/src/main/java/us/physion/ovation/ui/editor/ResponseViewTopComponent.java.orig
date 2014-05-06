@@ -17,6 +17,7 @@ import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
+import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
@@ -208,9 +209,15 @@ public final class ResponseViewTopComponent extends TopComponent {
         //Don't allow the user to close the data viewer
         putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
 
+<<<<<<< HEAD
+        setName(Bundle.Main_Data_Viewer_Name());//Bundle.CTL_ResponseViewTopComponent());
+        setToolTipText(Bundle.HINT_ResponseViewTopComponent());//Bundle.HINT_ResponseViewTopComponent());
+        global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
+=======
         setName("Data Viewer");//Bundle.CTL_ResponseViewTopComponent());
         setToolTipText("Displays the selected DataElements");//Bundle.HINT_ResponseViewTopComponent());
         global = Utilities.actionsGlobalContext().lookupResult(IEntityNode.class);
+>>>>>>> FETCH_HEAD
         global.addLookupListener(listener);
     }
 
@@ -272,7 +279,12 @@ public final class ResponseViewTopComponent extends TopComponent {
         updateEntitySelection = EventQueueUtilities.runOffEDT(r, progress);
     }
 
+<<<<<<< HEAD
+    protected List<DataVisualization> updateEntitySelection(Collection<? extends IEntityWrapper> entities, ProgressHandle progress) {
+        
+=======
     protected List<DataVisualization> updateEntitySelection(Collection<? extends IEntityNode> entityNodes, ProgressHandle progress) {
+>>>>>>> FETCH_HEAD
         if (progress != null) {
             progress.switchToDeterminate(entityNodes.size());
         }

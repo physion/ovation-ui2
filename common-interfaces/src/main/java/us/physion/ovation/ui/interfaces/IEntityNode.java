@@ -15,15 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package us.physion.ovation.ui.editor;
+package us.physion.ovation.ui.interfaces;
 
-import org.openide.nodes.Node;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.ui.interfaces.IEntityNode;
 
-public interface ContainerVisualizationFactory {
+/**
+ *
+ * @author barry
+ */
+public interface IEntityNode extends ResettableNode {
+    OvationEntity getEntity();
 
-    public ContainerVisualization createVisualization(IEntityNode e);
+    OvationEntity getEntity(boolean includingTrash);
 
-    public int getPreferenceForContainer(OvationEntity e);
+    <T extends OvationEntity> T getEntity(Class<T> clazz);
+
+    IEntityWrapper getEntityWrapper();
 }

@@ -21,7 +21,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.net.URI;
 import java.util.List;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.jdesktop.beansbinding.Binding;
 import org.jdesktop.beansbinding.BindingGroup;
 import org.jdesktop.beansbinding.Bindings;
@@ -30,7 +33,11 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Project;
+<<<<<<< HEAD
+import us.physion.ovation.ui.interfaces.ResettableNode;
+=======
 import us.physion.ovation.ui.interfaces.IEntityNode;
+>>>>>>> FETCH_HEAD
 
 /**
  * Data viewer visualization for Project entities
@@ -48,9 +55,14 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
     /**
      * Creates new form ProjectVisualizationPanel
      */
+<<<<<<< HEAD
+    public ProjectVisualizationPanel(final Project p) {
+        project = p;
+=======
     public ProjectVisualizationPanel(IEntityNode n) {
         this.node = n;
         project = n.getEntity(Project.class);
+>>>>>>> FETCH_HEAD
 
         initComponents();
         initUI();
@@ -78,6 +90,7 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
                     startDateTimeChanged();
                 }
             }
+
         });
 
         startPicker.setDateTime(new DateTime(project.getStart()));
@@ -90,6 +103,55 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
             }
         });
 
+<<<<<<< HEAD
+        addExperimentButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Experiment exp = project.insertExperiment(Bundle.Default_Experiment_Purpose(), new DateTime());
+                resetNodes();
+                new OpenNodeInBrowserAction(Lists.<URI>newArrayList(exp.getURI()),
+                        exp.getPurpose(),
+                        false,
+                        Lists.<URI>newArrayList(),
+                        "BrowserTopComponent").actionPerformed(e);
+
+            }
+        });
+
+        projectNameField.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                resetNodes();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                resetNodes();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                resetNodes();
+            }
+        });
+
+        purposeTextArea.addPropertyChangeListener("text", new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                //resetNodes();
+            }
+        });
+
+    }
+
+    private void resetNodes() {
+        for(ResettableNode n : Utilities.actionsGlobalContext().lookupAll(ResettableNode.class)) {
+            n.resetNode();
+        }
+=======
         projectNameField.addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
@@ -103,6 +165,7 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
                 }
             }
         });
+>>>>>>> FETCH_HEAD
     }
 
     protected void startDateTimeChanged() {

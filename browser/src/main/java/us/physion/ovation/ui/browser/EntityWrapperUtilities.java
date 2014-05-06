@@ -1,17 +1,12 @@
 package us.physion.ovation.ui.browser;
 
-import com.google.common.collect.Sets;
 import java.util.*;
-import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.lookup.Lookups;
 import us.physion.ovation.domain.*;
-import us.physion.ovation.domain.mixin.DataElement;
-import us.physion.ovation.domain.mixin.Owned;
-import us.physion.ovation.domain.mixin.ProcedureElement;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /**
@@ -41,7 +36,7 @@ public class EntityWrapperUtilities {
 //        treeMap.put(uri, n);
         return n;
     }
-    
+
     public static EntityNode createNewNode(IEntityWrapper key, Children c)
     {
         EntityNode n = new EntityNode(key.isLeaf() ? Children.LEAF : c, Lookups.singleton(key), key);
@@ -63,10 +58,12 @@ public class EntityWrapperUtilities {
             n.setIconBaseWithExtension("us/physion/ovation/ui/browser/epoch.png");
         } else if (AnalysisRecord.class.isAssignableFrom(entityClass)) {
             n.setIconBaseWithExtension("us/physion/ovation/ui/browser/analysis-record.png");
-        } else if (DataElement.class.isAssignableFrom(entityClass)) {
-            n.setIconBaseWithExtension("us/physion/ovation/ui/browser/analysis-record.png");
         } else if (User.class.isAssignableFrom(entityClass)) {
             n.setIconBaseWithExtension("us/physion/ovation/ui/browser/user.png");
         }
+
+        //else if (DataElement.class.isAssignableFrom(entityClass)) {
+        //        n.setIconBaseWithExtension("us/physion/ovation/ui/browser/analysis-record.png");
+        //    }
     }
 }

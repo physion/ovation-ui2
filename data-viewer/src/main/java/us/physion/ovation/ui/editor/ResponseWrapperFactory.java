@@ -6,8 +6,8 @@ package us.physion.ovation.ui.editor;
 
 import java.util.Collection;
 import org.openide.util.Lookup;
-import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.ui.interfaces.IEntityNode;
 
 /**
  *
@@ -34,11 +34,11 @@ public class ResponseWrapperFactory {
         return vis;
     }
 
-    public static <T extends OvationEntity> ContainerVisualizationFactory create(T e) {
+    public static ContainerVisualizationFactory create(IEntityNode n) {
         int preference = 0;
         ContainerVisualizationFactory vis = null;
         for (ContainerVisualizationFactory f : containerVizFactories) {
-            int factoryPref = f.getPreferenceForContainer(e);
+            int factoryPref = f.getPreferenceForContainer(n.getEntity());
             if (factoryPref > preference) {
                 preference = factoryPref;
                 vis = f;

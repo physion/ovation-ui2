@@ -24,7 +24,11 @@ import us.physion.ovation.ui.interfaces.*;
 public class EntityNode extends AbstractNode implements ResettableNode, URINode, IEntityNode {
 
     private Action[] actionList;
+<<<<<<< HEAD
+    private IEntityWrapper entityWrapper;
+=======
     private final IEntityWrapper entityWrapper;
+>>>>>>> FETCH_HEAD
     private static Map<String, Class> insertableMap = createMap();
     private URI uri;
 
@@ -81,7 +85,11 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode,
         super(c, new ProxyLookup(l, Lookups.singleton(pathProvider)));
 
         pathProvider.setDelegate(this);
+<<<<<<< HEAD
+        this.entityWrapper = parent;
+=======
         this.entityWrapper = entity;
+>>>>>>> FETCH_HEAD
         loadURI();
     }
 
@@ -94,10 +102,19 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode,
     public void setName(String s) {
         super.setName(s);
         if (entityWrapper != null) {
+<<<<<<< HEAD
+            String oldDisplay = getDisplayName();
+
+            entityWrapper.setName(s);
+
+            setDisplayName(entityWrapper.getDisplayName());
+            fireDisplayNameChange(oldDisplay, getDisplayName());
+=======
             entityWrapper.setName(s);
 
             setDisplayName(entityWrapper.getDisplayName());
             fireDisplayNameChange(null, getDisplayName());
+>>>>>>> FETCH_HEAD
         }
     }
 
@@ -106,6 +123,23 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode,
         return entityWrapper != null ? entityWrapper.getName() : super.getName();
     }
 
+<<<<<<< HEAD
+   public EntityNode(Children c, IEntityWrapper parent)
+   {
+       super(c);
+       this.entityWrapper = parent;
+       loadURI();
+   }
+
+   private void loadURI() {
+       try {
+           this.uri = (entityWrapper != null && entityWrapper.getURI() != null) ? new URI(entityWrapper.getURI()) : null;
+       } catch (URISyntaxException ex) {
+           //XXX: Log?
+           this.uri = null;
+       }
+   }
+=======
     @Override
     public String getHtmlDisplayName() {
         if (entityWrapper != null && entityWrapper.getDisplayColor() != null) {
@@ -140,6 +174,7 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode,
             this.uri = null;
         }
     }
+>>>>>>> FETCH_HEAD
 
     @Override
     public URI getURI() {
@@ -170,6 +205,20 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode,
         return paths;
     }
 
+<<<<<<< HEAD
+   @Override
+   public void resetNode()
+   {
+       setDisplayName(entityWrapper.getDisplayName());
+       Children c = getChildren();
+       if (c == null || this.isLeaf())
+           return;
+       if (c instanceof EntityChildren)
+       {
+           ((EntityChildren)c).initKeys();
+       }
+   }
+=======
     @Override
     public void resetChildren() {
         Children c = getChildren();
@@ -185,6 +234,7 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode,
     public void resetNode() {
         updateDisplayName();
     }
+>>>>>>> FETCH_HEAD
 
     protected void setActionList(Action[] actions) {
         actionList = actions;
@@ -202,6 +252,45 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode,
 
     @Override
     public Action[] getActions(boolean popup) {
+<<<<<<< HEAD
+       if (actionList == null)
+       {
+           if (entityWrapper == null)// root node
+           {
+               Collection<? extends RootInsertable> insertables = Lookup.getDefault().lookupAll(RootInsertable.class);
+               List<RootInsertable> l = new ArrayList(insertables);
+               Collections.sort(l);
+               actionList = l.toArray(new RootInsertable[l.size()]);
+           }
+           else{
+               Class entityClass = entityWrapper.getType();
+               Class insertableClass = insertableMap.get(entityClass.getSimpleName());
+               if (insertableClass == null)
+               {
+                   actionList = new Action[0];
+               } else {
+                   Collection insertables = Lookup.getDefault().lookupAll(insertableClass);
+                   List<? extends Comparable> l = new ArrayList(insertables);
+                   Collections.sort(l);
+                   actionList = l.toArray(new EntityInsertable[l.size()]);
+               }
+
+               if(DataElement.class.isAssignableFrom(entityClass)){
+                   actionList = appendToArray(actionList, new RevealElementAction((DataElement) entityWrapper.getEntity()));
+               }
+
+               if(AnalysisRecord.class.isAssignableFrom(entityClass)) {
+                   actionList = appendToArray(actionList, SystemAction.get(AnalysisRecordInputsAction.class));
+               }
+
+               if(Epoch.class.isAssignableFrom(entityClass)) {
+                   actionList = appendToArray(actionList, SystemAction.get(EpochInputSourcesAction.class));
+               }
+
+               if(Measurement.class.isAssignableFrom(entityClass)) {
+                   actionList = appendToArray(actionList, SystemAction.get(MeasurementInputSourcesAction.class));
+               }
+=======
         if (actionList == null) {
             if (entityWrapper == null)// root node
             {
@@ -236,6 +325,7 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode,
                 if (Measurement.class.isAssignableFrom(entityClass)) {
                     actionList = appendToArray(actionList, SystemAction.get(MeasurementInputSourcesAction.class));
                 }
+>>>>>>> FETCH_HEAD
 
                //XXX: right now canRename will never change for a given node so it's safe to use it during initialization
                 //if (canRename()) {
