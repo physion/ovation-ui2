@@ -18,15 +18,15 @@ public class DefaultVisualizationFactory implements VisualizationFactory
     public int getPreferenceForDataContainer(DataElement r) {
         return 2;
     }
-    
+
     class DefaultVisualization implements DataVisualization
     {
         DataElement data;
         DefaultVisualization(DataElement d)
         {
-            data =d;
+            data = d;
         }
-        
+
         @Override
         public Component generatePanel() {
             return new DefaultDataPanel(data);
@@ -39,9 +39,9 @@ public class DefaultVisualizationFactory implements VisualizationFactory
 
         @Override
         public void add(DataElement r) {
-            throw new UnsupportedOperationException("Create a new Visualization, rather than adding to an existing one"); 
+            throw new UnsupportedOperationException("Create a new Visualization, rather than adding to an existing one");
         }
-        
+
     }
-    
+
 }

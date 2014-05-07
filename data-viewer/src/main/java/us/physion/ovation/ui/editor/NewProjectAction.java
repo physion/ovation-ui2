@@ -61,6 +61,6 @@ public final class NewProjectAction implements ActionListener {
                 p.getName(), //protocol name
                 false,
                 Lists.<URI>newArrayList(),
-                "BrowserTopComponent").actionPerformed(e);
+                "ProjectBrowserTopComponent").actionPerformed(e);
     }
 }

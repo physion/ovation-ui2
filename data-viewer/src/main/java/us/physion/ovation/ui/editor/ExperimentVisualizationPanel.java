@@ -29,12 +29,18 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.view.TreeView;
+import org.openide.nodes.Node;
 import org.openide.util.NbBundle.Messages;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Experiment;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
+import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
 /**
  * Experiment visualization panel
@@ -90,13 +96,21 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
 
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
 
+                TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
+                if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
+                    throw new IllegalStateException();
+                }
+
+                TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
+
+                view.expandNode((Node) node);
+
                 EventQueueUtilities.runOffEDT(new Runnable() {
 
                     @Override
                     public void run() {
                         insertMeasurements(files);
                         EventQueueUtilities.runOnEDT(new Runnable() {
-
                             @Override
                             public void run() {
                                 node.refresh();

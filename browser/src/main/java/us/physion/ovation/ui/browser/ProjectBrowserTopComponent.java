@@ -22,35 +22,35 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
 /**
  * Top component which displays something.
  */
-@ConvertAsProperties(dtd = "-//us.physion.ovation.ui.browser//Browser//EN",
+@ConvertAsProperties(dtd = "-//us.physion.ovation.ui.browser//ProjectBrowser//EN",
         autostore = false)
-@TopComponent.Description(preferredID = "BrowserTopComponent",
+@TopComponent.Description(preferredID = "ProjectBrowserTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "explorer", openAtStartup = true)
-@ActionID(category = "Window", id = "us.physion.ovation.ui.browser.BrowserTopComponent")
+@ActionID(category = "Window", id = "us.physion.ovation.ui.browser.ProjectBrowserTopComponent")
 @ActionReference(path = "Menu/Window" /*
  * , position = 333
  */)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_BrowserAction",
-        preferredID = "BrowserTopComponent")
+        preferredID = "ProjectBrowserTopComponent")
 @Messages({
     "CTL_BrowserAction=Projects Navigator",
     "CTL_BrowserTopComponent=Projects",
     "HINT_BrowserTopComponent=Browse your Ovation Database"
 })
-public final class BrowserTopComponent extends TopComponent implements ExplorerManager.Provider, TreeViewProvider {
+public final class ProjectBrowserTopComponent extends TopComponent implements ExplorerManager.Provider, TreeViewProvider {
 
     private Lookup lookup;
     private final ExplorerManager explorerManager = new ExplorerManager();
     private final BeanTreeView view;
     private final TreeFilter filter;
 
-    public BrowserTopComponent() {
+    public ProjectBrowserTopComponent() {
 
         filter = new TreeFilter(NavigatorType.PROJECT);
 
-        final Preferences prefs = NbPreferences.forModule(BrowserTopComponent.class);
+        final Preferences prefs = NbPreferences.forModule(ProjectBrowserTopComponent.class);
 
         filter.setExperimentsVisible(prefs.getBoolean("experiments-visible", true));
         filter.setEpochGroupsVisible(prefs.getBoolean("epoch-groups-visible", false));

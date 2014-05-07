@@ -165,7 +165,7 @@ public class BrowserUtilities {
     public static void switchToProjectView() {
         Set<TopComponent> components = TopComponent.getRegistry().getOpened();
         for (TopComponent c : components) {
-            if (c instanceof BrowserTopComponent) {
+            if (c instanceof ProjectBrowserTopComponent) {
                 c.toFront();
                 break;
             }

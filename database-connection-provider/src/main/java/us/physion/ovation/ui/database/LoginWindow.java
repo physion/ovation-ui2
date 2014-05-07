@@ -178,6 +178,7 @@ public class LoginWindow {
     {
         model = new LoginModel();
         dialog = new JDialog(new JFrame(), Bundle.Login_Window_Title(), true);
+        dialog.setUndecorated(true);
 
         spinner = new JLabel(new ImageIcon(LoginWindow.class.getResource("ajax-loader.gif"))); //NOI18N
         spinner.setVisible(false);
@@ -188,7 +189,7 @@ public class LoginWindow {
         final JPanel login = new JPanel();
         login.setBackground(SPINNER_BACKGROUND);
         login.setAlignmentX(Component.LEFT_ALIGNMENT);
-        login.setBorder(new EmptyBorder(15, 15, 15, 15));
+        login.setBorder(new EmptyBorder(25, 15, 15, 15));
         login.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 

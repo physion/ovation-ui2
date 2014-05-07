@@ -22,6 +22,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
 import java.util.List;
+import javax.swing.SwingUtilities;
 import org.joda.time.DateTime;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
@@ -30,7 +31,6 @@ import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.events.EntityUpdate;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
 import us.physion.ovation.ui.interfaces.EventBusProvider;
-import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 
 /**
@@ -95,17 +95,17 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 final Experiment exp = project.insertExperiment(Bundle.Default_Experiment_Purpose(), new DateTime());
+
                 node.refresh();
 
-                EventQueueUtilities.runOnEDT(new Runnable() {
-
+                SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
                         new OpenNodeInBrowserAction(Lists.newArrayList(exp.getURI()),
-                                exp.getPurpose(),
+                                null,
                                 false,
                                 Lists.<URI>newArrayList(),
-                                "BrowserTopComponent").actionPerformed(e);
+                                OpenNodeInBrowserAction.PROJECT_BROWSER_ID).actionPerformed(e);
                     }
                 });
 
