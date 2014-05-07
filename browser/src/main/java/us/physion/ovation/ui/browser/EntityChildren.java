@@ -96,24 +96,23 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
         return new Node[]{EntityWrapperUtilities.createNode(key, Children.createLazy(getChildrenCallable(key)))};
     }
 
-    protected void updateWithKeys(final List<EntityWrapper> list) {
+    protected final void updateWithKeys(final List<EntityWrapper> list) {
         EventQueueUtilities.runOnEDT(new Runnable() {
             @Override
             public void run() {
                 setKeys(list);
-                addNotify();
-                refresh();
+                //addNotify();
+                //refresh();
                 loadedKeys = true;
             }
         });
     }
 
-    public void resetNode() {
-        loadedKeys = false;
-        initKeys();
-    }
+    protected final void initKeys() {
+        if (parent == null) {
+            return;
+        }
 
-    protected void initKeys() {
         final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Loading_Entity_Children(parent.getDisplayName()));
 
         EventQueueUtilities.runOffEDT(new Runnable() {
@@ -123,6 +122,10 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
                 createKeys(ph);
             }
         }, ph);
+    }
+
+    public void refreshKeys() {
+        createKeys(null);
     }
 
     protected void createKeys(ProgressHandle ph) {

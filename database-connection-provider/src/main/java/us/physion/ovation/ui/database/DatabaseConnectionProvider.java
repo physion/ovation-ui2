@@ -1,21 +1,27 @@
 package us.physion.ovation.ui.database;
 
+import com.google.common.eventbus.EventBus;
 import java.beans.PropertyChangeEvent;
 import java.util.*;
 import org.openide.util.lookup.ServiceProvider;
+import org.openide.util.lookup.ServiceProviders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
-import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.ui.interfaces.EventBusProvider;
+import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
 /**
  *
  * @author jackie
  */
-@ServiceProvider(service = ConnectionProvider.class)
-public class DatabaseConnectionProvider implements ConnectionProvider{
+@ServiceProviders({
+    @ServiceProvider(service = ConnectionProvider.class),
+    @ServiceProvider(service = EventBusProvider.class)
+})
+public class DatabaseConnectionProvider implements ConnectionProvider, EventBusProvider {
 
     static Logger logger = LoggerFactory.getLogger(DatabaseConnectionProvider.class);
 
@@ -44,7 +50,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
 
         return context;
     }
-    
+
     @Override
     public synchronized void login()
     {
@@ -76,5 +82,10 @@ public class DatabaseConnectionProvider implements ConnectionProvider{
     @Override
     public void removeConnectionListener(ConnectionListener cl) {
         connectionListeners.remove(cl);
+    }
+
+    @Override
+    public EventBus getDefaultEventBus() {
+        return getDefaultContext().getEventBus();
     }
 }

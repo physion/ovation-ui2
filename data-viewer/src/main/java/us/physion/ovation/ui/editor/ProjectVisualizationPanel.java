@@ -17,20 +17,22 @@
 package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Lists;
+import com.google.common.eventbus.EventBus;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.util.List;
-import org.jdesktop.beansbinding.Binding;
-import org.jdesktop.beansbinding.BindingGroup;
-import org.jdesktop.beansbinding.Bindings;
 import org.joda.time.DateTime;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.events.EntityUpdate;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
+import us.physion.ovation.ui.interfaces.EventBusProvider;
+import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 
 /**
@@ -56,19 +58,12 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
         initComponents();
         initUI();
 
-        node.resetNode();
+        node.refresh();
     }
 
     private void initUI() {
-        Binding binding = Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
-                this,
-                org.jdesktop.beansbinding.ELProperty.create("${project.start}"),
-                startPicker,
-                org.jdesktop.beansbinding.BeanProperty.create("dateTime"));
 
-        BindingGroup group = new org.jdesktop.beansbinding.BindingGroup();
-        group.addBinding(binding);
-        group.bind();
+        startPicker.setDateTime(getProject().getStart());
 
         startZoneComboBox.setSelectedItem(project.getStart().getZone().getID());
 
@@ -91,37 +86,40 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
             }
         });
 
-        projectNameField.addPropertyChangeListener(new PropertyChangeListener() {
+        projectNameField.addActionListener(new ActionListener() {
 
             @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (evt.getPropertyName().equals("text")) {
-                    String current = project.getName();
-                    String newName = (String) evt.getNewValue();
-                    if (!current.equals(newName)) {
-                        node.resetNode();
-                    }
-                }
+            public void actionPerformed(ActionEvent e) {
+                EventBus bus = Lookup.getDefault().lookup(EventBusProvider.class).getDefaultEventBus();
+                bus.post(new EntityUpdate(project.toDto(), 0, null));
             }
         });
 
         addExperimentButton.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent e) {
-                Experiment exp = project.insertExperiment(Bundle.Default_Experiment_Purpose(), new DateTime());
-                node.resetChildren();
-                new OpenNodeInBrowserAction(Lists.newArrayList(exp.getURI()),
-                        exp.getPurpose(),
-                        false,
-                        Lists.<URI>newArrayList(),
-                        "BrowserTopComponent").actionPerformed(e);
+            public void actionPerformed(final ActionEvent e) {
+                final Experiment exp = project.insertExperiment(Bundle.Default_Experiment_Purpose(), new DateTime());
+                node.refresh();
+
+                EventQueueUtilities.runOnEDT(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        new OpenNodeInBrowserAction(Lists.newArrayList(exp.getURI()),
+                                exp.getPurpose(),
+                                false,
+                                Lists.<URI>newArrayList(),
+                                "BrowserTopComponent").actionPerformed(e);
+                    }
+                });
+
             }
         });
     }
 
     protected void startDateTimeChanged() {
-        project.setStart(zonedDate(startPicker, startZoneComboBox));
+        getProject().setStart(zonedDate(startPicker, startZoneComboBox));
     }
 
     public Project getProject() {

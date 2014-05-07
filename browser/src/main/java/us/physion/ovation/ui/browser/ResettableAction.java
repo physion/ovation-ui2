@@ -23,17 +23,17 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerManager.Provider;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle.Messages;
-import us.physion.ovation.ui.interfaces.ResettableNode;
+import us.physion.ovation.ui.interfaces.RefreshableNode;
 
 @Messages({
     "CTL_Reload=Reload"
 })
 public class ResettableAction extends AbstractAction {
 
-    private final ResettableNode node;
+    private final RefreshableNode node;
     private final Provider explorer;
 
-    public ResettableAction(ResettableNode node) {
+    public ResettableAction(RefreshableNode node) {
         this(node, null);
     }
 
@@ -41,7 +41,7 @@ public class ResettableAction extends AbstractAction {
         this(null, explorer);
     }
 
-    private ResettableAction(ResettableNode node, ExplorerManager.Provider explorer) {
+    private ResettableAction(RefreshableNode node, ExplorerManager.Provider explorer) {
         super(Bundle.CTL_Reload());
         this.node = node;
         this.explorer = explorer;
@@ -49,15 +49,15 @@ public class ResettableAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        ResettableNode target = node;
+        RefreshableNode target = node;
         if (target == null && explorer != null) {
             Node root = explorer.getExplorerManager().getRootContext();
-            if (root instanceof ResettableNode) {
-                target = (ResettableNode) root;
+            if (root instanceof RefreshableNode) {
+                target = (RefreshableNode) root;
             }
         }
         if (target != null) {
-            target.resetChildren();
+            target.refresh();
         } else {
             Toolkit.getDefaultToolkit().beep();
         }

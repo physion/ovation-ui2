@@ -17,18 +17,13 @@
 
 package us.physion.ovation.ui.interfaces;
 
-import us.physion.ovation.domain.OvationEntity;
+import com.google.common.eventbus.EventBus;
 
 /**
  *
  * @author barry
  */
-public interface IEntityNode extends RefreshableNode {
-    OvationEntity getEntity();
+public interface EventBusProvider {
 
-    OvationEntity getEntity(boolean includingTrash);
-
-    <T extends OvationEntity> T getEntity(Class<T> clazz);
-
-    IEntityWrapper getEntityWrapper();
+    EventBus getDefaultEventBus();
 }

@@ -9,7 +9,7 @@ import us.physion.ovation.domain.OvationEntity;
  *
  * @author huecotanks
  */
-public interface IEntityWrapper {
+public interface IEntityWrapper extends PropertyChange {
 
     String getDisplayName();
 

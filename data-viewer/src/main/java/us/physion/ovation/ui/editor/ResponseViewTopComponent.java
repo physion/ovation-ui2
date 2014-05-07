@@ -331,13 +331,13 @@ public final class ResponseViewTopComponent extends TopComponent {
             boolean added = false;
             for (DataVisualization group : responseGroups) {
                 if (group.shouldAdd(rw)) {
-                    group.add(rw);
+                    group.add((DataElement) rw.refresh());
                     added = true;
                     break;
                 }
             }
             if (!added) {
-                responseGroups.add(ResponseWrapperFactory.create(rw).createVisualization(rw));
+                responseGroups.add(ResponseWrapperFactory.create(rw).createVisualization((DataElement) rw.refresh()));
             }
         }
 

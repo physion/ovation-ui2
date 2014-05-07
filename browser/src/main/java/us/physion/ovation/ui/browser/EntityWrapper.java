@@ -1,20 +1,26 @@
 package us.physion.ovation.ui.browser;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import java.awt.Color;
 import java.awt.Toolkit;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import org.joda.time.DateTime;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.*;
+import us.physion.ovation.domain.events.EntityModifiedEvent;
 import us.physion.ovation.domain.mixin.DataElement;
-import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import us.physion.ovation.ui.interfaces.IEntityWrapper;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import us.physion.ovation.exceptions.EntityNotFoundException;
+import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.ui.interfaces.EventBusProvider;
+import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /**
  *
@@ -22,25 +28,46 @@ import us.physion.ovation.exceptions.EntityNotFoundException;
  */
 public class EntityWrapper implements IEntityWrapper {
 
-    private String uri;
+    private URI uri;
     private List<URI> filteredParentURIs = new ArrayList<URI>();
 
     private Class type;
     private String displayName;
     private Color displayColor;
 
+    private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+
     public EntityWrapper(OvationEntity e) {
-        uri = e.getURI().toString();
+        uri = e.getURI();
         type = e.getClass();
         displayName = EntityWrapper.inferDisplayName(e);
         displayColor = inferDisplayColor(e);
+
+        EventBusProvider evp = Lookup.getDefault().lookup(EventBusProvider.class);
+
+        EventBus bus = evp.getDefaultEventBus();
+        bus.register(this);
+
     }
+
+    @Subscribe
+    public void entityUpdated(EntityModifiedEvent updateEvent) {
+        if (updateEvent.getEntityUri().equals(uri)) {
+            propertyChangeSupport.firePropertyChange(ENTITY_UPDATE, null, null);
+        }
+    }
+
+    public static final String ENTITY_UPDATE = "entity_update";
 
     //used by the PerUserEntityWrapper object
     protected EntityWrapper(String name, Class clazz, String uri) {
         type = clazz;
         displayName = name;
-        this.uri = uri;
+        try {
+            this.uri = new URI(uri);
+        } catch (URISyntaxException ex) {
+            //pass
+        }
     }
 
     @Override
@@ -56,9 +83,9 @@ public class EntityWrapper implements IEntityWrapper {
             if (c == null) {
                 return null;
             }
-            b = c.getObjectWithURI(uri, includeTrash);
+            b = c.getObjectWithURI(getURI(), includeTrash);
 
-        } catch(EntityNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             Toolkit.getDefaultToolkit().beep();
         } catch (RuntimeException e) {
             ErrorManager.getDefault().notify(e);
@@ -72,7 +99,7 @@ public class EntityWrapper implements IEntityWrapper {
 
     @Override
     public String getURI() {
-        return uri;
+        return uri.toString();
     }
 
     public void addFilteredParentURIs(List<URI> list) {
@@ -169,6 +196,10 @@ public class EntityWrapper implements IEntityWrapper {
     @Override
     public String getName() {
         OvationEntity e = getEntity();
+        if (e == null) {
+            return "";
+        }
+
         if (Source.class.isAssignableFrom(type)) {
             return ((Source) e).getLabel();
         } else if (Project.class.isAssignableFrom(type)) {
@@ -227,4 +258,37 @@ public class EntityWrapper implements IEntityWrapper {
 
         return Color.BLACK;
     }
+
+    @Override
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        propertyChangeSupport.addPropertyChangeListener(listener);
+    }
+
+    @Override
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        propertyChangeSupport.removePropertyChangeListener(listener);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 31 * hash + (this.uri != null ? this.uri.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final EntityWrapper other = (EntityWrapper) obj;
+        if (this.uri != other.uri && (this.uri == null || !this.uri.equals(other.uri))) {
+            return false;
+        }
+        return true;
+    }
+
 }

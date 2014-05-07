@@ -26,15 +26,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
-import org.jdesktop.beansbinding.Binding;
-import org.jdesktop.beansbinding.BindingGroup;
-import org.jdesktop.beansbinding.Bindings;
 import org.joda.time.DateTime;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Experiment;
+import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 
@@ -65,15 +63,7 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
     }
 
     private void initUI() {
-        Binding binding = Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
-                this,
-                org.jdesktop.beansbinding.ELProperty.create("${experiment.start}"),
-                startPicker,
-                org.jdesktop.beansbinding.BeanProperty.create("dateTime"));
-
-        BindingGroup group = new org.jdesktop.beansbinding.BindingGroup();
-        group.addBinding(binding);
-        group.bind();
+        startPicker.setDateTime(experiment.getStart());
 
         startZoneComboBox.setSelectedItem(experiment.getStart().getZone().getID());
 
@@ -112,7 +102,7 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
 
                             @Override
                             public void run() {
-                                node.resetChildren();
+                                node.refresh();
                             }
                         });
                     }
@@ -160,7 +150,7 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
     }
 
     protected void startDateTimeChanged() {
-        //project.setStart(zonedDate(startPicker, startZoneComboBox));
+        getExperiment().setStart(zonedDate(startPicker, startZoneComboBox));
     }
 
     public String getDisplayName() {
@@ -190,13 +180,11 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
         bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         titleLabel = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        descriptionTextArea = new javax.swing.JTextArea();
         dateEntryLabel = new javax.swing.JLabel();
         startPicker = new us.physion.ovation.ui.interfaces.DateTimePicker();
         startZoneComboBox = new javax.swing.JComboBox();
         dropPanel = new javax.swing.JPanel();
-        dateLabel = new javax.swing.JLabel();
+        puropseField = new javax.swing.JTextField();
 
         setBackground(java.awt.SystemColor.control);
         setBorder(new javax.swing.border.LineBorder(new java.awt.Color(120, 124, 123), 2, true));
@@ -204,20 +192,13 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
         titleLabel.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(titleLabel, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.titleLabel.text")); // NOI18N
 
-        jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.jScrollPane1.border.title"))); // NOI18N
-
-        descriptionTextArea.setColumns(20);
-        descriptionTextArea.setRows(5);
-        descriptionTextArea.setBorder(null);
-
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${experiment.purpose}"), descriptionTextArea, org.jdesktop.beansbinding.BeanProperty.create("text"));
-        bindingGroup.addBinding(binding);
-
-        jScrollPane1.setViewportView(descriptionTextArea);
-
         org.openide.awt.Mnemonics.setLocalizedText(dateEntryLabel, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.dateEntryLabel.text")); // NOI18N
 
         startZoneComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        org.jdesktop.beansbinding.ELProperty eLProperty = org.jdesktop.beansbinding.ELProperty.create("${availableZoneIDs}");
+        org.jdesktop.swingbinding.JComboBoxBinding jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, eLProperty, startZoneComboBox);
+        bindingGroup.addBinding(jComboBoxBinding);
 
         dropPanel.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
         dropPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.dropPanel.border.title"))); // NOI18N
@@ -226,16 +207,18 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
         dropPanel.setLayout(dropPanelLayout);
         dropPanelLayout.setHorizontalGroup(
             dropPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 338, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
         dropPanelLayout.setVerticalGroup(
             dropPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 100, Short.MAX_VALUE)
         );
 
-        dateLabel.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
+        puropseField.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
+        puropseField.setToolTipText(org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.puropseField.toolTipText")); // NOI18N
+        puropseField.setBorder(javax.swing.BorderFactory.createLineBorder(javax.swing.UIManager.getDefaults().getColor("Button.background")));
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${node.entityWrapper.displayName}"), dateLabel, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${experiment.purpose}"), puropseField, org.jdesktop.beansbinding.BeanProperty.create("text_ON_ACTION_OR_FOCUS_LOST"));
         bindingGroup.addBinding(binding);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -245,7 +228,6 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(dateEntryLabel)
@@ -260,7 +242,7 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(titleLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(dateLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addComponent(puropseField)))
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -269,9 +251,7 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(titleLabel)
-                    .addComponent(dateLabel))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(puropseField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(dateEntryLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -289,10 +269,8 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel dateEntryLabel;
-    private javax.swing.JLabel dateLabel;
-    private javax.swing.JTextArea descriptionTextArea;
     private javax.swing.JPanel dropPanel;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextField puropseField;
     private us.physion.ovation.ui.interfaces.DateTimePicker startPicker;
     private javax.swing.JComboBox startZoneComboBox;
     private javax.swing.JLabel titleLabel;

@@ -1,10 +1,13 @@
 package us.physion.ovation.ui.browser;
 
 import java.awt.Color;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import javax.swing.Action;
+import org.openide.actions.RenameAction;
 import org.openide.nodes.*;
 import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
@@ -21,12 +24,33 @@ import us.physion.ovation.ui.interfaces.*;
  *
  * @author huecotanks
  */
-public class EntityNode extends AbstractNode implements ResettableNode, URINode, IEntityNode {
+public class EntityNode extends AbstractNode implements RefreshableNode, URINode, IEntityNode {
 
     private Action[] actionList;
     private final IEntityWrapper entityWrapper;
     private static Map<String, Class> insertableMap = createMap();
     private URI uri;
+
+    public EntityNode(Children c, Lookup l, IEntityWrapper entity) {
+        this(c, l, new URITreePathProviderImpl(), entity);
+    }
+
+    private EntityNode(Children c, Lookup l, URITreePathProviderImpl pathProvider, IEntityWrapper entity) {
+        super(c, new ProxyLookup(l, Lookups.singleton(pathProvider)));
+
+        pathProvider.setDelegate(this);
+        this.entityWrapper = entity;
+        loadURI();
+
+        entityWrapper.addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                EntityNode.this.fireDisplayNameChange(null, null);
+                EntityNode.this.refresh();
+            }
+        });
+    }
 
     @Override
     public OvationEntity getEntity() {
@@ -73,18 +97,6 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode,
         }
     }
 
-    public EntityNode(Children c, Lookup l, IEntityWrapper entity) {
-        this(c, l, new URITreePathProviderImpl(), entity);
-    }
-
-    private EntityNode(Children c, Lookup l, URITreePathProviderImpl pathProvider, IEntityWrapper entity) {
-        super(c, new ProxyLookup(l, Lookups.singleton(pathProvider)));
-
-        pathProvider.setDelegate(this);
-        this.entityWrapper = entity;
-        loadURI();
-    }
-
     @Override
     public boolean canRename() {
         return entityWrapper != null ? entityWrapper.canRename() : super.canRename();
@@ -114,16 +126,6 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode,
         }
 
         return getDisplayName();
-    }
-
-    private void updateDisplayName() {
-        if (entityWrapper == null) {
-            return;
-        }
-
-        setDisplayName(entityWrapper.getDisplayName());
-        fireDisplayNameChange(null, entityWrapper.getDisplayName());
-        fireNameChange(null, getName());
     }
 
     public EntityNode(Children c, IEntityWrapper parent) {
@@ -171,19 +173,14 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode,
     }
 
     @Override
-    public void resetChildren() {
+    public void refresh() {
         Children c = getChildren();
         if (c == null || this.isLeaf()) {
             return;
         }
         if (c instanceof EntityChildren) {
-            ((EntityChildren) c).initKeys();
+            ((EntityChildren) c).refreshKeys();
         }
-    }
-
-    @Override
-    public void resetNode() {
-        updateDisplayName();
     }
 
     protected void setActionList(Action[] actions) {
@@ -238,9 +235,10 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode,
                 }
 
                //XXX: right now canRename will never change for a given node so it's safe to use it during initialization
-                //if (canRename()) {
-                //   actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
-                //}
+                if (canRename()) {
+                   actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
+                }
+
                 if (OvationEntity.class.isAssignableFrom(entityClass)) {
                     actionList = appendToArray(actionList, null, SystemAction.get(TrashEntityAction.class));
                 }

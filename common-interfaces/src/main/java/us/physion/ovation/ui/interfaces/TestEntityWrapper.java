@@ -1,6 +1,7 @@
 package us.physion.ovation.ui.interfaces;
 
 import java.awt.Color;
+import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -117,6 +118,16 @@ public class TestEntityWrapper implements IEntityWrapper{
     @Override
     public Color getDisplayColor() {
         return Color.black;
+    }
+
+    @Override
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+
+    }
+
+    @Override
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+
     }
 
 }

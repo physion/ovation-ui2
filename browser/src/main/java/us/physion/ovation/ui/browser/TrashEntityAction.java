@@ -30,7 +30,7 @@ import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
-import us.physion.ovation.ui.interfaces.ResettableNode;
+import us.physion.ovation.ui.interfaces.RefreshableNode;
 
 @ActionID(
     category = "Edit",
@@ -105,8 +105,8 @@ public class TrashEntityAction extends SystemAction {
                     }
                     finish();
                     Node n = node.getParentNode();
-                    if (n instanceof ResettableNode) {
-                        ((ResettableNode) n).resetChildren();
+                    if (n instanceof RefreshableNode) {
+                        ((RefreshableNode) n).refresh();
                     }
                 }
 

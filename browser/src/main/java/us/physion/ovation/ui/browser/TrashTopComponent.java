@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import us.physion.ovation.ui.interfaces.ResettableNode;
+import us.physion.ovation.ui.interfaces.RefreshableNode;
 
 /**
  * Top component which displays something.
@@ -96,25 +96,20 @@ public final class TrashTopComponent extends TopComponent implements ExplorerMan
         }
     }
 
-    class TrashRootNode extends AbstractNode implements ResettableNode {
+    class TrashRootNode extends AbstractNode implements RefreshableNode {
 
         TrashRootNode(Children c) {
             super(c);
         }
 
         @Override
-        public void resetChildren() {
+        public void refresh() {
             populateTrash();
         }
 
         @Override
         public Action[] getActions(boolean context) {
             return ActionUtils.appendToArray(new Action[]{new ResettableAction(this), null}, super.getActions(context));
-        }
-
-        @Override
-        public void resetNode() {
-            //pass
         }
 
     }
@@ -144,7 +139,7 @@ public final class TrashTopComponent extends TopComponent implements ExplorerMan
         final DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
 
         if (c == null) {
-            //adding this node just to have a ResettableNode as root
+            //adding this node just to have a RefreshableNode as root
             explorerManager.setRootContext(new TrashRootNode(Children.LEAF));
 
             log.warn("Null DataContext");

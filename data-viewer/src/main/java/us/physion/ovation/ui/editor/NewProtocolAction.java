@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
+import javax.swing.AbstractAction;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -44,7 +45,7 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
 })
 @Messages({"CTL_NewProtocolAction=Protocol...",
     "CTL_NewProtocolName=New Protocol",})
-public final class NewProtocolAction implements ActionListener {
+public final class NewProtocolAction extends AbstractAction implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {

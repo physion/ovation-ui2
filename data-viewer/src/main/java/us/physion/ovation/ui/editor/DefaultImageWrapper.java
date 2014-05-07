@@ -19,7 +19,7 @@ import us.physion.ovation.domain.mixin.DataElement;
  *
  * @author huecotanks
  */
-public class DefaultImageWrapper implements DataVisualization{
+public class DefaultImageWrapper implements DataVisualization {
     private final static Logger log = LoggerFactory.getLogger(DefaultImageWrapper.class);
 
     String name;
@@ -58,7 +58,7 @@ public class DefaultImageWrapper implements DataVisualization{
         pan.setAlignmentX(Component.CENTER_ALIGNMENT);
         return new ImagePanel(name, pan);
     }
-    
+
 
     @Override
     public boolean shouldAdd(DataElement r) {
@@ -69,7 +69,7 @@ public class DefaultImageWrapper implements DataVisualization{
     public void add(DataElement r) {
         throw new UnsupportedOperationException("Images are currently implemented one per panel");
     }
-    
+
 }
 /**
  * <b>Note</b>: This component is not opaque. Use with an opaque container.
@@ -81,7 +81,7 @@ class BufferedImagePanel extends JPanel
     {
         img = buf;
     }
-    
+
     @Override
     public void paint(Graphics g)
     {

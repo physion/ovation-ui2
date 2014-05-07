@@ -17,18 +17,14 @@
 
 package us.physion.ovation.ui.interfaces;
 
-import us.physion.ovation.domain.OvationEntity;
+import java.beans.PropertyChangeListener;
 
 /**
  *
  * @author barry
  */
-public interface IEntityNode extends RefreshableNode {
-    OvationEntity getEntity();
+public interface PropertyChange {
+    void addPropertyChangeListener(PropertyChangeListener listener);
 
-    OvationEntity getEntity(boolean includingTrash);
-
-    <T extends OvationEntity> T getEntity(Class<T> clazz);
-
-    IEntityWrapper getEntityWrapper();
+    void removePropertyChangeListener(PropertyChangeListener listener);
 }
