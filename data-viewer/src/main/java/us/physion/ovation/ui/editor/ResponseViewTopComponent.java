@@ -292,8 +292,8 @@ public final class ResponseViewTopComponent extends TopComponent {
         }
         int progressWorkUnit = 0;
 
-        List<DataElement> responseList = Lists.newLinkedList();
-        List<IEntityNode> containerList = Lists.newLinkedList();
+        List<DataElement> dataElements = Lists.newLinkedList();
+        List<IEntityNode> containers = Lists.newLinkedList();
 
         for (IEntityNode n : entityNodes) {
 
@@ -306,18 +306,18 @@ public final class ResponseViewTopComponent extends TopComponent {
                             = Lists.newArrayList(((Epoch) container).getAnalysisRecords());
                     if (analysisRecords.size() > 0) {
                         for (AnalysisRecord a : analysisRecords) {
-                            responseList.addAll(Sets.newHashSet(a.getOutputs().values()));
+                            dataElements.addAll(Sets.newHashSet(a.getOutputs().values()));
                         }
                     } else {
-                        responseList.addAll(Sets.newHashSet(container.getDataElements().values()));
+                        dataElements.addAll(Sets.newHashSet(container.getDataElements().values()));
                     }
                 } else {
-                    responseList.addAll(Sets.newHashSet(container.getDataElements().values()));
+                    dataElements.addAll(Sets.newHashSet(container.getDataElements().values()));
                 }
             } else if (DataElement.class.isAssignableFrom(ew.getType())) {
-                responseList.add((DataElement) ew.getEntity());
+                dataElements.add((DataElement) ew.getEntity());
             } else {
-                containerList.add(n);
+                containers.add(n);
             }
 
             if (progress != null) {
@@ -328,7 +328,7 @@ public final class ResponseViewTopComponent extends TopComponent {
         List<DataVisualization> responseGroups = Lists.newLinkedList();
         List<ContainerVisualization> containerGroups = Lists.newLinkedList();
 
-        for (DataElement rw : responseList) {
+        for (DataElement rw : dataElements) {
             boolean added = false;
             for (DataVisualization group : responseGroups) {
                 if (group.shouldAdd(rw)) {
@@ -343,7 +343,7 @@ public final class ResponseViewTopComponent extends TopComponent {
             }
         }
 
-        for (IEntityNode n : containerList) {
+        for (IEntityNode n : containers) {
             containerGroups.add(ResponseWrapperFactory.create(n).createVisualization(n));
         }
 
