@@ -29,6 +29,7 @@ import org.openide.windows.WindowManager;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.DataElementContainer;
 import us.physion.ovation.ui.actions.spi.DataElementLookupProvider;
@@ -331,13 +332,14 @@ public final class ResponseViewTopComponent extends TopComponent {
             boolean added = false;
             for (DataVisualization group : responseGroups) {
                 if (group.shouldAdd(rw)) {
-                    group.add((DataElement) rw.refresh());
+                    group.add(rw);
                     added = true;
                     break;
                 }
             }
             if (!added) {
-                responseGroups.add(ResponseWrapperFactory.create(rw).createVisualization((DataElement) rw.refresh()));
+                Resource r = (Resource) rw.getDataResource().refresh();
+                responseGroups.add(ResponseWrapperFactory.create(rw).createVisualization(rw));
             }
         }
 

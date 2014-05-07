@@ -20,8 +20,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.awt.Toolkit;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -67,21 +67,18 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
 
         startZoneComboBox.setSelectedItem(experiment.getStart().getZone().getID());
 
-        startPicker.addPropertyChangeListener(new PropertyChangeListener() {
+        startPicker.addActionListener(new ActionListener() {
+
             @Override
-            public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-                if ("date".equals(propertyChangeEvent.getPropertyName())) {
-                    startDateTimeChanged();
-                }
+            public void actionPerformed(ActionEvent e) {
+                startDateTimeChanged();
             }
         });
 
-        startPicker.setDateTime(new DateTime(experiment.getStart()));
-
-        startZoneComboBox.addPropertyChangeListener(new PropertyChangeListener() {
+        startZoneComboBox.addActionListener(new ActionListener() {
 
             @Override
-            public void propertyChange(PropertyChangeEvent evt) {
+            public void actionPerformed(ActionEvent e) {
                 startDateTimeChanged();
             }
         });

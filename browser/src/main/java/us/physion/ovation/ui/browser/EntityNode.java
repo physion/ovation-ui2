@@ -40,6 +40,7 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
 
         pathProvider.setDelegate(this);
         this.entityWrapper = entity;
+
         loadURI();
 
         entityWrapper.addPropertyChangeListener(new PropertyChangeListener() {

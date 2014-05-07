@@ -27,5 +27,5 @@ public class DefaultImageVisualizationFactory implements VisualizationFactory{
         }
         return -1;
     }
-    
+
 }

@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.browser;
 
+import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import java.awt.Color;
@@ -10,6 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.joda.time.DateTime;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
@@ -30,6 +32,7 @@ public class EntityWrapper implements IEntityWrapper {
 
     private URI uri;
     private List<URI> filteredParentURIs = new ArrayList<URI>();
+    private Set<URI> watchUris;
 
     private Class type;
     private String displayName;
@@ -43,6 +46,13 @@ public class EntityWrapper implements IEntityWrapper {
         displayName = EntityWrapper.inferDisplayName(e);
         displayColor = inferDisplayColor(e);
 
+        watchUris = Sets.newHashSet();
+        watchUris.add(uri);
+        if (Measurement.class.isAssignableFrom(type)) {
+            watchUris.add(((Measurement) e).getDataResource().getURI());
+        }
+
+
         EventBusProvider evp = Lookup.getDefault().lookup(EventBusProvider.class);
 
         EventBus bus = evp.getDefaultEventBus();
@@ -52,8 +62,12 @@ public class EntityWrapper implements IEntityWrapper {
 
     @Subscribe
     public void entityUpdated(EntityModifiedEvent updateEvent) {
-        if (updateEvent.getEntityUri().equals(uri)) {
+        if (watchUris.contains(updateEvent.getEntityUri())) {
+            getEntity().refresh();
             propertyChangeSupport.firePropertyChange(ENTITY_UPDATE, null, null);
+            if (Measurement.class.isAssignableFrom(type)) {
+                watchUris.add(getEntity(Measurement.class).getDataResource().getURI());
+            }
         }
     }
 

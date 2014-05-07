@@ -20,8 +20,6 @@ import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.util.List;
 import org.joda.time.DateTime;
@@ -65,23 +63,20 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
 
         startPicker.setDateTime(getProject().getStart());
 
-        startZoneComboBox.setSelectedItem(project.getStart().getZone().getID());
+        startZoneComboBox.setSelectedItem(getProject().getStart().getZone().getID());
 
-        startPicker.addPropertyChangeListener(new PropertyChangeListener() {
+        startPicker.addActionListener(new ActionListener() {
+
             @Override
-            public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-                if ("date".equals(propertyChangeEvent.getPropertyName())) {
-                    startDateTimeChanged();
-                }
+            public void actionPerformed(ActionEvent e) {
+                startDateTimeChanged();
             }
         });
 
-        startPicker.setDateTime(new DateTime(project.getStart()));
-
-        startZoneComboBox.addPropertyChangeListener(new PropertyChangeListener() {
+        startZoneComboBox.addActionListener(new ActionListener() {
 
             @Override
-            public void propertyChange(PropertyChangeEvent evt) {
+            public void actionPerformed(ActionEvent e) {
                 startDateTimeChanged();
             }
         });
