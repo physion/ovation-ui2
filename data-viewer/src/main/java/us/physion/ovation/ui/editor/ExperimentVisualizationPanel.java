@@ -14,18 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import java.awt.Toolkit;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 import org.jdesktop.beansbinding.Binding;
 import org.jdesktop.beansbinding.BindingGroup;
 import org.jdesktop.beansbinding.Bindings;
 import org.joda.time.DateTime;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.util.NbBundle.Messages;
+import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Experiment;
+import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 
 /**
@@ -33,17 +43,28 @@ import us.physion.ovation.ui.interfaces.IEntityNode;
  *
  * @author barry
  */
+@Messages({
+    "Adding_measurements=Adding measurements…"
+})
 public class ExperimentVisualizationPanel extends javax.swing.JPanel {
 
     final Experiment experiment;
+    final IEntityNode node;
+    FileDrop dropPanelListener;
+
     /**
      * Creates new form ExperimentVisualizationPanel
      */
-    public ExperimentVisualizationPanel(IEntityNode exp) {
-        experiment = exp.getEntity(Experiment.class);
+    public ExperimentVisualizationPanel(IEntityNode expNode) {
+        node = expNode;
+        experiment = expNode.getEntity(Experiment.class);
 
         initComponents();
 
+        initUI();
+    }
+
+    private void initUI() {
         Binding binding = Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
                 this,
                 org.jdesktop.beansbinding.ELProperty.create("${experiment.start}"),
@@ -74,6 +95,68 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
                 startDateTimeChanged();
             }
         });
+
+        dropPanelListener = new FileDrop(dropPanel, new FileDrop.Listener() {
+
+            @Override
+            public void filesDropped(final File[] files) {
+
+                final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
+
+                EventQueueUtilities.runOffEDT(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        insertMeasurements(files);
+                        EventQueueUtilities.runOnEDT(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                node.resetChildren();
+                            }
+                        });
+                    }
+                }, ph);
+            }
+        });
+
+    }
+
+    private void insertMeasurements(File[] files) {
+        DateTime start = new DateTime();
+        DateTime end = new DateTime();
+
+        for (File f : files) {
+            DateTime lastModified = new DateTime(f.lastModified());
+            if (lastModified.isBefore(end)) {
+                end = lastModified;
+            }
+
+            if (start.isBefore(lastModified)) {
+                start = lastModified;
+            }
+
+        }
+
+        Epoch e = getExperiment().insertEpoch(start,
+                end,
+                null,
+                Maps.<String, Object>newHashMap(),
+                Maps.<String, Object>newHashMap());
+
+        for (File f : files) {
+            try {
+                e.insertMeasurement(f.getName(),
+                        Sets.<String>newHashSet(),
+                        Sets.<String>newHashSet(),
+                        f.toURI().toURL(),
+                        ContentTypes.getContentType(f));
+            } catch (MalformedURLException ex) {
+                Toolkit.getDefaultToolkit().beep();
+            } catch (IOException ex) {
+                Toolkit.getDefaultToolkit().beep();
+            }
+        }
     }
 
     protected void startDateTimeChanged() {
@@ -83,8 +166,13 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
     public String getDisplayName() {
         return getExperiment().getStart().toString();
     }
+
     public Experiment getExperiment() {
         return experiment;
+    }
+
+    public IEntityNode getNode() {
+        return node;
     }
 
     public List<String> getAvailableZoneIDs() {
@@ -104,10 +192,11 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
         titleLabel = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         descriptionTextArea = new javax.swing.JTextArea();
-        dateLabel = new javax.swing.JLabel();
+        dateEntryLabel = new javax.swing.JLabel();
         startPicker = new us.physion.ovation.ui.interfaces.DateTimePicker();
-        projectNameField = new javax.swing.JTextField();
         startZoneComboBox = new javax.swing.JComboBox();
+        dropPanel = new javax.swing.JPanel();
+        dateLabel = new javax.swing.JLabel();
 
         setBackground(java.awt.SystemColor.control);
         setBorder(new javax.swing.border.LineBorder(new java.awt.Color(120, 124, 123), 2, true));
@@ -126,16 +215,28 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
 
         jScrollPane1.setViewportView(descriptionTextArea);
 
-        org.openide.awt.Mnemonics.setLocalizedText(dateLabel, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.dateLabel.text")); // NOI18N
-
-        projectNameField.setEditable(false);
-        projectNameField.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
-        projectNameField.setBorder(javax.swing.BorderFactory.createLineBorder(javax.swing.UIManager.getDefaults().getColor("Button.background")));
-
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${displayName}"), projectNameField, org.jdesktop.beansbinding.BeanProperty.create("text"));
-        bindingGroup.addBinding(binding);
+        org.openide.awt.Mnemonics.setLocalizedText(dateEntryLabel, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.dateEntryLabel.text")); // NOI18N
 
         startZoneComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        dropPanel.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
+        dropPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.dropPanel.border.title"))); // NOI18N
+
+        javax.swing.GroupLayout dropPanelLayout = new javax.swing.GroupLayout(dropPanel);
+        dropPanel.setLayout(dropPanelLayout);
+        dropPanelLayout.setHorizontalGroup(
+            dropPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 338, Short.MAX_VALUE)
+        );
+        dropPanelLayout.setVerticalGroup(
+            dropPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
+        dateLabel.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${node.entityWrapper.displayName}"), dateLabel, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        bindingGroup.addBinding(binding);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -144,20 +245,23 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(titleLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(projectNameField))
                     .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(dateLabel)
+                            .addComponent(dateEntryLabel)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(startPicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 42, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(dropPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(titleLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(dateLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -165,15 +269,17 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(titleLabel)
-                    .addComponent(projectNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(dateLabel))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(dateLabel)
+                .addComponent(dateEntryLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(startPicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(dropPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -182,10 +288,11 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel dateEntryLabel;
     private javax.swing.JLabel dateLabel;
     private javax.swing.JTextArea descriptionTextArea;
+    private javax.swing.JPanel dropPanel;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField projectNameField;
     private us.physion.ovation.ui.interfaces.DateTimePicker startPicker;
     private javax.swing.JComboBox startZoneComboBox;
     private javax.swing.JLabel titleLabel;
