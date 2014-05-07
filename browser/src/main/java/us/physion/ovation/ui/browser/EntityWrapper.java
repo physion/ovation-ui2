@@ -63,7 +63,8 @@ public class EntityWrapper implements IEntityWrapper {
     @Subscribe
     public void entityUpdated(EntityModifiedEvent updateEvent) {
         if (watchUris.contains(updateEvent.getEntityUri())) {
-            getEntity().refresh();
+            displayName = EntityWrapper.inferDisplayName(getEntity());
+
             propertyChangeSupport.firePropertyChange(ENTITY_UPDATE, null, null);
             if (Measurement.class.isAssignableFrom(type)) {
                 watchUris.add(getEntity(Measurement.class).getDataResource().getURI());
