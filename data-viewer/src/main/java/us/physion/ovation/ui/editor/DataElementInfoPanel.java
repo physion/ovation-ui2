@@ -62,6 +62,7 @@ import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Resource;
 import us.physion.ovation.domain.Source;
+import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -105,19 +106,29 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
                             @Override
                             public void run() {
-                                BrowserUtilities.refreshView(BrowserUtilities.SOURCE_BROWSER_ID);
+                                BrowserUtilities.resetView(BrowserUtilities.SOURCE_BROWSER_ID);
                             }
                         });
                     }
 
                     for (Measurement m : getMeasurements()) {
                         Set<String> sourceNames = Sets.newHashSet(m.getSourceNames());
+                        Epoch epoch = m.getEpoch();
 
                         for (Source s : sources) {
-                            Epoch epoch = m.getEpoch();
                             String epochId = s.getURI().toString();
                             if (!epoch.getInputSources().containsValue(s)) {
-                                epoch.addInputSource(epochId, s);
+                                ctx.beginTransaction();
+                                try {
+                                    epoch.addInputSource(epochId, s);
+                                    epoch.getDataContext().markModified(s);
+                                    ctx.commitTransaction();
+                                } catch (Throwable t) {
+                                    ctx.abortTransaction();
+
+                                    throw new OvationException("Unable to add input source", t);
+                                }
+
                             }
 
                             sourceNames.add(epochId);
@@ -268,8 +279,8 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
             public void run() {
                 sourcesTextPane.setText("");
 
-                for (final Source s : sources.values()) {
-                    JPanel sourcePanel = makeSourcePanel(s);
+                for (Map.Entry<String, Source> namedSource : sources.entries()) {
+                    JPanel sourcePanel = makeSourcePanel(namedSource.getKey(), namedSource.getValue());
 
                     sourcesTextPane.setCaretPosition(sourcesTextPane.getDocument().getLength());
                     sourcesTextPane.insertComponent(sourcePanel);
@@ -280,13 +291,13 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
     }
 
-    private JPanel makeSourcePanel(final Source s) {
+    private JPanel makeSourcePanel(final String epochSourceName, final Source s) {
 
         JPanel sourcePanel = new JPanel();
         sourcePanel.setBackground(getBackground());
         sourcePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 3));
 
-        JButton sourceButton = new JButton(s.getLabel() + " (" + s.getIdentifier() + ")");
+        JButton sourceButton = new JButton(epochSourceName);
 
         sourceButton.setOpaque(true);
         sourceButton.setBackground(Color.white);
@@ -325,21 +336,16 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 for (Measurement m : getMeasurements()) {
-                    Set<String> sourceNames = ImmutableSet.copyOf(m.getSourceNames());
-                    Set<String> modifiedNames = Sets.newHashSet(sourceNames);
+                    Set<String> sourceNames = Sets.newHashSet(m.getSourceNames());
 
-                    for (String n : sourceNames) {
-                        if (m.getEpoch().getInputSources().get(n).equals(s)) {
-                            modifiedNames.remove(n);
-                            try {
-                                m.getEpoch().removeInputSource(n);
-                            } catch(IllegalArgumentException ex) {
-                                // pass — it's in use by another source
-                            }
-                        }
+                    sourceNames.remove(epochSourceName);
+                    m.setSourceNames(sourceNames);
+
+                    try {
+                        m.getEpoch().removeInputSource(epochSourceName);
+                    } catch (IllegalArgumentException ex) {
+                        // pass — it's in use by another source
                     }
-
-                    m.setSourceNames(modifiedNames);
                 }
 
                 SwingUtilities.invokeLater(new Runnable() {
@@ -352,6 +358,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                 });
             }
         });
+
         sourcePanel.add(removeButton);
         sourcePanel.setBorder(new RoundedCornerBorder());
         sourcePanel.revalidate();
