@@ -3,6 +3,7 @@ package us.physion.ovation.ui.browser;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.*;
 
 import java.util.List;
@@ -12,9 +13,11 @@ import java.util.concurrent.Executors;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.explorer.ExplorerManager;
+import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Protocol;
@@ -24,6 +27,7 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.ExpressionTreeProvider;
 import us.physion.ovation.ui.interfaces.QueryListener;
+import us.physion.ovation.ui.interfaces.RefreshableNode;
 
 /**
  *
@@ -33,6 +37,10 @@ import us.physion.ovation.ui.interfaces.QueryListener;
     "Reset_Loading_Data=Loading data"
 })
 public class BrowserUtilities {
+    
+    public final static String PROJECT_BROWSER_ID = "ProjectBrowserTopComponent"; //NOI18N
+    public final static String SOURCE_BROWSER_ID = "SourceBrowserTopComponent"; //NOI18N
+    public final static String PROTOCOL_BROWSER_ID = "ProtocolBrowserTopComponent"; //NOI18N
 
     protected static Map<ExplorerManager, TreeFilter> registeredViewManagers = new HashMap<ExplorerManager, TreeFilter>();
     protected static QueryListener ql;
@@ -141,6 +149,35 @@ public class BrowserUtilities {
             }
         }, ph);
     }
+    
+    public static ListenableFuture<Void> resetView(String topComponendId) {
+        TopComponent tc = WindowManager.getDefault().findTopComponent(topComponendId);
+        if (!(tc instanceof ExplorerManager.Provider)) {
+            throw new IllegalStateException();
+        }
+
+        final ExplorerManager explorerManager = ((ExplorerManager.Provider) tc).getExplorerManager();
+        
+        final DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+        final QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
+
+        final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Reset_Loading_Data());
+
+        return EventQueueUtilities.runOffEDT(new Runnable() {
+
+            @Override
+            public void run() {
+                ctx.getRepository().clear();
+
+                if (qs == null) {
+                    TreeFilter filter = registeredViewManagers.get(explorerManager);
+                    explorerManager.setRootContext(createRootNode(filter));
+                } else {
+                    qs.reset();
+                }
+            }
+        }, ph);
+    }
 
     private static EntityNode createRootNode(final TreeFilter filter) {
         return new EntityRootNode(new Callable<List<EntityWrapper>>() {
@@ -191,6 +228,16 @@ public class BrowserUtilities {
             qs.reset(e, filter);
         }
     }
+    
+    public static void refreshView(String topComponendId) {
+        TopComponent tc = WindowManager.getDefault().findTopComponent(topComponendId);
+        if (!(tc instanceof ExplorerManager.Provider)) {
+            throw new IllegalStateException();
+        }
+        
+        Node root = ((ExplorerManager.Provider)tc).getExplorerManager().getRootContext();
+        ((RefreshableNode)root).refresh();
+    }
 
     //TODO: uncomment when we have query capabiliites
     /*protected static void setTrees(final ExpressionTree result)
@@ -211,4 +258,5 @@ public class BrowserUtilities {
      EntityWrapperUtilities.createNodesFromQuery(mgrs, itr);
 
      }*/
+
 }

@@ -16,16 +16,17 @@
  */
 package us.physion.ovation.ui.editor;
 
-import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.net.URI;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import org.slf4j.LoggerFactory;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.browser.BrowserUtilities;
@@ -44,19 +45,26 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
 })
 @Messages({"CTL_NewSourceAction=Source...",
     "CTL_NewSourceLabel=New Source"})
-public final class NewSourceAction implements ActionListener {
+public final class NewSourceAction extends AbstractNewEntityAction<Source> {
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(final ActionEvent e) {
         DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
 
-        Source s = ctx.insertSource(Bundle.CTL_NewSourceLabel(), "");
+        final Source s = ctx.insertSource(Bundle.CTL_NewSourceLabel(), "");
 
-        BrowserUtilities.resetView();
-        new OpenNodeInBrowserAction(Lists.<URI>newArrayList(s.getURI()),
-                s.getLabel(),
-                false,
-                Lists.<URI>newArrayList(),
-                "SourceBrowserTopComponent").actionPerformed(e);
+        ListenableFuture<Void> reset = BrowserUtilities.resetView(BrowserUtilities.SOURCE_BROWSER_ID);
+        Futures.addCallback(reset, new FutureCallback<Void>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                selectNode(s, BrowserUtilities.SOURCE_BROWSER_ID, e);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                LoggerFactory.getLogger(NewProjectAction.class).error("Unable to reset view", t);
+            }
+        });
     }
 }

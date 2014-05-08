@@ -199,33 +199,35 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
             return list;
         }
 
-        Class entityClass = ew.getType();
-        if (Project.class.isAssignableFrom(entityClass)) {
-            Project entity = (Project) ew.getEntity();
-            addExperiments(list, entity, ph);
-            addAnalysisRecords(list, entity, ph);
-        } else if (Source.class.isAssignableFrom(entityClass)) {
-            Source entity = (Source) ew.getEntity();
-            addChildrenSources(list, entity, ph);
-            addProcedureElements(list, entity, ph);
-        } else if (Experiment.class.isAssignableFrom(entityClass)) {
-            Experiment entity = (Experiment) ew.getEntity();
-            addEpochGroups(list, entity, ph);
-            addEpochs(list, entity, ph);
-        } else if (EpochGroup.class.isAssignableFrom(entityClass)) {
-            EpochGroup entity = (EpochGroup) ew.getEntity();
-            addEpochGroups(list, entity, ph);
-            addEpochs(list, entity, ph);
-        } else if (Epoch.class.isAssignableFrom(entityClass)) {
-            Epoch entity = (Epoch) ew.getEntity();
-            addMeasurements(list, entity, ph);
-            addAnalysisRecords(list, entity, ph);
-        } else if (AnalysisRecord.class.isAssignableFrom(entityClass)) {
-            AnalysisRecord entity = (AnalysisRecord) ew.getEntity();
-            addOutputs(list, entity, ph);
-        } else if (Protocol.class.isAssignableFrom(entityClass)) {
-            Protocol entity = ew.getEntity(Protocol.class);
-            addProcedureElements(list, entity, ph);
+        if (ew != null) {
+            Class entityClass = ew.getType();
+            if (Project.class.isAssignableFrom(entityClass)) {
+                Project entity = (Project) ew.getEntity();
+                addExperiments(list, entity, ph);
+                addAnalysisRecords(list, entity, ph);
+            } else if (Source.class.isAssignableFrom(entityClass)) {
+                Source entity = (Source) ew.getEntity();
+                addChildrenSources(list, entity, ph);
+                addProcedureElements(list, entity, ph);
+            } else if (Experiment.class.isAssignableFrom(entityClass)) {
+                Experiment entity = (Experiment) ew.getEntity();
+                addEpochGroups(list, entity, ph);
+                addEpochs(list, entity, ph);
+            } else if (EpochGroup.class.isAssignableFrom(entityClass)) {
+                EpochGroup entity = (EpochGroup) ew.getEntity();
+                addEpochGroups(list, entity, ph);
+                addEpochs(list, entity, ph);
+            } else if (Epoch.class.isAssignableFrom(entityClass)) {
+                Epoch entity = (Epoch) ew.getEntity();
+                addMeasurements(list, entity, ph);
+                addAnalysisRecords(list, entity, ph);
+            } else if (AnalysisRecord.class.isAssignableFrom(entityClass)) {
+                AnalysisRecord entity = (AnalysisRecord) ew.getEntity();
+                addOutputs(list, entity, ph);
+            } else if (Protocol.class.isAssignableFrom(entityClass)) {
+                Protocol entity = ew.getEntity(Protocol.class);
+                addProcedureElements(list, entity, ph);
+            }
         }
         return list;
     }

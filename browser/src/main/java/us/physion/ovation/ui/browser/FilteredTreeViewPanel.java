@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JToggleButton;
+import org.openide.awt.Actions;
 import org.openide.explorer.view.BeanTreeView;
 import us.physion.ovation.ui.browser.TreeFilter.NavigatorType;
 
@@ -23,7 +24,7 @@ public final class FilteredTreeViewPanel extends javax.swing.JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                //item.getInstance().actionPerformed(e);
+                Actions.forID("Edit", actionId).actionPerformed(e);
             }
         });
     }

@@ -31,10 +31,10 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 public class EntityWrapper implements IEntityWrapper {
 
     private URI uri;
-    private List<URI> filteredParentURIs = new ArrayList<URI>();
-    private Set<URI> watchUris;
+    private final List<URI> filteredParentURIs = new ArrayList<URI>();
+    private final Set<URI> watchUris = Sets.newHashSet();;
 
-    private Class type;
+    private final Class type;
     private String displayName;
     private Color displayColor;
 
@@ -46,7 +46,6 @@ public class EntityWrapper implements IEntityWrapper {
         displayName = EntityWrapper.inferDisplayName(e);
         displayColor = inferDisplayColor(e);
 
-        watchUris = Sets.newHashSet();
         watchUris.add(uri);
         if (Measurement.class.isAssignableFrom(type)) {
             watchUris.add(((Measurement) e).getDataResource().getURI());
@@ -63,11 +62,14 @@ public class EntityWrapper implements IEntityWrapper {
     @Subscribe
     public void entityUpdated(EntityModifiedEvent updateEvent) {
         if (watchUris.contains(updateEvent.getEntityUri())) {
-            displayName = EntityWrapper.inferDisplayName(getEntity());
+            OvationEntity e = getEntity();
+            if(e != null) {
+                displayName = EntityWrapper.inferDisplayName(getEntity());
 
-            propertyChangeSupport.firePropertyChange(ENTITY_UPDATE, null, null);
-            if (Measurement.class.isAssignableFrom(type)) {
-                watchUris.add(getEntity(Measurement.class).getDataResource().getURI());
+                propertyChangeSupport.firePropertyChange(ENTITY_UPDATE, null, null);
+                if (Measurement.class.isAssignableFrom(type)) {
+                    watchUris.add(getEntity(Measurement.class).getDataResource().getURI());
+                }
             }
         }
     }
@@ -83,6 +85,8 @@ public class EntityWrapper implements IEntityWrapper {
         } catch (URISyntaxException ex) {
             //pass
         }
+        
+        
     }
 
     @Override

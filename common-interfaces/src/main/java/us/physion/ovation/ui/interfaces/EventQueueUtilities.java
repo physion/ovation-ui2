@@ -83,7 +83,7 @@ public class EventQueueUtilities
     }
     
     
-    public static Future runOffEDT(Runnable r, final ProgressHandle ph) {
+    public static ListenableFuture<Void> runOffEDT(Runnable r, final ProgressHandle ph) {
         if (EventQueue.isDispatchThread()) {
             start(ph);
             ListenableFuture f = executorService.submit(r);

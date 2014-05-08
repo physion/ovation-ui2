@@ -16,10 +16,10 @@
  */
 package us.physion.ovation.ui.editor;
 
-import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.net.URI;
 import org.joda.time.DateTime;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -27,6 +27,7 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import org.slf4j.LoggerFactory;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.ui.browser.BrowserUtilities;
@@ -46,21 +47,29 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
 @Messages({"CTL_NewProjectAction=Project...",
     "CTL_Default_Project_Name=New Project"
 })
-public final class NewProjectAction implements ActionListener {
+public final class NewProjectAction extends AbstractNewEntityAction<Project> {
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(final ActionEvent e) {
         DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
 
-        Project p = ctx.insertProject(Bundle.CTL_Default_Project_Name(),
+        final Project p = ctx.insertProject(Bundle.CTL_Default_Project_Name(),
                 "",
                 new DateTime());
 
-        BrowserUtilities.resetView();
-        new OpenNodeInBrowserAction(Lists.<URI>newArrayList(p.getURI()),
-                p.getName(), //protocol name
-                false,
-                Lists.<URI>newArrayList(),
-                "ProjectBrowserTopComponent").actionPerformed(e);
+        ListenableFuture<Void> reset = BrowserUtilities.resetView(BrowserUtilities.PROJECT_BROWSER_ID);
+        Futures.addCallback(reset, new FutureCallback<Void>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                selectNode(p, BrowserUtilities.PROJECT_BROWSER_ID, e);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                LoggerFactory.getLogger(NewProjectAction.class).error("Unable to reset view", t);
+            }
+        });
+        
     }
 }
