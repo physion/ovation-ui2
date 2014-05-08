@@ -62,6 +62,7 @@ import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Resource;
 import us.physion.ovation.domain.Source;
+import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
@@ -98,6 +99,16 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
                 for (String sourceId : sourceIds) {
                     Set<Source> sources = Sets.newHashSet(ctx.getSourcesWithIdentifier(sourceId));
+                    if (sources.isEmpty()) {
+                        sources = Sets.newHashSet(ctx.insertSource(sourceId, sourceId));
+                        SwingUtilities.invokeLater(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                BrowserUtilities.refreshView(BrowserUtilities.SOURCE_BROWSER_ID);
+                            }
+                        });
+                    }
 
                     for (Measurement m : getMeasurements()) {
                         Set<String> sourceNames = Sets.newHashSet(m.getSourceNames());
@@ -320,6 +331,11 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                     for (String n : sourceNames) {
                         if (m.getEpoch().getInputSources().get(n).equals(s)) {
                             modifiedNames.remove(n);
+                            try {
+                                m.getEpoch().removeInputSource(n);
+                            } catch(IllegalArgumentException ex) {
+                                // pass — it's in use by another source
+                            }
                         }
                     }
 
