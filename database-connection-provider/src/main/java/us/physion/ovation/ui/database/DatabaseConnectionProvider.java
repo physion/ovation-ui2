@@ -1,8 +1,16 @@
 package us.physion.ovation.ui.database;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.beans.PropertyChangeEvent;
 import java.util.*;
+import java.util.prefs.Preferences;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.util.NbBundle.Messages;
+import org.openide.util.NbPreferences;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.util.lookup.ServiceProviders;
 import org.slf4j.Logger;
@@ -20,6 +28,9 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 @ServiceProviders({
     @ServiceProvider(service = ConnectionProvider.class),
     @ServiceProvider(service = EventBusProvider.class)
+})
+@Messages({
+    "Sync_Task=Syncing data from cloud..."
 })
 public class DatabaseConnectionProvider implements ConnectionProvider, EventBusProvider {
 
@@ -51,6 +62,8 @@ public class DatabaseConnectionProvider implements ConnectionProvider, EventBusP
         return context;
     }
 
+    private static final String FIRST_RUN_SYNC = "first_run_sync_completed";
+
     @Override
     public synchronized void login()
     {
@@ -63,6 +76,31 @@ public class DatabaseConnectionProvider implements ConnectionProvider, EventBusP
                     LoginModel m = new LoginWindow().showLoginDialog();
                     if (!m.isCancelled()) {
                         DatabaseConnectionProvider.this.context = m.getDSC().getContext();
+
+                        final Preferences prefs = NbPreferences.forModule(LoginWindow.class);
+                        boolean firstRunSync = prefs.getBoolean(FIRST_RUN_SYNC, false);
+
+                        if (!firstRunSync) {
+
+                            final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Sync_Task());
+                            ph.start();
+
+                            ListenableFuture<Boolean> sync = m.getDSC().fullSync(null);
+
+                            Futures.addCallback(sync, new FutureCallback<Boolean>() {
+
+                                @Override
+                                public void onSuccess(Boolean v) {
+                                    prefs.putBoolean(FIRST_RUN_SYNC, true);
+                                }
+
+                                @Override
+                                public void onFailure(Throwable thrwbl) {
+                                    logger.error("First-run sync failed");
+                                    prefs.putBoolean(FIRST_RUN_SYNC, false);
+                                }
+                            });
+                        }
 
                         for (ConnectionListener l : listeners) {
                             l.propertyChange(new PropertyChangeEvent(context, "ovation.connectionChanged", 0, 1));

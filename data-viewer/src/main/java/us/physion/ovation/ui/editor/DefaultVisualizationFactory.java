@@ -1,7 +1,7 @@
 package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Sets;
-import java.awt.Component;
+import javax.swing.JComponent;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
 
@@ -21,8 +21,7 @@ public class DefaultVisualizationFactory implements VisualizationFactory
         return 2;
     }
 
-    class DefaultVisualization implements DataVisualization
-    {
+    class DefaultVisualization extends AbstractDataVisualization    {
         final DataElement data;
         DefaultVisualization(DataElement d)
         {
@@ -30,7 +29,7 @@ public class DefaultVisualizationFactory implements VisualizationFactory
         }
 
         @Override
-        public Component generatePanel() {
+        public JComponent generatePanel() {
             return new DefaultDataPanel(data);
         }
 

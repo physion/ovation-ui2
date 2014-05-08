@@ -27,8 +27,7 @@ import us.physion.ovation.values.NumericData;
  *
  * @author huecotanks
  */
-class ChartGroupWrapper implements DataVisualization
-{
+class ChartGroupWrapper extends AbstractDataVisualization {
     static Logger logger = LoggerFactory.getLogger(ChartGroupWrapper.class);
     DefaultXYDataset _ds;
     String _xAxis;
@@ -39,7 +38,7 @@ class ChartGroupWrapper implements DataVisualization
     ChartGroupWrapper(DefaultXYDataset ds, NumericData data)
     {
         NumericData.Data d = data.getData().values().iterator().next();
-       
+
         String xAxis = convertSamplingRateUnitsToGraphUnits(d.samplingRateUnits[0]);
         String yAxis = d.units;
 
@@ -180,7 +179,7 @@ class ChartGroupWrapper implements DataVisualization
     }
 
     final Set<DataElement> entities = Sets.newHashSet();
-    
+
     @Override
     public void add(DataElement r) {
         String preface = "Aggregate responses: ";
@@ -201,7 +200,7 @@ class ChartGroupWrapper implements DataVisualization
             }
             setTitle(preface + name + ", " + d.name);
         }
-        
+
         entities.add(r);
     }
 

@@ -2,33 +2,33 @@ package us.physion.ovation.ui.editor;
 
 import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.collect.Sets;
-import java.awt.Component;
 import java.io.File;
 import java.io.FileReader;
 import java.util.List;
+import javax.swing.JComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 
-public class TabularDataWrapper implements DataVisualization {
+public class TabularDataWrapper extends AbstractDataVisualization {
 
     String[] columnNames;
     String[][] tabularData;
     static Logger logger = LoggerFactory.getLogger(TabularDataWrapper.class);
-    
+
     List<String[]> myEntries;
     int nextChunkPosition;
     final int CHUNK_SIZE = 100;
     File file;
-    
+
     private final DataElement entity;
-    
-    TabularDataWrapper(DataElement r) 
+
+    TabularDataWrapper(DataElement r)
     {
         entity = r;
-        
+
         try {
             file = r.getData().get();
 
@@ -38,7 +38,7 @@ public class TabularDataWrapper implements DataVisualization {
 
             nextChunkPosition = 0;
             next();
-            
+
             int size = Math.min(myEntries.size(), CHUNK_SIZE);
             tabularData = new String[size][columnNames.length];
             for (int lineCount = 0; lineCount<size; lineCount++)
@@ -47,7 +47,7 @@ public class TabularDataWrapper implements DataVisualization {
                 int entryCount = 0;
                 for (String entry : elements)
                 {
-                    tabularData[lineCount][entryCount++] = entry; 
+                    tabularData[lineCount][entryCount++] = entry;
                 }
             }
         } catch (Exception ex) {
@@ -60,7 +60,7 @@ public class TabularDataWrapper implements DataVisualization {
             throw new OvationException(ex);
         }
     }
-    
+
     public void next()
     {
         int size = Math.min(myEntries.size() - nextChunkPosition, CHUNK_SIZE);
@@ -73,15 +73,15 @@ public class TabularDataWrapper implements DataVisualization {
             }
         }
         nextChunkPosition = nextChunkPosition + size;
-    }  
-    
+    }
+
     public void previous()
     {
         nextChunkPosition = nextChunkPosition - tabularData.length;
         int size = CHUNK_SIZE;
-        
+
         int previousChunkPosition = nextChunkPosition  - size;
-        
+
         tabularData = new String[size][columnNames.length];
         for (int lineCount = 0; lineCount < size; lineCount++) {
             String[] elements = myEntries.get(previousChunkPosition + lineCount);
@@ -90,20 +90,20 @@ public class TabularDataWrapper implements DataVisualization {
                 tabularData[lineCount][entryCount++] = entry;
             }
         }
-    }  
-    
+    }
+
     public boolean hasNext()
     {
         return (nextChunkPosition < myEntries.size());
     }
-    
+
     public boolean hasPrevious()
     {
         return (nextChunkPosition > CHUNK_SIZE);
     }
-    
+
     @Override
-    public Component generatePanel() {
+    public JComponent generatePanel() {
         return new TabularPanel(this);
     }
 

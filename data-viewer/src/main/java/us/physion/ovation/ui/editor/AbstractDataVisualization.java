@@ -17,12 +17,36 @@
 
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import javax.swing.JComponent;
 import us.physion.ovation.domain.OvationEntity;
 
+/**
+ *
+ * @author barry
+ */
+public abstract class AbstractDataVisualization implements DataVisualization {
 
-public interface Visualization {
+    private final Set<OvationEntity> entities;
 
-    JComponent generatePanel();
-    Iterable<? extends OvationEntity> getEntities();
+    public AbstractDataVisualization() {
+        this(ImmutableSet.<OvationEntity>of());
+    }
+
+    public AbstractDataVisualization(Iterable<OvationEntity> entities) {
+        this.entities = ImmutableSet.copyOf(entities);
+    }
+
+    @Override
+    public Iterable<? extends OvationEntity> getEntities() {
+        return entities;
+    }
+
+
+    @Override
+    public JComponent generateInfoPanel() {
+        return new DataElementInfoPanel(getEntities());
+    }
+
 }

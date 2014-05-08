@@ -1,15 +1,16 @@
 package us.physion.ovation.ui.editor;
 
-import com.google.common.collect.Sets;
 import ij.ImagePlus;
 import ij.io.Opener;
 import java.awt.Color;
-import java.awt.Component;
 import java.io.File;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import us.physion.ovation.domain.OvationEntity;
+import org.openide.util.NbBundle.Messages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.actions.OpenInNativeAppAction;
 
@@ -17,7 +18,13 @@ import us.physion.ovation.ui.actions.OpenInNativeAppAction;
  *
  * @author huecotanks
  */
-public class ImageJVisualization implements DataVisualization{
+@Messages({
+    "Unable_to_open_image=Unable to open image",
+    "Out_of_memory=Unable to open image (out of memory)"
+})
+public class ImageJVisualization extends AbstractDataVisualization {
+
+    Logger logger = LoggerFactory.getLogger(ImageJVisualization.class);
 
     JPanel panel;
     ImageJVisualization(File f)
@@ -30,13 +37,8 @@ public class ImageJVisualization implements DataVisualization{
             } else {
                 panel = new JPanel();
                 panel.setBackground(Color.WHITE);
-                panel.add(new JLabel("Currently unable to open image type."));
+                panel.add(new JLabel(Bundle.Unable_to_open_image()));
             }
-            //ImgPlus ip  = ImgOpener.open(url);
-            /*ImageCanvas ic = new ImageCanvas(imp);
-panel = new JPanel();
-panel.add(ic);
-	    */
         } catch (Throwable e) {
             /*try {
 ImgPlus ip = ImgOpener.open(url);
@@ -50,19 +52,19 @@ System.out.println(ex);
             panel.setBackground(Color.WHITE);
             if ( e instanceof java.lang.OutOfMemoryError )
             {
-                panel.add(new JLabel("Image too large to open"));
+                panel.add(new JLabel(Bundle.Out_of_memory()));
             }else
             {
-                panel.add(new JLabel("Unable to open image"));
+                panel.add(new JLabel(Bundle.Unable_to_open_image()));
             }
-            
+
             panel.add(new JButton(new OpenInNativeAppAction(f)));
-            System.out.println("Unable to open image at '" + f.getAbsolutePath() + "'  \n" + e.getMessage());
+            logger.error(Bundle.Unable_to_open_image() + " at '" + f.getAbsolutePath(), e);
         }
     }
-    
+
     @Override
-	public Component generatePanel() {
+    public JComponent generatePanel() {
         return panel;
     }
 
@@ -74,11 +76,6 @@ System.out.println(ex);
     @Override
 	public void add(DataElement r) {
         throw new UnsupportedOperationException("Not supported for this image visualization.");
-    }    
-
-    @Override
-    public Iterable<? extends OvationEntity> getEntities() {
-        return Sets.newHashSet();
     }
 }
 

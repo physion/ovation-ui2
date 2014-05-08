@@ -350,16 +350,20 @@ public final class ResponseViewTopComponent extends TopComponent {
             progress.switchToIndeterminate();
         }
 
-        
+
         List<Component> visualizationComponents = Lists.newLinkedList();
-        for(DataVisualization v : dataVisualizations) {
+        for (DataVisualization v : dataVisualizations) {
+            JComponent visualizationChrome
+                    = new DataElementVisualizationChrome(v.generatePanel(),
+                            v.generateInfoPanel());
+
+            visualizationComponents.add(visualizationChrome);
+        }
+
+        for (ContainerVisualization v : containerVisualizations) {
             visualizationComponents.add(v.generatePanel());
         }
-        
-        for(ContainerVisualization v : containerVisualizations) {
-            visualizationComponents.add(v.generatePanel());
-        }
-        
+
         EventQueueUtilities.runOnEDT(updateVisualizationComponents(visualizationComponents));
 
         return dataVisualizations;

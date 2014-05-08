@@ -20,6 +20,7 @@ package us.physion.ovation.ui.editor;
 import com.google.common.collect.Sets;
 import java.awt.Component;
 import java.lang.reflect.InvocationTargetException;
+import javax.swing.JComponent;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.ui.interfaces.IEntityNode;
@@ -63,14 +64,14 @@ public class ReflectionContainerVisualizationFactory implements ContainerVisuali
         }
 
         @Override
-        public Component generatePanel() {
+        public JComponent generatePanel() {
             try {
                 Class cls = Class.forName("us.physion.ovation.ui.editor."
                         + entity.getEntity().getClass().getSimpleName()
                         + "VisualizationPanel");
 
 
-                return (Component) cls.getConstructor(IEntityNode.class).newInstance(entity);
+                return (JComponent) cls.getConstructor(IEntityNode.class).newInstance(entity);
             } catch (ClassNotFoundException ex) {
                 return new DefaultContainerVisualizationFactory()
                         .createVisualization(entity)

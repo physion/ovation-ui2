@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import org.openide.util.Exceptions;
 import org.slf4j.Logger;
@@ -21,7 +22,7 @@ import us.physion.ovation.domain.mixin.DataElement;
  *
  * @author huecotanks
  */
-public class DefaultImageWrapper implements DataVisualization {
+public class DefaultImageWrapper extends AbstractDataVisualization {
     private final static Logger log = LoggerFactory.getLogger(DefaultImageWrapper.class);
 
     String name;
@@ -57,7 +58,7 @@ public class DefaultImageWrapper implements DataVisualization {
     }
 
     @Override
-    public Component generatePanel() {
+    public JComponent generatePanel() {
         BufferedImagePanel pan = new BufferedImagePanel(img);
         pan.setAlignmentX(Component.CENTER_ALIGNMENT);
         return new ImagePanel(name, pan);
