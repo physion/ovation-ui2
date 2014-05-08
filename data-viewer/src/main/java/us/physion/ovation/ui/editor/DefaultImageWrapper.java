@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Sets;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -12,6 +13,7 @@ import javax.swing.JPanel;
 import org.openide.util.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
 
 
@@ -24,8 +26,10 @@ public class DefaultImageWrapper implements DataVisualization {
 
     String name;
     BufferedImage img;
+    final DataElement entity;
     DefaultImageWrapper(DataElement r)
     {
+        entity = r;
         InputStream in = null;
         try {
             in = new FileInputStream(r.getData().get());
@@ -68,6 +72,11 @@ public class DefaultImageWrapper implements DataVisualization {
     @Override
     public void add(DataElement r) {
         throw new UnsupportedOperationException("Images are currently implemented one per panel");
+    }
+
+    @Override
+    public Iterable<? extends OvationEntity> getEntities() {
+        return Sets.newHashSet(entity);
     }
 
 }

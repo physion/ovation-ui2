@@ -18,9 +18,11 @@
 package us.physion.ovation.ui.editor;
 
 import java.awt.Component;
+import us.physion.ovation.domain.OvationEntity;
 
 
 public interface Visualization {
 
-    public Component generatePanel();
+    Component generatePanel();
+    Iterable<? extends OvationEntity> getEntities();
 }

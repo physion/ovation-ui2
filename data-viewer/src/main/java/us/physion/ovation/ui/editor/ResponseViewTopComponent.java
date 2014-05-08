@@ -1,6 +1,5 @@
 package us.physion.ovation.ui.editor;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.awt.BorderLayout;
@@ -325,12 +324,12 @@ public final class ResponseViewTopComponent extends TopComponent {
             }
         }
 
-        List<DataVisualization> responseGroups = Lists.newLinkedList();
-        List<ContainerVisualization> containerGroups = Lists.newLinkedList();
+        List<DataVisualization> dataVisualizations = Lists.newLinkedList();
+        List<ContainerVisualization> containerVisualizations = Lists.newLinkedList();
 
         for (DataElement rw : dataElements) {
             boolean added = false;
-            for (DataVisualization group : responseGroups) {
+            for (DataVisualization group : dataVisualizations) {
                 if (group.shouldAdd(rw)) {
                     group.add(rw);
                     added = true;
@@ -339,22 +338,31 @@ public final class ResponseViewTopComponent extends TopComponent {
             }
             if (!added) {
                 Resource r = (Resource) rw.getDataResource().refresh();
-                responseGroups.add(ResponseWrapperFactory.create(rw).createVisualization(rw));
+                dataVisualizations.add(ResponseWrapperFactory.create(rw).createVisualization(rw));
             }
         }
 
         for (IEntityNode n : containers) {
-            containerGroups.add(ResponseWrapperFactory.create(n).createVisualization(n));
+            containerVisualizations.add(ResponseWrapperFactory.create(n).createVisualization(n));
         }
 
         if (progress != null) {
             progress.switchToIndeterminate();
         }
 
-        List<Visualization> visualizations = Lists.newLinkedList(Iterables.concat(containerGroups, responseGroups));
-        EventQueueUtilities.runOnEDT(updateChartRunnable(visualizations));
+        
+        List<Component> visualizationComponents = Lists.newLinkedList();
+        for(DataVisualization v : dataVisualizations) {
+            visualizationComponents.add(v.generatePanel());
+        }
+        
+        for(ContainerVisualization v : containerVisualizations) {
+            visualizationComponents.add(v.generatePanel());
+        }
+        
+        EventQueueUtilities.runOnEDT(updateVisualizationComponents(visualizationComponents));
 
-        return responseGroups;
+        return dataVisualizations;
     }
 
     //for debugging
@@ -369,7 +377,7 @@ public final class ResponseViewTopComponent extends TopComponent {
         d.setVisible(true);
     }
 
-    private Runnable updateChartRunnable(final List<? extends Visualization> responseGroups) {
+    private Runnable updateVisualizationComponents(final List<? extends Component> vizComponents) {
         final int height = contentPanel.getParent().getHeight();
         return new Runnable() {
             @Override
@@ -379,15 +387,14 @@ public final class ResponseViewTopComponent extends TopComponent {
                     contentPanel.remove(c);
                 }
 
-                if (!responseGroups.isEmpty()) {
+                if (!vizComponents.isEmpty()) {
                     //This is for setting each row in the table to a more appropriate height
-                    int[] rowHeights = new int[responseGroups.size()];//highest allowable height for each row
+                    int[] rowHeights = new int[vizComponents.size()];//highest allowable height for each row
                     int totalStrictHeight = 0;
                     int flexiblePanels = 0;
                     int minHeight = 150;//min height of a chart
 
-                    for (Visualization c : responseGroups) {
-                        Component p = c.generatePanel();
+                    for (Component p : vizComponents) {
 
                         int row = responsePanels.size();
                         if (p instanceof StrictSizePanel) {

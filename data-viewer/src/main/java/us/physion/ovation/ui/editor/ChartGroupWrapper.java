@@ -1,6 +1,11 @@
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Sets;
 import java.awt.Font;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -13,13 +18,10 @@ import org.jfree.ui.RectangleInsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.NumericDataElements;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.values.NumericData;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -177,6 +179,8 @@ class ChartGroupWrapper implements DataVisualization
         return false;
     }
 
+    final Set<DataElement> entities = Sets.newHashSet();
+    
     @Override
     public void add(DataElement r) {
         String preface = "Aggregate responses: ";
@@ -197,6 +201,8 @@ class ChartGroupWrapper implements DataVisualization
             }
             setTitle(preface + name + ", " + d.name);
         }
+        
+        entities.add(r);
     }
 
     protected static String convertSamplingRateUnitsToGraphUnits(String samplingRateUnits) {
@@ -206,5 +212,10 @@ class ChartGroupWrapper implements DataVisualization
         } else {
             return ("1 / " + samplingRateUnits);
         }
+    }
+
+    @Override
+    public Iterable<? extends OvationEntity> getEntities() {
+        return entities;
     }
 }

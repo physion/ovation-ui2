@@ -1,12 +1,14 @@
 package us.physion.ovation.ui.editor;
 
 import au.com.bytecode.opencsv.CSVReader;
+import com.google.common.collect.Sets;
 import java.awt.Component;
 import java.io.File;
 import java.io.FileReader;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 
@@ -21,10 +23,12 @@ public class TabularDataWrapper implements DataVisualization {
     final int CHUNK_SIZE = 100;
     File file;
     
-    TabularDataWrapper(){};
+    private final DataElement entity;
     
     TabularDataWrapper(DataElement r) 
     {
+        entity = r;
+        
         try {
             file = r.getData().get();
 
@@ -111,5 +115,10 @@ public class TabularDataWrapper implements DataVisualization {
     @Override
     public void add(DataElement r) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Iterable<? extends OvationEntity> getEntities() {
+        return Sets.newHashSet(entity);
     }
 }

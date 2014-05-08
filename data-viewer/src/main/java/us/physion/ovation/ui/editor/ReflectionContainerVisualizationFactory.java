@@ -17,6 +17,7 @@
 
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Sets;
 import java.awt.Component;
 import java.lang.reflect.InvocationTargetException;
 import org.openide.util.lookup.ServiceProvider;
@@ -99,6 +100,11 @@ public class ReflectionContainerVisualizationFactory implements ContainerVisuali
                         .createVisualization(entity)
                         .generatePanel();
             }
+        }
+
+        @Override
+        public Iterable<? extends OvationEntity> getEntities() {
+            return Sets.newHashSet(entity.getEntity());
         }
     }
 

@@ -10,21 +10,11 @@ package us.physion.ovation.ui;
  */
 import java.awt.*;
 import java.awt.event.*;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 import javax.swing.tree.*;
-import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
-import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 public class ScrollableTableTree extends JScrollPane {
 

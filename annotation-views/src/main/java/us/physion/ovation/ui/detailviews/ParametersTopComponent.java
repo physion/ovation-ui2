@@ -41,8 +41,8 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 preferredID = "ParametersTopComponent")
 @Messages({
     "CTL_ParametersAction=Parameters",
-    "CTL_ParametersTopComponent=Parameters Window",
-    "HINT_ParametersTopComponent=This is a Parameters window"
+    "CTL_ParametersTopComponent=Parameters",
+    "HINT_ParametersTopComponent=Parameters (protocol, device, analysis, etc.) of the selected entities"
 })
 public final class ParametersTopComponent extends TopComponent {
 
@@ -100,7 +100,7 @@ public final class ParametersTopComponent extends TopComponent {
         {
             tableKeys.add(new ParameterSet(key, tables.get(key)));
         }
-        ((ScrollableTableTree)jScrollPane2).setKeys(tableKeys);
+        ((ScrollableTableTree)tableTreeScrollPane).setKeys(tableKeys);
         return tableKeys;
     }
 
@@ -111,12 +111,12 @@ public final class ParametersTopComponent extends TopComponent {
 
     public ScrollableTableTree getTableTree()
     {
-        return ((ScrollableTableTree)jScrollPane2);
+        return ((ScrollableTableTree)tableTreeScrollPane);
     }
 
     protected void setTableTree(ScrollableTableTree t)
     {
-        jScrollPane2 = t;
+        tableTreeScrollPane = t;
     }
 
     public ParametersTopComponent() {
@@ -137,24 +137,24 @@ public final class ParametersTopComponent extends TopComponent {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane2 = new ScrollableTableTree();
+        tableTreeScrollPane = new us.physion.ovation.ui.ScrollableTableTree();
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
+            .addComponent(tableTreeScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                .addComponent(tableTreeScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane tableTreeScrollPane;
     // End of variables declaration//GEN-END:variables
     @Override
     public void componentOpened() {

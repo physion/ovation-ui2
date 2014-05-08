@@ -17,6 +17,7 @@
 
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Sets;
 import java.awt.Component;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.OvationEntity;
@@ -46,6 +47,11 @@ public class DefaultContainerVisualizationFactory implements ContainerVisualizat
         @Override
         public Component generatePanel() {
             return new DefaultContainerPanel(entity);
+        }
+
+        @Override
+        public Iterable<? extends OvationEntity> getEntities() {
+            return Sets.newHashSet(entity);
         }
 
     }

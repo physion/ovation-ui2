@@ -1,6 +1,6 @@
 package us.physion.ovation.ui.editor;
 
-import us.physion.ovation.ui.actions.OpenInNativeAppAction;
+import com.google.common.collect.Sets;
 import ij.ImagePlus;
 import ij.io.Opener;
 import java.awt.Color;
@@ -9,7 +9,9 @@ import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.ui.actions.OpenInNativeAppAction;
 
 /**
  *
@@ -73,5 +75,10 @@ System.out.println(ex);
 	public void add(DataElement r) {
         throw new UnsupportedOperationException("Not supported for this image visualization.");
     }    
+
+    @Override
+    public Iterable<? extends OvationEntity> getEntities() {
+        return Sets.newHashSet();
+    }
 }
 

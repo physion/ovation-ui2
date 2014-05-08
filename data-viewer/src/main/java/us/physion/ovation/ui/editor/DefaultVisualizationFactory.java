@@ -1,6 +1,8 @@
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Sets;
 import java.awt.Component;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
 
 /**
@@ -21,7 +23,7 @@ public class DefaultVisualizationFactory implements VisualizationFactory
 
     class DefaultVisualization implements DataVisualization
     {
-        DataElement data;
+        final DataElement data;
         DefaultVisualization(DataElement d)
         {
             data = d;
@@ -40,6 +42,11 @@ public class DefaultVisualizationFactory implements VisualizationFactory
         @Override
         public void add(DataElement r) {
             throw new UnsupportedOperationException("Create a new Visualization, rather than adding to an existing one");
+        }
+
+        @Override
+        public Iterable<? extends OvationEntity> getEntities() {
+            return Sets.newHashSet(data);
         }
 
     }

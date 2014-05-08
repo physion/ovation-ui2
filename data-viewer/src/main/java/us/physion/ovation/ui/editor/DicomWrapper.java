@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Sets;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.DicomInputStream;
 import com.pixelmed.display.SingleImagePanel;
@@ -11,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import org.openide.util.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
 
 /**
@@ -22,8 +24,10 @@ public class DicomWrapper implements DataVisualization {
 
     String name;
     SourceImage src;
+    final DataElement entity;
 
     DicomWrapper(DataElement r) {
+        entity = r;
         DicomInputStream in = null;
         try {
             in = new DicomInputStream(new FileInputStream(r.getData().get()));
@@ -66,6 +70,11 @@ public class DicomWrapper implements DataVisualization {
     @Override
     public void add(DataElement r) {
         throw new UnsupportedOperationException("Dicoms are not displayed in groups");
+    }
+
+    @Override
+    public Iterable<? extends OvationEntity> getEntities() {
+        return Sets.newHashSet(entity);
     }
     
 }

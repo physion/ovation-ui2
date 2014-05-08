@@ -16,6 +16,7 @@
  */
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -43,6 +44,7 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.util.lookup.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.ResourceNotFoundException;
 
@@ -173,6 +175,11 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
             @Override
             public void add(DataElement r) {
                 throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public Iterable<? extends OvationEntity> getEntities() {
+                return Sets.newHashSet(r);
             }
         };
     }

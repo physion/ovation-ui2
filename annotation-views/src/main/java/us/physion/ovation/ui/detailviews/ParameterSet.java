@@ -9,7 +9,6 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.ui.*;
 
 /**
@@ -20,6 +19,7 @@ class ParameterSet implements TableTreeKey {
 
     private String displayName;
     Object[][] data;
+    
     public ParameterSet(String displayName, Map<String, Object> params) {
         this.displayName = displayName;
         data = new Object[params.size()][2];
@@ -36,31 +36,7 @@ class ParameterSet implements TableTreeKey {
     }
 
     @Override
-    public void refresh(DataContext c) {
-        //This was commented out before 2.0 port
-        /*DataContext c = dsc.getContext();
-        User u = (User)c.objectWithURI(userURI);
-        
-        boolean owner = false;
-        String uuid = u.getUuid();
-        Map<String, Object> props = new HashMap<String, Object>();
-        for (String uri: uris)
-        {
-            IEntityBase eb = c.objectWithURI(uri);
-            if (eb.getOwner().getUuid().equals(uuid))
-            {
-                owner = true;
-            }
-            props.putAll(eb.getUserProperties(u));
-        }
-        
-        username = u.getUsername();
-        this.isOwner = owner;
-        this.properties = props;
-        this.current = c.currentAuthenticatedUser().getUuid().equals(u.getUuid());
-        * 
-        */
-    }
+    public void refresh(DataContext c) {}
 
     @Override
     public String getDisplayName() {
