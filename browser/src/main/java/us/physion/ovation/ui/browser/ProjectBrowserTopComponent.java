@@ -45,6 +45,8 @@ public final class ProjectBrowserTopComponent extends TopComponent implements Ex
     private final ExplorerManager explorerManager = new ExplorerManager();
     private final BeanTreeView view;
     private final TreeFilter filter;
+    
+    private static final String SHOW_FIRST_RUN_TIP = "show_first_run_tip";
 
     public ProjectBrowserTopComponent() {
 
@@ -55,7 +57,7 @@ public final class ProjectBrowserTopComponent extends TopComponent implements Ex
         filter.setExperimentsVisible(prefs.getBoolean("experiments-visible", true));
         filter.setEpochGroupsVisible(prefs.getBoolean("epoch-groups-visible", false));
         filter.setEpochsVisible(prefs.getBoolean("epochs-visible", false));
-
+        
         filter.addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
@@ -96,6 +98,10 @@ public final class ProjectBrowserTopComponent extends TopComponent implements Ex
 
         ActionMap actionMap = this.getActionMap();
         actionMap.put("copy-to-clipboard", (Action) new BrowserCopyAction());
+        
+        if(prefs.getBoolean(SHOW_FIRST_RUN_TIP, true)) {
+            //prefs.putBoolean(SHOW_FIRST_RUN_TIP, false);
+        }
 
     }
 

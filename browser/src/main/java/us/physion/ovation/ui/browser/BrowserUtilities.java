@@ -13,7 +13,6 @@ import java.util.concurrent.Executors;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.explorer.ExplorerManager;
-import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
@@ -27,7 +26,6 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.ExpressionTreeProvider;
 import us.physion.ovation.ui.interfaces.QueryListener;
-import us.physion.ovation.ui.interfaces.RefreshableNode;
 
 /**
  *
@@ -230,13 +228,17 @@ public class BrowserUtilities {
     }
     
     public static void refreshView(String topComponendId) {
+        
         TopComponent tc = WindowManager.getDefault().findTopComponent(topComponendId);
         if (!(tc instanceof ExplorerManager.Provider)) {
             throw new IllegalStateException();
         }
         
-        Node root = ((ExplorerManager.Provider)tc).getExplorerManager().getRootContext();
-        ((RefreshableNode)root).refresh();
+//        Node root = ((ExplorerManager.Provider)tc).getExplorerManager().getRootContext();
+//        ((RefreshableNode)root).refresh();
+        
+        resetView(topComponendId);
+
     }
 
     //TODO: uncomment when we have query capabiliites

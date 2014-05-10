@@ -53,7 +53,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.AbstractBorder;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.StyleConstants;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.DataContext;
@@ -71,6 +74,9 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
  *
  * @author barry
  */
+@Messages({
+    "Adding_source=Adding Source {0}"
+})
 public class DataElementInfoPanel extends javax.swing.JPanel {
 
     private static final String ELEM = AbstractDocument.ElementNameAttribute;
@@ -93,55 +99,9 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                Iterable<String> sourceIds = Splitter.on(",")
-                        .omitEmptyStrings()
-                        .trimResults()
-                        .split(addSourcesTextField.getText());
-
-                for (String sourceId : sourceIds) {
-                    Set<Source> sources = Sets.newHashSet(ctx.getSourcesWithIdentifier(sourceId));
-                    if (sources.isEmpty()) {
-                        sources = Sets.newHashSet(ctx.insertSource(sourceId, sourceId));
-                        SwingUtilities.invokeLater(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                BrowserUtilities.resetView(BrowserUtilities.SOURCE_BROWSER_ID);
-                            }
-                        });
-                    }
-
-                    for (Measurement m : getMeasurements()) {
-                        Set<String> sourceNames = Sets.newHashSet(m.getSourceNames());
-                        Epoch epoch = m.getEpoch();
-
-                        for (Source s : sources) {
-                            String epochId = s.getURI().toString();
-                            if (!epoch.getInputSources().containsValue(s)) {
-                                ctx.beginTransaction();
-                                try {
-                                    epoch.addInputSource(epochId, s);
-                                    epoch.getDataContext().markModified(s);
-                                    ctx.commitTransaction();
-                                } catch (Throwable t) {
-                                    ctx.abortTransaction();
-
-                                    throw new OvationException("Unable to add input source", t);
-                                }
-
-                            }
-
-                            sourceNames.add(epochId);
-                        }
-
-                        m.setSourceNames(sourceNames);
-                    }
-                }
-
-                addSourcesTextField.setText("");
-
-                updateSources();
+                addSourceFromTextField(ctx);
             }
+
         });
 
         updateSources();
@@ -204,7 +164,9 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         addSourcesTextField.setToolTipText(org.openide.util.NbBundle.getMessage(DataElementInfoPanel.class, "DataElementInfoPanel.addSourcesTextField.toolTipText")); // NOI18N
         addSourcesTextField.setBorder(new javax.swing.border.LineBorder(javax.swing.UIManager.getDefaults().getColor("InternalFrame.background"), 1, true));
 
-        jScrollPane1.setBorder(new javax.swing.border.LineBorder(javax.swing.UIManager.getDefaults().getColor("InternalFrame.inactiveTitleBackground"), 1, true));
+        jScrollPane1.setBorder(null);
+
+        sourcesTextPane.setBorder(null);
         jScrollPane1.setViewportView(sourcesTextPane);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -399,6 +361,72 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
             insets.left = insets.right = 8;
             insets.top = insets.bottom = 4;
             return insets;
+        }
+    }
+
+    private void addSourceFromTextField(final DataContext ctx) throws OvationException {
+
+        Iterable<String> sourceIds = Splitter.on(",")
+                .omitEmptyStrings()
+                .trimResults()
+                .split(addSourcesTextField.getText());
+
+        for (final String sourceId : sourceIds) {
+
+            final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_source(sourceId));
+
+            EventQueueUtilities.runOffEDT(new Runnable() {
+
+                @Override
+                public void run() {
+                    Set<Source> sources = Sets.newHashSet(ctx.getSourcesWithIdentifier(sourceId));
+                    if (sources.isEmpty()) {
+                        sources = Sets.newHashSet(ctx.insertSource(sourceId, sourceId));
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                BrowserUtilities.resetView(BrowserUtilities.SOURCE_BROWSER_ID);
+                            }
+                        });
+                    }
+
+                    for (Measurement m : getMeasurements()) {
+                        Set<String> sourceNames = Sets.newHashSet(m.getSourceNames());
+                        Epoch epoch = m.getEpoch();
+
+                        for (Source s : sources) {
+                            String epochId = s.getURI().toString();
+                            if (!epoch.getInputSources().containsValue(s)) {
+                                ctx.beginTransaction();
+                                try {
+                                    epoch.addInputSource(epochId, s);
+                                    epoch.getDataContext().markModified(s);
+                                    ctx.commitTransaction();
+                                } catch (Throwable t) {
+                                    ctx.abortTransaction();
+
+                                    throw new OvationException("Unable to add input source", t);
+                                }
+
+                            }
+
+                            sourceNames.add(epochId);
+                        }
+
+                        m.setSourceNames(sourceNames);
+                    }
+
+                    EventQueueUtilities.runOnEDT(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            addSourcesTextField.setText("");
+                            updateSources();
+                        }
+                    });
+                    
+                }
+            }, ph);
         }
     }
 }

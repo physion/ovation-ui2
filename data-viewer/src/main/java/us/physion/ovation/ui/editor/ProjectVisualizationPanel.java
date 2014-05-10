@@ -24,14 +24,20 @@ import java.net.URI;
 import java.util.List;
 import javax.swing.SwingUtilities;
 import org.joda.time.DateTime;
+import org.openide.explorer.view.TreeView;
+import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.events.EntityUpdate;
+import us.physion.ovation.ui.browser.BrowserUtilities;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
 import us.physion.ovation.ui.interfaces.EventBusProvider;
 import us.physion.ovation.ui.interfaces.IEntityNode;
+import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
 /**
  * Data viewer visualization for Project entities
@@ -97,10 +103,16 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
                 final Experiment exp = project.insertExperiment(Bundle.Default_Experiment_Purpose(), new DateTime());
 
                 node.refresh();
+                
+                TopComponent projectBrowser = WindowManager.getDefault().findTopComponent(BrowserUtilities.PROJECT_BROWSER_ID);
+                
+                final TreeView tree = (TreeView) ((TreeViewProvider)projectBrowser).getTreeView();
+                
 
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
+                        tree.expandNode((Node) node);
                         new OpenNodeInBrowserAction(Lists.newArrayList(exp.getURI()),
                                 null,
                                 false,
@@ -143,6 +155,7 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
         projectNameField = new javax.swing.JTextField();
         startZoneComboBox = new javax.swing.JComboBox();
         addExperimentButton = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
         setBorder(new javax.swing.border.LineBorder(new java.awt.Color(174, 212, 166), 2, true));
@@ -153,7 +166,9 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
         jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.jScrollPane1.border.title"))); // NOI18N
 
         purposeTextArea.setColumns(20);
+        purposeTextArea.setLineWrap(true);
         purposeTextArea.setRows(5);
+        purposeTextArea.setWrapStyleWord(true);
         purposeTextArea.setBorder(null);
 
         org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${project.purpose}"), purposeTextArea, org.jdesktop.beansbinding.BeanProperty.create("text_ON_FOCUS_LOST"));
@@ -177,6 +192,10 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(addExperimentButton, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.addExperimentButton.text")); // NOI18N
 
+        jLabel1.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.jLabel1.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -197,7 +216,8 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(addExperimentButton))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -217,7 +237,8 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
                     .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(addExperimentButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, Short.MAX_VALUE)
+                .addComponent(jLabel1))
         );
 
         bindingGroup.bind();
@@ -227,6 +248,7 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addExperimentButton;
     private javax.swing.JLabel dateLabel;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField projectNameField;
     private javax.swing.JLabel projectTitleLabel;

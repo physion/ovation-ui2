@@ -34,7 +34,7 @@ public abstract class AbstractDataVisualization implements DataVisualization {
         this(ImmutableSet.<OvationEntity>of());
     }
 
-    public AbstractDataVisualization(Iterable<OvationEntity> entities) {
+    public AbstractDataVisualization(Iterable<? extends OvationEntity> entities) {
         this.entities = ImmutableSet.copyOf(entities);
     }
 

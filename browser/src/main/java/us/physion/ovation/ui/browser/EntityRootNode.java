@@ -32,7 +32,8 @@ class EntityRootNode extends EntityNode {
     @Override
     public void refresh() {
         EntityChildren children = (EntityChildren) getChildren();
-        children.refreshKeys(); //updateWithKeys(safeCall(childrenKeysFactory));
+        //children.refreshKeys();
+        children.updateWithKeys(safeCall(childrenKeysFactory));
     }
 
     @Override

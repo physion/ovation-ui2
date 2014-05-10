@@ -19,13 +19,20 @@ package us.physion.ovation.ui.editor;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JList;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import org.joda.time.DateTime;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
@@ -35,11 +42,15 @@ import org.openide.nodes.Node;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Experiment;
+import us.physion.ovation.domain.Protocol;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
+import us.physion.ovation.ui.interfaces.IEntityWrapper;
+import us.physion.ovation.ui.interfaces.ParameterTableModel;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
 /**
@@ -48,13 +59,21 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
  * @author barry
  */
 @Messages({
-    "Adding_measurements=Adding measurements…"
+    "Adding_measurements=Adding measurements…",
+    "No_protocol=(No protocol)"
 })
 public class ExperimentVisualizationPanel extends javax.swing.JPanel {
 
+    public static final String PROP_PROTOCOLS = "protocols";
+    public static final String PROP_PROTOCOL = "protocol";
+
     final Experiment experiment;
     final IEntityNode node;
+    final IEntityWrapper entityWrapper;
     FileDrop dropPanelListener;
+
+    private final DataContext context;
+    private transient final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
     /**
      * Creates new form ExperimentVisualizationPanel
@@ -62,13 +81,103 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
     public ExperimentVisualizationPanel(IEntityNode expNode) {
         node = expNode;
         experiment = expNode.getEntity(Experiment.class);
+        entityWrapper = expNode.getEntityWrapper();
+
+        context = experiment.getDataContext();
 
         initComponents();
 
         initUI();
+
+    }
+
+    public List<Protocol> getProtocols() {
+        List<Protocol> result = Lists.newLinkedList(context.getProtocols());
+//        result.sort(new Comparator<Protocol>() {
+//
+//            @Override
+//            public int compare(Protocol o1, Protocol o2) {
+//                if (o1 == null || o2 == null) {
+//                    return 0;
+//                }
+//
+//                return o1.getName().compareTo(o2.getName());
+//            }
+//        });
+
+        return result;
+    }
+
+    @Override
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        propertyChangeSupport.addPropertyChangeListener(listener);
+    }
+
+    @Override
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        propertyChangeSupport.removePropertyChangeListener(listener);
+    }
+
+    static class ProtocolCellRenderer extends DefaultListCellRenderer {
+
+        @Override
+        public Component getListCellRendererComponent(JList list,
+                Object value,
+                int index,
+                boolean isSelected,
+                boolean cellHasFocus) {
+
+            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            if (value instanceof Protocol) {
+                Protocol p = (Protocol) value;
+                setText(p.getName()); //TODO getVersion()
+            }
+            return this;
+        }
     }
 
     private void initUI() {
+
+        protocolComboBox.setRenderer(new ProtocolCellRenderer());
+
+        final ParameterTableModel paramsModel = new ParameterTableModel(
+                experiment.canWrite(experiment.getDataContext().getAuthenticatedUser()));
+
+        protocolParametersTable.setModel(paramsModel);
+        
+        paramsModel.setParams(experiment.getProtocolParameters());
+
+        paramsModel.addTableModelListener(new TableModelListener() {
+
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                switch (e.getType()) {
+                    case TableModelEvent.DELETE:
+                        for (String k : paramsModel.getAndClearRemovedKeys()) {
+                            getExperiment().removeProtocolParameter(k);
+                        }
+                        break;
+                    case TableModelEvent.INSERT:
+                        for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
+                            String key = (String) paramsModel.getValueAt(r, 0);
+                            Object value = paramsModel.getValueAt(r, 1);
+                            getExperiment().addProtocolParameter(key, value);
+                        }
+                        break;
+                    case TableModelEvent.UPDATE:
+                        for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
+                            String key = (String) paramsModel.getValueAt(r, 0);
+                            if (key != null && !key.isEmpty()) {
+                                Object value = paramsModel.getValueAt(r, 1);
+                                getExperiment().addProtocolParameter(key, value);
+                            }
+                        }
+                        break;
+                }
+            }
+
+        });
+
         startPicker.setDateTime(experiment.getStart());
 
         startZoneComboBox.setSelectedItem(experiment.getStart().getZone().getID());
@@ -89,7 +198,7 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
             }
         });
 
-        dropPanelListener = new FileDrop(dropPanel, new FileDrop.Listener() {
+        dropPanelListener = new FileDrop(this, new FileDrop.Listener() {
 
             @Override
             public void filesDropped(final File[] files) {
@@ -121,6 +230,25 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
             }
         });
 
+        /*
+         AutoCompleteDecorator.decorate(protocolComboBox, new ObjectToStringConverter() {
+
+         @Override
+         public String[] getPossibleStringsForItem(Object o) {
+         if (!(o instanceof Protocol)) {
+         return new String[]{Bundle.No_protocol()};
+         }
+
+         return new String[]{((Protocol) o).getName(), ((Protocol) o).getURI().toString()};
+         }
+
+         @Override
+         public String getPreferredStringForItem(Object item) {
+         return item == null ? null : getPossibleStringsForItem(item)[0];
+         }
+
+         });
+         */
     }
 
     private void insertMeasurements(File[] files) {
@@ -190,12 +318,33 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
     private void initComponents() {
         bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
         titleLabel = new javax.swing.JLabel();
         dateEntryLabel = new javax.swing.JLabel();
         startPicker = new us.physion.ovation.ui.interfaces.DateTimePicker();
         startZoneComboBox = new javax.swing.JComboBox();
-        dropPanel = new javax.swing.JPanel();
         puropseField = new javax.swing.JTextField();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        protocolComboBox = new javax.swing.JComboBox<Protocol>();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        protocolParametersTable = new javax.swing.JTable();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(jTable1);
 
         setBackground(java.awt.SystemColor.control);
         setBorder(new javax.swing.border.LineBorder(new java.awt.Color(120, 124, 123), 2, true));
@@ -203,6 +352,7 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
         titleLabel.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(titleLabel, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.titleLabel.text")); // NOI18N
 
+        dateEntryLabel.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(dateEntryLabel, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.dateEntryLabel.text")); // NOI18N
 
         startZoneComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
@@ -211,26 +361,75 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
         org.jdesktop.swingbinding.JComboBoxBinding jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, eLProperty, startZoneComboBox);
         bindingGroup.addBinding(jComboBoxBinding);
 
-        dropPanel.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
-        dropPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.dropPanel.border.title"))); // NOI18N
-
-        javax.swing.GroupLayout dropPanelLayout = new javax.swing.GroupLayout(dropPanel);
-        dropPanel.setLayout(dropPanelLayout);
-        dropPanelLayout.setHorizontalGroup(
-            dropPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-        dropPanelLayout.setVerticalGroup(
-            dropPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-
         puropseField.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         puropseField.setToolTipText(org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.puropseField.toolTipText")); // NOI18N
         puropseField.setBorder(javax.swing.BorderFactory.createLineBorder(javax.swing.UIManager.getDefaults().getColor("Button.background")));
 
         org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${experiment.purpose}"), puropseField, org.jdesktop.beansbinding.BeanProperty.create("text_ON_ACTION_OR_FOCUS_LOST"));
         bindingGroup.addBinding(binding);
+
+        jPanel1.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.jPanel1.border.title"))); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.jLabel1.text")); // NOI18N
+
+        protocolComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        eLProperty = org.jdesktop.beansbinding.ELProperty.create("${protocols}");
+        jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, eLProperty, protocolComboBox);
+        bindingGroup.addBinding(jComboBoxBinding);
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${experiment.protocol}"), protocolComboBox, org.jdesktop.beansbinding.BeanProperty.create("selectedItem"));
+        bindingGroup.addBinding(binding);
+
+        protocolParametersTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane2.setViewportView(protocolParametersTable);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.jLabel2.text")); // NOI18N
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(protocolComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(protocolComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        jLabel3.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.jLabel3.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -247,13 +446,14 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(dropPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(titleLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(puropseField)))
+                                .addComponent(puropseField))
+                            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -270,8 +470,9 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
                     .addComponent(startPicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(dropPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -280,7 +481,15 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel dateEntryLabel;
-    private javax.swing.JPanel dropPanel;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JComboBox protocolComboBox;
+    private javax.swing.JTable protocolParametersTable;
     private javax.swing.JTextField puropseField;
     private us.physion.ovation.ui.interfaces.DateTimePicker startPicker;
     private javax.swing.JComboBox startZoneComboBox;

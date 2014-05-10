@@ -1,9 +1,11 @@
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Sets;
 import ij.ImagePlus;
 import ij.io.Opener;
 import java.awt.Color;
 import java.io.File;
+import java.util.concurrent.ExecutionException;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -27,39 +29,51 @@ public class ImageJVisualization extends AbstractDataVisualization {
     Logger logger = LoggerFactory.getLogger(ImageJVisualization.class);
 
     JPanel panel;
-    ImageJVisualization(File f)
-    {
+
+    ImageJVisualization(DataElement d) {
+        super(Sets.newHashSet(d));
+
+        File imageFile;
+        try {
+            imageFile = d.getData().get();
+        } catch (InterruptedException ex) {
+            imageFile = null;
+        } catch (ExecutionException ex) {
+            imageFile = null;
+        }
+
         // open a file with ImageJ
         try {
-            final ImagePlus imp = new Opener().openImage(f.getAbsolutePath());
+            final ImagePlus imp = new Opener().openImage(imageFile.getAbsolutePath());
             if (imp != null) {
-                panel = new ImagePanel(f.getName(), new BufferedImagePanel(imp.getBufferedImage()));
+                panel = new ImagePanel(imageFile.getName(), new BufferedImagePanel(imp.getBufferedImage()));
             } else {
                 panel = new JPanel();
                 panel.setBackground(Color.WHITE);
                 panel.add(new JLabel(Bundle.Unable_to_open_image()));
             }
-        } catch (Throwable e) {
+        } catch (OutOfMemoryError e) {
             /*try {
-ImgPlus ip = ImgOpener.open(url);
-// display the dataset
-DisplayService displayService = new ImageJ().getService(DisplayService.class);
-displayService.getActiveDisplay().display(ip);
-} catch (Exception ex){
-System.out.println(ex);
-}*/
+             ImgPlus ip = ImgOpener.open(url);
+             // display the dataset
+             DisplayService displayService = new ImageJ().getService(DisplayService.class);
+             displayService.getActiveDisplay().display(ip);
+             } catch (Exception ex){
+             System.out.println(ex);
+             }*/
             panel = new JPanel();
             panel.setBackground(Color.WHITE);
-            if ( e instanceof java.lang.OutOfMemoryError )
-            {
-                panel.add(new JLabel(Bundle.Out_of_memory()));
-            }else
-            {
-                panel.add(new JLabel(Bundle.Unable_to_open_image()));
-            }
+            panel.add(new JLabel(Bundle.Out_of_memory()));
 
-            panel.add(new JButton(new OpenInNativeAppAction(f)));
-            logger.error(Bundle.Unable_to_open_image() + " at '" + f.getAbsolutePath(), e);
+        } catch (Throwable e) {
+            panel.add(new JLabel(Bundle.Unable_to_open_image()));
+
+            if (imageFile != null) {
+                panel.add(new JButton(new OpenInNativeAppAction(imageFile)));
+                logger.error(Bundle.Unable_to_open_image() + " at " + imageFile.getAbsolutePath(), e);
+            } else {
+                logger.error(Bundle.Unable_to_open_image(), e);
+            }
         }
     }
 
@@ -69,13 +83,12 @@ System.out.println(ex);
     }
 
     @Override
-	public boolean shouldAdd(DataElement r) {
+    public boolean shouldAdd(DataElement r) {
         return false;
     }
 
     @Override
-	public void add(DataElement r) {
+    public void add(DataElement r) {
         throw new UnsupportedOperationException("Not supported for this image visualization.");
     }
 }
-

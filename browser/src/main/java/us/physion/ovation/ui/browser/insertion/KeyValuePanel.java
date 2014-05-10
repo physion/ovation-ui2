@@ -6,7 +6,6 @@ package us.physion.ovation.ui.browser.insertion;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.ListSelectionModel;
 import org.openide.util.ChangeSupport;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
 
@@ -26,7 +25,7 @@ public class KeyValuePanel extends javax.swing.JPanel {
         return name;
     }
     
-    /**
+    /*
      * Creates new form KeyValuePanel
      */
     public KeyValuePanel(ChangeSupport cs, String name, String description) {

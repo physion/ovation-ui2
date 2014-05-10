@@ -28,7 +28,6 @@ import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.RoundRectangle2D;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.domain.OvationEntity;
@@ -206,7 +205,4 @@ public class DataElementVisualizationChrome<T extends OvationEntity> extends jav
     private javax.swing.JPanel infoPanelRoot;
     // End of variables declaration//GEN-END:variables
 
-    private void BalloonTip(JLabel inputsLabel, String edit_Inputs) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 }
