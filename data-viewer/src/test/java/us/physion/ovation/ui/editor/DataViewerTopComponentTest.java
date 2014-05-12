@@ -31,9 +31,9 @@ import us.physion.ovation.values.NumericData;
  *
  * @author huecotanks
  */
-public class ResponseViewTopComponentTest extends OvationTestCase{
+public class DataViewerTopComponentTest extends OvationTestCase{
 
-    ResponseViewTopComponent t;
+    DataViewerTopComponent t;
 
     private Epoch epoch;
 
@@ -53,7 +53,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         EpochGroup group = experiment.insertEpochGroup(UNUSED_LABEL, UNUSED_START, null, null, null);
 
         Epoch epoch = group.insertEpoch(UNUSED_START, UNUSED_END, null, null, null);
-        //t = new ResponseViewTopComponent();
+        //t = new DataViewerTopComponent();
         //assertNotNull(Lookup.getDefault().lookup(ConnectionProvider.class));
     }
 
@@ -90,7 +90,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
 
     @Test
     public void testGraphsSelectedEntity() {
-        t = new ResponseViewTopComponent();
+        t = new DataViewerTopComponent();
 
         Measurement r = makeNumericMeasurement();
 
@@ -172,7 +172,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
     @Test
     public void testGraphsMultipleSelectedEntitiesWithSharedUnits()
     {
-        t = new ResponseViewTopComponent();
+        t = new DataViewerTopComponent();
         Collection entities = new HashSet();
         NumericData nd1 = new NumericData();
         double[] d = new double[10000];
@@ -218,7 +218,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
     @Test
     public void testGraphsMultipleSelectedEntitiesWithoutSharedUnits()
     {
-        t = new ResponseViewTopComponent();
+        t = new DataViewerTopComponent();
         Collection entities = new HashSet();
         NumericData nd1 = new NumericData();
         double[] d = new double[10000];

@@ -16,21 +16,14 @@
  */
 package us.physion.ovation.ui.editor;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.List;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import org.joda.time.DateTime;
@@ -42,14 +35,12 @@ import org.openide.nodes.Node;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Protocol;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
-import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
@@ -60,30 +51,20 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
  */
 @Messages({
     "Adding_measurements=Adding measurements…",
-    "No_protocol=(No protocol)"
+    "Experiment_No_protocol=(No protocol)"
 })
-public class ExperimentVisualizationPanel extends javax.swing.JPanel {
+public class ExperimentVisualizationPanel extends AbstractContainerVisualizationPanel {
 
-    public static final String PROP_PROTOCOLS = "protocols";
-    public static final String PROP_PROTOCOL = "protocol";
 
-    final Experiment experiment;
-    final IEntityNode node;
-    final IEntityWrapper entityWrapper;
+
     FileDrop dropPanelListener;
 
-    private final DataContext context;
-    private transient final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
     /**
      * Creates new form ExperimentVisualizationPanel
      */
     public ExperimentVisualizationPanel(IEntityNode expNode) {
-        node = expNode;
-        experiment = expNode.getEntity(Experiment.class);
-        entityWrapper = expNode.getEntityWrapper();
-
-        context = experiment.getDataContext();
+        super(expNode);
 
         initComponents();
 
@@ -91,61 +72,17 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
 
     }
 
-    public List<Protocol> getProtocols() {
-        List<Protocol> result = Lists.newLinkedList(context.getProtocols());
-//        result.sort(new Comparator<Protocol>() {
-//
-//            @Override
-//            public int compare(Protocol o1, Protocol o2) {
-//                if (o1 == null || o2 == null) {
-//                    return 0;
-//                }
-//
-//                return o1.getName().compareTo(o2.getName());
-//            }
-//        });
-
-        return result;
-    }
-
-    @Override
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.addPropertyChangeListener(listener);
-    }
-
-    @Override
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.removePropertyChangeListener(listener);
-    }
-
-    static class ProtocolCellRenderer extends DefaultListCellRenderer {
-
-        @Override
-        public Component getListCellRendererComponent(JList list,
-                Object value,
-                int index,
-                boolean isSelected,
-                boolean cellHasFocus) {
-
-            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            if (value instanceof Protocol) {
-                Protocol p = (Protocol) value;
-                setText(p.getName()); //TODO getVersion()
-            }
-            return this;
-        }
-    }
 
     private void initUI() {
 
         protocolComboBox.setRenderer(new ProtocolCellRenderer());
 
         final ParameterTableModel paramsModel = new ParameterTableModel(
-                experiment.canWrite(experiment.getDataContext().getAuthenticatedUser()));
+                getExperiment().canWrite(getContext().getAuthenticatedUser()));
 
         protocolParametersTable.setModel(paramsModel);
-        
-        paramsModel.setParams(experiment.getProtocolParameters());
+
+        paramsModel.setParams(getExperiment().getProtocolParameters());
 
         paramsModel.addTableModelListener(new TableModelListener() {
 
@@ -178,9 +115,9 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
 
         });
 
-        startPicker.setDateTime(experiment.getStart());
+        startPicker.setDateTime(getExperiment().getStart());
 
-        startZoneComboBox.setSelectedItem(experiment.getStart().getZone().getID());
+        startZoneComboBox.setSelectedItem(getExperiment().getStart().getZone().getID());
 
         startPicker.addActionListener(new ActionListener() {
 
@@ -297,15 +234,7 @@ public class ExperimentVisualizationPanel extends javax.swing.JPanel {
     }
 
     public Experiment getExperiment() {
-        return experiment;
-    }
-
-    public IEntityNode getNode() {
-        return node;
-    }
-
-    public List<String> getAvailableZoneIDs() {
-        return Lists.newArrayList(DatePickers.getTimeZoneIDs());
+        return getNode().getEntity(Experiment.class);
     }
 
     /**

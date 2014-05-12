@@ -17,25 +17,33 @@
 package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Lists;
-import com.google.common.eventbus.EventBus;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.List;
 import javax.swing.SwingUtilities;
 import org.joda.time.DateTime;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.TreeView;
 import org.openide.nodes.Node;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Project;
-import us.physion.ovation.domain.events.EntityUpdate;
+import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
-import us.physion.ovation.ui.interfaces.EventBusProvider;
+import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
@@ -45,19 +53,18 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
  * @author barry
  */
 @Messages({
-    "Default_Experiment_Purpose=New Experiment"
+    "Default_Experiment_Purpose=New Experiment",
+    "Project_New_Analysis_Record_Name=New Analysis"
 })
-public class ProjectVisualizationPanel extends javax.swing.JPanel {
+public class ProjectVisualizationPanel extends AbstractContainerVisualizationPanel {
 
-    final Project project;
-    final IEntityNode node;
+    FileDrop dropListener;
 
     /**
      * Creates new form ProjectVisualizationPanel
      */
     public ProjectVisualizationPanel(IEntityNode n) {
-        this.node = n;
-        project = n.getEntity(Project.class);
+        super(n);
 
         initComponents();
         initUI();
@@ -87,27 +94,25 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
             }
         });
 
-        projectNameField.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                EventBus bus = Lookup.getDefault().lookup(EventBusProvider.class).getDefaultEventBus();
-                bus.post(new EntityUpdate(project.toDto(), 0, null));
-            }
-        });
-
+//        projectNameField.addActionListener(new ActionListener() {
+//
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                EventBus bus = Lookup.getDefault().lookup(EventBusProvider.class).getDefaultEventBus();
+//                bus.post(new EntityUpdate(getProject().toDto(), 0, null));
+//            }
+//        });
         addExperimentButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                final Experiment exp = project.insertExperiment(Bundle.Default_Experiment_Purpose(), new DateTime());
+                final Experiment exp = getProject().insertExperiment(Bundle.Default_Experiment_Purpose(), new DateTime());
 
                 node.refresh();
-                
+
                 TopComponent projectBrowser = WindowManager.getDefault().findTopComponent(BrowserUtilities.PROJECT_BROWSER_ID);
-                
-                final TreeView tree = (TreeView) ((TreeViewProvider)projectBrowser).getTreeView();
-                
+
+                final TreeView tree = (TreeView) ((TreeViewProvider) projectBrowser).getTreeView();
 
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
@@ -123,6 +128,76 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
 
             }
         });
+
+        dropListener = new FileDrop(this, new FileDrop.Listener() {
+
+            @Override
+            public void filesDropped(final File[] files) {
+
+                final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.AnalysisRecord_Adding_Outputs());
+
+                TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
+                if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
+                    throw new IllegalStateException();
+                }
+
+                TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
+
+                view.expandNode((Node) node);
+
+                EventQueueUtilities.runOffEDT(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        addAnalysisRecord(files);
+                        EventQueueUtilities.runOnEDT(new Runnable() {
+                            @Override
+                            public void run() {
+                                node.refresh();
+                            }
+                        });
+                    }
+                }, ph);
+            }
+        });
+    }
+
+    private void addAnalysisRecord(File[] files) {
+        getContext().beginTransaction();
+        try {
+            AnalysisRecord ar = getProject().addAnalysisRecord(Bundle.Project_New_Analysis_Record_Name(),
+                    Sets.<DataElement>newHashSet(),
+                    null,
+                    Maps.<String, Object>newHashMap());
+
+            for (File f : files) {
+                String name = f.getName();
+                int i = 1;
+                while (ar.getOutputs().keySet().contains(name)) {
+                    name = name + "_" + i;
+                    i++;
+                }
+
+                try {
+                    ar.addOutput(
+                            name,
+                            f.toURI().toURL(),
+                            ContentTypes.getContentType(f));
+                } catch (MalformedURLException ex) {
+                    logger.error("Unable to determine file URL", ex);
+                    Toolkit.getDefaultToolkit().beep();
+                } catch (IOException ex) {
+                    logger.error("Unable to determine file content type", ex);
+                    Toolkit.getDefaultToolkit().beep();
+                }
+            }
+
+            getContext().markModified(getProject());
+            getContext().commitTransaction();
+        } catch (Throwable t) {
+            getContext().abortTransaction();
+            throw new OvationException(t);
+        }
     }
 
     protected void startDateTimeChanged() {
@@ -130,11 +205,7 @@ public class ProjectVisualizationPanel extends javax.swing.JPanel {
     }
 
     public Project getProject() {
-        return project;
-    }
-
-    public List<String> getAvailableZoneIDs() {
-        return Lists.newArrayList(DatePickers.getTimeZoneIDs());
+        return getNode().getEntity(Project.class);
     }
 
     /**

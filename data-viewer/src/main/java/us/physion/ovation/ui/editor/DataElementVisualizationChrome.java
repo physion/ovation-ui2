@@ -18,6 +18,7 @@
 package us.physion.ovation.ui.editor;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -31,6 +32,7 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.util.PlatformUtils;
 
 /**
  *
@@ -74,6 +76,13 @@ public class DataElementVisualizationChrome<T extends OvationEntity> extends jav
                 infoPanelRoot.revalidate();
             }
         });
+
+        if (PlatformUtils.isMac()) {
+            infoButton.putClientProperty("JButton.buttonType", "gradient");
+            infoButton.setPreferredSize(new Dimension(34, 34));
+
+            invalidate();
+        }
     }
 
     private static Area createShape() {

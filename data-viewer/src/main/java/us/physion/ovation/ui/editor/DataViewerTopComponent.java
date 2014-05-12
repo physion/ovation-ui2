@@ -39,28 +39,28 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 /**
  * Top component which displays something.
  */
-@ConvertAsProperties(dtd = "-//us.physion.ovation.editor//ResponseView//EN",
+@ConvertAsProperties(dtd = "-//us.physion.ovation.editor//DataViewer//EN",
         autostore = false)
-@TopComponent.Description(preferredID = "ResponseViewTopComponent",
+@TopComponent.Description(preferredID = "DataViewerTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "editor", openAtStartup = true)
-@ActionID(category = "Window", id = "us.physion.ovation.editor.ResponseViewTopComponent")
+@ActionID(category = "Window", id = "us.physion.ovation.editor.DataViewerTopComponent")
 @ActionReference(path = "Menu/Window" /*
  * , position = 333
  */)
-@TopComponent.OpenActionRegistration(displayName = "#CTL_ResponseViewAction",
-        preferredID = "ResponseViewTopComponent")
+@TopComponent.OpenActionRegistration(displayName = "#CTL_DataViewerAction",
+        preferredID = "DataViewerTopComponent")
 @Messages({
-    "CTL_ResponseViewAction=Selection View",
-    "CTL_ResponseViewTopComponent=Selection Viewer",
-    "HINT_ResponseViewTopComponent=Displays the current selected entity",
+    "CTL_DataViewerAction=Selection View",
+    "CTL_DataViewerTopComponent=Selection Viewer",
+    "HINT_DataViewerTopComponent=Displays the current selected entity",
     "# {0} - data element name",
     "Temporary_Data_Viewer_Title=Data Viewer: {0}",
     "Temporary_Data_Viewer_Loading=Opening...",
     "Main_Data_Viewer_Name=Data Viewer"
 })
-public final class ResponseViewTopComponent extends TopComponent {
+public final class DataViewerTopComponent extends TopComponent {
 
     private final static class TemporaryViewTopComponent extends TopComponent {
 
@@ -198,7 +198,7 @@ public final class ResponseViewTopComponent extends TopComponent {
         }
     };
 
-    public ResponseViewTopComponent() {
+    public DataViewerTopComponent() {
         initTopComponent();
     }
 
@@ -208,8 +208,8 @@ public final class ResponseViewTopComponent extends TopComponent {
         //Don't allow the user to close the data viewer
         putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
 
-        setName(Bundle.Main_Data_Viewer_Name());//Bundle.CTL_ResponseViewTopComponent());
-        setToolTipText(Bundle.HINT_ResponseViewTopComponent());//Bundle.HINT_ResponseViewTopComponent());
+        setName(Bundle.Main_Data_Viewer_Name());
+        setToolTipText(Bundle.HINT_DataViewerTopComponent());
         global = Utilities.actionsGlobalContext().lookupResult(IEntityNode.class);
         global.addLookupListener(listener);
     }
@@ -267,7 +267,7 @@ public final class ResponseViewTopComponent extends TopComponent {
 
         if (updateEntitySelection != null && !updateEntitySelection.isDone()) {
             updateEntitySelection.cancel(true);
-            LoggerFactory.getLogger(ResponseViewTopComponent.class).debug("Cancelled other thread");
+            LoggerFactory.getLogger(DataViewerTopComponent.class).debug("Cancelled other thread");
         }
         updateEntitySelection = EventQueueUtilities.runOffEDT(r, progress);
     }
@@ -310,6 +310,9 @@ public final class ResponseViewTopComponent extends TopComponent {
                     } else {
                         dataElements.addAll(Sets.newHashSet(container.getDataElements().values()));
                     }
+                } else if (container instanceof AnalysisRecord) {
+                    containers.add(n);
+                    //dataElements.addAll(Sets.newHashSet(container.getDataElements().values()));
                 } else {
                     dataElements.addAll(Sets.newHashSet(container.getDataElements().values()));
                 }
