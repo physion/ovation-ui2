@@ -37,6 +37,7 @@ public abstract class AbstractDataVisualization implements DataVisualization {
     public AbstractDataVisualization(Iterable<? extends OvationEntity> entities) {
         this.entities = ImmutableSet.copyOf(entities);
     }
+    
 
     @Override
     public Iterable<? extends OvationEntity> getEntities() {

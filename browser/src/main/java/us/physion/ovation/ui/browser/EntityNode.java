@@ -47,8 +47,14 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                setDisplayName(entityWrapper.getDisplayName());
-                EntityNode.this.refresh();
+                EventQueueUtilities.runOnEDT(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        setDisplayName(entityWrapper.getDisplayName());
+                        EntityNode.this.refresh();
+                    }
+                });
             }
         });
     }
@@ -235,9 +241,9 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
                     actionList = appendToArray(actionList, SystemAction.get(MeasurementInputSourcesAction.class));
                 }
 
-               //XXX: right now canRename will never change for a given node so it's safe to use it during initialization
+                //XXX: right now canRename will never change for a given node so it's safe to use it during initialization
                 if (canRename()) {
-                   actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
+                    actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
                 }
 
                 if (OvationEntity.class.isAssignableFrom(entityClass)) {
