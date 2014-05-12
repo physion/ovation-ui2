@@ -5,18 +5,15 @@
 package us.physion.ovation.ui.browser;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
-import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochGroup;
@@ -26,8 +23,6 @@ import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.mixin.Owned;
-import us.physion.ovation.domain.mixin.ProcedureElement;
-import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /**
@@ -46,13 +41,13 @@ public class QuerySet {
             em.setRootContext(new EntityNode(new QueryChildren(BrowserUtilities.registeredViewManagers.get(em)), null));
         }
     }
-    
+
     public void reset()
     {
         Set<IEntityWrapper> oldResults = results;
         results = new HashSet();
-        
-        nodeCache = new HashMap();
+
+        nodeCache = Maps.newHashMap();
         for(ExplorerManager em : BrowserUtilities.registeredViewManagers.keySet())
         {
             em.setRootContext(new EntityNode(new QueryChildren(BrowserUtilities.registeredViewManagers.get(em)), null));
@@ -62,12 +57,12 @@ public class QuerySet {
             add(entity.getEntity());
         }
     }
-    
+
     public void reset(ExplorerManager em, TreeFilter filter)
     {
         Set<IEntityWrapper> oldResults = results;
         results = new HashSet();
-        
+
         em.setRootContext(new EntityNode(new QueryChildren(filter), null));
         Set<ExplorerManager> mgrs = Sets.newHashSet(em);
         for (IEntityWrapper entity: oldResults)
@@ -75,21 +70,21 @@ public class QuerySet {
             add(entity.getEntity(), mgrs);
         }
     }
-    
-    
+
+
     public void add(OvationEntity e)
     {
         add(e, BrowserUtilities.registeredViewManagers.keySet());
     }
-    
+
     public void add(OvationEntity e, Set<ExplorerManager> mgrs)
     {
         if (e.isTrashed() )
             return;
-        
+
         EntityWrapper ew = new EntityWrapper(e);
         results.add(ew);
-        
+
         List<IEntityWrapper> p = Lists.<IEntityWrapper>newArrayList(ew);
         Set<List<IEntityWrapper>> paths = getPathsToEntity(e, p);// set of paths from this entity wrapper to a parent that has already been created in the tree
 
@@ -112,7 +107,7 @@ public class QuerySet {
             }
         }
     }
-    
+
     protected int findParent(List<IEntityWrapper> path)
     {
         int found = path.size();
