@@ -104,6 +104,8 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
         });
 
+        addSourcesTextField.setEnabled(getMeasurements().size() > 0);
+
         updateSources();
     }
 
@@ -424,7 +426,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                             updateSources();
                         }
                     });
-                    
+
                 }
             }, ph);
         }
