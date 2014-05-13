@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright (C) 2014 Physion LLC
  *
  * This program is free software: you can redistribute it and/or modify
@@ -37,7 +37,7 @@ public abstract class AbstractDataVisualization implements DataVisualization {
     public AbstractDataVisualization(Iterable<? extends OvationEntity> entities) {
         this.entities = ImmutableSet.copyOf(entities);
     }
-    
+
 
     @Override
     public Iterable<? extends OvationEntity> getEntities() {

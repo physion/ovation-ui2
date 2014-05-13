@@ -7,7 +7,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import javax.swing.Action;
-import org.openide.actions.RenameAction;
 import org.openide.nodes.*;
 import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
@@ -243,9 +242,9 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
                 }
 
                 //XXX: right now canRename will never change for a given node so it's safe to use it during initialization
-                if (canRename()) {
-                    actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
-                }
+//                if (canRename()) {
+//                    actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
+//                }
 
                 if (OvationEntity.class.isAssignableFrom(entityClass)) {
                     actionList = appendToArray(actionList, null, SystemAction.get(TrashEntityAction.class));

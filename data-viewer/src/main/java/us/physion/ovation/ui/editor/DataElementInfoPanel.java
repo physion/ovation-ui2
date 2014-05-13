@@ -60,11 +60,13 @@ import org.openide.util.NbBundle.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.DataContext;
+import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Resource;
 import us.physion.ovation.domain.Source;
+import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
@@ -153,7 +155,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         addSourcesTextField = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
-        sourcesTextPane = new javax.swing.JTextPane();
+        inputsTextPane = new javax.swing.JTextPane();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
 
@@ -168,8 +170,8 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
         jScrollPane1.setBorder(null);
 
-        sourcesTextPane.setBorder(null);
-        jScrollPane1.setViewportView(sourcesTextPane);
+        inputsTextPane.setBorder(null);
+        jScrollPane1.setViewportView(inputsTextPane);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -218,10 +220,10 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField addSourcesTextField;
+    private javax.swing.JTextPane inputsTextPane;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextPane sourcesTextPane;
     // End of variables declaration//GEN-END:variables
 
     Logger logger = LoggerFactory.getLogger(DataElementInfoPanel.class);
@@ -230,6 +232,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
     private void updateSources() {
         final Multimap<String, Source> sources = HashMultimap.create();
+        final Multimap<String, DataElement> inputResources = HashMultimap.create();
 
         for (Measurement m : getMeasurements()) {
             for (String s : m.getSourceNames()) {
@@ -237,18 +240,28 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
             }
         }
 
+        for (Resource r : getResources()) {
+            for (String s : ((AnalysisRecord) r.getContainingEntity()).getInputs().keySet()) {
+                inputResources.put(s, ((AnalysisRecord) r.getContainingEntity()).getInputs().get(s));
+            }
+        }
+
         EventQueueUtilities.runOnEDT(new Runnable() {
 
             @Override
             public void run() {
-                sourcesTextPane.setText("");
+                inputsTextPane.setText("");
 
                 for (Map.Entry<String, Source> namedSource : sources.entries()) {
                     JPanel sourcePanel = makeSourcePanel(namedSource.getKey(), namedSource.getValue());
 
-                    sourcesTextPane.setCaretPosition(sourcesTextPane.getDocument().getLength());
-                    sourcesTextPane.insertComponent(sourcePanel);
+                    inputsTextPane.setCaretPosition(inputsTextPane.getDocument().getLength());
+                    inputsTextPane.insertComponent(sourcePanel);
 
+                }
+
+                for (Map.Entry<String, DataElement> namedInput : inputResources.entries()) {
+                    //TODO
                 }
             }
         });
