@@ -18,7 +18,6 @@ package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -166,7 +165,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         getContext().beginTransaction();
         try {
             AnalysisRecord ar = getProject().addAnalysisRecord(Bundle.Project_New_Analysis_Record_Name(),
-                    Sets.<DataElement>newHashSet(),
+                    Maps.<String,DataElement>newHashMap(),
                     null,
                     Maps.<String, Object>newHashMap());
 

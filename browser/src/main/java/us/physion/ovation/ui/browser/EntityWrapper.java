@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import org.joda.time.DateTime;
 import org.openide.ErrorManager;
@@ -35,16 +36,12 @@ public class EntityWrapper implements IEntityWrapper {
     private final Set<URI> watchUris = Sets.newHashSet();;
 
     private final Class type;
-    private String displayName;
-    private Color displayColor;
 
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
     public EntityWrapper(OvationEntity e) {
         uri = e.getURI();
         type = e.getClass();
-        displayName = EntityWrapper.inferDisplayName(e);
-        displayColor = inferDisplayColor(e);
 
         watchUris.add(uri);
         if (Measurement.class.isAssignableFrom(type)) {
@@ -64,9 +61,7 @@ public class EntityWrapper implements IEntityWrapper {
         if (watchUris.contains(updateEvent.getEntityUri())) {
             OvationEntity e = getEntity();
             if(e != null) {
-                displayName = EntityWrapper.inferDisplayName(getEntity());
-
-                propertyChangeSupport.firePropertyChange(ENTITY_UPDATE, null, null);
+                propertyChangeSupport.firePropertyChange(PROP_ENTITY_UPDATE, null, null);
                 if (Measurement.class.isAssignableFrom(type)) {
                     watchUris.add(getEntity(Measurement.class).getDataResource().getURI());
                 }
@@ -74,12 +69,12 @@ public class EntityWrapper implements IEntityWrapper {
         }
     }
 
-    public static final String ENTITY_UPDATE = "entity_update";
+    public static final String PROP_ENTITY_UPDATE = "entity_update";
+    public static final String PROP_NAME = "name";
 
     //used by the PerUserEntityWrapper object
     protected EntityWrapper(String name, Class clazz, String uri) {
         type = clazz;
-        displayName = name;
         try {
             this.uri = new URI(uri);
         } catch (URISyntaxException ex) {
@@ -138,7 +133,7 @@ public class EntityWrapper implements IEntityWrapper {
 
     @Override
     public String getDisplayName() {
-        return displayName;
+        return inferDisplayName(getEntity());
     }
 
     @Override
@@ -199,6 +194,8 @@ public class EntityWrapper implements IEntityWrapper {
 
     @Override
     public void setName(String s) {
+        String currentName = getName();
+        
         OvationEntity e = getEntity();
         if (Source.class.isAssignableFrom(type)) {
             ((Source) e).setLabel(s);
@@ -210,7 +207,7 @@ public class EntityWrapper implements IEntityWrapper {
             ((EpochGroup) e).setLabel(s);
         }
 
-        displayName = EntityWrapper.inferDisplayName(e);
+        propertyChangeSupport.firePropertyChange(PROP_NAME, currentName, s);
     }
 
     @Override
@@ -253,7 +250,7 @@ public class EntityWrapper implements IEntityWrapper {
 
     @Override
     public Color getDisplayColor() {
-        return displayColor;
+        return inferDisplayColor(getEntity());
     }
 
     private static Color inferDisplayColor(OvationEntity e) {
@@ -291,9 +288,7 @@ public class EntityWrapper implements IEntityWrapper {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 31 * hash + (this.uri != null ? this.uri.hashCode() : 0);
-        return hash;
+        return Objects.hash(this.uri);
     }
 
     @Override

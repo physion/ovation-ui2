@@ -52,6 +52,7 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
                     @Override
                     public void run() {
                         setDisplayName(entityWrapper.getDisplayName());
+                        fireDisplayNameChange(null, getDisplayName());
                         EntityNode.this.refresh();
                     }
                 });
