@@ -18,7 +18,6 @@
 package us.physion.ovation.ui.editor;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -79,7 +78,7 @@ public class DataElementVisualizationChrome<T extends OvationEntity> extends jav
 
         if (PlatformUtils.isMac()) {
             infoButton.putClientProperty("JButton.buttonType", "gradient");
-            infoButton.setPreferredSize(new Dimension(34, 34));
+            //infoButton.setPreferredSize(new Dimension(34, 34));
 
             invalidate();
         }
