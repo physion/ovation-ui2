@@ -14,40 +14,72 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import java.awt.AlphaComposite;
+import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.Composite;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import javax.swing.JComponent;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
+import org.openide.explorer.view.BeanTreeView;
 import org.openide.explorer.view.TreeView;
 import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.AnalysisRecord;
+import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.EpochContainer;
+import us.physion.ovation.domain.EpochGroup;
+import us.physion.ovation.domain.Experiment;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.mixin.DataElementContainer;
+import us.physion.ovation.domain.mixin.EpochGroupContainer;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
+import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
 import us.physion.ovation.util.PlatformUtils;
@@ -58,22 +90,44 @@ import us.physion.ovation.util.PlatformUtils;
  */
 @NbBundle.Messages({
     "AnalysisRecord_No_protocol=(No protocol)",
-    "AnalysisRecord_Adding_Outputs=Adding outputs..."
+    "AnalysisRecord_Adding_Outputs=Adding outputs...",
+    "AnalysisRecord_Add_Input=Add..."
 })
-public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualizationPanel {
+public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualizationPanel
+        implements ExplorerManager.Provider, Lookup.Provider {
 
     FileDrop dropListener;
+    private final ExplorerManager explorerManager;
+    private final Lookup treeLookup;
+    private List<String> selectedInputNames;
 
     /**
      * Creates new form AnalysisRecordVisualizationPanel
      */
     public AnalysisRecordVisualizationPanel(IEntityNode analysisRecordNode) {
         super(analysisRecordNode);
+
+        explorerManager = new ExplorerManager();
+        treeLookup = ExplorerUtils.createLookup(explorerManager, getActionMap());
+
+
         initComponents();
         initUI();
     }
 
     private void initUI() {
+
+        getNode().getEntityWrapper().addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                getPropertyChangeSupport().firePropertyChange(PROP_INPUT_NAMES,
+                        null,
+                        getInputNames());
+            }
+        });
+
+
         protocolComboBox.setRenderer(new ProtocolCellRenderer());
         final ParameterTableModel paramsModel = new ParameterTableModel(
                 getAnalysisRecord().canWrite(getContext().getAuthenticatedUser()));
@@ -89,14 +143,14 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
                 switch (e.getType()) {
                     case TableModelEvent.DELETE:
                         for (String k : paramsModel.getAndClearRemovedKeys()) {
-                            //getAnalysisRecord().removeProtocolParameter(k);
+                            getAnalysisRecord().removeProtocolParameter(k);
                         }
                         break;
                     case TableModelEvent.INSERT:
                         for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
                             String key = (String) paramsModel.getValueAt(r, 0);
                             Object value = paramsModel.getValueAt(r, 1);
-                            //getAnalysisRecord().addProtocolParameter(key, value);
+                            getAnalysisRecord().addProtocolParameter(key, value);
                         }
                         break;
                     case TableModelEvent.UPDATE:
@@ -104,7 +158,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
                             String key = (String) paramsModel.getValueAt(r, 0);
                             if (key != null && !key.isEmpty()) {
                                 Object value = paramsModel.getValueAt(r, 1);
-                                //getAnalysisRecord().addProtocolParameter(key, value);
+                                getAnalysisRecord().addProtocolParameter(key, value);
                             }
                         }
                         break;
@@ -117,10 +171,42 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                addOutputs();
+                for (DataElement dataElement : showAddInputsDialog()) {
+                    getAnalysisRecord().addInput(dataElement.getName(), dataElement);
+                }
             }
 
         });
+
+        inputsList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                List<String> selection = Lists.newArrayList();
+                List<String> elements = getInputNames();
+
+                for (int i : inputsList.getSelectedIndices()) {
+                    selection.add(elements.get(i));
+                }
+
+                setSelectedInputs(selection);
+            }
+        });
+
+        removeInputButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Map<String, DataElement> inputs = getAnalysisRecord().getInputs();
+
+                for (String name : getSelectedInputs()) {
+                    getAnalysisRecord().removeInput(name);
+                }
+            }
+
+        });
+
+        removeInputButton.setEnabled(false);
 
         dropListener = new FileDrop(this, new FileDrop.Listener() {
 
@@ -142,7 +228,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
                     @Override
                     public void run() {
-                        addOutputs(files);
+                        addOutputFiles(files);
                         EventQueueUtilities.runOnEDT(new Runnable() {
                             @Override
                             public void run() {
@@ -156,15 +242,108 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
         if (PlatformUtils.isMac()) {
             addInputButton.putClientProperty("JButton.buttonType", "gradient");
-            addInputButton.setPreferredSize(new Dimension(34, 34));
+            //addInputButton.setPreferredSize(new Dimension(34, 34));
 
             removeInputButton.putClientProperty("JButton.buttonType", "gradient");
-            removeInputButton.setPreferredSize(new Dimension(34, 34));
+            //removeInputButton.setPreferredSize(new Dimension(34, 34));
             invalidate();
         }
+
     }
 
-    private void addOutputs(File[] files) {
+    public static final String PROP_INPUT_NAMES = "inputNames";
+
+    public List<String> getInputNames() {
+        List<String> result = Lists.newLinkedList(getAnalysisRecord().getInputs().keySet());
+
+        Collections.sort(result);
+
+        return result;
+    }
+
+    public static final String PROP_SELECTED_INPUTS = "selectedInputs";
+
+    public void setSelectedInputs(List<String> elementNames) {
+        List<String> current = getSelectedInputs() == null ? null : Lists.newArrayList(getSelectedInputs());
+        selectedInputNames = Lists.newArrayList(elementNames);
+        getPropertyChangeSupport().firePropertyChange(PROP_SELECTED_INPUTS,
+                current,
+                getSelectedInputs());
+
+        removeInputButton.setEnabled(getSelectedInputs().size() > 0);
+    }
+
+    public List<String> getSelectedInputs() {
+        return selectedInputNames;
+    }
+
+    private Iterable<DataElement> showAddInputsDialog() {
+        Rectangle targetBounds = SwingUtilities.convertRectangle(inputsPanel,
+                inputsScrollPane.getBounds(),
+                AnalysisRecordVisualizationPanel.this);
+
+        Point screenLoc = new Point(targetBounds.getLocation());
+        SwingUtilities.convertPointToScreen(screenLoc,
+                AnalysisRecordVisualizationPanel.this);
+
+        targetBounds.setLocation(screenLoc);
+
+        Shape targetShape = makePopOverShape(targetBounds);
+
+        SelectDataElementsDialog addDialog = new SelectDataElementsDialog((JFrame) SwingUtilities.getRoot(AnalysisRecordVisualizationPanel.this),
+                true,
+                targetShape);
+
+        addDialog.setVisible(true);
+
+        List<DataElement> result = Lists.newArrayList();
+        if (addDialog.isSuccess()) {
+            for (IEntityWrapper entityWrapper : addDialog.getSelectedEntities()) {
+                for (DataElement entity : getDataElementsFromEntity(entityWrapper.getEntity())) {
+                    result.add(entity);
+                }
+            }
+
+            System.out.println(Sets.newHashSet(addDialog.getSelectedEntities()));
+        }
+
+        addDialog.dispose();
+
+        return result;
+    }
+
+    private List<DataElement> getDataElementsFromEntity(OvationEntity e) {
+
+        List<DataElement> result = Lists.newLinkedList();
+
+        if (e instanceof Project) {
+            for (Experiment child : ((Project) e).getExperiments()) {
+                result.addAll(getDataElementsFromEntity(child));
+            }
+        }
+        if (e instanceof EpochGroupContainer) {
+            for (EpochGroup child : ((EpochGroupContainer) e).getEpochGroups()) {
+                result.addAll(getDataElementsFromEntity(child));
+            }
+        }
+        if (e instanceof EpochContainer) {
+            for (Epoch child : ((EpochContainer) e).getEpochs()) {
+                result.addAll(getDataElementsFromEntity(child));
+            }
+        }
+        if (e instanceof DataElementContainer) {
+            for (DataElement child : ((DataElementContainer) e).getDataElements().values()) {
+                result.addAll(getDataElementsFromEntity(child));
+            }
+        }
+        if (e instanceof DataElement) {
+            result.add((DataElement) e);
+        }
+
+        return result;
+    }
+
+    private void addOutputFiles(File[] files) {
         for (File f : files) {
             String name = f.getName();
             int i = 1;
@@ -188,35 +367,49 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         }
     }
 
-    private static Area createShape() {
-        Area shape = new Area(new RoundRectangle2D.Double(0, 20, 500, 200, 20, 20));
+    private static final double TIP_WIDTH = 20;
+
+    private Shape makePopOverShape(Rectangle2D targetBounds) {
+
+        Rectangle2D contentBounds = new Rectangle2D.Double(targetBounds.getMaxX() + TIP_WIDTH,
+                targetBounds.getY(),
+                targetBounds.getWidth(),
+                targetBounds.getHeight());
+
+        RoundRectangle2D roundedContentBounds = new RoundRectangle2D.Double(contentBounds.getX(),
+                contentBounds.getY() - TIP_WIDTH / 2,
+                contentBounds.getWidth() + TIP_WIDTH,
+                contentBounds.getHeight() + TIP_WIDTH,
+                TIP_WIDTH / 4,
+                TIP_WIDTH / 4);
+
+        Area result = new Area(roundedContentBounds);
+
+        Point2D tip = new Point2D.Double(roundedContentBounds.getX() - TIP_WIDTH, roundedContentBounds.getCenterY());
 
         GeneralPath gp = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
-        gp.moveTo(230, 20);
-        gp.lineTo(250, 0);
-        gp.lineTo(270, 20);
+        gp.moveTo(tip.getX(), tip.getY());
+        gp.lineTo(tip.getX() + TIP_WIDTH, tip.getY() + TIP_WIDTH);
+        gp.lineTo(tip.getX() + TIP_WIDTH, tip.getY() - TIP_WIDTH);
+        gp.lineTo(tip.getX(), tip.getY());
         gp.closePath();
-        shape.add(new Area(gp));
 
-        return shape;
+        result.add(new Area(gp));
+
+        return result;
     }
 
-    private void addOutputs() {
+    private void addInputs(Rectangle2D targetBounds) {
 
-        final Area shape = createShape();
+        final Area popoverShape = new Area(makePopOverShape(targetBounds));
 
-        JPanel glassPane = new JPanel(null) {
+        final JPanel popover = new JPanel() {
             @Override
             public boolean contains(int x, int y) {
                 // This is to avoid cursor and mouse-events troubles
-                return shape.contains(x, y);
+                return popoverShape.contains(x, y);
             }
-        };
-        glassPane.setOpaque(false);
 
-        glassPane.setVisible(true);
-
-        final JComponent popup = new JComponent() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -225,34 +418,72 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                         RenderingHints.VALUE_ANTIALIAS_ON);
 
-                g2d.setPaint(Color.BLACK);
-                g2d.fill(shape);
+                g2d.setPaint(Color.LIGHT_GRAY); //TODO — lighter
+
+                Rectangle bounds = popoverShape.getBounds();
+
+                AffineTransform tx = g2d.getTransform();
+                Composite currentComposite = g2d.getComposite();
+
+                try {
+                    float alpha = 0.75f;
+                    AlphaComposite composite = makeAlphaComposite(alpha);
+                    g2d.setComposite(composite);
+
+                    g2d.transform(AffineTransform.getTranslateInstance(-bounds.getX(), -bounds.getY()));
+
+                    g2d.fill(popoverShape);
+
+                } finally {
+                    g2d.setComposite(currentComposite);
+                    g2d.setTransform(tx);
+                }
+
+            }
+
+            private AlphaComposite makeAlphaComposite(float alpha) {
+                AlphaComposite composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha);
+                return composite;
             }
         };
 
-        this.add(popup, JLayeredPane.POPUP_LAYER);
-        popup.setBounds(shape.getBounds());
-        popup.setVisible(true);
+        this.add(popover, JLayeredPane.POPUP_LAYER);
+        popover.setBounds(popoverShape.getBounds());
 
-        EventQueueUtilities.runOffEDT(new Runnable() {
+        popover.setLayout(new BorderLayout());
+
+        JPanel content = new JPanel();
+        content.setLayout(new BorderLayout());
+
+        BeanTreeView entitiesTree = new BeanTreeView();
+        entitiesTree.setRootVisible(false);
+
+        JScrollPane treeScrollPane = new JScrollPane(entitiesTree);
+        content.add(treeScrollPane, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+
+        JButton addButton = new JButton(Bundle.AnalysisRecord_Add_Input());
+        buttonPanel.add(addButton);
+
+        content.add(buttonPanel, BorderLayout.SOUTH);
+
+        addButton.addActionListener(new ActionListener() {
 
             @Override
-            public void run() {
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-
-                EventQueueUtilities.runOnEDT(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        popup.setVisible(false);
-                    }
-                });
+            public void actionPerformed(ActionEvent e) {
+                popover.setVisible(false);
             }
         });
+
+        content.validate();
+
+        popover.add(content, BorderLayout.CENTER);
+        popover.validate();
+
+        popover.setVisible(true);
+
     }
 
     public AnalysisRecord getAnalysisRecord() {
@@ -269,11 +500,10 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
     private void initComponents() {
         bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
-        jButton1 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         nameField = new javax.swing.JTextField();
         inputsPanel = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        inputsScrollPane = new javax.swing.JScrollPane();
         inputsList = new javax.swing.JList();
         addInputButton = new javax.swing.JButton();
         removeInputButton = new javax.swing.JButton();
@@ -283,8 +513,6 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         jScrollPane2 = new javax.swing.JScrollPane();
         parametersTable = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
-
-        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(AnalysisRecordVisualizationPanel.class, "AnalysisRecordVisualizationPanel.jButton1.text")); // NOI18N
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
 
@@ -301,20 +529,25 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         inputsPanel.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
         inputsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(AnalysisRecordVisualizationPanel.class, "AnalysisRecordVisualizationPanel.inputsPanel.border.title"))); // NOI18N
 
-        jScrollPane1.setBorder(javax.swing.BorderFactory.createLineBorder(javax.swing.UIManager.getDefaults().getColor("Button.background")));
+        inputsScrollPane.setBorder(javax.swing.BorderFactory.createLineBorder(javax.swing.UIManager.getDefaults().getColor("Button.background")));
 
         inputsList.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });
-        jScrollPane1.setViewportView(inputsList);
 
-        addInputButton.setFont(new java.awt.Font("Lucida Grande", 0, 12)); // NOI18N
+        org.jdesktop.beansbinding.ELProperty eLProperty = org.jdesktop.beansbinding.ELProperty.create("${inputNames}");
+        org.jdesktop.swingbinding.JListBinding jListBinding = org.jdesktop.swingbinding.SwingBindings.createJListBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, eLProperty, inputsList);
+        bindingGroup.addBinding(jListBinding);
+
+        inputsScrollPane.setViewportView(inputsList);
+
+        addInputButton.setFont(new java.awt.Font("Lucida Grande", 0, 10)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(addInputButton, org.openide.util.NbBundle.getMessage(AnalysisRecordVisualizationPanel.class, "AnalysisRecordVisualizationPanel.addInputButton.text")); // NOI18N
         addInputButton.setSize(new java.awt.Dimension(29, 29));
 
-        removeInputButton.setFont(new java.awt.Font("Lucida Grande", 0, 12)); // NOI18N
+        removeInputButton.setFont(new java.awt.Font("Lucida Grande", 0, 10)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(removeInputButton, org.openide.util.NbBundle.getMessage(AnalysisRecordVisualizationPanel.class, "AnalysisRecordVisualizationPanel.removeInputButton.text")); // NOI18N
         removeInputButton.setSize(new java.awt.Dimension(29, 29));
 
@@ -325,7 +558,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
             .addGroup(inputsPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(inputsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
+                    .addComponent(inputsScrollPane)
                     .addGroup(inputsPanelLayout.createSequentialGroup()
                         .addComponent(addInputButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -337,11 +570,11 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
             inputsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(inputsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                .addComponent(inputsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(inputsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(removeInputButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(addInputButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(inputsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addInputButton)
+                    .addComponent(removeInputButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -352,7 +585,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
         protocolComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        org.jdesktop.beansbinding.ELProperty eLProperty = org.jdesktop.beansbinding.ELProperty.create("${protocols}");
+        eLProperty = org.jdesktop.beansbinding.ELProperty.create("${protocols}");
         org.jdesktop.swingbinding.JComboBoxBinding jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, eLProperty, protocolComboBox);
         bindingGroup.addBinding(jComboBoxBinding);
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${analysisRecord.protocol}"), protocolComboBox, org.jdesktop.beansbinding.BeanProperty.create("selectedItem"));
@@ -443,11 +676,10 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
     private javax.swing.JButton addInputButton;
     private javax.swing.JList inputsList;
     private javax.swing.JPanel inputsPanel;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JScrollPane inputsScrollPane;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField nameField;
     private javax.swing.JTable parametersTable;
@@ -456,4 +688,15 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
     private javax.swing.JButton removeInputButton;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public ExplorerManager getExplorerManager() {
+        return explorerManager;
+    }
+
+    @Override
+    public Lookup getLookup() {
+        return treeLookup;
+    }
+
 }

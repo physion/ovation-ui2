@@ -39,7 +39,7 @@ import us.physion.ovation.ui.interfaces.IEntityNode;
  *
  * @author barry
  */
-abstract class AbstractContainerVisualizationPanel extends javax.swing.JPanel {
+abstract class AbstractContainerVisualizationPanel extends javax.swing.JLayeredPane {
 
     public static final String PROP_PROTOCOLS = "protocols";
     public static final String PROP_PROTOCOL = "protocol";
@@ -52,6 +52,8 @@ abstract class AbstractContainerVisualizationPanel extends javax.swing.JPanel {
     public AbstractContainerVisualizationPanel(IEntityNode entityNode) {
         node = entityNode;
         context = entityNode.getEntity().getDataContext();
+
+        this.setOpaque(true);
     }
 
     Logger logger = LoggerFactory.getLogger(AbstractContainerVisualizationPanel.class);
@@ -83,12 +85,16 @@ abstract class AbstractContainerVisualizationPanel extends javax.swing.JPanel {
 
     @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.addPropertyChangeListener(listener);
+        getPropertyChangeSupport().addPropertyChangeListener(listener);
     }
 
     @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.removePropertyChangeListener(listener);
+        getPropertyChangeSupport().removePropertyChangeListener(listener);
+    }
+
+    protected PropertyChangeSupport getPropertyChangeSupport() {
+        return propertyChangeSupport;
     }
 
     static class ProtocolCellRenderer extends DefaultListCellRenderer {

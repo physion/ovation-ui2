@@ -11,6 +11,9 @@ import us.physion.ovation.domain.OvationEntity;
  */
 public interface IEntityWrapper extends PropertyChange {
 
+    public static final String PROP_ENTITY_UPDATE = "entity_update";
+    public static final String PROP_NAME = "name";
+
     String getDisplayName();
 
     Color getDisplayColor();

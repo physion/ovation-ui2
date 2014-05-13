@@ -69,8 +69,6 @@ public class EntityWrapper implements IEntityWrapper {
         }
     }
 
-    public static final String PROP_ENTITY_UPDATE = "entity_update";
-    public static final String PROP_NAME = "name";
 
     //used by the PerUserEntityWrapper object
     protected EntityWrapper(String name, Class clazz, String uri) {
@@ -80,8 +78,8 @@ public class EntityWrapper implements IEntityWrapper {
         } catch (URISyntaxException ex) {
             //pass
         }
-        
-        
+
+
     }
 
     @Override
@@ -195,7 +193,7 @@ public class EntityWrapper implements IEntityWrapper {
     @Override
     public void setName(String s) {
         String currentName = getName();
-        
+
         OvationEntity e = getEntity();
         if (Source.class.isAssignableFrom(type)) {
             ((Source) e).setLabel(s);
