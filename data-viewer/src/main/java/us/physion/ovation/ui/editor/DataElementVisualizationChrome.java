@@ -31,7 +31,6 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.util.PlatformUtils;
 
 /**
  *
@@ -76,12 +75,6 @@ public class DataElementVisualizationChrome<T extends OvationEntity> extends jav
             }
         });
 
-        if (PlatformUtils.isMac()) {
-            infoButton.putClientProperty("JButton.buttonType", "gradient");
-            //infoButton.setPreferredSize(new Dimension(34, 34));
-
-            invalidate();
-        }
     }
 
     private static Area createShape() {
@@ -176,11 +169,11 @@ public class DataElementVisualizationChrome<T extends OvationEntity> extends jav
         );
         infoPanelRootLayout.setVerticalGroup(
             infoPanelRootLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(infoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
             .addGroup(infoPanelRootLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(infoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(infoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(infoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
