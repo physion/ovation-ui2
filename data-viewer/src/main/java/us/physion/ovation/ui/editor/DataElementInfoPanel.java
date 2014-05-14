@@ -106,7 +106,9 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
         });
 
-        //addSourcesTextField.setEnabled(getMeasurements().size() > 0);
+        addSourcesTextField.setEnabled(getMeasurements().size() > 0);
+        addSourcesTextField.setVisible(getMeasurements().size() > 0);
+
         updateInputs();
     }
 
@@ -114,7 +116,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         return elements;
     }
 
-    <T extends OvationEntity> Iterable<T> getEntities(Class<T> cls) {
+    <T extends OvationEntity> Iterable<T> getEntities(final Class<T> cls) {
         return Iterables.transform(Iterables.filter(getElements(), new Predicate<OvationEntity>() {
             @Override
             public boolean apply(OvationEntity t) {
@@ -122,7 +124,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                     return false;
                 }
 
-                return Measurement.class.isAssignableFrom(t.getClass());
+                return cls.isAssignableFrom(t.getClass());
             }
         }), new Function<OvationEntity, T>() {
 
@@ -239,11 +241,15 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
             }
         }
 
-//        for (Resource r : getResources()) {
-//            for (String s : ((AnalysisRecord) r.getContainingEntity()).getInputs().keySet()) {
-//                inputResources.put(s, ((AnalysisRecord) r.getContainingEntity()).getInputs().get(s));
-//            }
-//        }
+        for (Resource r : getResources()) {
+            if (r.getContainingEntity() instanceof AnalysisRecord) {
+                AnalysisRecord record = (AnalysisRecord) r.getContainingEntity();
+
+                for (String s : record.getInputs().keySet()) {
+                    inputResources.put(s, ((AnalysisRecord) r.getContainingEntity()).getInputs().get(s));
+                }
+            }
+        }
         EventQueueUtilities.runOnEDT(new Runnable() {
 
             @Override
@@ -256,7 +262,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                 }
 
                 for (Map.Entry<String, DataElement> namedInput : inputResources.entries()) {
-//                    insertInputsPanel(namedInput.getKey(), namedInput.getValue());
+                    insertInputsPanel(namedInput.getKey(), namedInput.getValue());
                 }
             }
         });
@@ -288,6 +294,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
             elementUris.add(e.getURI());
             uriStrings.add(e.getURI().toString());
         }
+
         sourceButton.addActionListener(new ActionListener() {
 
             @Override
@@ -296,7 +303,8 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
                     @Override
                     public void run() {
-                        if (entity instanceof Measurement) {
+                        //TODO find target, then decide where to show it
+                        if (entity instanceof Source) {
                             new OpenNodeInBrowserAction(Lists.newArrayList(entity.getURI()),
                                     Joiner.on(",").join(uriStrings),
                                     false,

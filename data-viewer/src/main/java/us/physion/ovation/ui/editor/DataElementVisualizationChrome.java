@@ -24,9 +24,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Area;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.RoundRectangle2D;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import org.openide.util.NbBundle.Messages;
@@ -55,7 +52,7 @@ public class DataElementVisualizationChrome<T extends OvationEntity> extends jav
         contentPanel.revalidate();
 
         if (info != null) {
-            infoPanel.add(info);
+            infoPanel.add(info, BorderLayout.CENTER);
         }
 
         infoPanel.setVisible(false);
@@ -75,19 +72,6 @@ public class DataElementVisualizationChrome<T extends OvationEntity> extends jav
             }
         });
 
-    }
-
-    private static Area createShape() {
-        Area shape = new Area(new RoundRectangle2D.Double(0, 20, 500, 200, 20, 20));
-
-        GeneralPath gp = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
-        gp.moveTo(230, 20);
-        gp.lineTo(250, 0);
-        gp.lineTo(270, 20);
-        gp.closePath();
-        shape.add(new Area(gp));
-
-        return shape;
     }
 
     public static class WindowMoveAdapter extends MouseAdapter {
@@ -162,17 +146,17 @@ public class DataElementVisualizationChrome<T extends OvationEntity> extends jav
             infoPanelRootLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(infoPanelRootLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(infoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(infoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(infoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 537, Short.MAX_VALUE)
+                .addComponent(infoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
                 .addContainerGap())
         );
         infoPanelRootLayout.setVerticalGroup(
             infoPanelRootLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(infoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
+            .addComponent(infoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(infoPanelRootLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(infoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addComponent(infoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -191,7 +175,7 @@ public class DataElementVisualizationChrome<T extends OvationEntity> extends jav
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(contentPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
+                .addComponent(contentPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(infoPanelRoot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())

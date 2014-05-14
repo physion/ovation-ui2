@@ -44,6 +44,10 @@ public abstract class AbstractDataVisualization implements DataVisualization {
         return entities;
     }
 
+    protected void addEntity(OvationEntity e) {
+        entities.add(e);
+    }
+
 
     @Override
     public JComponent generateInfoPanel() {
