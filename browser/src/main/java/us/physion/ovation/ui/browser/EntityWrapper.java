@@ -171,8 +171,12 @@ public class EntityWrapper implements IEntityWrapper {
         } else if (Protocol.class.isAssignableFrom(type)) {
             String name = ((Protocol) e).getName();
             return name == null ? e.getURI().toString() : name;
+        } else if(User.class.isAssignableFrom(type)) {
+            User u = (User)e;
+            return u.getUsername() == null ? u.getEmail() : u.getUsername();
         }
-        return "<no name>";
+        
+        return "";
     }
 
     @Override

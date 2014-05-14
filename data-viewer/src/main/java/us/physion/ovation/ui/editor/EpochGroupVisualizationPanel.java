@@ -60,7 +60,7 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
         bindingGrp.addBinding(binding);
         bindingGrp.bind();
 
-        startZoneComboBox.setSelectedItem(getGroup().getStart().getZone().getID());
+        startZoneComboBox.setSelectedItem(getEpochGroup().getStart().getZone().getID());
 
         startPicker.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
@@ -71,7 +71,7 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
             }
         });
 
-        startPicker.setDateTime(new DateTime(getGroup().getStart()));
+        startPicker.setDateTime(new DateTime(getEpochGroup().getStart()));
 
         startZoneComboBox.addPropertyChangeListener(new PropertyChangeListener() {
 
@@ -84,11 +84,11 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
         protocolComboBox.setRenderer(new AbstractContainerVisualizationPanel.ProtocolCellRenderer());
 
         final ParameterTableModel paramsModel = new ParameterTableModel(
-                getGroup().canWrite(getContext().getAuthenticatedUser()));
+                getEpochGroup().canWrite(getContext().getAuthenticatedUser()));
 
         protocolParametersTable.setModel(paramsModel);
 
-        paramsModel.setParams(getGroup().getProtocolParameters());
+        paramsModel.setParams(getEpochGroup().getProtocolParameters());
 
         paramsModel.addTableModelListener(new TableModelListener() {
 
@@ -97,14 +97,14 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
                 switch (e.getType()) {
                     case TableModelEvent.DELETE:
                         for (String k : paramsModel.getAndClearRemovedKeys()) {
-                            getGroup().removeProtocolParameter(k);
+                            getEpochGroup().removeProtocolParameter(k);
                         }
                         break;
                     case TableModelEvent.INSERT:
                         for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
                             String key = (String) paramsModel.getValueAt(r, 0);
                             Object value = paramsModel.getValueAt(r, 1);
-                            getGroup().addProtocolParameter(key, value);
+                            getEpochGroup().addProtocolParameter(key, value);
                         }
                         break;
                     case TableModelEvent.UPDATE:
@@ -112,7 +112,7 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
                             String key = (String) paramsModel.getValueAt(r, 0);
                             if (key != null && !key.isEmpty()) {
                                 Object value = paramsModel.getValueAt(r, 1);
-                                getGroup().addProtocolParameter(key, value);
+                                getEpochGroup().addProtocolParameter(key, value);
                             }
                         }
                         break;
@@ -126,7 +126,7 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
         //project.setStart(zonedDate(startPicker, startZoneComboBox));
     }
 
-    public EpochGroup getGroup() {
+    public EpochGroup getEpochGroup() {
         return getNode().getEntity(EpochGroup.class);
     }
 
@@ -160,7 +160,7 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
         labelTextField.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         labelTextField.setBorder(javax.swing.BorderFactory.createLineBorder(javax.swing.UIManager.getDefaults().getColor("Button.background")));
 
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${group.label}"), labelTextField, org.jdesktop.beansbinding.BeanProperty.create("text_ON_ACTION_OR_FOCUS_LOST"));
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${epochGroup.label}"), labelTextField, org.jdesktop.beansbinding.BeanProperty.create("text_ON_ACTION_OR_FOCUS_LOST"));
         bindingGroup.addBinding(binding);
 
         org.openide.awt.Mnemonics.setLocalizedText(dateLabel, org.openide.util.NbBundle.getMessage(EpochGroupVisualizationPanel.class, "EpochGroupVisualizationPanel.dateLabel.text")); // NOI18N
@@ -177,6 +177,12 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(EpochGroupVisualizationPanel.class, "EpochGroupVisualizationPanel.jLabel1.text")); // NOI18N
 
         protocolComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        eLProperty = org.jdesktop.beansbinding.ELProperty.create("${protocols}");
+        jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, eLProperty, protocolComboBox);
+        bindingGroup.addBinding(jComboBoxBinding);
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${epochGroup.protocol}"), protocolComboBox, org.jdesktop.beansbinding.BeanProperty.create("selectedItem"));
+        bindingGroup.addBinding(binding);
 
         protocolParametersTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
