@@ -41,7 +41,7 @@ public class EntityColors {
         } else if (Project.class.isAssignableFrom(cls)) {
             return new Color(0, 89, 153);
         } else if (Experiment.class.isAssignableFrom(cls)) {
-            return new Color(153, 153, 153);
+            return Color.darkGray;
         } else if (EpochGroup.class.isAssignableFrom(cls)) {
             return Color.black;
         } else if (Epoch.class.isAssignableFrom(cls)) {
