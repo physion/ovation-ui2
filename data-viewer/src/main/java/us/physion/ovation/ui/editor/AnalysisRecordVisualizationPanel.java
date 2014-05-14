@@ -116,6 +116,8 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
     private void initUI() {
 
+        setEntityBorder(this);
+
         getNode().getEntityWrapper().addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override

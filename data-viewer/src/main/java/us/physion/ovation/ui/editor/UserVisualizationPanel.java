@@ -24,22 +24,23 @@ import us.physion.ovation.ui.interfaces.IEntityNode;
  *
  * @author barry
  */
-public class UserVisualizationPanel extends javax.swing.JPanel {
+public class UserVisualizationPanel extends AbstractContainerVisualizationPanel {
 
-    final IEntityNode node;
-    final User user;
-    
+
     /**
      * Creates new form UserVisualizationPanel
      */
     public UserVisualizationPanel(IEntityNode userNode) {
-        node = userNode;
-        user = userNode.getEntity(User.class);
-        
+        super(userNode);
+
         initComponents();
+
+        setEntityBorder(this);
     }
-    
-    public User getUser() { return user; }
+
+    public User getUser() {
+        return getNode().getEntity(User.class);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.

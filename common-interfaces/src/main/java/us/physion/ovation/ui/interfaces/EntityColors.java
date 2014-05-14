@@ -37,11 +37,11 @@ public class EntityColors {
     public static Color getEntityColor(Class<? extends OvationEntity> cls) {
 
         if (Source.class.isAssignableFrom(cls)) {
-            return new Color(161, 37, 127);
+            return new Color(110, 43, 98);
         } else if (Project.class.isAssignableFrom(cls)) {
             return new Color(0, 89, 153);
         } else if (Experiment.class.isAssignableFrom(cls)) {
-            return Color.darkGray;
+            return new Color(153, 153, 153);
         } else if (EpochGroup.class.isAssignableFrom(cls)) {
             return Color.black;
         } else if (Epoch.class.isAssignableFrom(cls)) {
@@ -51,7 +51,7 @@ public class EntityColors {
         } else if (AnalysisRecord.class.isAssignableFrom(cls)) {
             return new Color(51, 153, 0);
         } else if (Protocol.class.isAssignableFrom(cls)) {
-            return new Color(234, 147, 61);
+            return new Color(255, 158, 27);
         }
 
         return Color.BLACK;
