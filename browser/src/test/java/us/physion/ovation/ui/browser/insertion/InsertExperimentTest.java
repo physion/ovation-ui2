@@ -9,16 +9,9 @@ import org.joda.time.DateTime;
 import org.junit.*;
 import org.openide.WizardDescriptor;
 import org.openide.util.ChangeSupport;
-import us.physion.ovation.ui.interfaces.IEntityWrapper;
-import us.physion.ovation.ui.interfaces.TestEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
 
 import javax.swing.*;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.List;
-import us.physion.ovation.domain.Experiment;
-import us.physion.ovation.domain.Project;
 
 /**
  *
@@ -27,35 +20,35 @@ import us.physion.ovation.domain.Project;
 public class InsertExperimentTest extends OvationTestCase
 {
     //InsertEntity action methods
-    @Test
-    public void testGetPanels() {
-        InsertExperiment insert = new InsertExperiment();
-        List<WizardDescriptor.Panel<WizardDescriptor>> panels = insert.getPanels(null);
-        TestCase.assertEquals(panels.size(), 1);
-        
-        TestCase.assertTrue(panels.get(0) instanceof InsertExperimentWizardPanel1);
-    }
+//    @Test
+//    public void testGetPanels() {
+//        InsertExperiment insert = new InsertExperiment();
+//        List<WizardDescriptor.Panel<WizardDescriptor>> panels = insert.getPanels(null);
+//        TestCase.assertEquals(panels.size(), 1);
+//        
+//        TestCase.assertTrue(panels.get(0) instanceof InsertExperimentWizardPanel1);
+//    }
     
-    @Test
-    public void testWizardFinished()
-    {
-        String purpose = "purpose";
-        DateTime start = new DateTime(0);
-        DateTime end = new DateTime(1);
-       
-        WizardDescriptor d = new WizardDescriptor(new InsertEntityIterator(null));
-        d.putProperty("experiment.purpose", purpose);
-        d.putProperty("experiment.start", start);
-        d.putProperty("experiment.end", end);
-        
-        Project p = ctx.insertProject("name", "purpose", new DateTime(0));
-        IEntityWrapper w = new TestEntityWrapper(ctx, p);
-        new InsertExperiment().wizardFinished(d, ctx, w);
-        
-        Experiment ex = p.getExperiments().iterator().next();
-        TestCase.assertEquals(ex.getPurpose(), purpose);
-        TestCase.assertEquals(ex.getStart(), start);
-    }
+//    @Test
+//    public void testWizardFinished()
+//    {
+//        String purpose = "purpose";
+//        DateTime start = new DateTime(0);
+//        DateTime end = new DateTime(1);
+//       
+//        WizardDescriptor d = new WizardDescriptor(new InsertEntityIterator(null));
+//        d.putProperty("experiment.purpose", purpose);
+//        d.putProperty("experiment.start", start);
+//        d.putProperty("experiment.end", end);
+//        
+//        Project p = ctx.insertProject("name", "purpose", new DateTime(0));
+//        IEntityWrapper w = new TestEntityWrapper(ctx, p);
+//        new InsertExperiment().wizardFinished(d, ctx, w);
+//        
+//        Experiment ex = p.getExperiments().iterator().next();
+//        TestCase.assertEquals(ex.getPurpose(), purpose);
+//        TestCase.assertEquals(ex.getStart(), start);
+//    }
     
     //Panel 1 methods
     @Test

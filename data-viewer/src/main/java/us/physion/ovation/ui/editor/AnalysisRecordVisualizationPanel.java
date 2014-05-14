@@ -28,7 +28,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.Shape;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -288,7 +287,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
         targetBounds.setLocation(screenLoc);
 
-        Shape targetShape = makePopOverShape(targetBounds);
+        Area targetShape = makePopOverShape(targetBounds);
 
         SelectDataElementsDialog addDialog = new SelectDataElementsDialog((JFrame) SwingUtilities.getRoot(AnalysisRecordVisualizationPanel.this),
                 true,
@@ -369,7 +368,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
     private static final double TIP_WIDTH = 20;
 
-    private Shape makePopOverShape(Rectangle2D targetBounds) {
+    private Area makePopOverShape(Rectangle2D targetBounds) {
 
         Rectangle2D contentBounds = new Rectangle2D.Double(targetBounds.getMaxX() + TIP_WIDTH,
                 targetBounds.getY(),
