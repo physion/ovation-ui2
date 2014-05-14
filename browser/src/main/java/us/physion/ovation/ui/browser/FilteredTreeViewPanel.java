@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.JButton;
 import javax.swing.JToggleButton;
 import org.openide.awt.Actions;
 import org.openide.explorer.view.BeanTreeView;
@@ -12,9 +13,11 @@ import us.physion.ovation.ui.browser.TreeFilter.NavigatorType;
 public final class FilteredTreeViewPanel extends javax.swing.JPanel {
 
     private final TreeFilter filter;
-    public FilteredTreeViewPanel(TreeFilter info, final String actionId) {
+    public FilteredTreeViewPanel(TreeFilter info, final String actionId, final String newEntityTooltip) {
         filter = info;
         initComponents();
+
+        newRootEntityButton.setToolTipText(newEntityTooltip);
 
         getTreeView().setRootVisible(false);
 
@@ -43,6 +46,10 @@ public final class FilteredTreeViewPanel extends javax.swing.JPanel {
 
     public BeanTreeView getTreeView() {
         return (BeanTreeView) treeView;
+    }
+
+    public JButton getNewRootEntityButton() {
+        return newRootEntityButton;
     }
 
     private void bindToggleButtons(final TreeFilter info) {

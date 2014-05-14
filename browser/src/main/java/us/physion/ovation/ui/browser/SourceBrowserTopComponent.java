@@ -31,7 +31,9 @@ import org.openide.explorer.view.BeanTreeView;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.NbPreferences;
 import org.openide.windows.TopComponent;
+import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.browser.TreeFilter.NavigatorType;
+import us.physion.ovation.ui.interfaces.EntityColors;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
 /**
@@ -52,7 +54,8 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
 @Messages({
     "CTL_SourceBrowserAction=Sources Navigator",
     "CTL_SourceBrowserTopComponent=Sources",
-    "HINT_SourceBrowserTopComponent=Browse your Ovation Dataset starting from the Source hierarchy"
+    "HINT_SourceBrowserTopComponent=Browse your Ovation Dataset starting from the Source hierarchy",
+    "HINT_SourceBrowser_NewSource_Button=Add a new Source"
 })
 public final class SourceBrowserTopComponent extends TopComponent implements ExplorerManager.Provider, TreeViewProvider {
 
@@ -90,7 +93,9 @@ public final class SourceBrowserTopComponent extends TopComponent implements Exp
         });
 
         setLayout(new BorderLayout());
-        FilteredTreeViewPanel panel = new FilteredTreeViewPanel(filter, "us.physion.ovation.ui.browser.insertion.NewSourceAction");
+        FilteredTreeViewPanel panel = new FilteredTreeViewPanel(filter,
+                "us.physion.ovation.ui.browser.insertion.NewSourceAction",
+                Bundle.HINT_SourceBrowser_NewSource_Button());
         view = panel.getTreeView();
         add(panel, BorderLayout.CENTER);
 
@@ -109,6 +114,9 @@ public final class SourceBrowserTopComponent extends TopComponent implements Exp
 
         ActionMap actionMap = this.getActionMap();
         actionMap.put("copy-to-clipboard", (Action) new BrowserCopyAction());
+
+        String html = "<html><font color=\"" + EntityColors.getEntityColorHex(Source.class) + "\">" + Bundle.CTL_SourceBrowserTopComponent() + "</font></html>";
+        setHtmlDisplayName(html);
     }
 
     @Override

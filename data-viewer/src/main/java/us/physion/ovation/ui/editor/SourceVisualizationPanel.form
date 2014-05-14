@@ -5,13 +5,6 @@
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
       <Color blue="ff" green="ff" id="EditorPane.background" palette="3" red="ff" type="palette"/>
     </Property>
-    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-      <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
-        <LineBorder roundedCorners="true" thickness="2">
-          <Color PropertyName="color" blue="ff" green="ca" id="Text Highlight" palette="2" red="a7" type="palette"/>
-        </LineBorder>
-      </Border>
-    </Property>
   </Properties>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="1"/>
@@ -36,7 +29,7 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="identifierTextField" pref="292" max="32767" attributes="0"/>
+                  <Component id="identifierTextField" pref="296" max="32767" attributes="0"/>
                   <Component id="labelTextField" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>

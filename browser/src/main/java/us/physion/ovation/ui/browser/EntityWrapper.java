@@ -22,6 +22,7 @@ import us.physion.ovation.domain.events.EntityModifiedEvent;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.EntityNotFoundException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.ui.interfaces.EntityColors;
 import us.physion.ovation.ui.interfaces.EventBusProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -175,7 +176,7 @@ public class EntityWrapper implements IEntityWrapper {
             User u = (User)e;
             return u.getUsername() == null ? u.getEmail() : u.getUsername();
         }
-        
+
         return "";
     }
 
@@ -256,26 +257,9 @@ public class EntityWrapper implements IEntityWrapper {
     }
 
     private static Color inferDisplayColor(OvationEntity e) {
-        Class type = e.getClass();
-        if (Source.class.isAssignableFrom(type)) {
-            return new Color(161, 37, 127);
-        } else if (Project.class.isAssignableFrom(type)) {
-            return new Color(0, 89, 153);
-        } else if (Experiment.class.isAssignableFrom(type)) {
-            return Color.darkGray;
-        } else if (EpochGroup.class.isAssignableFrom(type)) {
-            return Color.black;
-        } else if (Epoch.class.isAssignableFrom(type)) {
-            return Color.black;
-        } else if (DataElement.class.isAssignableFrom(type)) {
-            return new Color(0, 126, 189);
-        } else if (AnalysisRecord.class.isAssignableFrom(type)) {
-            return new Color(51, 153, 0);
-        } else if (Protocol.class.isAssignableFrom(type)) {
-            return new Color(234, 147, 61);
-        }
 
-        return Color.BLACK;
+        return EntityColors.getEntityColor(e.getClass());
+
     }
 
     @Override

@@ -34,6 +34,7 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 })
 public class DatabaseConnectionProvider implements ConnectionProvider, EventBusProvider {
 
+
     static Logger logger = LoggerFactory.getLogger(DatabaseConnectionProvider.class);
 
     @Override
@@ -42,7 +43,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider, EventBusP
     }
 
     private DataContext context = null;
-    private Set<ConnectionListener> connectionListeners;
+    private final Set<ConnectionListener> connectionListeners;
 
     public DatabaseConnectionProvider() {
 
@@ -105,6 +106,8 @@ public class DatabaseConnectionProvider implements ConnectionProvider, EventBusP
                         for (ConnectionListener l : listeners) {
                             l.propertyChange(new PropertyChangeEvent(context, "ovation.connectionChanged", 0, 1));
                         }
+
+                        getDefaultEventBus().post(new ConnectionProvider.LoginCompleteEvent());
                     }
             }
         };

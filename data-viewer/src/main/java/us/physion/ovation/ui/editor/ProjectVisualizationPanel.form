@@ -5,13 +5,6 @@
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
       <Color blue="ff" green="ff" id="EditorPane.background" palette="3" red="ff" type="palette"/>
     </Property>
-    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-      <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
-        <LineBorder roundedCorners="true" thickness="2">
-          <Color PropertyName="color" blue="a6" green="d4" red="ae" type="rgb"/>
-        </LineBorder>
-      </Border>
-    </Property>
   </Properties>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="1"/>
@@ -31,7 +24,7 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane1" alignment="1" pref="384" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" alignment="1" pref="388" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="projectTitleLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>

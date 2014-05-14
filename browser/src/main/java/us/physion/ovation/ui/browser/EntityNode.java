@@ -1,6 +1,5 @@
 package us.physion.ovation.ui.browser;
 
-import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
@@ -79,13 +78,6 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
         return entityWrapper;
     }
 
-    private String colorToHex(Color color) {
-        return String.format("#%02x%02x%02x",
-                color.getRed(),
-                color.getGreen(),
-                color.getBlue());
-    }
-
     private static class URITreePathProviderImpl implements URITreePathProvider {
 
         private EntityNode delegate;
@@ -128,7 +120,7 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
     @Override
     public String getHtmlDisplayName() {
         if (entityWrapper != null && entityWrapper.getDisplayColor() != null) {
-            String html = "<font color=\"" + colorToHex(entityWrapper.getDisplayColor()) + "\">" + getDisplayName() + "</font>";
+            String html = "<font color=\"" + EntityColors.colorToHex(entityWrapper.getDisplayColor()) + "\">" + getDisplayName() + "</font>";
             return html;
         }
 

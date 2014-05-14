@@ -11,7 +11,10 @@ import us.physion.ovation.DataContext;
  * @author huecotanks
  */
 public interface ConnectionProvider {
-    
+
+    public class LoginCompleteEvent {
+    }
+
     public DataContext getDefaultContext();
     public DataContext getNewContext();
     public void addConnectionListener(ConnectionListener cl);

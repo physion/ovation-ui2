@@ -27,12 +27,15 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.List;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.SwingUtilities;
+import javax.swing.border.LineBorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Protocol;
+import us.physion.ovation.ui.interfaces.EntityColors;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 
 /**
@@ -54,6 +57,10 @@ abstract class AbstractContainerVisualizationPanel extends javax.swing.JLayeredP
         context = entityNode.getEntity().getDataContext();
 
         this.setOpaque(true);
+    }
+
+    protected void setEntityBorder(JComponent panel) {
+        panel.setBorder(new LineBorder(EntityColors.getEntityColor(getNode().getEntity().getClass()), 2, true));
     }
 
     Logger logger = LoggerFactory.getLogger(AbstractContainerVisualizationPanel.class);

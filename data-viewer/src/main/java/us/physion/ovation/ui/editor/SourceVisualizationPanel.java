@@ -24,7 +24,7 @@ import us.physion.ovation.ui.interfaces.IEntityNode;
  *
  * @author barry
  */
-public class SourceVisualizationPanel extends javax.swing.JPanel {
+public class SourceVisualizationPanel extends AbstractContainerVisualizationPanel {
 
     final Source source;
     final IEntityNode node;
@@ -32,10 +32,14 @@ public class SourceVisualizationPanel extends javax.swing.JPanel {
      * Creates new form SourceVisualizationPanel
      */
     public SourceVisualizationPanel(IEntityNode src) {
+        super(src);
+
         source = src.getEntity(Source.class);
         node = src;
 
         initComponents();
+
+        setEntityBorder(this);
     }
 
     public Source getSource() {
@@ -58,7 +62,6 @@ public class SourceVisualizationPanel extends javax.swing.JPanel {
         identifierTextField = new javax.swing.JTextField();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
-        setBorder(new javax.swing.border.LineBorder(java.awt.SystemColor.textHighlight, 2, true));
 
         titleLabel.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(titleLabel, org.openide.util.NbBundle.getMessage(SourceVisualizationPanel.class, "SourceVisualizationPanel.titleLabel.text")); // NOI18N
@@ -87,7 +90,7 @@ public class SourceVisualizationPanel extends javax.swing.JPanel {
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(identifierTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
+                    .addComponent(identifierTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE)
                     .addComponent(labelTextField))
                 .addContainerGap())
         );

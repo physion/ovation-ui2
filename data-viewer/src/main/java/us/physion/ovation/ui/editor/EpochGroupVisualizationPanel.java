@@ -50,6 +50,8 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
 
     private void initUi() {
 
+        setEntityBorder(this);
+
         Binding binding = Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
                 this,
                 org.jdesktop.beansbinding.ELProperty.create("${group.start}"),

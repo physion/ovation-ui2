@@ -24,7 +24,7 @@ import us.physion.ovation.ui.interfaces.IEntityNode;
  *
  * @author barry
  */
-public class ProtocolVisualizationPanel extends javax.swing.JPanel {
+public class ProtocolVisualizationPanel extends AbstractContainerVisualizationPanel {
 
     final Protocol protocol;
     final IEntityNode node;
@@ -32,9 +32,13 @@ public class ProtocolVisualizationPanel extends javax.swing.JPanel {
      * Creates new form ProtocolVisualizationPanel
      */
     public ProtocolVisualizationPanel(IEntityNode p) {
+        super(p);
+
         protocol = p.getEntity(Protocol.class);
         node = p;
         initComponents();
+
+        setEntityBorder(this);
     }
 
     public Protocol getProtocol() {
@@ -64,7 +68,6 @@ public class ProtocolVisualizationPanel extends javax.swing.JPanel {
         revisionField = new javax.swing.JTextField();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
-        setBorder(new javax.swing.border.LineBorder(new java.awt.Color(131, 11, 234), 2, true));
 
         titleLabel.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(titleLabel, org.openide.util.NbBundle.getMessage(ProtocolVisualizationPanel.class, "ProtocolVisualizationPanel.titleLabel.text")); // NOI18N
@@ -148,7 +151,7 @@ public class ProtocolVisualizationPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(codePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(documentScrollPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
+                    .addComponent(documentScrollPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(titleLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -163,7 +166,7 @@ public class ProtocolVisualizationPanel extends javax.swing.JPanel {
                     .addComponent(titleLabel)
                     .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(documentScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE)
+                .addComponent(documentScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(codePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())

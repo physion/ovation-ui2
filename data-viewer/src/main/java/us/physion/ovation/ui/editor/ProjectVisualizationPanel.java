@@ -73,6 +73,8 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
     private void initUI() {
 
+        setEntityBorder(this);
+
         startPicker.setDateTime(getProject().getStart());
 
         startZoneComboBox.setSelectedItem(getProject().getStart().getZone().getID());
@@ -93,14 +95,6 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
             }
         });
 
-//        projectNameField.addActionListener(new ActionListener() {
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                EventBus bus = Lookup.getDefault().lookup(EventBusProvider.class).getDefaultEventBus();
-//                bus.post(new EntityUpdate(getProject().toDto(), 0, null));
-//            }
-//        });
         addExperimentButton.addActionListener(new ActionListener() {
 
             @Override
@@ -228,7 +222,6 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         jLabel1 = new javax.swing.JLabel();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
-        setBorder(new javax.swing.border.LineBorder(new java.awt.Color(174, 212, 166), 2, true));
 
         projectTitleLabel.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(projectTitleLabel, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.projectTitleLabel.text")); // NOI18N
@@ -273,7 +266,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(projectTitleLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)

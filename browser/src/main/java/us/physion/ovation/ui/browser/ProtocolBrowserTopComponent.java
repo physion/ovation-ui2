@@ -31,7 +31,9 @@ import org.openide.explorer.view.BeanTreeView;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.NbPreferences;
 import org.openide.windows.TopComponent;
+import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.ui.browser.TreeFilter.NavigatorType;
+import us.physion.ovation.ui.interfaces.EntityColors;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
 /**
@@ -56,7 +58,8 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
 @Messages({
     "CTL_ProtocolBrowserAction=Protocols Navigator",
     "CTL_ProtocolBrowserTopComponent=Protocols",
-    "HINT_ProtocolBrowserTopComponent=Browse your Ovation Database"
+    "HINT_ProtocolBrowserTopComponent=Browse your Ovation Database",
+    "HINT_ProtocolBrowser_NewProtocol_Button=Add a new Protocol"
 })
 public final class ProtocolBrowserTopComponent extends TopComponent implements ExplorerManager.Provider, TreeViewProvider {
 
@@ -94,7 +97,9 @@ public final class ProtocolBrowserTopComponent extends TopComponent implements E
         });
 
         setLayout(new BorderLayout());
-        FilteredTreeViewPanel panel = new FilteredTreeViewPanel(filter, "us.physion.ovation.ui.browser.insertion.NewProtocolAction");
+        FilteredTreeViewPanel panel = new FilteredTreeViewPanel(filter,
+                "us.physion.ovation.ui.browser.insertion.NewProtocolAction",
+                Bundle.HINT_ProtocolBrowser_NewProtocol_Button());
         view = panel.getTreeView();
         add(panel, BorderLayout.CENTER);
 
@@ -114,6 +119,8 @@ public final class ProtocolBrowserTopComponent extends TopComponent implements E
         ActionMap actionMap = this.getActionMap();
         actionMap.put("copy-to-clipboard", (Action) new BrowserCopyAction());
 
+        String html = "<html><font color=\"" + EntityColors.getEntityColorHex(Protocol.class) + "\">" + Bundle.CTL_ProtocolBrowserTopComponent() + "</font></html>";
+        setHtmlDisplayName(html);
     }
 
     @Override

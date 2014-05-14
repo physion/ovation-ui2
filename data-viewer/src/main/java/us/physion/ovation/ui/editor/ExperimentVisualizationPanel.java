@@ -75,6 +75,8 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
 
     private void initUI() {
 
+        setEntityBorder(this);
+
         protocolComboBox.setRenderer(new ProtocolCellRenderer());
 
         final ParameterTableModel paramsModel = new ParameterTableModel(
@@ -276,7 +278,6 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
         jScrollPane1.setViewportView(jTable1);
 
         setBackground(java.awt.SystemColor.control);
-        setBorder(new javax.swing.border.LineBorder(new java.awt.Color(120, 124, 123), 2, true));
 
         titleLabel.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(titleLabel, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.titleLabel.text")); // NOI18N

@@ -1,11 +1,17 @@
 package us.physion.ovation.ui.browser;
 
+import com.google.common.eventbus.Subscribe;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.prefs.Preferences;
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.JButton;
+import javax.swing.ToolTipManager;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -16,7 +22,10 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.NbPreferences;
 import org.openide.windows.TopComponent;
+import us.physion.ovation.domain.Project;
 import us.physion.ovation.ui.browser.TreeFilter.NavigatorType;
+import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.ui.interfaces.EntityColors;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
 /**
@@ -37,7 +46,9 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
 @Messages({
     "CTL_BrowserAction=Projects Navigator",
     "CTL_BrowserTopComponent=Projects",
-    "HINT_BrowserTopComponent=Browse your Ovation Database"
+    "HINT_BrowserTopComponent=Browse your Ovation Database",
+    "HINT_ProjectBrowser_NewProject_Button_FirstRun=Click here to add a new Project",
+    "HINT_ProjectBrowser_NewProject_Button=Add a new Project"
 })
 public final class ProjectBrowserTopComponent extends TopComponent implements ExplorerManager.Provider, TreeViewProvider {
 
@@ -45,7 +56,8 @@ public final class ProjectBrowserTopComponent extends TopComponent implements Ex
     private final ExplorerManager explorerManager = new ExplorerManager();
     private final BeanTreeView view;
     private final TreeFilter filter;
-    
+    private final FilteredTreeViewPanel treeViewPanel;
+
     private static final String SHOW_FIRST_RUN_TIP = "show_first_run_tip";
 
     public ProjectBrowserTopComponent() {
@@ -57,7 +69,7 @@ public final class ProjectBrowserTopComponent extends TopComponent implements Ex
         filter.setExperimentsVisible(prefs.getBoolean("experiments-visible", true));
         filter.setEpochGroupsVisible(prefs.getBoolean("epoch-groups-visible", false));
         filter.setEpochsVisible(prefs.getBoolean("epochs-visible", false));
-        
+
         filter.addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
@@ -79,9 +91,14 @@ public final class ProjectBrowserTopComponent extends TopComponent implements Ex
         });
 
         setLayout(new BorderLayout());
-        FilteredTreeViewPanel panel = new FilteredTreeViewPanel(filter, "us.physion.ovation.ui.browser.insertion.NewProjectAction");
-        view = panel.getTreeView();
-        add(panel, BorderLayout.CENTER);
+        treeViewPanel = new FilteredTreeViewPanel(filter,
+                "us.physion.ovation.ui.browser.insertion.NewProjectAction",
+                prefs.getBoolean(SHOW_FIRST_RUN_TIP, true)
+                ? Bundle.HINT_ProjectBrowser_NewProject_Button_FirstRun()
+                : Bundle.HINT_ProjectBrowser_NewProject_Button());
+
+        view = treeViewPanel.getTreeView();
+        add(treeViewPanel, BorderLayout.CENTER);
 
         setName(Bundle.CTL_BrowserTopComponent());
         setToolTipText(Bundle.HINT_BrowserTopComponent());
@@ -98,11 +115,38 @@ public final class ProjectBrowserTopComponent extends TopComponent implements Ex
 
         ActionMap actionMap = this.getActionMap();
         actionMap.put("copy-to-clipboard", (Action) new BrowserCopyAction());
-        
-        if(prefs.getBoolean(SHOW_FIRST_RUN_TIP, true)) {
-            //prefs.putBoolean(SHOW_FIRST_RUN_TIP, false);
-        }
 
+        String html = "<html><font color=\"" + EntityColors.getEntityColorHex(Project.class) + "\">" + Bundle.CTL_BrowserAction() + "</font></html>";
+        setHtmlDisplayName(html);
+    }
+
+    private String colorToHex(Color color) {
+        return String.format("#%02x%02x%02x",
+                color.getRed(),
+                color.getGreen(),
+                color.getBlue());
+    }
+
+
+    @Subscribe
+    public void loginCompleted(ConnectionProvider.LoginCompleteEvent evt) {
+        final Preferences prefs = NbPreferences.forModule(ProjectBrowserTopComponent.class);
+
+        if (prefs.getBoolean(SHOW_FIRST_RUN_TIP, true)) {
+            final JButton btn = treeViewPanel.getNewRootEntityButton();
+
+            final Rectangle buttonBounds = btn.getBounds();
+
+            ToolTipManager.sharedInstance().mouseMoved(
+                    new MouseEvent(btn, 0, 0, 0,
+                            buttonBounds.width,
+                            0, // X-Y of the mouse for the tool tip
+                            0, true));
+
+            btn.setToolTipText(Bundle.HINT_ProjectBrowser_NewProject_Button());
+            //prefs.putBoolean(SHOW_FIRST_RUN_TIP, false);
+
+        }
     }
 
     @Override
