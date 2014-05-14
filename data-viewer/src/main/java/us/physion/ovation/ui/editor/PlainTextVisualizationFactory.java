@@ -16,12 +16,12 @@
  */
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -43,6 +44,7 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.util.lookup.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.ResourceNotFoundException;
 
@@ -60,12 +62,12 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
     private ExecutorService loadFileExecutors = Executors.newSingleThreadExecutor();
 
     @Override
-    public Visualization createVisualization(final DataElement r) {
-        return new Visualization() {
+    public DataVisualization createVisualization(final DataElement r) {
+        return new AbstractDataVisualization() {
             @Override
-            public Component generatePanel() {
+            public JComponent generatePanel() {
                 class PlainTextArea extends JTextArea {
-                    
+
                     private boolean scrollableTracksViewportWidth = false;
 
                     @Override
@@ -87,15 +89,15 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
                     @Override
                     public void addNotify() {
                         super.addNotify();
-                        
+
                         ListenableFuture<File> data;
-                        
+
                         try {
                             data = r.getData();
                         } catch (ResourceNotFoundException ex) {
                             log.warn("Resource not found", ex);
                             failed();
-                            
+
                             return;
                         }
 
@@ -131,16 +133,16 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
                         }, loadFileExecutors);
                     }
                 }
-                
+
                 final PlainTextArea t = new PlainTextArea();
 
                 t.setEditable(false);
                 t.setText(Bundle.LBL_TextLoading());
 
                 ParentWidthPanel panel = new ParentWidthPanel();
-                
+
                 panel.add(new JScrollPane(t), BorderLayout.CENTER);
-                
+
                 {
                     JToolBar toolbar = new JToolBar(SwingConstants.HORIZONTAL);
                     toolbar.setBackground(Color.WHITE);
@@ -149,11 +151,11 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             boolean selected = ((JToggleButton) e.getSource()).isSelected();
-                            
+
                             t.setLineWrap(selected);
                             t.setScrollableTracksViewportWidth(selected);
                             t.setCaretPosition(0);
-                            
+
                             t.revalidate();
                             t.repaint();
                         }
@@ -161,7 +163,7 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
 
                     panel.add(toolbar, BorderLayout.NORTH);
                 }
-                
+
                 return panel;
             }
 
@@ -173,6 +175,11 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
             @Override
             public void add(DataElement r) {
                 throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public Iterable<? extends OvationEntity> getEntities() {
+                return Sets.newHashSet(r);
             }
         };
     }

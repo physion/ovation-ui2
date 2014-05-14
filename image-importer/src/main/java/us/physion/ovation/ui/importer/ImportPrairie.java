@@ -7,23 +7,11 @@ package us.physion.ovation.ui.importer;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
-import org.joda.time.DateTime;
-import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.WizardDescriptor;
-import org.openide.util.lookup.ServiceProvider;
-import org.openide.util.lookup.ServiceProviders;
-import ovation.*;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
-import us.physion.ovation.domain.*;
-import us.physion.ovation.ui.interfaces.EpochGroupInsertable;
-import us.physion.ovation.ui.interfaces.EventQueueUtilities;
-import us.physion.ovation.ui.interfaces.ExperimentInsertable;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 //@ServiceProviders(value = {

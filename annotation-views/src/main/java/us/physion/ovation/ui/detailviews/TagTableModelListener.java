@@ -4,27 +4,14 @@
  */
 package us.physion.ovation.ui.detailviews;
 
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.Future;
-import javax.swing.JScrollPane;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
-import org.openide.util.Lookup;
-import ovation.*;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.Taggable;
 import us.physion.ovation.ui.*;
-import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
 /**
@@ -46,11 +33,11 @@ class TagTableModelListener implements EditableTableModelListener {
 
     @Override
     public void tableChanged(TableModelEvent tme) {
-        
+
         EditableTableModel t = (EditableTableModel)tme.getSource();
         int firstRow = tme.getFirstRow();
         int lastRow = tme.getLastRow();
-                         
+
        if (tme.getType() == TableModelEvent.UPDATE || tme.getType() == TableModelEvent.INSERT)
         {
             List<String> old = new ArrayList<String>();
@@ -78,7 +65,7 @@ class TagTableModelListener implements EditableTableModelListener {
 
                 @Override
                 public void run() {
-                    
+
                     for (String tag: oldTags)
                     {
                         for (String uri : uris) {
@@ -112,7 +99,7 @@ class TagTableModelListener implements EditableTableModelListener {
     {
         return ((TagsSet) node.getUserObject()).getTags();
     }
-    
+
     protected static void updateTagList(final Set<String> newTags, final Set<String> uris, final TableNode node, final DataStoreCoordinator dsc)
     {
         if (newTags.isEmpty()) {
@@ -155,7 +142,7 @@ class TagTableModelListener implements EditableTableModelListener {
     }
 
     public void deleteRows(final DefaultTableModel model, int[] rowsToRemove) {
-        
+
         Arrays.sort(rowsToRemove);
         final int[] rows = rowsToRemove;
         EventQueueUtilities.runOffEDT(new Runnable() {

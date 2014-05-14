@@ -5,11 +5,9 @@
 package us.physion.ovation.ui.importer;
 
 import java.awt.Component;
-import java.io.File;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.event.CellEditorListener;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -19,7 +17,6 @@ import org.joda.time.DateTimeZone;
 import org.openide.util.ChangeSupport;
 import us.physion.ovation.ui.browser.insertion.DateTimePickerPanel;
 import us.physion.ovation.ui.interfaces.DatePickerUtilities;
-import us.physion.ovation.ui.interfaces.DateTimePicker;
 
 /**
  *
@@ -28,20 +25,20 @@ import us.physion.ovation.ui.interfaces.DateTimePicker;
 public class GetImageFilesPanel extends javax.swing.JPanel {
 
     private FileTableModel fileTableModel;
-    class FileTableModel extends DefaultTableModel 
+    class FileTableModel extends DefaultTableModel
     {
         ArrayList<FileMetadata> files = new ArrayList<FileMetadata>();
         ArrayList<DateTimePickerPanel> startPickers = new ArrayList<DateTimePickerPanel>();
         ArrayList<DateTimePickerPanel> endPickers = new ArrayList<DateTimePickerPanel>();
         ArrayList<JComboBox> timezoneComboBoxes = new ArrayList<JComboBox>();
-        
+
         String[] timezoneIDs;
         FileTableModel()
         {
             super();
             timezoneIDs = DatePickerUtilities.getTimeZoneIDs();
         }
-        
+
         public int getSize() {
             return files.size();
         }
@@ -52,12 +49,12 @@ public class GetImageFilesPanel extends javax.swing.JPanel {
                 return 0;
             return files.size();
         }
-        
+
         public int getColumnCount()
         {
             return 4;
         }
-        
+
         public String getColumnName(int i)
         {
             if (i == 0)
@@ -78,7 +75,7 @@ public class GetImageFilesPanel extends javax.swing.JPanel {
             }
             return "";
         }
-        
+
         public Object getValueAt(int row, int column) {
             FileMetadata meta = files.get(row);
             if (column == 0)
@@ -101,27 +98,27 @@ public class GetImageFilesPanel extends javax.swing.JPanel {
             else
                 return null;
         }
-       
+
         public void add(FileMetadata meta)
         {
             files.add(meta);
-            
+
             DateTimePickerPanel start = new DateTimePickerPanel(DatePickerUtilities.createDateTimePicker());
-            start.getPicker().setDate(meta.getStart());
+            start.getPicker().setDate(meta.getStart().toDate());
             startPickers.add(start);
-            
+
             DateTimePickerPanel end = new DateTimePickerPanel(DatePickerUtilities.createDateTimePicker());
-            end.getPicker().setDate(meta.getEnd(true));
-            endPickers.add(end); 
-            
+            end.getPicker().setDate(meta.getEnd(true).toDate());
+            endPickers.add(end);
+
             JComboBox timezones = new JComboBox(new DefaultComboBoxModel(timezoneIDs));
             timezones.setSelectedItem(TimeZone.getDefault().getID());
             timezoneComboBoxes.add(timezones);
-            
+
             fireTableRowsInserted(files.size()-1, files.size() -1);
             cs.fireChange();
         }
-        
+
         public void remove(int i)
         {
             files.remove(i);
@@ -141,7 +138,7 @@ public class GetImageFilesPanel extends javax.swing.JPanel {
             {
                 if (row < startPickers.size())
                     return startPickers.get(row);
-                
+
             }else if (column == 2)
             {
                 if (row < endPickers.size())
@@ -150,7 +147,7 @@ public class GetImageFilesPanel extends javax.swing.JPanel {
             return null;
         }
     }
-    
+
     @Override
     public String getName() {
         return "Insert Epochs";
@@ -172,7 +169,7 @@ public class GetImageFilesPanel extends javax.swing.JPanel {
                 return (Component) model.getValueAt(row, column);
             }
         });
-        
+
         jTable1.setDefaultEditor(Object.class, new TableCellEditor() {
 
             Component c;
@@ -212,14 +209,14 @@ public class GetImageFilesPanel extends javax.swing.JPanel {
             @Override
             public void addCellEditorListener(CellEditorListener cl) {
             }
-            
+
             @Override
             public void removeCellEditorListener(CellEditorListener cl) {
             }
 
-            
+
         });
-        
+
         Enumeration e = jTable1.getColumnModel().getColumns();
         int count = 0;
         while (e.hasMoreElements())
@@ -234,22 +231,22 @@ public class GetImageFilesPanel extends javax.swing.JPanel {
             }
             count++;
         }
-        
+
         if (files != null) {
             for (FileMetadata file : files) {
                 fileTableModel.add(file);
             }
         }
     }
-    
-    
+
+
     public DateTime getStart(int row)
     {
         DateTimePickerPanel p = ((FileTableModel)jTable1.getModel()).startPickers.get(row);
         JComboBox box = (JComboBox)(((FileTableModel)jTable1.getModel()).getValueAt(row, 3));
         return new DateTime(p.getPicker().getDate(), DateTimeZone.forID(((String)box.getSelectedItem())));
     }
-    
+
     public DateTime getEnd(int row)
     {
         DateTimePickerPanel p = ((FileTableModel)jTable1.getModel()).endPickers.get(row);
@@ -261,7 +258,7 @@ public class GetImageFilesPanel extends javax.swing.JPanel {
     {
         return fileTableModel.getFiles();
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

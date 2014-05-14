@@ -11,8 +11,8 @@ import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.domain.Source;
-
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 
@@ -40,7 +40,7 @@ public class QueryChildren extends Children.Keys<IEntityWrapper> {
             addPath(path);
         }
     }
-  
+
     @Override
     protected Node[] createNodes(IEntityWrapper child) {
         Children children;
@@ -65,16 +65,30 @@ public class QueryChildren extends Children.Keys<IEntityWrapper> {
     }
 
     protected boolean shouldAdd(IEntityWrapper e) {
-        if (filter.isProjectView()) {
-            if (Source.class.isAssignableFrom(e.getType())) {
-                return false;
-            }
-        } else {
-            if (Project.class.isAssignableFrom(e.getType())) {
-                return false;
-            }
+
+        switch (filter.getNavigatorType()) {
+            case PROJECT:
+                if (Source.class.isAssignableFrom(e.getType())
+                        || Protocol.class.isAssignableFrom(e.getType())) {
+                    return false;
+                }
+                break;
+            case SOURCE:
+                if (Project.class.isAssignableFrom(e.getType())
+                        || Protocol.class.isAssignableFrom(e.getType())) {
+                    return false;
+                }
+                break;
+            case PROTOCOL:
+                if (Project.class.isAssignableFrom(e.getType())
+                        || Source.class.isAssignableFrom(e.getType())) {
+                    return false;
+                }
+                break;
         }
+
         return true;
+
     }
 
     protected void addPath(List<IEntityWrapper> path) {
@@ -84,7 +98,7 @@ public class QueryChildren extends Children.Keys<IEntityWrapper> {
         IEntityWrapper child = path.get(path.size()-1);
 
         if (shouldAdd(child)) {// projects don't belong in source view, and vice versa
-            
+
             List<IEntityWrapper> childPath = path.subList(0, path.size()-1);
             if (hide(child))
             {

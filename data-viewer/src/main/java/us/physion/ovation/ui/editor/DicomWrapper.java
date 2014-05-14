@@ -1,29 +1,33 @@
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Sets;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.DicomInputStream;
 import com.pixelmed.display.SingleImagePanel;
 import com.pixelmed.display.SourceImage;
-import java.awt.Component;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
+import javax.swing.JComponent;
 import org.openide.util.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
 
 /**
  *
  * @author huecotanks
  */
-public class DicomWrapper implements Visualization {
+public class DicomWrapper extends AbstractDataVisualization {
     private final static Logger log = LoggerFactory.getLogger(DicomWrapper.class);
 
     String name;
     SourceImage src;
+    final DataElement entity;
 
     DicomWrapper(DataElement r) {
+        entity = r;
         DicomInputStream in = null;
         try {
             in = new DicomInputStream(new FileInputStream(r.getData().get()));
@@ -54,7 +58,7 @@ public class DicomWrapper implements Visualization {
     }
 
     @Override
-    public Component generatePanel() {
+    public JComponent generatePanel() {
         return new ImagePanel(name, new SingleImagePanel(src));
     }
 
@@ -67,5 +71,10 @@ public class DicomWrapper implements Visualization {
     public void add(DataElement r) {
         throw new UnsupportedOperationException("Dicoms are not displayed in groups");
     }
-    
+
+    @Override
+    public Iterable<? extends OvationEntity> getEntities() {
+        return Sets.newHashSet(entity);
+    }
+
 }

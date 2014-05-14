@@ -8,6 +8,6 @@ package us.physion.ovation.ui.interfaces;
  *
  * @author huecotanks
  */
-public interface RootInsertable extends EntityInsertable{
-    
+public interface RootInsertable extends EntityInsertable {
+
 }

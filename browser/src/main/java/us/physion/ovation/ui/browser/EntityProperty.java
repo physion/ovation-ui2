@@ -7,7 +7,6 @@ package us.physion.ovation.ui.browser;
 import java.lang.reflect.InvocationTargetException;
 import org.openide.nodes.Node.Property;
 import us.physion.ovation.domain.AnnotatableEntity;
-import us.physion.ovation.domain.mixin.PropertyAnnotatable;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 

@@ -19,10 +19,8 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
@@ -76,7 +74,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
     public EntityChildren(List<EntityWrapper> children, TreeFilter filter) {
         parent = null;
         this.filter = filter;
-        updateWithKeys(children);
+        updateWithKeys(children == null ? Lists.<EntityWrapper>newArrayList() : children);
     }
 
     @Override
@@ -98,25 +96,23 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
         return new Node[]{EntityWrapperUtilities.createNode(key, Children.createLazy(getChildrenCallable(key)))};
     }
 
-    protected void updateWithKeys(final List<EntityWrapper> list) {
+    protected final void updateWithKeys(final List<EntityWrapper> list) {
         EventQueueUtilities.runOnEDT(new Runnable() {
             @Override
             public void run() {
                 setKeys(list);
-                addNotify();
-                refresh();
+                //addNotify();
+                //refresh();
                 loadedKeys = true;
             }
         });
     }
 
-    public void resetNode()
-    {
-        loadedKeys = false;
-        initKeys();
-    }
+    protected final void initKeys() {
+        if (parent == null) {
+            return;
+        }
 
-    protected void initKeys() {
         final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Loading_Entity_Children(parent.getDisplayName()));
 
         EventQueueUtilities.runOffEDT(new Runnable() {
@@ -126,6 +122,10 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
                 createKeys(ph);
             }
         }, ph);
+    }
+
+    public void refreshKeys() {
+        createKeys(null);
     }
 
     protected void createKeys(ProgressHandle ph) {
@@ -149,34 +149,28 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
             filteredParents.add(u);
 
             List<EntityWrapper> children;
-            if (pop instanceof PreloadedEntityWrapper)
-            {
-                children = filterVisible(((PreloadedEntityWrapper)pop).getChildren(), ph);
-            }
-            else{
+            if (pop instanceof PreloadedEntityWrapper) {
+                children = filterVisible(((PreloadedEntityWrapper) pop).getChildren(), ph);
+            } else {
                 children = createKeysForEntity(c, pop, ph);
             }
             for (EntityWrapper e : children) {
                 e.addFilteredParentURIs(filteredParents);
             }
             list.addAll(children);
-        }else{
+        } else {
             displayUpdatedList(list, entityComparator);
         }
     }
 
-    private void displayUpdatedList(List<EntityWrapper> list, Comparator entityComparator)
-    {
+    private void displayUpdatedList(List<EntityWrapper> list, Comparator entityComparator) {
         if (childcount % UPDATE_FACTOR == 0) {
-            for (int i = 0; i < Math.min(UPDATE_FACTOR, list.size()); i++)
-            {
-                EntityWrapper last = list.get(list.size()-1);
-                for (int j = 0; j < list.size(); j++)
-                {
+            for (int i = 0; i < Math.min(UPDATE_FACTOR, list.size()); i++) {
+                EntityWrapper last = list.get(list.size() - 1);
+                for (int j = 0; j < list.size(); j++) {
                     //if last element < jth element of the list
-                    if (entityComparator.compare(last, list.get(j)) < 0)
-                    {
-                        list.remove(list.size()-1);
+                    if (entityComparator.compare(last, list.get(j)) < 0) {
+                        list.remove(list.size() - 1);
                         list.add(j, last);
                         break;
                     }
@@ -198,54 +192,45 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
 
         if (ew instanceof PreloadedEntityWrapper) {
             EntityComparator entityComparator = new EntityComparator();
-            for (EntityWrapper child : ((PreloadedEntityWrapper) ew).getChildren())
-            {
+            for (EntityWrapper child : ((PreloadedEntityWrapper) ew).getChildren()) {
                 list.add(child);
-                absorbFilteredChildren(isVisible(child, filter), list, c ,ph, entityComparator);
+                absorbFilteredChildren(isVisible(child, filter), list, c, ph, entityComparator);
             }
             return list;
         }
 
-        Class entityClass = ew.getType();
-        if (Project.class.isAssignableFrom(entityClass))
-        {
-            Project entity = (Project) ew.getEntity();
-            addExperiments(list, entity, ph);
-            addAnalysisRecords(list, entity, ph);
-        }
-        else if (Source.class.isAssignableFrom(entityClass))
-        {
-            Source entity = (Source) ew.getEntity();
-            addChildrenSources(list, entity, ph);
-            addProcedureElements(list, entity, ph);
-        }
-        else if (Experiment.class.isAssignableFrom(entityClass))
-        {
-            Experiment entity = (Experiment) ew.getEntity();
-            addEpochGroups(list, entity, ph);
-            addEpochs(list, entity, ph);
-        }
-        else if (EpochGroup.class.isAssignableFrom(entityClass))
-        {
-            EpochGroup entity = (EpochGroup) ew.getEntity();
-            addEpochGroups(list, entity, ph);
-            addEpochs(list, entity, ph);
-        }
-        else if (Epoch.class.isAssignableFrom(entityClass))
-        {
-            Epoch entity = (Epoch) ew.getEntity();
-            addMeasurements(list, entity, ph);
-            addAnalysisRecords(list, entity, ph);
-        }
-        else if(AnalysisRecord.class.isAssignableFrom(entityClass))
-        {
-            AnalysisRecord entity = (AnalysisRecord) ew.getEntity();
-            addOutputs(list, entity, ph);
+        if (ew != null) {
+            Class entityClass = ew.getType();
+            if (Project.class.isAssignableFrom(entityClass)) {
+                Project entity = (Project) ew.getEntity();
+                addExperiments(list, entity, ph);
+                addAnalysisRecords(list, entity, ph);
+            } else if (Source.class.isAssignableFrom(entityClass)) {
+                Source entity = (Source) ew.getEntity();
+                addChildrenSources(list, entity, ph);
+                addProcedureElements(list, entity, ph);
+            } else if (Experiment.class.isAssignableFrom(entityClass)) {
+                Experiment entity = (Experiment) ew.getEntity();
+                addEpochGroups(list, entity, ph);
+                addEpochs(list, entity, ph);
+            } else if (EpochGroup.class.isAssignableFrom(entityClass)) {
+                EpochGroup entity = (EpochGroup) ew.getEntity();
+                addEpochGroups(list, entity, ph);
+                addEpochs(list, entity, ph);
+            } else if (Epoch.class.isAssignableFrom(entityClass)) {
+                Epoch entity = (Epoch) ew.getEntity();
+                addMeasurements(list, entity, ph);
+                addAnalysisRecords(list, entity, ph);
+            } else if (AnalysisRecord.class.isAssignableFrom(entityClass)) {
+                AnalysisRecord entity = (AnalysisRecord) ew.getEntity();
+                addOutputs(list, entity, ph);
+            } else if (Protocol.class.isAssignableFrom(entityClass)) {
+                Protocol entity = ew.getEntity(Protocol.class);
+                addProcedureElements(list, entity, ph);
+            }
         }
         return list;
     }
-
-
 
     private List<Experiment> sortedExperiments(Project entity) {
         List<Experiment> experiments = Lists.newArrayList(entity.getExperiments());
@@ -279,8 +264,14 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
         return epochGroups;
     }
 
-    private List<Epoch> sortedEpochs(Source entity) {
-        List<Epoch> epochs = Lists.newArrayList(entity.getEpochs());
+    private List<Epoch> sortedEpochs(Protocol entity) {
+        List<Epoch> epochs = Lists.newArrayList(Iterables.filter(entity.getProcedures(),
+                Epoch.class));
+
+        return sortEpochList(epochs);
+    }
+
+    private List<Epoch> sortEpochList(List<Epoch> epochs) {
         Collections.sort(epochs, new Comparator<Epoch>() {
             @Override
             public int compare(Epoch o1, Epoch o2) {
@@ -293,41 +284,46 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
             }
         });
         return epochs;
+    }
+
+    private List<Epoch> sortedEpochs(Source entity) {
+        List<Epoch> epochs = Lists.newArrayList(entity.getEpochs());
+        return sortEpochList(epochs);
     }
 
     private List<Epoch> sortedEpochs(EpochContainer entity) {
         List<Epoch> epochs = Lists.newArrayList(entity.getEpochs());
-        Collections.sort(epochs, new Comparator<Epoch>() {
-            @Override
-            public int compare(Epoch o1, Epoch o2) {
-                if (o1 == null || o2 == null
-                        || o1.getStart() == null || o2.getStart() == null) {
-                    return 0;
-                }
-
-                return o1.getStart().compareTo(o2.getStart());
-            }
-        });
-        return epochs;
+        return sortEpochList(epochs);
     }
 
-    private List<? extends EntityWrapper> getTopLevelProcedureElements(TreeFilter filter, Iterable<Epoch> epochs) {
+    private List<? extends EntityWrapper> getTopLevelProcedureElements(TreeFilter filter, Iterable<? extends ProcedureElement> epochs) {
         HashMap<String, PreloadedEntityWrapper> visibleProcedureElements = new HashMap<String, PreloadedEntityWrapper>();
-        for (Epoch e : epochs) {
-            ProcedureElement localParent = e.getParent();
-            List<OvationEntity> epochGroupChain = new ArrayList();
-            while (localParent instanceof EpochGroup) {
-                epochGroupChain.add(localParent);
-                localParent = ((EpochGroup) localParent).getParent();
-            }
-            PreloadedEntityWrapper p;
-            if (visibleProcedureElements.containsKey(localParent.getURI().toString())) {
-                p = visibleProcedureElements.get(localParent.getURI().toString());
+        for (ProcedureElement e : epochs) {
+            ProcedureElement localParent;
+            if (e instanceof EpochGroup) { //TODO getParent() should be a ProcedureElement method
+                localParent = ((EpochGroup) e).getParent();
+            } else if (e instanceof Epoch) {
+                localParent = ((Epoch) e).getParent();
             } else {
-                p = new PreloadedEntityWrapper(localParent);
+                localParent = null;
             }
-            p.addChildren(filter, epochGroupChain, e);
-            visibleProcedureElements.put(p.getURI(), p);
+
+            List<OvationEntity> epochGroupChain = Lists.newArrayList();
+
+            if (localParent != null) {
+                while (localParent instanceof EpochGroup) {
+                    epochGroupChain.add(localParent);
+                    localParent = ((EpochGroup) localParent).getParent();
+                }
+                PreloadedEntityWrapper p;
+                if (visibleProcedureElements.containsKey(localParent.getURI().toString())) {
+                    p = visibleProcedureElements.get(localParent.getURI().toString());
+                } else {
+                    p = new PreloadedEntityWrapper(localParent);
+                }
+                p.addChildren(filter, epochGroupChain, e);
+                visibleProcedureElements.put(p.getURI(), p);
+            }
         }
 
         //sort values, and add the
@@ -350,11 +346,11 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
         for (User user : users) {
             List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
                     new Function<AnalysisRecord, EntityWrapper>() {
-                @Override
-                public EntityWrapper apply(AnalysisRecord f) {
-                    return new EntityWrapper(f);
-                }
-            }));
+                        @Override
+                        public EntityWrapper apply(AnalysisRecord f) {
+                            return new EntityWrapper(f);
+                        }
+                    }));
             if (l.size() > 0) {
                 list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));
             }
@@ -376,11 +372,11 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
         for (User user : users) {
             List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
                     new Function<AnalysisRecord, EntityWrapper>() {
-                @Override
-                public EntityWrapper apply(AnalysisRecord f) {
-                    return new EntityWrapper(f);
-                }
-            }));
+                        @Override
+                        public EntityWrapper apply(AnalysisRecord f) {
+                            return new EntityWrapper(f);
+                        }
+                    }));
             if (l.size() > 0) {
                 list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));
             }
@@ -396,8 +392,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
         }
     }
 
-    private void addExperiments(List<EntityWrapper> list, Project entity, ProgressHandle ph)
-    {
+    private void addExperiments(List<EntityWrapper> list, Project entity, ProgressHandle ph) {
         EntityComparator entityComparator = new EntityComparator();
         List<Experiment> experiments = sortedExperiments(entity);
 
@@ -440,26 +435,25 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
         }
     }
 
-    private void addEpochs(List<EntityWrapper> list, EpochGroup entity, ProgressHandle ph)
-    {
+    private void addEpochs(List<EntityWrapper> list, EpochGroup entity, ProgressHandle ph) {
         DataContext c = entity.getDataContext();
         EntityComparator entityComparator = new EntityComparator();
-        if(ph!=null){
-                ph.progress(Bundle.Loading_Epochs());
-            }
-            c.beginTransaction();//we wrap these in a transaction, because there may be a lot of epochs
-            try {
-                for (Epoch e : sortedEpochs(entity)) {
+        if (ph != null) {
+            ph.progress(Bundle.Loading_Epochs());
+        }
+        c.beginTransaction();//we wrap these in a transaction, because there may be a lot of epochs
+        try {
+            for (Epoch e : sortedEpochs(entity)) {
 
-                    list.add(new EntityWrapper(e));
-                    absorbFilteredChildren(filter.isEpochsVisible(), list, c, ph, entityComparator);
-                }
-            } finally {
-                c.commitTransaction();
-                if (ph != null) {
-                    ph.progress(Bundle.Loading_Epochs_Done());
-                }
+                list.add(new EntityWrapper(e));
+                absorbFilteredChildren(filter.isEpochsVisible(), list, c, ph, entityComparator);
             }
+        } finally {
+            c.commitTransaction();
+            if (ph != null) {
+                ph.progress(Bundle.Loading_Epochs_Done());
+            }
+        }
     }
 
     private void addMeasurements(List<EntityWrapper> list, Epoch entity, ProgressHandle ph) {
@@ -484,36 +478,60 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
         }
     }
 
-    private void addProcedureElements(List<EntityWrapper> list, Source entity, ProgressHandle ph) {
-       EntityComparator entityComparator = new EntityComparator();
+    private void addProcedureElements(List<EntityWrapper> list, Protocol entity, ProgressHandle ph) {
+        EntityComparator entityComparator = new EntityComparator();
         //if Epoch's parents should be visible
-            if (filter.isExperimentsVisible() || filter.isEpochGroupsVisible()) {
-                List<? extends EntityWrapper> topLevelProcedureElements = getTopLevelProcedureElements(filter, entity.getEpochs());
-                for (EntityWrapper exp : topLevelProcedureElements)
-                {
-                    list.add(exp);
-                    absorbFilteredChildren(filter.isExperimentsVisible(), list, entity.getDataContext(), ph, entityComparator);
-                }
-            } else {
-                for (Epoch e : sortedEpochs(entity)) {
-                    list.add(new EntityWrapper(e));
-                    absorbFilteredChildren(filter.isEpochsVisible(), list, entity.getDataContext(), ph, entityComparator);
-                }
+        if (filter.isExperimentsVisible() || filter.isEpochGroupsVisible()) {
+            List<? extends EntityWrapper> topLevelProcedureElements = getTopLevelProcedureElements(filter,
+                    Iterables.transform(entity.getProcedures(), new Function<OvationEntity, ProcedureElement>() {
+
+                        @Override
+                        public ProcedureElement apply(OvationEntity f) {
+                            return f == null ? null : (ProcedureElement) f;
+                        }
+                    }));
+
+            for (EntityWrapper exp : topLevelProcedureElements) {
+                list.add(exp);
+                absorbFilteredChildren(filter.isExperimentsVisible(), list, entity.getDataContext(), ph, entityComparator);
             }
+        } else {
+            for (Epoch e : sortedEpochs(entity)) {
+                list.add(new EntityWrapper(e));
+                absorbFilteredChildren(filter.isEpochsVisible(), list, entity.getDataContext(), ph, entityComparator);
+            }
+
+        }
+
+    }
+
+    private void addProcedureElements(List<EntityWrapper> list, Source entity, ProgressHandle ph) {
+        EntityComparator entityComparator = new EntityComparator();
+        //if Epoch's parents should be visible
+        if (filter.isExperimentsVisible() || filter.isEpochGroupsVisible()) {
+            List<? extends EntityWrapper> topLevelProcedureElements = getTopLevelProcedureElements(filter, entity.getEpochs());
+
+            for (EntityWrapper exp : topLevelProcedureElements) {
+                list.add(exp);
+                absorbFilteredChildren(filter.isExperimentsVisible(), list, entity.getDataContext(), ph, entityComparator);
+            }
+        } else {
+            for (Epoch e : sortedEpochs(entity)) {
+                list.add(new EntityWrapper(e));
+                absorbFilteredChildren(filter.isEpochsVisible(), list, entity.getDataContext(), ph, entityComparator);
+            }
+        }
     }
 
     private List<EntityWrapper> filterVisible(List<EntityWrapper> children, ProgressHandle ph) {
         List<EntityWrapper> visible = new LinkedList();
-       for (EntityWrapper child : children)
-        {
-            if (isVisible(child, filter))
-            {
+        for (EntityWrapper child : children) {
+            if (isVisible(child, filter)) {
                 visible.add(child);
-            }else{
-                if(child instanceof PreloadedEntityWrapper)
-                {
-                    visible.addAll(filterVisible(((PreloadedEntityWrapper)child).getChildren(), ph));
-                }else{
+            } else {
+                if (child instanceof PreloadedEntityWrapper) {
+                    visible.addAll(filterVisible(((PreloadedEntityWrapper) child).getChildren(), ph));
+                } else {
                     visible.addAll(createKeysForEntity(child.getEntity().getDataContext(), child, ph));
                 }
             }
@@ -521,15 +539,15 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
         return visible;
     }
 
-    private boolean isVisible(EntityWrapper ew, TreeFilter filter)
-    {
+    private boolean isVisible(EntityWrapper ew, TreeFilter filter) {
         Class entityClass = ew.getType();
-        if (Experiment.class.isAssignableFrom(entityClass) && !filter.isExperimentsVisible())
+        if (Experiment.class.isAssignableFrom(entityClass) && !filter.isExperimentsVisible()) {
             return false;
-        else if (EpochGroup.class.isAssignableFrom(entityClass) && !filter.isEpochGroupsVisible())
+        } else if (EpochGroup.class.isAssignableFrom(entityClass) && !filter.isEpochGroupsVisible()) {
             return false;
-        else if (Epoch.class.isAssignableFrom(entityClass) && !filter.isEpochsVisible())
+        } else if (Epoch.class.isAssignableFrom(entityClass) && !filter.isEpochsVisible()) {
             return false;
+        }
         return true;
     }
 }

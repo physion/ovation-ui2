@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2014 Physion LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package us.physion.ovation.ui.browser;
 
 import java.awt.BorderLayout;
@@ -12,9 +28,10 @@ import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
-import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.NbPreferences;
+import org.openide.windows.TopComponent;
+import us.physion.ovation.ui.browser.TreeFilter.NavigatorType;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
 /**
@@ -33,8 +50,8 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
 @TopComponent.OpenActionRegistration(displayName = "#CTL_SourceBrowserAction",
         preferredID = "SourceBrowserTopComponent")
 @Messages({
-    "CTL_SourceBrowserAction=Source Navigator",
-    "CTL_SourceBrowserTopComponent=Source Navigator",
+    "CTL_SourceBrowserAction=Sources Navigator",
+    "CTL_SourceBrowserTopComponent=Sources",
     "HINT_SourceBrowserTopComponent=Browse your Ovation Dataset starting from the Source hierarchy"
 })
 public final class SourceBrowserTopComponent extends TopComponent implements ExplorerManager.Provider, TreeViewProvider {
@@ -44,15 +61,14 @@ public final class SourceBrowserTopComponent extends TopComponent implements Exp
     private final TreeFilter filter;
 
     public SourceBrowserTopComponent() {
-        filter = new TreeFilter();
-        filter.setProjectView(false);
+        filter = new TreeFilter(NavigatorType.SOURCE);
 
         final Preferences prefs = NbPreferences.forModule(SourceBrowserTopComponent.class);
-        
+
         filter.setExperimentsVisible(prefs.getBoolean("experiments-visible", true));
         filter.setEpochGroupsVisible(prefs.getBoolean("epoch-groups-visible", false));
         filter.setEpochsVisible(prefs.getBoolean("epochs-visible", false));
-        
+
         filter.addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
@@ -66,15 +82,15 @@ public final class SourceBrowserTopComponent extends TopComponent implements Exp
                 if (evt.getPropertyName().equals("epochGroupsVisible")) {
                     prefs.putBoolean("epoch-groups-visible", newValue);
                 }
-                
+
                 if(evt.getPropertyName().equals("epochsVisible")) {
                     prefs.putBoolean("epochs-visible", newValue);
                 }
             }
         });
-        
+
         setLayout(new BorderLayout());
-        FilteredTreeViewPanel panel = new FilteredTreeViewPanel(filter);
+        FilteredTreeViewPanel panel = new FilteredTreeViewPanel(filter, "us.physion.ovation.ui.browser.insertion.NewSourceAction");
         view = panel.getTreeView();
         add(panel, BorderLayout.CENTER);
 

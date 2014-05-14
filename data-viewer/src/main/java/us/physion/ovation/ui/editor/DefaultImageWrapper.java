@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Sets;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -8,10 +9,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import org.openide.util.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
 
 
@@ -19,13 +22,15 @@ import us.physion.ovation.domain.mixin.DataElement;
  *
  * @author huecotanks
  */
-public class DefaultImageWrapper implements Visualization{
+public class DefaultImageWrapper extends AbstractDataVisualization {
     private final static Logger log = LoggerFactory.getLogger(DefaultImageWrapper.class);
 
     String name;
     BufferedImage img;
+    final DataElement entity;
     DefaultImageWrapper(DataElement r)
     {
+        entity = r;
         InputStream in = null;
         try {
             in = new FileInputStream(r.getData().get());
@@ -53,12 +58,12 @@ public class DefaultImageWrapper implements Visualization{
     }
 
     @Override
-    public Component generatePanel() {
+    public JComponent generatePanel() {
         BufferedImagePanel pan = new BufferedImagePanel(img);
         pan.setAlignmentX(Component.CENTER_ALIGNMENT);
         return new ImagePanel(name, pan);
     }
-    
+
 
     @Override
     public boolean shouldAdd(DataElement r) {
@@ -69,7 +74,12 @@ public class DefaultImageWrapper implements Visualization{
     public void add(DataElement r) {
         throw new UnsupportedOperationException("Images are currently implemented one per panel");
     }
-    
+
+    @Override
+    public Iterable<? extends OvationEntity> getEntities() {
+        return Sets.newHashSet(entity);
+    }
+
 }
 /**
  * <b>Note</b>: This component is not opaque. Use with an opaque container.
@@ -81,7 +91,7 @@ class BufferedImagePanel extends JPanel
     {
         img = buf;
     }
-    
+
     @Override
     public void paint(Graphics g)
     {

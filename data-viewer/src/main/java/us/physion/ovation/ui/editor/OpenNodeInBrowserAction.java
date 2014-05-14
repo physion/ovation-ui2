@@ -36,8 +36,9 @@ import us.physion.ovation.ui.jumpto.api.JumpHistory;
 public class OpenNodeInBrowserAction extends AbstractAction {
 
     private final static Logger log = LoggerFactory.getLogger(OpenNodeInBrowserAction.class);
-    public final static String BROWSER_ID = "BrowserTopComponent"; //NOI18N
+    public final static String PROJECT_BROWSER_ID = "ProjectBrowserTopComponent"; //NOI18N
     public final static String SOURCE_BROWSER_ID = "SourceBrowserTopComponent"; //NOI18N
+    public final static String PROTOCOL_BROWSER_ID = "ProtocolBrowserTopComponent"; //NOI18N
     private final Provider em;
     private final TopComponent tc;
     private final List<URI> entityPath;
@@ -47,25 +48,25 @@ public class OpenNodeInBrowserAction extends AbstractAction {
     private final List<URI> historySource;
 
     public OpenNodeInBrowserAction(List<URI> entityURI) {
-        this(BROWSER_ID, entityURI);
+        this(PROJECT_BROWSER_ID, entityURI);
     }
-    
+
     public OpenNodeInBrowserAction(String explorerTopComponentID, List<URI> entityURI) {
         this(entityURI, null, false, null, explorerTopComponentID);
     }
-    
+
     public OpenNodeInBrowserAction(List<URI> entityURI, /* @Nullable */ String nodeDisplayName) {
         this(entityURI, nodeDisplayName, false, null);
     }
     /**
-     * 
+     *
      * @param entityURI
      * @param nodeDisplayName The corresponding node display name. It will be added to the history
      */
     public OpenNodeInBrowserAction(List<URI> entityURI, /* @Nullable */ String nodeDisplayName, boolean addToHistory, List<URI> source) {
-        this(entityURI, nodeDisplayName, addToHistory, source, BROWSER_ID);
+        this(entityURI, nodeDisplayName, addToHistory, source, PROJECT_BROWSER_ID);
     }
-    
+
     public OpenNodeInBrowserAction(List<URI> entityURI, /* @Nullable */ String nodeDisplayName, boolean addToHistory, List<URI> source, String explorerTopComponentID) {
         super(Bundle.OpenNodeInBrowserAction());
         tc = WindowManager.getDefault().findTopComponent(explorerTopComponentID);
@@ -107,7 +108,7 @@ public class OpenNodeInBrowserAction extends AbstractAction {
             protected List<URI> getTreeSubPath(Node n) {
                 if (n instanceof URINode) {
                     //XXX: Also see EntityNode.buildURITreePath
-                    
+
                     List<URI> paths = new ArrayList<URI>(((URINode) n).getFilteredParentURIs());
                     Collections.reverse(paths);
 
@@ -123,11 +124,11 @@ public class OpenNodeInBrowserAction extends AbstractAction {
             protected void runAsync(Runnable r) {
                 RequestProcessor.getDefault().post(r, 250);
             }
-            
+
         };
     }
-    
-    
+
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (addToHistory) {
@@ -150,12 +151,12 @@ public class OpenNodeInBrowserAction extends AbstractAction {
                     @Override
                     public boolean cancel() {
                         cancelled.set(true);
-                        
+
                         return true;
                     }
                 });
                 ph.start();
-                
+
                 SelectInTreeViewRunnable<URI> r = createSelectRunnable(0, em.getExplorerManager().getRootContext(), em, entityPath, 0, view, ph, false, cancelled);
                 r.runAsync(r);
             }

@@ -34,7 +34,7 @@ public class SelectInProjectNavigatorActionFactoryImpl implements SelectInProjec
         Collections.reverse(path);
         return new OpenNodeInBrowserAction(path, displayName,
                 kind == PathType.ProjectPath, source,
-                kind == PathType.ProjectPath ? OpenNodeInBrowserAction.BROWSER_ID : OpenNodeInBrowserAction.SOURCE_BROWSER_ID);
+                kind == PathType.ProjectPath ? OpenNodeInBrowserAction.PROJECT_BROWSER_ID : OpenNodeInBrowserAction.SOURCE_BROWSER_ID);
     }
 
     //XXX: This should be moved in some Utils class

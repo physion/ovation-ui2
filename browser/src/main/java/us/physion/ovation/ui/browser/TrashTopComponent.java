@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import us.physion.ovation.ui.interfaces.ResettableNode;
+import us.physion.ovation.ui.interfaces.RefreshableNode;
 
 /**
  * Top component which displays something.
@@ -50,7 +50,7 @@ import us.physion.ovation.ui.interfaces.ResettableNode;
 autostore = false)
 @TopComponent.Description(
     preferredID = "TrashTopComponent",
-//iconBase="SET/PATH/TO/ICON/HERE", 
+//iconBase="SET/PATH/TO/ICON/HERE",
 persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "explorer", openAtStartup = false)
 @ActionID(category = "Window", id = "us.physion.ovation.ui.browser.TrashTopComponent")
@@ -95,15 +95,15 @@ public final class TrashTopComponent extends TopComponent implements ExplorerMan
                     };
         }
     }
-    
-    class TrashRootNode extends AbstractNode implements ResettableNode {
+
+    class TrashRootNode extends AbstractNode implements RefreshableNode {
 
         TrashRootNode(Children c) {
             super(c);
         }
 
         @Override
-        public void resetNode() {
+        public void refresh() {
             populateTrash();
         }
 
@@ -123,7 +123,7 @@ public final class TrashTopComponent extends TopComponent implements ExplorerMan
 
         final BeanTreeView tree = new BeanTreeView();
         tree.setRootVisible(false);
-        
+
         setLayout(new BorderLayout());
         add(tree, BorderLayout.CENTER);
 
@@ -134,14 +134,14 @@ public final class TrashTopComponent extends TopComponent implements ExplorerMan
     public Action[] getActions() {
         return ActionUtils.appendToArray(new Action[]{new ResettableAction(this), null}, super.getActions());
     }
-    
+
     private void populateTrash() {
         final DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
 
         if (c == null) {
-            //adding this node just to have a ResettableNode as root
+            //adding this node just to have a RefreshableNode as root
             explorerManager.setRootContext(new TrashRootNode(Children.LEAF));
-            
+
             log.warn("Null DataContext");
             Toolkit.getDefaultToolkit().beep();
             return;

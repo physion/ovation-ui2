@@ -4,20 +4,12 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import javax.swing.AbstractAction;
 import org.openide.WizardDescriptor;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.util.lookup.ServiceProviders;
-import ovation.*;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
-import us.physion.ovation.domain.Epoch;
-import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.*;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;

@@ -14,16 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package us.physion.ovation.ui.browser.insertion;
+package us.physion.ovation.ui.editor;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import org.slf4j.LoggerFactory;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.browser.BrowserUtilities;
+import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 @ActionID(
         category = "Edit",
@@ -36,12 +43,28 @@ import us.physion.ovation.ui.browser.BrowserUtilities;
     @ActionReference(path = "Menu/File/New", position = 1350, separatorAfter = 1375),
     @ActionReference(path = "Shortcuts", name = "DS-S")
 })
-@Messages("CTL_NewSourceAction=Source...")
-public final class NewSourceAction implements ActionListener {
+@Messages({"CTL_NewSourceAction=Source...",
+    "CTL_NewSourceLabel=New Source"})
+public final class NewSourceAction extends AbstractNewEntityAction<Source> {
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-        new InsertSource().actionPerformed(e);
-        BrowserUtilities.switchToSourceView();
+    public void actionPerformed(final ActionEvent e) {
+        DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+
+        final Source s = ctx.insertSource(Bundle.CTL_NewSourceLabel(), "");
+
+        ListenableFuture<Void> reset = BrowserUtilities.resetView(BrowserUtilities.SOURCE_BROWSER_ID);
+        Futures.addCallback(reset, new FutureCallback<Void>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                selectNode(s, BrowserUtilities.SOURCE_BROWSER_ID, e);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                LoggerFactory.getLogger(NewProjectAction.class).error("Unable to reset view", t);
+            }
+        });
     }
 }

@@ -1,10 +1,12 @@
 package us.physion.ovation.ui.browser;
 
+import java.awt.Color;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import javax.swing.Action;
-import org.openide.actions.RenameAction;
 import org.openide.nodes.*;
 import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
@@ -21,13 +23,69 @@ import us.physion.ovation.ui.interfaces.*;
  *
  * @author huecotanks
  */
-public class EntityNode extends AbstractNode implements ResettableNode, URINode {
+public class EntityNode extends AbstractNode implements RefreshableNode, URINode, IEntityNode {
 
     private Action[] actionList;
-    private IEntityWrapper parent;
+    private final IEntityWrapper entityWrapper;
     private static Map<String, Class> insertableMap = createMap();
     private URI uri;
-    
+
+    public EntityNode(Children c, Lookup l, IEntityWrapper entity) {
+        this(c, l, new URITreePathProviderImpl(), entity);
+    }
+
+    private EntityNode(Children c, Lookup l, URITreePathProviderImpl pathProvider, IEntityWrapper entity) {
+        super(c, new ProxyLookup(l, Lookups.singleton(pathProvider)));
+
+        pathProvider.setDelegate(this);
+        this.entityWrapper = entity;
+
+        loadURI();
+
+        entityWrapper.addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                EventQueueUtilities.runOnEDT(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        setDisplayName(entityWrapper.getDisplayName());
+                        fireDisplayNameChange(null, getDisplayName());
+                        EntityNode.this.refresh();
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
+    public OvationEntity getEntity() {
+        return getEntityWrapper().getEntity();
+    }
+
+    @Override
+    public OvationEntity getEntity(boolean includingTrash) {
+        return getEntityWrapper().getEntity(includingTrash);
+    }
+
+    @Override
+    public <T extends OvationEntity> T getEntity(Class<T> clazz) {
+        return getEntityWrapper().getEntity(clazz);
+    }
+
+    @Override
+    public IEntityWrapper getEntityWrapper() {
+        return entityWrapper;
+    }
+
+    private String colorToHex(Color color) {
+        return String.format("#%02x%02x%02x",
+                color.getRed(),
+                color.getGreen(),
+                color.getBlue());
+    }
+
     private static class URITreePathProviderImpl implements URITreePathProvider {
 
         private EntityNode delegate;
@@ -45,57 +103,52 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
             }
         }
     }
-        
-    public EntityNode(Children c, Lookup l, IEntityWrapper parent) {
-        this(c, l, new URITreePathProviderImpl(), parent);
-    }
-    
-    private EntityNode(Children c, Lookup l, URITreePathProviderImpl pathProvider, IEntityWrapper parent) {
-        super (c, new ProxyLookup(l, Lookups.singleton(pathProvider)));
-        
-        pathProvider.setDelegate(this);
-        this.parent = parent;
-        loadURI();
-    }
 
     @Override
     public boolean canRename() {
-        return parent != null ? parent.canRename() : super.canRename();
+        return entityWrapper != null ? entityWrapper.canRename() : super.canRename();
     }
 
     @Override
     public void setName(String s) {
         super.setName(s);
-        if (parent != null) {
-            String oldDisplay = getDisplayName();
+        if (entityWrapper != null) {
+            entityWrapper.setName(s);
 
-            parent.setName(s);
-
-            setDisplayName(parent.getDisplayName());
-            fireDisplayNameChange(oldDisplay, getDisplayName());
+            setDisplayName(entityWrapper.getDisplayName());
+            fireDisplayNameChange(null, getDisplayName());
         }
     }
 
     @Override
     public String getName() {
-        return parent != null ? parent.getName() : super.getName();
+        return entityWrapper != null ? entityWrapper.getName() : super.getName();
     }
-  
-   public EntityNode(Children c, IEntityWrapper parent)
-   {
-       super(c);
-       this.parent = parent;
-       loadURI();
-   }
-   
-   private void loadURI() {
-       try {
-           this.uri = (parent != null && parent.getURI() != null) ? new URI(parent.getURI()) : null;
-       } catch (URISyntaxException ex) {
-           //XXX: Log?
-           this.uri = null;
-       }
-   }
+
+    @Override
+    public String getHtmlDisplayName() {
+        if (entityWrapper != null && entityWrapper.getDisplayColor() != null) {
+            String html = "<font color=\"" + colorToHex(entityWrapper.getDisplayColor()) + "\">" + getDisplayName() + "</font>";
+            return html;
+        }
+
+        return getDisplayName();
+    }
+
+    public EntityNode(Children c, IEntityWrapper parent) {
+        super(c);
+        this.entityWrapper = parent;
+        loadURI();
+    }
+
+    private void loadURI() {
+        try {
+            this.uri = (entityWrapper != null && entityWrapper.getURI() != null) ? new URI(entityWrapper.getURI()) : null;
+        } catch (URISyntaxException ex) {
+            //XXX: Log?
+            this.uri = null;
+        }
+    }
 
     @Override
     public URI getURI() {
@@ -104,9 +157,9 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
 
     @Override
     public List<URI> getFilteredParentURIs() {
-        return parent == null ? Collections.EMPTY_LIST : parent.getFilteredParentURIs();
+        return entityWrapper == null ? Collections.EMPTY_LIST : entityWrapper.getFilteredParentURIs();
     }
-    
+
     private List<URI> buildURITreePath() {
         List<URI> paths = new ArrayList<URI>();
 
@@ -115,7 +168,7 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
             if (n instanceof URINode) {
                 //put in reverse
                 paths.add(((URINode) n).getURI());
-                
+
                 paths.addAll(((URINode) n).getFilteredParentURIs());
             }
             n = n.getParentNode();
@@ -126,87 +179,82 @@ public class EntityNode extends AbstractNode implements ResettableNode, URINode 
         return paths;
     }
 
-   @Override
-   public void resetNode()
-   {
-       Children c = getChildren();
-       if (c == null || this.isLeaf())
-           return;
-       if (c instanceof EntityChildren)
-       {
-           ((EntityChildren)c).initKeys();
-       }
-   }
-   
-   protected void setActionList(Action[] actions)
-   {
-       actionList = actions;
-   }
+    @Override
+    public void refresh() {
+        Children c = getChildren();
+        if (c == null || this.isLeaf()) {
+            return;
+        }
+        if (c instanceof EntityChildren) {
+            ((EntityChildren) c).refreshKeys();
+        }
+    }
+
+    protected void setActionList(Action[] actions) {
+        actionList = actions;
+    }
 
     @Override
     public Action getPreferredAction() {
-        if (!DataElement.class.isAssignableFrom(parent.getType())) {
+        if (!DataElement.class.isAssignableFrom(entityWrapper.getType())) {
             return super.getPreferredAction();
         }
-        
-        DataElement data = (DataElement) parent.getEntity();
+
+        DataElement data = (DataElement) entityWrapper.getEntity();
         return new OpenInSeparateViewAction(data, buildURITreePath());
     }
-    
-   @Override
+
+    @Override
     public Action[] getActions(boolean popup) {
-       if (actionList == null)
-       {
-           if (parent == null)// root node
-           {
-               Collection<? extends RootInsertable> insertables = Lookup.getDefault().lookupAll(RootInsertable.class);
-               List<RootInsertable> l = new ArrayList(insertables);
-               Collections.sort(l);
-               actionList = l.toArray(new RootInsertable[l.size()]);
-           }
-           else{
-               Class entityClass = parent.getType();
-               Class insertableClass = insertableMap.get(entityClass.getSimpleName());
-               if (insertableClass == null)
-               {
-                   actionList = new Action[0];
-               } else {
-                   Collection insertables = Lookup.getDefault().lookupAll(insertableClass);
-                   List<? extends Comparable> l = new ArrayList(insertables);
-                   Collections.sort(l);
-                   actionList = l.toArray(new EntityInsertable[l.size()]);
-               }
-               
-               if(DataElement.class.isAssignableFrom(entityClass)){
-                   actionList = appendToArray(actionList, new RevealElementAction((DataElement) parent.getEntity()));
-               }
-               
-               if(AnalysisRecord.class.isAssignableFrom(entityClass)) {
-                   actionList = appendToArray(actionList, SystemAction.get(AnalysisRecordInputsAction.class));
-               }
-               
-               if(Epoch.class.isAssignableFrom(entityClass)) {
-                   actionList = appendToArray(actionList, SystemAction.get(EpochInputSourcesAction.class));
-               }
-               
-               if(Measurement.class.isAssignableFrom(entityClass)) {
-                   actionList = appendToArray(actionList, SystemAction.get(MeasurementInputSourcesAction.class));
-               }
-               
-               //XXX: right now canRename will never change for a given node so it's safe to use it during initialization
-               if (canRename()) {
-                   actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
-               }
-               
-               if(OvationEntity.class.isAssignableFrom(entityClass)){
-                   actionList = appendToArray(actionList, null, SystemAction.get(TrashEntityAction.class));
-               }
-               
-           }
-       }
+        if (actionList == null) {
+            if (entityWrapper == null)// root node
+            {
+                Collection<? extends RootInsertable> insertables = Lookup.getDefault().lookupAll(RootInsertable.class);
+                List<RootInsertable> l = new ArrayList(insertables);
+                Collections.sort(l);
+                actionList = l.toArray(new RootInsertable[l.size()]);
+            } else {
+                Class entityClass = entityWrapper.getType();
+                Class insertableClass = insertableMap.get(entityClass.getSimpleName());
+                if (insertableClass == null) {
+                    actionList = new Action[0];
+                } else {
+                    Collection insertables = Lookup.getDefault().lookupAll(insertableClass);
+                    List<? extends Comparable> l = new ArrayList(insertables);
+                    Collections.sort(l);
+                    actionList = l.toArray(new EntityInsertable[l.size()]);
+                }
+
+                if (DataElement.class.isAssignableFrom(entityClass)) {
+                    actionList = appendToArray(actionList, new RevealElementAction((DataElement) entityWrapper.getEntity()));
+                }
+
+                if (AnalysisRecord.class.isAssignableFrom(entityClass)) {
+                    actionList = appendToArray(actionList, SystemAction.get(AnalysisRecordInputsAction.class));
+                }
+
+                if (Epoch.class.isAssignableFrom(entityClass)) {
+                    actionList = appendToArray(actionList, SystemAction.get(EpochInputSourcesAction.class));
+                }
+
+                if (Measurement.class.isAssignableFrom(entityClass)) {
+                    actionList = appendToArray(actionList, SystemAction.get(MeasurementInputSourcesAction.class));
+                }
+
+                //XXX: right now canRename will never change for a given node so it's safe to use it during initialization
+//                if (canRename()) {
+//                    actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
+//                }
+
+                if (OvationEntity.class.isAssignableFrom(entityClass)) {
+                    actionList = appendToArray(actionList, null, SystemAction.get(TrashEntityAction.class));
+                }
+
+            }
+        }
         return actionList;
     }
-   
+
     private static Map<String, Class> createMap() {
         Map<String, Class> insertables = new HashMap<String, Class>();
         insertables.put(Project.class.getSimpleName(), ProjectInsertable.class);

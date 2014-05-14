@@ -7,30 +7,12 @@ package us.physion.ovation.ui.query;
 // import com.objy.db.app.ooId;
 // import com.physion.ebuilder.ExpressionBuilder;
 // import com.physion.ebuilder.expression.ExpressionTree;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.LinkedBlockingDeque;
-import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.awt.*;
-import org.openide.util.Cancellable;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
-import org.openide.util.RequestProcessor;
-import org.openide.util.lookup.ServiceProvider;
-import ovation.*;
-import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.ExpressionTreeProvider;
-import us.physion.ovation.ui.interfaces.QueryListener;
 
 @ActionID(category = "Query",
 id = "us.physion.ovation.ui.query.RunQuery")
@@ -55,16 +37,16 @@ public final class RunQuery implements ActionListener {
 
     // TODO: need expression tree class
     public void actionPerformed(ActionEvent e) {
-        
+
         /*final ExpressionTreeProvider etp = Lookup.getDefault().lookup(ExpressionTreeProvider.class);
         ExpressionTree et = etp.getExpressionTree();
-        
+
         IAuthenticatedDataStoreCoordinator dsc = Lookup.getDefault().lookup(ConnectionProvider.class).getConnection();
         final ExpressionTree result = ExpressionBuilder.editExpression(et).expressionTree;
-       
+
         if (result == null)
             return;
-        
+
         EventQueueUtilities.runOffEDT(new Runnable(){
             @Override
             public void run() {

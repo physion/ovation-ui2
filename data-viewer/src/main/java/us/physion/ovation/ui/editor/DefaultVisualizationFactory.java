@@ -1,6 +1,8 @@
 package us.physion.ovation.ui.editor;
 
-import java.awt.Component;
+import com.google.common.collect.Sets;
+import javax.swing.JComponent;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
 
 /**
@@ -10,7 +12,7 @@ import us.physion.ovation.domain.mixin.DataElement;
 public class DefaultVisualizationFactory implements VisualizationFactory
 {
     @Override
-    public Visualization createVisualization(DataElement r) {
+    public DataVisualization createVisualization(DataElement r) {
         return new DefaultVisualization(r);
     }
 
@@ -18,17 +20,16 @@ public class DefaultVisualizationFactory implements VisualizationFactory
     public int getPreferenceForDataContainer(DataElement r) {
         return 2;
     }
-    
-    class DefaultVisualization implements Visualization
-    {
-        DataElement data;
+
+    class DefaultVisualization extends AbstractDataVisualization    {
+        final DataElement data;
         DefaultVisualization(DataElement d)
         {
-            data =d;
+            data = d;
         }
-        
+
         @Override
-        public Component generatePanel() {
+        public JComponent generatePanel() {
             return new DefaultDataPanel(data);
         }
 
@@ -39,9 +40,14 @@ public class DefaultVisualizationFactory implements VisualizationFactory
 
         @Override
         public void add(DataElement r) {
-            throw new UnsupportedOperationException("Create a new Visualization, rather than adding to an existing one"); 
+            throw new UnsupportedOperationException("Create a new Visualization, rather than adding to an existing one");
         }
-        
+
+        @Override
+        public Iterable<? extends OvationEntity> getEntities() {
+            return Sets.newHashSet(data);
+        }
+
     }
-    
+
 }

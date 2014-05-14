@@ -15,7 +15,7 @@ import javax.swing.tree.TreePath;
  *
  * @author huecotanks
  */
-public class ExpandableJTree extends JTree implements ResizableTree{
+public class ExpandableJTree extends JTree implements ResizableTree {
     
     public ExpandableJTree(DefaultMutableTreeNode root)
     {

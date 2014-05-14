@@ -14,29 +14,27 @@ import java.util.concurrent.ExecutionException;
  *
  * @author jackie
  */
-public class ChartVisualizationFactory implements VisualizationFactory{
+public class ChartVisualizationFactory implements VisualizationFactory {
 
-   @Override
-    public Visualization createVisualization(DataElement r) {
-       
-        if (!NumericDataElements.isNumeric(r))
-        {
+    @Override
+    public DataVisualization createVisualization(DataElement r) {
+
+        if (!NumericDataElements.isNumeric(r)) {
             throw new OvationException("Can only plot Numeric data with the ChartVisualization plugin");
         }
         NumericData data;
-            try {
-                data = NumericDataElements.getNumericData(r).get();
-            } catch (InterruptedException ex) {
-                throw new OvationException(ex.getMessage());
-            } catch (ExecutionException ex) {
-                throw new OvationException(ex.getMessage());
-            }
+        try {
+            data = NumericDataElements.getNumericData(r).get();
+        } catch (InterruptedException ex) {
+            throw new OvationException(ex.getMessage());
+        } catch (ExecutionException ex) {
+            throw new OvationException(ex.getMessage());
+        }
 
-        ChartGroupWrapper g = new ChartGroupWrapper(new DefaultXYDataset(), data);
+        ChartGroupWrapper g = new ChartGroupWrapper(new DefaultXYDataset(), data, r);
         g.setTitle(r.getName());
 
-        for (NumericData.Data d : data.getData().values())
-        {
+        for (NumericData.Data d : data.getData().values()) {
             g.addXYDataset(d);
         }
         return g;
@@ -44,16 +42,17 @@ public class ChartVisualizationFactory implements VisualizationFactory{
 
     @Override
     public int getPreferenceForDataContainer(DataElement r) {
-        if (NumericDataElements.isNumeric(r))
-        {
+        if (NumericDataElements.isNumeric(r)) {
             try {
-                if (NumericDataElements.getNumericData(r).get().getData().size() == 1);
+                if (NumericDataElements.getNumericData(r).get().getData().size() == 1) {
+                    //TODO maybe there's a better way to show single value data?
+                }
             } catch (InterruptedException ex) {
                 return -1;
             } catch (ExecutionException ex) {
                 return -1;
             }
-                return 100;
+            return 100;
         }
         return -1;
     }

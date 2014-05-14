@@ -3,34 +3,48 @@
  * and open the template in the editor.
  */
 package us.physion.ovation.ui.interfaces;
+
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.awt.Point;
 import java.util.*;
 import javax.swing.table.DefaultTableModel;
+import org.openide.util.NbBundle.Messages;
 
 /**
  *
  * @author jackie
  */
+@Messages({
+    "Key_column_name=Key",
+    "Value_column_name=Value"
+})
 public class ParameterTableModel extends DefaultTableModel {
 
-    Map<String, Object> params;
-    boolean uiEditable;// can the values be edited by clicking on them?
-    List<String> keys;
-    String[] columnNames;
-    
+    private Map<String, Object> params;
+    private boolean uiEditable;// can the values be edited by clicking on them?
+    private List<String> keys;
+    private String[] columnNames;
+    private Set<String> removedKeys;
+
     Function<Point, Boolean> editableFunction;
 
     public ParameterTableModel() {
         this(true);
     }
-    
+
     public ParameterTableModel(final boolean uiEditable) {
         super();
-        params = new HashMap<String, Object>();
-        keys = new ArrayList<String>();
+        params = Maps.newHashMap();
+        keys = Lists.newArrayList();
+        removedKeys = Sets.newHashSet();
         this.uiEditable = uiEditable;
-        setColumnNames(new String[]{"Key", "Value"});
+
+        columnNames = new String[]{Bundle.Key_column_name(), Bundle.Value_column_name()};
+
         editableFunction = new Function<Point, Boolean>() {
 
             @Override
@@ -40,23 +54,43 @@ public class ParameterTableModel extends DefaultTableModel {
         };
     }
 
-    public void setParams(Map<String, Object> pp) {
-        params = pp;
-        keys = new ArrayList<String>();
-        keys.addAll(pp.keySet());
-        Collections.sort(keys);
-    }
-    
-    public void setColumnNames(String[] columnNames)
-    {
-        this.columnNames= columnNames;
+    public synchronized Iterable<String> getAndClearRemovedKeys() {
+        Set<String> removed = ImmutableSet.copyOf(removedKeys);
+        removedKeys.clear();
+        
+        return removed;
     }
 
-    public void setEditableFunction(Function<Point, Boolean> editableFunction)
-    {
+    public void setParams(Map<String, Object> pp) {
+        params = Maps.newHashMap(pp);
+        keys = Lists.newArrayList(pp.keySet());
+        Collections.sort(keys);
+    }
+
+    public void addParameter(String key, Object value) {
+        if (keys.contains(key)) {
+            setValueAt(value, keys.indexOf(key), 1);
+        } else {
+            int num = getRowCount();
+            setValueAt(key, num, 0);
+            setValueAt(value, num, 1);
+            this.fireTableRowsInserted(num, num);
+        }
+    }
+
+    public Map<String, Object> getParams() {
+        return params;
+    }
+
+    public void setColumnNames(String[] columnNames) {
+        this.columnNames = columnNames;
+    }
+
+    public void setEditableFunction(Function<Point, Boolean> editableFunction) {
         this.editableFunction = editableFunction;
     }
-    
+
+    @Override
     public int getRowCount() {
         if (params == null) {
             return 0;
@@ -66,15 +100,16 @@ public class ParameterTableModel extends DefaultTableModel {
     }
 
     @Override
-    public boolean isCellEditable(int row, int column)
-    {
+    public boolean isCellEditable(int row, int column) {
         return editableFunction.apply(new Point(row, column));
     }
-    
+
+    @Override
     public int getColumnCount() {
-        return 2;
+        return columnNames.length;
     }
 
+    @Override
     public String getColumnName(int i) {
         return columnNames[i];
     }
@@ -89,132 +124,88 @@ public class ParameterTableModel extends DefaultTableModel {
 
         this.fireTableRowsDeleted(row, row);
     }
-    
-    public int countKeys(String name)
-    {
-        if (!keys.contains(name))
+
+    public int countKeys(String name) {
+        if (!keys.contains(name)) {
             return 0;
-        
-        for (int i = 1; i< keys.size(); i++)
-        {
-            if (!keys.contains(name + "." + i))
+        }
+
+        for (int i = 1; i < keys.size(); i++) {
+            if (!keys.contains(name + "." + i)) {
                 return i;
+            }
         }
         return keys.size();
     }
 
+    @Override
     public Object getValueAt(int row, int column) {
 
         if (row >= keys.size()) {
             return "";
         }
 
-        if (column == 0) {
-            return keys.get(row);
+        Object value;
+        switch (column) {
+            case 0:
+                value = keys.get(row);
+                break;
+            case 1:
+                value = params.get(keys.get(row));
+                break;
+            default:
+                value = "";
         }
-        if (column == 1) {
-            return params.get(keys.get(row));
-        } else {
-            return "";
-        }
+
+        return value;
     }
 
     @Override
     public void setValueAt(Object o, int row, int column) {
 
-        if(column == 0)//setting a key
+        if (column == 0)//setting a key
         {
-            if (params.containsKey(o))
-            {
+            String key = (String) o;
+            if (params.containsKey(key)) {
                 //key already exists, something weird is happening
                 return;
             }
-            if (row >= keys.size())
-            {
-                if (o == null || ((String)o).isEmpty())
+
+            if (row >= keys.size()) {
+                if (o == null || key.isEmpty()) {
                     return;
-                keys.add((String)o);
-                params.put((String)o, "");
-            }else{
-                if (o == null || ((String)o).isEmpty())
-                {
+                }
+                keys.add((String) o);
+                removedKeys.remove(((String) o));
+                params.put((String) o, "");
+            } else {
+                if (o == null || key.isEmpty()) {
+                    removedKeys.add((String) getValueAt(row, column));
                     remove(row);
                     return;
                 }
+
                 String oldKey = keys.get(row);
                 Object oldValue = params.get(oldKey);
                 params.remove(oldKey);
-                params.put((String)o, oldValue);
-                keys.set(row, (String)o);
+                removedKeys.add(oldKey);
+                params.put((String) o, oldValue);
+                keys.set(row, (String) o);
                 //Collections.sort(keys);
             }
-            
-        }else{//setting a value
-            if (row >= keys.size())
-            {
+
+        } else {//setting a value
+            if (row >= keys.size()) {
                 //this is weird. users should insert key first, then value
                 return;
-            }else{
+            } else {
                 //setting a value on an existing key
                 params.put(keys.get(row), o);
                 //Collections.sort(keys);// we sort, in case people have added a new key value pair
             }
         }
-        /*
-        if (row >= keys.size()) {
-            if (column == 0)
-            {
-                if(params.containsKey(o))
-                {
-                    return;
-                }
-                keys.add((String) o);
-                params.put((String) o, "");
-            }
-            else {
-                String key = (String)getValueAt(row, 0);
-                if (key.isEmpty()) {
-                    params.put("<empty>", o);
-                    keys.add("<empty>");
-                    Collections.sort(keys);
-                } else {
-                    params.put(key, o);
-                }
 
-            } 
-        }
-        else {//modifying an existing row
-            if (column == 1) {
-                params.put((String) getValueAt(row, 0), o);
-                Collections.sort(keys);
-            } else {
-                if (o == null || o.equals(""))
-                {
-                    remove(row);
-                    return;
-                }
-                if (!params.containsKey(o)) {
-                    keys.add((String) o);
-                }
-                params.put((String) o, getValueAt(row, 1));
-            }
-        }*/
-    }
-    
-    public void addParameter(String key, Object value)
-    {
-        if (keys.contains(key))
-        {
-            setValueAt(value, keys.indexOf(key), 1);
-        } else {
-            int num = getRowCount();
-            setValueAt(key, num, 0);
-            setValueAt(value, num, 1);
-            this.fireTableRowsInserted(num, num);
-        }
-    }
+        this.fireTableCellUpdated(row, column);
 
-    public Map<String, Object> getParams() {
-        return params;
     }
 }

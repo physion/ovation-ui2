@@ -8,9 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.JCheckBox;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import static us.physion.ovation.ui.browser.insertion.DatePickers.zonedDate;
 import us.physion.ovation.ui.interfaces.DateTimePicker;
 
@@ -158,22 +156,22 @@ public class StartAndEndPanel extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
+                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                             .add(layout.createSequentialGroup()
-                                .addContainerGap()
                                 .add(jLabel2)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(endPanel))
+                                .add(endPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 192, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(layout.createSequentialGroup()
                                 .add(jLabel1)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(startPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)))
+                                .add(startPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 192, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(startZonePicker, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(endZonePicker, 0, 193, Short.MAX_VALUE)))
+                            .add(endZonePicker, 0, 187, Short.MAX_VALUE)))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(includeProtocolInfo)
@@ -190,7 +188,7 @@ public class StartAndEndPanel extends javax.swing.JPanel {
                         .add(startZonePicker)
                         .add(startPanel))
                     .add(jLabel1))
-                .add(11, 11, 11)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(endZonePicker)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
@@ -199,7 +197,7 @@ public class StartAndEndPanel extends javax.swing.JPanel {
                 .add(includeProtocolInfo)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(includeDeviceInfo)
-                .addContainerGap(159, Short.MAX_VALUE))
+                .addContainerGap(164, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

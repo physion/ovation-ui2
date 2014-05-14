@@ -54,7 +54,7 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 public class LoginWindow {
     private final static Color SPINNER_BACKGROUND = Color.WHITE;
     private final static Color ERROR_BACKGROUND = Color.YELLOW;
-    
+
     LoginModel model;
     private CardLayout loginLayout;
     private JPanel loginWithSpinnerPanel;
@@ -64,27 +64,27 @@ public class LoginWindow {
     JDialog dialog;
     JLabel errorMsg;
     JLabel spinner;
-    
+
     public LoginModel showLoginDialog() {
 
         if (dialog == null)
             initWindow();
-        
+
         dialog.setVisible(true);
-        
+
         return model;
     }
 
     private void authenticateInBackgroundThread(final LoginModel m, final Dialog d) {
         //start timer
-        
+
         spinner.setVisible(true);
         loginLayout.last(loginWithSpinnerPanel);
         emailTB.setEditable(false);
         passwordTB.setEditable(false);
-        
+
         final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Login_Window_Authenticating_Progress());
-                
+
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -150,7 +150,7 @@ public class LoginWindow {
             });
         }
     }
-    
+
     private void displayError(final String error)
     {
         EventQueueUtilities.runOnEDT(new Runnable() {
@@ -165,7 +165,7 @@ public class LoginWindow {
                     errorMsg.setText(error);
                     visible = true;
                 }
-                
+
                 if(errorPanel.isVisible() != visible){
                     errorPanel.setVisible(visible);
                     dialog.pack();
@@ -173,21 +173,23 @@ public class LoginWindow {
             }
         });
     }
-    
+
     private void initWindow()
     {
         model = new LoginModel();
         dialog = new JDialog(new JFrame(), Bundle.Login_Window_Title(), true);
+        dialog.setUndecorated(true);
+
         spinner = new JLabel(new ImageIcon(LoginWindow.class.getResource("ajax-loader.gif"))); //NOI18N
         spinner.setVisible(false);
-        
+
         errorMsg = new JLabel();
-        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         final JPanel login = new JPanel();
         login.setBackground(SPINNER_BACKGROUND);
         login.setAlignmentX(Component.LEFT_ALIGNMENT);
-        login.setBorder(new EmptyBorder(15, 15, 15, 15));
+        login.setBorder(new EmptyBorder(25, 15, 15, 15));
         login.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
@@ -196,7 +198,7 @@ public class LoginWindow {
             c.gridwidth = 1;
             c.anchor = GridBagConstraints.WEST;
             c.insets = new Insets(0, 0, 15, 15);
-        
+
         //two text fields
         emailTB = addField(login, Bundle.Login_Window_Email(), 1, false);
         passwordTB = addField(login, Bundle.Login_Window_Password(), 2, true);
@@ -211,12 +213,12 @@ public class LoginWindow {
         c.gridwidth = 1;
         c.anchor = GridBagConstraints.EAST;
         c.insets = new Insets(15, 0, 0, 0);
-        
+
         loginWithSpinnerPanel = new JPanel(loginLayout = new CardLayout());
         loginWithSpinnerPanel.setBackground(SPINNER_BACKGROUND);
         loginWithSpinnerPanel.add(okButton, "login"); //NOI18N
         loginWithSpinnerPanel.add(spinner, "spinner"); //NOI18N
-        
+
         login.add(loginWithSpinnerPanel, c);
 
         okButton.addActionListener(new ActionListener() {
@@ -228,9 +230,9 @@ public class LoginWindow {
                 displayError(null);
                 authenticateInBackgroundThread(model, dialog);
             }
-            
+
         });
-        
+
         c.gridx = 0;
         c.gridwidth = 1;
         final JCheckBox cb = new JCheckBox();
@@ -246,7 +248,7 @@ public class LoginWindow {
                 prefs.putBoolean(SAVE_LOGIN_FOR_OFFLINE, checked);
             }
         });
-        
+
         prefs.addPreferenceChangeListener(new PreferenceChangeListener() {
 
             @Override
@@ -258,14 +260,14 @@ public class LoginWindow {
                 }
             }
         });
-        
+
         login.add(cb, c);
         c.gridwidth = 1;
         c.gridx = 1;
         JLabel rememberMe = new JLabel(Bundle.Login_Window_Remember_Me());
         login.add(rememberMe, c);
-        
-        
+
+
         errorPanel = new JPanel(new BorderLayout()) {
             @Override
             //not resizing the UI if the error text is too long
@@ -283,12 +285,12 @@ public class LoginWindow {
         errorMsg.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         errorPanel.add(errorMsg, BorderLayout.CENTER);
         errorPanel.setVisible(false);
-        
+
         JPanel mainPane = new JPanel(new BorderLayout());
         mainPane.setBackground(SPINNER_BACKGROUND);
         mainPane.add(login, BorderLayout.CENTER);
         mainPane.add(errorPanel, BorderLayout.NORTH);
-        
+
         dialog.getContentPane().setBackground(Color.WHITE);
         dialog.getContentPane().add(mainPane);
         login.getRootPane().setDefaultButton(okButton);
@@ -298,7 +300,7 @@ public class LoginWindow {
         dialog.setLocationRelativeTo(null);
     }
     private static final String SAVE_LOGIN_FOR_OFFLINE = "save-login-for-offline";
-    
+
     private JTextField addField(JPanel form, String name, int row, boolean passwordField) {
         JTextField f;
         if (passwordField)

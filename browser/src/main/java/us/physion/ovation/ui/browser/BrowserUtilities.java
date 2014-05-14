@@ -3,6 +3,7 @@ package us.physion.ovation.ui.browser;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.*;
 
 import java.util.List;
@@ -10,16 +11,19 @@ import java.util.concurrent.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressRunnable;
-import org.netbeans.api.progress.ProgressUtils;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.explorer.ExplorerManager;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.ExpressionTreeProvider;
 import us.physion.ovation.ui.interfaces.QueryListener;
 
@@ -27,7 +31,14 @@ import us.physion.ovation.ui.interfaces.QueryListener;
  *
  * @author jackie
  */
+@Messages({
+    "Reset_Loading_Data=Loading data"
+})
 public class BrowserUtilities {
+    
+    public final static String PROJECT_BROWSER_ID = "ProjectBrowserTopComponent"; //NOI18N
+    public final static String SOURCE_BROWSER_ID = "SourceBrowserTopComponent"; //NOI18N
+    public final static String PROTOCOL_BROWSER_ID = "ProtocolBrowserTopComponent"; //NOI18N
 
     protected static Map<ExplorerManager, TreeFilter> registeredViewManagers = new HashMap<ExplorerManager, TreeFilter>();
     protected static QueryListener ql;
@@ -74,37 +85,55 @@ public class BrowserUtilities {
     static List<EntityWrapper> getEntityList(TreeFilter filter, DataContext ctx) {
         //check that I'm
         QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
-        if (filter.isProjectView()) {
-            List<EntityWrapper> projects = Lists.newArrayList(Iterables.transform(ctx.getProjects(), new Function<Project, EntityWrapper>() {
+        switch (filter.getNavigatorType()) {
+            case PROJECT:
+                List<EntityWrapper> projects = Lists.newArrayList(Iterables.transform(ctx.getProjects(), new Function<Project, EntityWrapper>() {
 
-                @Override
-                public EntityWrapper apply(Project input) {
-                    return new EntityWrapper(input);
-                }
-            }));
-            Collections.sort(projects, new EntityComparator());
-            return projects;
-        } else {
-            List<EntityWrapper> sources = Lists.newArrayList(Iterables.transform(ctx.getTopLevelSources(), new Function<Source, EntityWrapper>() {
+                    @Override
+                    public EntityWrapper apply(Project input) {
+                        return new EntityWrapper(input);
+                    }
+                }));
+                Collections.sort(projects, new EntityComparator());
+                return projects;
 
-                @Override
-                public EntityWrapper apply(Source input) {
-                    return new EntityWrapper(input);
+            case SOURCE:
+                List<EntityWrapper> sources = Lists.newArrayList(Iterables.transform(ctx.getTopLevelSources(), new Function<Source, EntityWrapper>() {
+
+                    @Override
+                    public EntityWrapper apply(Source input) {
+                        return new EntityWrapper(input);
+                    }
+                }));
+                Collections.sort(sources, new EntityComparator());
+                return sources;
+
+            case PROTOCOL:
+                List<Protocol> protocols = Lists.newArrayList(ctx.getProtocols());
+                List<EntityWrapper> protocolWrappers = Lists.newArrayListWithExpectedSize(protocols.size());
+
+                for(Protocol p : protocols) {
+                    protocolWrappers.add(new EntityWrapper(p));
                 }
-            }));
-            Collections.sort(sources, new EntityComparator());
-            return sources;
+
+                Collections.sort(protocolWrappers, new EntityComparator());
+                return protocolWrappers;
         }
+
+        return Lists.newArrayList();
     }
+
 
     public static void resetView() {
         final DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
         final QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
 
-        ProgressUtils.showProgressDialogAndRun(new ProgressRunnable<Void>() {
+        final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Reset_Loading_Data());
+
+        EventQueueUtilities.runOffEDT(new Runnable() {
 
             @Override
-            public Void run(ProgressHandle ph) {
+            public void run() {
                 ctx.getRepository().clear();
 
                 if (qs == null) {
@@ -115,9 +144,37 @@ public class BrowserUtilities {
                 } else {
                     qs.reset();
                 }
-                return null;
             }
-        }, "Loading data...", false);
+        }, ph);
+    }
+    
+    public static ListenableFuture<Void> resetView(String topComponendId) {
+        TopComponent tc = WindowManager.getDefault().findTopComponent(topComponendId);
+        if (!(tc instanceof ExplorerManager.Provider)) {
+            throw new IllegalStateException();
+        }
+
+        final ExplorerManager explorerManager = ((ExplorerManager.Provider) tc).getExplorerManager();
+        
+        final DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+        final QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
+
+        final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Reset_Loading_Data());
+
+        return EventQueueUtilities.runOffEDT(new Runnable() {
+
+            @Override
+            public void run() {
+                ctx.getRepository().clear();
+
+                if (qs == null) {
+                    TreeFilter filter = registeredViewManagers.get(explorerManager);
+                    explorerManager.setRootContext(createRootNode(filter));
+                } else {
+                    qs.reset();
+                }
+            }
+        }, ph);
     }
 
     private static EntityNode createRootNode(final TreeFilter filter) {
@@ -143,21 +200,45 @@ public class BrowserUtilities {
     public static void switchToProjectView() {
         Set<TopComponent> components = TopComponent.getRegistry().getOpened();
         for (TopComponent c : components) {
-            if (c instanceof BrowserTopComponent) {
+            if (c instanceof ProjectBrowserTopComponent) {
                 c.toFront();
                 break;
             }
         }
     }
 
-    protected static void resetView(final ExplorerManager e, final TreeFilter projectView) {
+    public static void switchToProtocolView() {
+        Set<TopComponent> components = TopComponent.getRegistry().getOpened();
+        for (TopComponent c : components) {
+            if (c instanceof ProtocolBrowserTopComponent) {
+                c.toFront();
+                break;
+            }
+        }
+    }
+
+    protected static void resetView(final ExplorerManager e, final TreeFilter filter) {
         final QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
 
         if (qs == null) {
-            e.setRootContext(createRootNode(projectView));
+            e.setRootContext(createRootNode(filter));
         } else {
-            qs.reset(e, projectView);
+            qs.reset(e, filter);
         }
+    }
+    
+    public static void refreshView(String topComponendId) {
+        
+        TopComponent tc = WindowManager.getDefault().findTopComponent(topComponendId);
+        if (!(tc instanceof ExplorerManager.Provider)) {
+            throw new IllegalStateException();
+        }
+        
+//        Node root = ((ExplorerManager.Provider)tc).getExplorerManager().getRootContext();
+//        ((RefreshableNode)root).refresh();
+        
+        resetView(topComponendId);
+
     }
 
     //TODO: uncomment when we have query capabiliites
@@ -179,4 +260,5 @@ public class BrowserUtilities {
      EntityWrapperUtilities.createNodesFromQuery(mgrs, itr);
 
      }*/
+
 }

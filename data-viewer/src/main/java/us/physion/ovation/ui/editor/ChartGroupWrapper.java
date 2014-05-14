@@ -1,6 +1,10 @@
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Sets;
 import java.awt.Font;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -17,16 +21,11 @@ import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.values.NumericData;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
 /**
  *
  * @author huecotanks
  */
-class ChartGroupWrapper implements Visualization
-{
+class ChartGroupWrapper extends AbstractDataVisualization {
     static Logger logger = LoggerFactory.getLogger(ChartGroupWrapper.class);
     DefaultXYDataset _ds;
     String _xAxis;
@@ -34,10 +33,11 @@ class ChartGroupWrapper implements Visualization
     String _title;
     Map<String, Integer> dsCardinality;
 
-    ChartGroupWrapper(DefaultXYDataset ds, NumericData data)
-    {
+    ChartGroupWrapper(DefaultXYDataset ds, NumericData data, DataElement dataElement) {
+        super(Sets.newHashSet(dataElement));
+
         NumericData.Data d = data.getData().values().iterator().next();
-       
+
         String xAxis = convertSamplingRateUnitsToGraphUnits(d.samplingRateUnits[0]);
         String yAxis = d.units;
 
@@ -159,8 +159,10 @@ class ChartGroupWrapper implements Visualization
 
     @Override
     public boolean shouldAdd(DataElement r) {
-        if (!NumericDataElements.isNumeric(r))
+        if (!NumericDataElements.isNumeric(r)) {
             return false;
+        }
+
         NumericData data;
         try {
             data = NumericDataElements.getNumericData(r).get();
@@ -169,13 +171,16 @@ class ChartGroupWrapper implements Visualization
         } catch (ExecutionException ex) {
             throw new OvationException(ex);
         }
+
         if (data.getData().size() == 1) {
             NumericData.Data d = data.getData().values().iterator().next();
             return (d.units.equals(_yAxis)
                     && convertSamplingRateUnitsToGraphUnits(d.samplingRateUnits[0]).equals(_xAxis));
         }
+
         return false;
     }
+
 
     @Override
     public void add(DataElement r) {
@@ -197,6 +202,8 @@ class ChartGroupWrapper implements Visualization
             }
             setTitle(preface + name + ", " + d.name);
         }
+
+        addEntity(r);
     }
 
     protected static String convertSamplingRateUnitsToGraphUnits(String samplingRateUnits) {

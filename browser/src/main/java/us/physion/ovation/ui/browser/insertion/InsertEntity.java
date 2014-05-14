@@ -33,7 +33,7 @@ abstract public class InsertEntity extends AbstractAction implements EntityInser
         wiz.setTitle("Insert Entity");
         if (DialogDisplayer.getDefault().notify(wiz) == WizardDescriptor.FINISH_OPTION) {
             wizardFinished(wiz, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext(), parent);
-            ResettableNode node = getEntityNode();
+            RefreshableNode node = getEntityNode();
             if (node == null)
             {
                 //we've just inserted a root Source or Project, so reset the entire view for now?
@@ -43,7 +43,7 @@ abstract public class InsertEntity extends AbstractAction implements EntityInser
                     b.actionPerformed(null);
                 }
             }else{
-                node.resetNode();
+                node.refresh();
             }
         }
     }
@@ -72,9 +72,9 @@ abstract public class InsertEntity extends AbstractAction implements EntityInser
         return null;
     }
 
-    public ResettableNode getEntityNode()
+    public RefreshableNode getEntityNode()
     {
-        Collection<? extends ResettableNode> entities = Utilities.actionsGlobalContext().lookupResult(ResettableNode.class).allInstances();
+        Collection<? extends RefreshableNode> entities = Utilities.actionsGlobalContext().lookupResult(RefreshableNode.class).allInstances();
         if (entities.size() == 1)
         {
             return entities.iterator().next();

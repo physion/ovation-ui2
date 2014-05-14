@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.interfaces;
 
+import java.awt.Color;
 import java.net.URI;
 import java.util.List;
 import us.physion.ovation.domain.OvationEntity;
@@ -8,22 +9,27 @@ import us.physion.ovation.domain.OvationEntity;
  *
  * @author huecotanks
  */
-public interface IEntityWrapper {
+public interface IEntityWrapper extends PropertyChange {
+
+    public static final String PROP_ENTITY_UPDATE = "entity_update";
+    public static final String PROP_NAME = "name";
 
     String getDisplayName();
 
+    Color getDisplayColor();
+
     OvationEntity getEntity();
-    
+
     OvationEntity getEntity(boolean includingTrash);
-    
+
     <T extends OvationEntity> T getEntity(Class<T> clazz);
 
     Class getType();
 
     String getURI();
-    
+
     List<URI> getFilteredParentURIs();
-    
+
     boolean isLeaf();
 
     public boolean canRename();

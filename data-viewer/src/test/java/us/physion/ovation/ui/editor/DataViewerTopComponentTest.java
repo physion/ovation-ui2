@@ -5,35 +5,35 @@
 package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Sets;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYDataset;
 import org.joda.time.DateTime;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
+import org.openide.nodes.Node;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.TestEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
 import us.physion.ovation.values.NumericData;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 /**
  *
  * @author huecotanks
  */
-public class ResponseViewTopComponentTest extends OvationTestCase{
+public class DataViewerTopComponentTest extends OvationTestCase{
 
-    ResponseViewTopComponent t;
+    DataViewerTopComponent t;
 
     private Epoch epoch;
 
@@ -53,7 +53,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         EpochGroup group = experiment.insertEpochGroup(UNUSED_LABEL, UNUSED_START, null, null, null);
 
         Epoch epoch = group.insertEpoch(UNUSED_START, UNUSED_END, null, null, null);
-        //t = new ResponseViewTopComponent();
+        //t = new DataViewerTopComponent();
         //assertNotNull(Lookup.getDefault().lookup(ConnectionProvider.class));
     }
 
@@ -90,7 +90,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
 
     @Test
     public void testGraphsSelectedEntity() {
-        t = new ResponseViewTopComponent();
+        t = new DataViewerTopComponent();
 
         Measurement r = makeNumericMeasurement();
 
@@ -107,11 +107,11 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
         double[] d = (double[])data.dataArray.get1DJavaArray(Double.class);
 
         Collection entities = Sets.newHashSet(new TestEntityWrapper(ctx, r));
-        List<Visualization> chartWrappers= t.updateEntitySelection(entities, null);
+        List<DataVisualization> chartWrappers= t.updateEntitySelection(entities, null);
 
         assertEquals(chartWrappers.size(), entities.size());
 
-        for (Visualization w : chartWrappers)
+        for (DataVisualization w : chartWrappers)
         {
             if (w instanceof ChartGroupWrapper) {
                 ChartGroupWrapper p = (ChartGroupWrapper) w;
@@ -172,7 +172,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
     @Test
     public void testGraphsMultipleSelectedEntitiesWithSharedUnits()
     {
-        t = new ResponseViewTopComponent();
+        t = new DataViewerTopComponent();
         Collection entities = new HashSet();
         NumericData nd1 = new NumericData();
         double[] d = new double[10000];
@@ -195,12 +195,12 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
 
         entities.add(new TestEntityWrapper(ctx, epoch));
 
-        Collection<Visualization> chartWrappers= t.updateEntitySelection(entities, null);
+        Collection<DataVisualization> chartWrappers= t.updateEntitySelection(entities, null);
 
         assertEquals(1, chartWrappers.size());
 
         Set<String> series = new HashSet();
-        for (Visualization w : chartWrappers)
+        for (DataVisualization w : chartWrappers)
         {
             if (w instanceof ChartGroupWrapper) {
                 ChartGroupWrapper p = (ChartGroupWrapper) w;
@@ -218,7 +218,7 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
     @Test
     public void testGraphsMultipleSelectedEntitiesWithoutSharedUnits()
     {
-        t = new ResponseViewTopComponent();
+        t = new DataViewerTopComponent();
         Collection entities = new HashSet();
         NumericData nd1 = new NumericData();
         double[] d = new double[10000];
@@ -241,12 +241,12 @@ public class ResponseViewTopComponentTest extends OvationTestCase{
 
         entities.add(new TestEntityWrapper(ctx, epoch));
 
-        Collection<Visualization> chartWrappers= t.updateEntitySelection(entities, null);
+        Collection<DataVisualization> chartWrappers= t.updateEntitySelection(entities, null);
 
         assertEquals(2, chartWrappers.size());
 
         Set<String> series = new HashSet();
-        for (Visualization w : chartWrappers)
+        for (DataVisualization w : chartWrappers)
         {
             if (w instanceof ChartGroupWrapper) {
                 ChartGroupWrapper p = (ChartGroupWrapper) w;

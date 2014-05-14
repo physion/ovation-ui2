@@ -4,12 +4,8 @@
  */
 package us.physion.ovation.ui.browser;
 
-import java.net.URI;
-import java.util.ArrayList;
+import com.google.common.collect.Lists;
 import java.util.List;
-import us.physion.ovation.domain.Epoch;
-import us.physion.ovation.domain.EpochGroup;
-import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.exceptions.OvationException;
 
@@ -22,9 +18,10 @@ public class PreloadedEntityWrapper extends EntityWrapper{
     public PreloadedEntityWrapper(OvationEntity e)
     {
         super(e);
-        children = new ArrayList();
+        children = Lists.newArrayList();
     }
-    private List<EntityWrapper> children;
+    private final List<EntityWrapper> children;
+
     public void addChildren(TreeFilter filter, List<OvationEntity> entityChain, OvationEntity last)
     {
         PreloadedEntityWrapper current = this;
@@ -45,7 +42,7 @@ public class PreloadedEntityWrapper extends EntityWrapper{
         }
         current.addChild(new EntityWrapper(last));//add the last child as a non-preloaded entity wrapper
     }
-    
+
     public void addChild(EntityWrapper ew)
     {
         children.add(ew);
@@ -61,7 +58,7 @@ public class PreloadedEntityWrapper extends EntityWrapper{
         }
         return null;
     }
-    
+
     public List<EntityWrapper> getChildren()
     {
         return children;

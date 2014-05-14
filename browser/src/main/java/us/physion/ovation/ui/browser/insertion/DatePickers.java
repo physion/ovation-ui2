@@ -4,8 +4,6 @@
  */
 package us.physion.ovation.ui.browser.insertion;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +29,7 @@ public class DatePickers {
         startPicker.setTimeFormat(DateFormat.getTimeInstance(DateFormat.MEDIUM));
         return startPicker;
     }
+
     static String getID(DateTimePicker p)
     {
         boolean found = false;
@@ -49,6 +48,7 @@ public class DatePickers {
         }
         return id;
     }
+
     static String[] getTimeZoneIDs()
     {
         if (availableIDs == null)
