@@ -106,9 +106,8 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
         });
 
-        addSourcesTextField.setEnabled(getMeasurements().size() > 0);
-
-        updateSources();
+        //addSourcesTextField.setEnabled(getMeasurements().size() > 0);
+        updateInputs();
     }
 
     public Set<? extends OvationEntity> getElements() {
@@ -230,7 +229,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
     private final Map<JComponent, String> components = Maps.newHashMap();
 
-    private void updateSources() {
+    private void updateInputs() {
         final Multimap<String, Source> sources = HashMultimap.create();
         final Multimap<String, DataElement> inputResources = HashMultimap.create();
 
@@ -240,12 +239,11 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
             }
         }
 
-        for (Resource r : getResources()) {
-            for (String s : ((AnalysisRecord) r.getContainingEntity()).getInputs().keySet()) {
-                inputResources.put(s, ((AnalysisRecord) r.getContainingEntity()).getInputs().get(s));
-            }
-        }
-
+//        for (Resource r : getResources()) {
+//            for (String s : ((AnalysisRecord) r.getContainingEntity()).getInputs().keySet()) {
+//                inputResources.put(s, ((AnalysisRecord) r.getContainingEntity()).getInputs().get(s));
+//            }
+//        }
         EventQueueUtilities.runOnEDT(new Runnable() {
 
             @Override
@@ -253,28 +251,32 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                 inputsTextPane.setText("");
 
                 for (Map.Entry<String, Source> namedSource : sources.entries()) {
-                    JPanel sourcePanel = makeSourcePanel(namedSource.getKey(), namedSource.getValue());
-
-                    inputsTextPane.setCaretPosition(inputsTextPane.getDocument().getLength());
-                    inputsTextPane.insertComponent(sourcePanel);
+                    insertInputsPanel(namedSource.getKey(), namedSource.getValue());
 
                 }
 
                 for (Map.Entry<String, DataElement> namedInput : inputResources.entries()) {
-                    //TODO
+//                    insertInputsPanel(namedInput.getKey(), namedInput.getValue());
                 }
             }
         });
 
     }
 
-    private JPanel makeSourcePanel(final String epochSourceName, final Source s) {
+    private void insertInputsPanel(final String label, final OvationEntity entity) {
+        JPanel sourcePanel = makeSourcePanel(label, entity);
+
+        inputsTextPane.setCaretPosition(inputsTextPane.getDocument().getLength());
+        inputsTextPane.insertComponent(sourcePanel);
+    }
+
+    private JPanel makeSourcePanel(final String label, final OvationEntity entity) {
 
         JPanel sourcePanel = new JPanel();
         sourcePanel.setBackground(getBackground());
         sourcePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 3));
 
-        JButton sourceButton = new JButton(epochSourceName);
+        JButton sourceButton = new JButton(label);
 
         sourceButton.setOpaque(true);
         sourceButton.setBackground(Color.white);
@@ -294,11 +296,19 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
                     @Override
                     public void run() {
-                        new OpenNodeInBrowserAction(Lists.newArrayList(s.getURI()),
-                                Joiner.on(",").join(uriStrings),
-                                false,
-                                elementUris,
-                                OpenNodeInBrowserAction.SOURCE_BROWSER_ID).actionPerformed(e);
+                        if (entity instanceof Measurement) {
+                            new OpenNodeInBrowserAction(Lists.newArrayList(entity.getURI()),
+                                    Joiner.on(",").join(uriStrings),
+                                    false,
+                                    elementUris,
+                                    OpenNodeInBrowserAction.SOURCE_BROWSER_ID).actionPerformed(e);
+                        } else {
+                            new OpenNodeInBrowserAction(Lists.newArrayList(entity.getURI()),
+                                    Joiner.on(",").join(uriStrings),
+                                    false,
+                                    elementUris,
+                                    OpenNodeInBrowserAction.PROJECT_BROWSER_ID).actionPerformed(e);
+                        }
                     }
                 });
 
@@ -315,21 +325,30 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                 for (Measurement m : getMeasurements()) {
                     Set<String> sourceNames = Sets.newHashSet(m.getSourceNames());
 
-                    sourceNames.remove(epochSourceName);
+                    sourceNames.remove(label);
                     m.setSourceNames(sourceNames);
 
                     try {
-                        m.getEpoch().removeInputSource(epochSourceName);
+                        m.getEpoch().removeInputSource(label);
                     } catch (IllegalArgumentException ex) {
                         // pass — it's in use by another source
                     }
+                }
+
+                for (Resource dataElement : getResources()) {
+                    if (e instanceof Measurement) {
+                        continue;
+                    }
+
+                    ((AnalysisRecord) dataElement.getContainingEntity()).removeInput(label);
+
                 }
 
                 SwingUtilities.invokeLater(new Runnable() {
 
                     @Override
                     public void run() {
-                        updateSources();
+                        updateInputs();
                     }
 
                 });
@@ -436,7 +455,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                         @Override
                         public void run() {
                             addSourcesTextField.setText("");
-                            updateSources();
+                            updateInputs();
                         }
                     });
 
