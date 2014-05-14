@@ -46,7 +46,7 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
 @Messages({
     "CTL_BrowserAction=Projects Navigator",
     "CTL_BrowserTopComponent=Projects",
-    "HINT_BrowserTopComponent=Browse your Ovation Database",
+    "HINT_BrowserTopComponent=Browse Projects in your Ovation database",
     "HINT_ProjectBrowser_NewProject_Button_FirstRun=Click here to add a new Project",
     "HINT_ProjectBrowser_NewProject_Button=Add a new Project"
 })

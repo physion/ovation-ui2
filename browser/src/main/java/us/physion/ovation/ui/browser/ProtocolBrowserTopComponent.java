@@ -58,7 +58,7 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
 @Messages({
     "CTL_ProtocolBrowserAction=Protocols Navigator",
     "CTL_ProtocolBrowserTopComponent=Protocols",
-    "HINT_ProtocolBrowserTopComponent=Browse your Ovation Database",
+    "HINT_ProtocolBrowserTopComponent=Browse Protocols in your Ovation database",
     "HINT_ProtocolBrowser_NewProtocol_Button=Add a new Protocol"
 })
 public final class ProtocolBrowserTopComponent extends TopComponent implements ExplorerManager.Provider, TreeViewProvider {
