@@ -70,6 +70,7 @@ import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.ui.interfaces.EntityColors;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
 /**
@@ -286,7 +287,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
         sourceButton.setOpaque(true);
         sourceButton.setBackground(Color.white);
-        sourceButton.setForeground(new Color(161, 37, 127)); //TODO Source colors?
+        sourceButton.setForeground(EntityColors.getEntityColor(entity.getClass()));
         sourceButton.setBorder(null);
         final List<String> uriStrings = Lists.newArrayList();
         final List<URI> elementUris = Lists.newArrayList();
