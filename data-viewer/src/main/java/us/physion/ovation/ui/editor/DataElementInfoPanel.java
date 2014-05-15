@@ -438,7 +438,11 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                         Epoch epoch = m.getEpoch();
 
                         for (Source s : sources) {
-                            String epochId = s.getURI().toString();
+                            String epochId = s.getLabel() + " (" + s.getIdentifier() + ")"; //s.getURI().toString();
+                            if (!s.equals(epoch.getInputSources().get(epochId))) {
+                                epochId = s.getLabel() + " (" + s.getIdentifier() + "; " + s.getURI().toString() + ")";
+                            }
+                            
                             if (!epoch.getInputSources().containsValue(s)) {
                                 ctx.beginTransaction();
                                 try {

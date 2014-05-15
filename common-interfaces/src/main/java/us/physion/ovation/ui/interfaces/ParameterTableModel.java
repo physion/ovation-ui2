@@ -19,7 +19,7 @@ import org.openide.util.NbBundle.Messages;
  * @author jackie
  */
 @Messages({
-    "Key_column_name=Key",
+    "Key_column_name=Parameter Name",
     "Value_column_name=Value"
 })
 public class ParameterTableModel extends DefaultTableModel {
@@ -57,7 +57,7 @@ public class ParameterTableModel extends DefaultTableModel {
     public synchronized Iterable<String> getAndClearRemovedKeys() {
         Set<String> removed = ImmutableSet.copyOf(removedKeys);
         removedKeys.clear();
-        
+
         return removed;
     }
 

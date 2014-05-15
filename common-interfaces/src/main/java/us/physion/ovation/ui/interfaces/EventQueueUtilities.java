@@ -5,12 +5,14 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.awt.EventQueue;
-import javax.swing.SwingUtilities;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import javax.swing.SwingUtilities;
 import org.netbeans.api.progress.ProgressHandle;
+import us.physion.ovation.exceptions.OvationException;
 
 public class EventQueueUtilities
 {
@@ -24,7 +26,7 @@ public class EventQueueUtilities
 	    SwingUtilities.invokeLater(r);
 	}
     }
-    
+
     public static void runOnEDT(Runnable r, ProgressHandle ph) {
 	if (EventQueue.isDispatchThread()) {
             ph.start();
@@ -36,7 +38,7 @@ public class EventQueueUtilities
             finish(ph);
 	}
     }
-    
+
     public static void runAndWaitOnEDT(Runnable r) throws InterruptedException {
 	if (EventQueue.isDispatchThread()) {
 	    r.run();
@@ -49,7 +51,7 @@ public class EventQueueUtilities
             }
 	}
     }
-    
+
     public static Future runOffEDT(Runnable r) {
 	if (EventQueue.isDispatchThread()) {
 	    return executorService.submit(r);
@@ -59,30 +61,30 @@ public class EventQueueUtilities
 	    return t;
 	}
     }
-    
+
     private static void start(final ProgressHandle ph)
     {
         runOnEDT(new Runnable(){
 
                         @Override
                         public void run() {
-                            ph.start();                        
+                            ph.start();
                         }
                     });
     }
-    
+
     private static void finish(final ProgressHandle ph)
     {
         runOnEDT(new Runnable(){
 
                         @Override
                         public void run() {
-                            ph.finish();                        
+                            ph.finish();
                         }
                     });
     }
-    
-    
+
+
     public static ListenableFuture<Void> runOffEDT(Runnable r, final ProgressHandle ph) {
         if (EventQueue.isDispatchThread()) {
             start(ph);
@@ -104,6 +106,35 @@ public class EventQueueUtilities
             r.run();
             finish(ph);
             return Futures.immediateFuture(null);
+        }
+    }
+
+    public static <T> ListenableFuture<T> runOffEDT(Callable<T> r, final ProgressHandle ph) {
+        if (EventQueue.isDispatchThread()) {
+            start(ph);
+            ListenableFuture<T> f = executorService.submit(r);
+            Futures.addCallback(f, new FutureCallback() {
+                @Override
+                public void onSuccess(Object result) {
+                    finish(ph);
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    finish(ph);
+                }
+            });
+            return f;
+        } else {
+            start(ph);
+            T result;
+            try {
+                result = r.call();
+            } catch (Exception ex) {
+                throw new OvationException("Operation failed", ex);
+            }
+            finish(ph);
+            return Futures.immediateFuture(result);
         }
     }
 }
