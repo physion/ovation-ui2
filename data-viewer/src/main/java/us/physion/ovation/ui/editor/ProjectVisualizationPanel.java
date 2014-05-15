@@ -18,6 +18,9 @@ package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.concurrent.Callable;
 import javax.swing.SwingUtilities;
 import org.joda.time.DateTime;
 import org.netbeans.api.progress.ProgressHandle;
@@ -134,28 +138,43 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                     throw new IllegalStateException();
                 }
 
-                TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
+                final TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
 
                 view.expandNode((Node) node);
 
-                EventQueueUtilities.runOffEDT(new Runnable() {
+
+
+                ListenableFuture<AnalysisRecord> addRecord = EventQueueUtilities.runOffEDT(new Callable<AnalysisRecord>() {
 
                     @Override
-                    public void run() {
-                        addAnalysisRecord(files);
-                        EventQueueUtilities.runOnEDT(new Runnable() {
+                    public AnalysisRecord call() {
+                        return addAnalysisRecord(files);
+                    }
+                }, ph);
+
+                Futures.addCallback(addRecord, new FutureCallback<AnalysisRecord>() {
+
+                    @Override
+                    public void onSuccess(final AnalysisRecord v) {
+                        SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
-                                node.refresh();
+                                new OpenNodeInBrowserAction(OpenNodeInBrowserAction.PROJECT_BROWSER_ID,
+                                        Lists.newArrayList(v.getURI())).actionPerformed(new ActionEvent(this, 0, ""));
                             }
                         });
                     }
-                }, ph);
+
+                    @Override
+                    public void onFailure(Throwable thrwbl) {
+                        logger.error("Unable to add analysis record to project", thrwbl);
+                    }
+                });
             }
         });
     }
 
-    private void addAnalysisRecord(File[] files) {
+    private AnalysisRecord addAnalysisRecord(File[] files) {
         getContext().beginTransaction();
         try {
             AnalysisRecord ar = getProject().addAnalysisRecord(Bundle.Project_New_Analysis_Record_Name(),
@@ -187,6 +206,8 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
             getContext().markModified(getProject());
             getContext().commitTransaction();
+
+            return ar;
         } catch (Throwable t) {
             getContext().abortTransaction();
             throw new OvationException(t);

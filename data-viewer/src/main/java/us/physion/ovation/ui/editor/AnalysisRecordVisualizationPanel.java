@@ -51,6 +51,8 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -172,9 +174,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                for (DataElement dataElement : showAddInputsDialog()) {
-                    getAnalysisRecord().addInput(dataElement.getName(), dataElement);
-                }
+                addInputsFromDialog();
             }
 
         });
@@ -250,6 +250,40 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
             invalidate();
         }
 
+        addInputButton.addAncestorListener(new AncestorListener() {
+            @Override
+            public void ancestorAdded(AncestorEvent event) {
+                if (addInputButton.isShowing()
+                        && getAnalysisRecord().getInputs().isEmpty()) {
+                    SwingUtilities.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            addInputsFromDialog();
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void ancestorMoved(AncestorEvent event) {
+                // Component container moved
+            }
+
+            @Override
+            public void ancestorRemoved(AncestorEvent event) {
+                // Componnent container removed
+            }
+        });
+
+
+
+    }
+
+    private void addInputsFromDialog() {
+        for (DataElement dataElement : showAddInputsDialog()) {
+            getAnalysisRecord().addInput(dataElement.getName(), dataElement);
+        }
     }
 
     public static final String PROP_INPUT_NAMES = "inputNames";
