@@ -70,6 +70,7 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
             final Area border) {
 
         super(parent, modal);
+        
 
         explorerManager = new ExplorerManager();
         lookup = ExplorerUtils.createLookup(explorerManager, getRootPane().getActionMap());

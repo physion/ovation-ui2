@@ -51,8 +51,6 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -92,12 +90,12 @@ import us.physion.ovation.util.PlatformUtils;
 @NbBundle.Messages({
     "AnalysisRecord_No_protocol=(No protocol)",
     "AnalysisRecord_Adding_Outputs=Adding outputs...",
-    "AnalysisRecord_Add_Input=Add..."
+    "AnalysisRecord_Add_Input=Add...",
+    "AnalysisRecord_Drop_Files_To_Add_Outputs=Drop files to add outputs"
 })
 public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualizationPanel
         implements ExplorerManager.Provider, Lookup.Provider {
 
-    FileDrop dropListener;
     private final ExplorerManager explorerManager;
     private final Lookup treeLookup;
     private List<String> selectedInputNames;
@@ -209,11 +207,10 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
         removeInputButton.setEnabled(false);
 
-        dropListener = new FileDrop(this, new FileDrop.Listener() {
-
+        outputsFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.AnalysisRecord_Drop_Files_To_Add_Outputs()) {
+            
             @Override
             public void filesDropped(final File[] files) {
-
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.AnalysisRecord_Adding_Outputs());
 
                 TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
@@ -240,6 +237,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
                 }, ph);
             }
         });
+        
 
         if (PlatformUtils.isMac()) {
             addInputButton.putClientProperty("JButton.buttonType", "gradient");
@@ -249,35 +247,6 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
             //removeInputButton.setPreferredSize(new Dimension(34, 34));
             invalidate();
         }
-
-        addInputButton.addAncestorListener(new AncestorListener() {
-            @Override
-            public void ancestorAdded(AncestorEvent event) {
-                if (addInputButton.isShowing()
-                        && getAnalysisRecord().getInputs().isEmpty()) {
-                    SwingUtilities.invokeLater(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            addInputsFromDialog();
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void ancestorMoved(AncestorEvent event) {
-                // Component container moved
-            }
-
-            @Override
-            public void ancestorRemoved(AncestorEvent event) {
-                // Componnent container removed
-            }
-        });
-
-
-
     }
 
     private void addInputsFromDialog() {
@@ -323,7 +292,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
         targetBounds.setLocation(screenLoc);
 
-        Area targetShape = makePopOverShape(targetBounds);
+        Area targetShape = makePopOverShape(targetBounds, SwingUtilities.EAST);
 
         SelectDataElementsDialog addDialog = new SelectDataElementsDialog((JFrame) SwingUtilities.getRoot(AnalysisRecordVisualizationPanel.this),
                 true,
@@ -347,7 +316,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         return result;
     }
 
-    private List<DataElement> getDataElementsFromEntity(OvationEntity e) {
+    public static List<DataElement> getDataElementsFromEntity(OvationEntity e) {
 
         List<DataElement> result = Lists.newLinkedList();
 
@@ -404,28 +373,39 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
     private static final double TIP_WIDTH = 20;
 
-    private Area makePopOverShape(Rectangle2D targetBounds) {
+    public static Area makePopOverShape(Rectangle2D targetBounds, int direction) {
 
-        Rectangle2D contentBounds = new Rectangle2D.Double(targetBounds.getMaxX() + TIP_WIDTH,
+        double offset;
+        switch(direction) {
+            case SwingUtilities.WEST:
+                offset = -TIP_WIDTH;
+                break;
+            case SwingUtilities.EAST:
+                offset = TIP_WIDTH;
+                break;
+            default:
+                throw new IllegalArgumentException("direction");
+        }
+        Rectangle2D contentBounds = new Rectangle2D.Double(targetBounds.getMaxX() + offset,
                 targetBounds.getY(),
                 targetBounds.getWidth(),
                 targetBounds.getHeight());
 
         RoundRectangle2D roundedContentBounds = new RoundRectangle2D.Double(contentBounds.getX(),
-                contentBounds.getY() - TIP_WIDTH / 2,
-                contentBounds.getWidth() + TIP_WIDTH,
-                contentBounds.getHeight() + TIP_WIDTH,
+                contentBounds.getY() - offset / 2,
+                contentBounds.getWidth() + offset,
+                contentBounds.getHeight() + offset,
                 TIP_WIDTH / 4,
                 TIP_WIDTH / 4);
 
         Area result = new Area(roundedContentBounds);
 
-        Point2D tip = new Point2D.Double(roundedContentBounds.getX() - TIP_WIDTH, roundedContentBounds.getCenterY());
+        Point2D tip = new Point2D.Double(roundedContentBounds.getX() - offset, roundedContentBounds.getCenterY());
 
         GeneralPath gp = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
         gp.moveTo(tip.getX(), tip.getY());
-        gp.lineTo(tip.getX() + TIP_WIDTH, tip.getY() + TIP_WIDTH);
-        gp.lineTo(tip.getX() + TIP_WIDTH, tip.getY() - TIP_WIDTH);
+        gp.lineTo(tip.getX() + offset, tip.getY() + offset);
+        gp.lineTo(tip.getX() + offset, tip.getY() - offset);
         gp.lineTo(tip.getX(), tip.getY());
         gp.closePath();
 
@@ -436,7 +416,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
     private void addInputs(Rectangle2D targetBounds) {
 
-        final Area popoverShape = new Area(makePopOverShape(targetBounds));
+        final Area popoverShape = new Area(makePopOverShape(targetBounds, SwingUtilities.EAST));
 
         final JPanel popover = new JPanel() {
             @Override
@@ -547,7 +527,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         protocolComboBox = new javax.swing.JComboBox();
         jScrollPane2 = new javax.swing.JScrollPane();
         parametersTable = new javax.swing.JTable();
-        jLabel3 = new javax.swing.JLabel();
+        outputsFileWell = new us.physion.ovation.ui.editor.FileWell();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
 
@@ -665,10 +645,6 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
                 .addContainerGap())
         );
 
-        jLabel3.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
-        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(AnalysisRecordVisualizationPanel.class, "AnalysisRecordVisualizationPanel.jLabel3.text")); // NOI18N
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -676,7 +652,6 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -684,7 +659,8 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(inputsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(protocolPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(protocolPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(outputsFileWell, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -698,9 +674,9 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(inputsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(protocolPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, Short.MAX_VALUE)
-                .addComponent(jLabel3)
-                .addContainerGap())
+                .addGap(18, 18, 18)
+                .addComponent(outputsFileWell, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(41, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -714,9 +690,9 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
     private javax.swing.JScrollPane inputsScrollPane;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField nameField;
+    private us.physion.ovation.ui.editor.FileWell outputsFileWell;
     private javax.swing.JTable parametersTable;
     private javax.swing.JComboBox protocolComboBox;
     private javax.swing.JPanel protocolPanel;

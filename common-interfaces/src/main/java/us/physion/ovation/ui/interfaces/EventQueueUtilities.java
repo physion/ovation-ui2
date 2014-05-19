@@ -26,6 +26,7 @@ public class EventQueueUtilities
 	    SwingUtilities.invokeLater(r);
 	}
     }
+    
 
     public static void runOnEDT(Runnable r, ProgressHandle ph) {
 	if (EventQueue.isDispatchThread()) {

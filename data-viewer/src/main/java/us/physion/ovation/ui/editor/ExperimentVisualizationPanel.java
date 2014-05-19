@@ -18,14 +18,12 @@ package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import javax.swing.BorderFactory;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import org.joda.time.DateTime;
@@ -53,7 +51,8 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
  */
 @Messages({
     "Adding_measurements=Adding measurements…",
-    "Experiment_No_protocol=(No protocol)"
+    "Experiment_No_protocol=(No protocol)",
+    "Experiment_Drop_Files_To_Add_Data=Drop files here to add data"
 })
 public class ExperimentVisualizationPanel extends AbstractContainerVisualizationPanel {
 
@@ -139,14 +138,13 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
             }
         });
 
-        dropPanel.setBorder(BorderFactory.createDashedBorder(Color.gray, 3, 5, 3, true));
+        String prompt = Bundle.Experiment_Drop_Files_To_Add_Data();
         
         
-        dropPanelListener = new FileDrop(dropPanelContainer, new FileDrop.Listener() {
-
+        fileWell.setDelegate(new FileWell.AbstractDelegate(prompt) {
+            
             @Override
             public void filesDropped(final File[] files) {
-
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
 
                 TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
@@ -173,6 +171,7 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 }, ph);
             }
         });
+        
         
 
         /*
@@ -268,9 +267,7 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
         jScrollPane2 = new javax.swing.JScrollPane();
         protocolParametersTable = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
-        dropPanelContainer = new javax.swing.JPanel();
-        dropPanel = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
+        fileWell = new us.physion.ovation.ui.editor.FileWell();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -365,36 +362,6 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 .addContainerGap())
         );
 
-        dropPanelContainer.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
-        dropPanelContainer.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        dropPanelContainer.setMinimumSize(new java.awt.Dimension(100, 100));
-
-        dropPanel.setLayout(new java.awt.BorderLayout());
-
-        jLabel3.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
-        jLabel3.setForeground(java.awt.Color.darkGray);
-        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.jLabel3.text")); // NOI18N
-        jLabel3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        dropPanel.add(jLabel3, java.awt.BorderLayout.CENTER);
-
-        javax.swing.GroupLayout dropPanelContainerLayout = new javax.swing.GroupLayout(dropPanelContainer);
-        dropPanelContainer.setLayout(dropPanelContainerLayout);
-        dropPanelContainerLayout.setHorizontalGroup(
-            dropPanelContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(dropPanelContainerLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(dropPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        dropPanelContainerLayout.setVerticalGroup(
-            dropPanelContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(dropPanelContainerLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(dropPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -413,7 +380,7 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(dropPanelContainer, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(fileWell, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(titleLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -436,7 +403,7 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(dropPanelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(fileWell, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(165, Short.MAX_VALUE))
         );
 
@@ -446,11 +413,9 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel dateEntryLabel;
-    private javax.swing.JPanel dropPanel;
-    private javax.swing.JPanel dropPanelContainer;
+    private us.physion.ovation.ui.editor.FileWell fileWell;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
