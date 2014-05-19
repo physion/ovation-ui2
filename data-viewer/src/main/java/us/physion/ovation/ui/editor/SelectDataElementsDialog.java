@@ -70,7 +70,6 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
             final Area border) {
 
         super(parent, modal);
-        
 
         explorerManager = new ExplorerManager();
         lookup = ExplorerUtils.createLookup(explorerManager, getRootPane().getActionMap());
@@ -79,36 +78,42 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
 
         setUndecorated(true);
 
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        final GraphicsDevice gd = ge.getDefaultScreenDevice();
+        if (border != null) {
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            final GraphicsDevice gd = ge.getDefaultScreenDevice();
 
-        //If shaped windows are supported, set shape else set size
-        addComponentListener(new ComponentAdapter() {
-            // If the window is resized, the shape is recalculated here.
-            @Override
-            public void componentResized(ComponentEvent e) {
-                //setSize(border.getBounds().getSize());
-                if (gd.isWindowTranslucencySupported(PERPIXEL_TRANSPARENT)) {
+            //If shaped windows are supported, set shape else set size
+            addComponentListener(new ComponentAdapter() {
+                // If the window is resized, the shape is recalculated here.
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    //setSize(border.getBounds().getSize());
+                    if (gd.isWindowTranslucencySupported(PERPIXEL_TRANSPARENT)) {
 
-                    Point loc = border.getBounds().getLocation();
-                    Area windowBorder = border.createTransformedArea(AffineTransform.getTranslateInstance(-loc.getX(), -loc.getY()));
+                        Point loc = border.getBounds().getLocation();
+                        Area windowBorder = border.createTransformedArea(AffineTransform.getTranslateInstance(-loc.getX(), -loc.getY()));
 
-                    //setShape(windowBorder);
-                    setSize(windowBorder.getBounds().getSize());
-                } else {
-                    setSize(border.getBounds().getSize());
+                        //setShape(windowBorder);
+                        setSize(windowBorder.getBounds().getSize());
+                    } else {
+                        setSize(border.getBounds().getSize());
+                    }
                 }
+            });
+
+            setLocation(border.getBounds().getLocation());
+
+            if (gd.isWindowTranslucencySupported(TRANSLUCENT)) {
+                setOpacity(0.9f);
             }
-        });
-
-        setLocation(border.getBounds().getLocation());
-
-        if (gd.isWindowTranslucencySupported(TRANSLUCENT)) {
-            setOpacity(0.9f);
         }
 
         initComponents();
         initUi();
+        
+        if(border == null) { // No border, center on screen
+            setLocationRelativeTo(null);
+        }
     }
 
     private void initUi() {

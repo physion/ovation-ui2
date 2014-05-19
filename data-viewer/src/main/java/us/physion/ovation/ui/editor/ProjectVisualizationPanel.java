@@ -22,12 +22,9 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Area;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -35,7 +32,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.swing.JFrame;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import org.joda.time.DateTime;
 import org.netbeans.api.progress.ProgressHandle;
@@ -183,11 +179,11 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
             @Override
             public void filesDropped(final File[] files) {
                 
-                final List<DataElement> inputs = Lists.newArrayList();//Lists.newArrayList(showInputsDialog());
+                final List<DataElement> inputs = Lists.newArrayList(showInputsDialog());
                 
-//                if(inputs.isEmpty()) {
-//                    return;
-//                }
+                if(inputs.isEmpty()) {
+                    return;
+                }
                 
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.AnalysisRecord_Adding_Outputs());
 
@@ -249,21 +245,9 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
     }
     
     private Iterable<DataElement> showInputsDialog() {
-        Rectangle targetBounds = SwingUtilities.convertRectangle(analysisFileWell,
-                analysisFileWell.getBounds(),
-                this);
-
-        Point screenLoc = new Point(targetBounds.getLocation());
-        SwingUtilities.convertPointToScreen(screenLoc,
-                this);
-
-        targetBounds.setLocation(screenLoc);
-
-        Area targetShape = AnalysisRecordVisualizationPanel.makePopOverShape(targetBounds, SwingConstants.WEST);
-
         SelectDataElementsDialog addDialog = new SelectDataElementsDialog((JFrame) SwingUtilities.getRoot(this),
                 true,
-                targetShape);
+                null);
 
         addDialog.setVisible(true);
 
