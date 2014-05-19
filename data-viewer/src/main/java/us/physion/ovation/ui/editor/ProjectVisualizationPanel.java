@@ -18,6 +18,7 @@ package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -40,6 +41,7 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.AnalysisRecord;
+import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.mixin.DataElement;
@@ -61,7 +63,8 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
 })
 public class ProjectVisualizationPanel extends AbstractContainerVisualizationPanel {
 
-    FileDrop dropListener;
+    FileDrop analysisDropListener;
+    FileDrop experimentDropListener;
 
     /**
      * Creates new form ProjectVisualizationPanel
@@ -103,30 +106,58 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                final Experiment exp = getProject().insertExperiment(Bundle.Default_Experiment_Purpose(), new DateTime());
-
-                node.refresh();
-
-                TopComponent projectBrowser = WindowManager.getDefault().findTopComponent(BrowserUtilities.PROJECT_BROWSER_ID);
-
-                final TreeView tree = (TreeView) ((TreeViewProvider) projectBrowser).getTreeView();
-
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        tree.expandNode((Node) node);
-                        new OpenNodeInBrowserAction(Lists.newArrayList(exp.getURI()),
-                                null,
-                                false,
-                                Lists.<URI>newArrayList(),
-                                OpenNodeInBrowserAction.PROJECT_BROWSER_ID).actionPerformed(e);
-                    }
-                });
+                addExperiment(e);
 
             }
         });
 
-        dropListener = new FileDrop(this, new FileDrop.Listener() {
+        experimentDropListener = new FileDrop(experimentDropPanelContainer, new FileDrop.Listener() {
+
+            @Override
+            public void filesDropped(final File[] files) {
+                ListenableFuture<Experiment> addExp = addExperiment(new ActionEvent(this, 0, "experiment"));
+                Futures.addCallback(addExp, new FutureCallback<Experiment>() {
+
+                    @Override
+                    public void onSuccess(final Experiment result) {
+                        final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
+
+                        TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
+                        if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
+                            throw new IllegalStateException();
+                        }
+
+                        TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
+
+                        view.expandNode((Node) node);
+
+                        new OpenNodeInBrowserAction(OpenNodeInBrowserAction.PROJECT_BROWSER_ID,
+                                Lists.newArrayList(result.getURI())).actionPerformed(new ActionEvent(this, 0, ""));
+
+                        EventQueueUtilities.runOffEDT(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                insertMeasurements(result, files);
+                                EventQueueUtilities.runOnEDT(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        node.refresh();
+                                    }
+                                });
+                            }
+                        }, ph);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        logger.error("Unable to add measurements", t);
+                    }
+                });
+            }
+        });
+
+        analysisDropListener = new FileDrop(analysisDropPanelContainer, new FileDrop.Listener() {
 
             @Override
             public void filesDropped(final File[] files) {
@@ -141,8 +172,6 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                 final TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
 
                 view.expandNode((Node) node);
-
-
 
                 ListenableFuture<AnalysisRecord> addRecord = EventQueueUtilities.runOffEDT(new Callable<AnalysisRecord>() {
 
@@ -174,11 +203,73 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         });
     }
 
+    private void insertMeasurements(Experiment exp, File[] files) {
+        DateTime start = new DateTime();
+        DateTime end = new DateTime();
+
+        for (File f : files) {
+            DateTime lastModified = new DateTime(f.lastModified());
+            if (lastModified.isBefore(end)) {
+                end = lastModified;
+            }
+
+            if (start.isBefore(lastModified)) {
+                start = lastModified;
+            }
+
+        }
+
+        Epoch e = exp.insertEpoch(start,
+                end,
+                null,
+                Maps.<String, Object>newHashMap(),
+                Maps.<String, Object>newHashMap());
+
+        for (File f : files) {
+            try {
+                e.insertMeasurement(f.getName(),
+                        Sets.<String>newHashSet(),
+                        Sets.<String>newHashSet(),
+                        f.toURI().toURL(),
+                        ContentTypes.getContentType(f));
+            } catch (MalformedURLException ex) {
+                Toolkit.getDefaultToolkit().beep();
+            } catch (IOException ex) {
+                Toolkit.getDefaultToolkit().beep();
+            }
+        }
+    }
+
+    private ListenableFuture<Experiment> addExperiment(final ActionEvent e) {
+        final Experiment exp = getProject().insertExperiment(Bundle.Default_Experiment_Purpose(), new DateTime());
+
+        node.refresh();
+
+        TopComponent projectBrowser = WindowManager.getDefault().findTopComponent(BrowserUtilities.PROJECT_BROWSER_ID);
+
+        final TreeView tree = (TreeView) ((TreeViewProvider) projectBrowser).getTreeView();
+
+        return EventQueueUtilities.runOffEDT(new Callable<Experiment>() {
+            @Override
+            public Experiment call() throws Exception {
+                tree.expandNode((Node) node);
+                new OpenNodeInBrowserAction(Lists.newArrayList(exp.getURI()),
+                        null,
+                        false,
+                        Lists.<URI>newArrayList(),
+                        OpenNodeInBrowserAction.PROJECT_BROWSER_ID).actionPerformed(e);
+
+                return exp;
+            }
+
+        });
+    }
+
     private AnalysisRecord addAnalysisRecord(File[] files) {
         getContext().beginTransaction();
         try {
             AnalysisRecord ar = getProject().addAnalysisRecord(Bundle.Project_New_Analysis_Record_Name(),
-                    Maps.<String,DataElement>newHashMap(),
+                    Maps.<String, DataElement>newHashMap(),
                     null,
                     Maps.<String, Object>newHashMap());
 
@@ -240,7 +331,13 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         projectNameField = new javax.swing.JTextField();
         startZoneComboBox = new javax.swing.JComboBox();
         addExperimentButton = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        dropPanelContainer = new javax.swing.JPanel();
+        experimentDropPanelContainer = new javax.swing.JPanel();
+        experimentDropPanel = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        analysisDropPanelContainer = new javax.swing.JPanel();
+        analysisDropPanel = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
 
@@ -276,9 +373,72 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
         org.openide.awt.Mnemonics.setLocalizedText(addExperimentButton, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.addExperimentButton.text")); // NOI18N
 
-        jLabel1.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.jLabel1.text")); // NOI18N
+        dropPanelContainer.setBackground(java.awt.Color.white);
+        dropPanelContainer.setLayout(new java.awt.GridLayout());
+
+        experimentDropPanelContainer.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
+        experimentDropPanelContainer.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        experimentDropPanelContainer.setMinimumSize(new java.awt.Dimension(150, 100));
+
+        experimentDropPanel.setLayout(new java.awt.BorderLayout());
+
+        jLabel3.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
+        jLabel3.setForeground(java.awt.Color.darkGray);
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.jLabel3.text")); // NOI18N
+        jLabel3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        experimentDropPanel.add(jLabel3, java.awt.BorderLayout.CENTER);
+
+        javax.swing.GroupLayout experimentDropPanelContainerLayout = new javax.swing.GroupLayout(experimentDropPanelContainer);
+        experimentDropPanelContainer.setLayout(experimentDropPanelContainerLayout);
+        experimentDropPanelContainerLayout.setHorizontalGroup(
+            experimentDropPanelContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(experimentDropPanelContainerLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(experimentDropPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        experimentDropPanelContainerLayout.setVerticalGroup(
+            experimentDropPanelContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(experimentDropPanelContainerLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(experimentDropPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        dropPanelContainer.add(experimentDropPanelContainer);
+
+        analysisDropPanelContainer.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
+        analysisDropPanelContainer.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        analysisDropPanelContainer.setMinimumSize(new java.awt.Dimension(150, 100));
+
+        analysisDropPanel.setLayout(new java.awt.BorderLayout());
+
+        jLabel4.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
+        jLabel4.setForeground(java.awt.Color.darkGray);
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.jLabel4.text")); // NOI18N
+        jLabel4.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        analysisDropPanel.add(jLabel4, java.awt.BorderLayout.CENTER);
+
+        javax.swing.GroupLayout analysisDropPanelContainerLayout = new javax.swing.GroupLayout(analysisDropPanelContainer);
+        analysisDropPanelContainer.setLayout(analysisDropPanelContainerLayout);
+        analysisDropPanelContainerLayout.setHorizontalGroup(
+            analysisDropPanelContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(analysisDropPanelContainerLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(analysisDropPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        analysisDropPanelContainerLayout.setVerticalGroup(
+            analysisDropPanelContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(analysisDropPanelContainerLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(analysisDropPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        dropPanelContainer.add(analysisDropPanelContainer);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -287,7 +447,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(projectTitleLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -301,7 +461,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                                 .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(addExperimentButton))
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(dropPanelContainer, javax.swing.GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -322,8 +482,8 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                 .addGap(18, 18, 18)
                 .addComponent(addExperimentButton)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(dropPanelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(99, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -332,8 +492,14 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addExperimentButton;
+    private javax.swing.JPanel analysisDropPanel;
+    private javax.swing.JPanel analysisDropPanelContainer;
     private javax.swing.JLabel dateLabel;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel dropPanelContainer;
+    private javax.swing.JPanel experimentDropPanel;
+    private javax.swing.JPanel experimentDropPanelContainer;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField projectNameField;
     private javax.swing.JLabel projectTitleLabel;

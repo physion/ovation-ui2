@@ -18,12 +18,14 @@ package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import javax.swing.BorderFactory;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import org.joda.time.DateTime;
@@ -137,7 +139,10 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
             }
         });
 
-        dropPanelListener = new FileDrop(this, new FileDrop.Listener() {
+        dropPanel.setBorder(BorderFactory.createDashedBorder(Color.gray, 3, 5, 3, true));
+        
+        
+        dropPanelListener = new FileDrop(dropPanelContainer, new FileDrop.Listener() {
 
             @Override
             public void filesDropped(final File[] files) {
@@ -168,6 +173,7 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 }, ph);
             }
         });
+        
 
         /*
          AutoCompleteDecorator.decorate(protocolComboBox, new ObjectToStringConverter() {
@@ -262,6 +268,8 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
         jScrollPane2 = new javax.swing.JScrollPane();
         protocolParametersTable = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
+        dropPanelContainer = new javax.swing.JPanel();
+        dropPanel = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
@@ -357,9 +365,35 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 .addContainerGap())
         );
 
-        jLabel3.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
+        dropPanelContainer.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
+        dropPanelContainer.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        dropPanelContainer.setMinimumSize(new java.awt.Dimension(100, 100));
+
+        dropPanel.setLayout(new java.awt.BorderLayout());
+
+        jLabel3.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
+        jLabel3.setForeground(java.awt.Color.darkGray);
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.jLabel3.text")); // NOI18N
+        jLabel3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        dropPanel.add(jLabel3, java.awt.BorderLayout.CENTER);
+
+        javax.swing.GroupLayout dropPanelContainerLayout = new javax.swing.GroupLayout(dropPanelContainer);
+        dropPanelContainer.setLayout(dropPanelContainerLayout);
+        dropPanelContainerLayout.setHorizontalGroup(
+            dropPanelContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(dropPanelContainerLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(dropPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        dropPanelContainerLayout.setVerticalGroup(
+            dropPanelContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(dropPanelContainerLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(dropPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -376,14 +410,14 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(dropPanelContainer, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(titleLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(puropseField))
-                            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(puropseField)))
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -402,7 +436,8 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(dropPanelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(165, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -411,6 +446,8 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel dateEntryLabel;
+    private javax.swing.JPanel dropPanel;
+    private javax.swing.JPanel dropPanelContainer;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

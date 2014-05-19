@@ -137,4 +137,21 @@ public class EventQueueUtilities
             return Futures.immediateFuture(result);
         }
     }
+    
+    public static <T> ListenableFuture<T> runOffEDT(Callable<T> r) {
+        if (EventQueue.isDispatchThread()) {
+            ListenableFuture<T> f = executorService.submit(r);
+            
+            
+            return f;
+        } else {
+            T result;
+            try {
+                result = r.call();
+            } catch (Exception ex) {
+                throw new OvationException("Operation failed", ex);
+            }
+            return Futures.immediateFuture(result);
+        }
+    }
 }
