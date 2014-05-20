@@ -213,21 +213,50 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                             @Override
                             public void run() {
                                 
-                                node.refresh();
-                                view.expandNode((Node) node);
+                                ListenableFuture<Void> refresh = node.refresh();
                                 
-                                for (Node userNode : ((Node) node).getChildren().getNodes()) {
-                                    if (((IEntityNode) userNode).getEntity(User.class).equals(ar.getDataContext().getAuthenticatedUser())) {
-                                        view.expandNode(userNode);
-                                        ((IEntityNode) userNode).refresh();
+                                Futures.addCallback(refresh, new FutureCallback<Void>() {
 
-                                        for (Node arNode : userNode.getChildren().getNodes()) {
-                                            if (((IEntityNode) arNode).getEntity(AnalysisRecord.class).equals(ar)) {
-                                                view.expandNode(arNode);
+                                    @Override
+                                    public void onSuccess(Void result) {
+                                        view.expandNode((Node) node);
+
+                                        for (final Node userNode : ((Node) node).getChildren().getNodes()) {
+                                            if (((IEntityNode) userNode).getEntity(User.class).equals(ar.getDataContext().getAuthenticatedUser())) {
+                                                view.expandNode(userNode);
+                                                
+                                                
+                                                ListenableFuture<Void> userRefresh = ((IEntityNode) userNode).refresh();
+                                                
+                                                Futures.addCallback(userRefresh, new FutureCallback<Void>() {
+
+                                                    @Override
+                                                    public void onSuccess(Void result) {
+                                                        view.expandNode(userNode);
+                                                        
+                                                        for (Node arNode : userNode.getChildren().getNodes()) {
+                                                            if (((IEntityNode) arNode).getEntity(AnalysisRecord.class).equals(ar)) {
+                                                                view.expandNode(arNode);
+                                                            }
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onFailure(Throwable t) {
+                                                        logger.error("Unable to display analysis record node", t);
+                                                    }
+                                                });
                                             }
                                         }
                                     }
-                                }
+
+                                    @Override
+                                    public void onFailure(Throwable t) {
+                                        logger.error("Unable to display user node", t);
+                                    }
+                                });
+                                
+                                
                             }
                             
                         });
