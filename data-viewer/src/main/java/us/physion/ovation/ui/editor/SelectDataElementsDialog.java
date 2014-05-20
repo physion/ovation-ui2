@@ -110,7 +110,7 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
 
         initComponents();
         initUi();
-        
+
         if(border == null) { // No border, center on screen
             setLocationRelativeTo(null);
         }
@@ -159,7 +159,7 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
 
         getRootPane().registerKeyboardAction(escListener,
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
-                JComponent.WHEN_IN_FOCUSED_WINDOW);
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         EventQueueUtilities.runOffEDT(new Runnable() {
 
@@ -215,7 +215,7 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
                     .addComponent(contentScrollPane)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 98, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -228,6 +228,7 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
         );
 
         org.openide.awt.Mnemonics.setLocalizedText(addButton, org.openide.util.NbBundle.getMessage(SelectDataElementsDialog.class, "SelectDataElementsDialog.addButton.text")); // NOI18N
+        addButton.setToolTipText(org.openide.util.NbBundle.getMessage(SelectDataElementsDialog.class, "SelectDataElementsDialog.addButton.toolTipText")); // NOI18N
         addButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addButtonActionPerformed(evt);
@@ -240,7 +241,7 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(169, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(addButton)
                 .addContainerGap())
         );

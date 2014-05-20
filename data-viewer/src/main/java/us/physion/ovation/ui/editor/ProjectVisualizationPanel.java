@@ -31,6 +31,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import org.joda.time.DateTime;
@@ -39,6 +40,7 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.TreeView;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -69,7 +71,6 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
     "Project_Drop_Files_To_Add_Analysis=Drop files to add analyses"
 })
 public class ProjectVisualizationPanel extends AbstractContainerVisualizationPanel {
-
 
     /**
      * Creates new form ProjectVisualizationPanel
@@ -117,7 +118,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         });
 
         experimentFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.Project_Drop_Files_To_Add_Experiment_Data()) {
-            
+
             @Override
             public void filesDropped(final File[] files) {
                 ListenableFuture<Experiment> addExp = addExperiment(new ActionEvent(this, 0, "experiment"));
@@ -135,17 +136,16 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                         TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
 
                         view.expandNode((Node) node);
-                        
+
                         Node expNode = null;
-                        for(Node child: ((Node)node).getChildren().getNodes()) {
-                            if(((IEntityNode)child).getEntity(Experiment.class).equals(result)) {
+                        for (Node child : ((Node) node).getChildren().getNodes()) {
+                            if (((IEntityNode) child).getEntity(Experiment.class).equals(result)) {
                                 view.expandNode(child);
                                 expNode = child;
                                 break;
                             }
                         }
 
-                        
                         final Node foundExpNode = expNode;
                         EventQueueUtilities.runOffEDT(new Runnable() {
 
@@ -156,8 +156,8 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                                     @Override
                                     public void run() {
                                         node.refresh();
-                                        if(foundExpNode != null) {
-                                            ((IEntityNode)foundExpNode).refresh();
+                                        if (foundExpNode != null) {
+                                            ((IEntityNode) foundExpNode).refresh();
                                         }
                                     }
                                 });
@@ -172,19 +172,19 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                 });
             }
         });
-        
 
         analysisFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.Project_Drop_Files_To_Add_Analysis()) {
-            
+
             @Override
             public void filesDropped(final File[] files) {
-                
-                final List<DataElement> inputs = Lists.newArrayList(showInputsDialog());
-                
-                if(inputs.isEmpty()) {
-                    return;
+
+                Iterable<DataElement> inputElements = showInputsDialog();
+                if (inputElements == null) {
+                    inputElements = Lists.newArrayList();
                 }
-                
+
+                final List<DataElement> inputs = Lists.newArrayList(inputElements);
+
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.AnalysisRecord_Adding_Outputs());
 
                 TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
@@ -194,15 +194,14 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
                 final TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
 
-                view.expandNode((Node) node);
-
                 ListenableFuture<AnalysisRecord> addRecord = EventQueueUtilities.runOffEDT(new Callable<AnalysisRecord>() {
 
                     @Override
-                    public AnalysisRecord call() {
+                    public AnalysisRecord call() throws Exception {
                         return addAnalysisRecord(files, inputs);
                     }
-                }, ph);
+
+                });
 
                 Futures.addCallback(addRecord, new FutureCallback<AnalysisRecord>() {
 
@@ -212,67 +211,43 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
                             @Override
                             public void run() {
-                                
-                                ListenableFuture<Void> refresh = node.refresh();
-                                
-                                Futures.addCallback(refresh, new FutureCallback<Void>() {
+                                try {
+                                    node.refresh().get();
+                                } catch (InterruptedException ex) {
+                                    logger.error("Unable to refresh Project node", ex);
+                                } catch (ExecutionException ex) {
+                                    logger.error("Unable to refresh Project node", ex);
+                                }
 
-                                    @Override
-                                    public void onSuccess(Void result) {
-                                        view.expandNode((Node) node);
+                                view.expandNode((Node) node);
 
-                                        for (final Node userNode : ((Node) node).getChildren().getNodes()) {
-                                            if (((IEntityNode) userNode).getEntity(User.class).equals(ar.getDataContext().getAuthenticatedUser())) {
-                                                view.expandNode(userNode);
-                                                
-                                                
-                                                ListenableFuture<Void> userRefresh = ((IEntityNode) userNode).refresh();
-                                                
-                                                Futures.addCallback(userRefresh, new FutureCallback<Void>() {
+                                try {
+                                    node.refresh().get();
+                                } catch (InterruptedException ex) {
+                                    logger.error("Unable to refresh Project node", ex);
+                                } catch (ExecutionException ex) {
+                                    logger.error("Unable to refresh Project node", ex);
+                                }
 
-                                                    @Override
-                                                    public void onSuccess(Void result) {
-                                                        view.expandNode(userNode);
-                                                        
-                                                        for (Node arNode : userNode.getChildren().getNodes()) {
-                                                            if (((IEntityNode) arNode).getEntity(AnalysisRecord.class).equals(ar)) {
-                                                                view.expandNode(arNode);
-                                                            }
-                                                        }
-                                                    }
-
-                                                    @Override
-                                                    public void onFailure(Throwable t) {
-                                                        logger.error("Unable to display analysis record node", t);
-                                                    }
-                                                });
-                                            }
-                                        }
+                                for (final Node userNode : ((Node) node).getChildren().getNodes()) {
+                                    if (((IEntityNode) userNode).getEntity(User.class).equals(ar.getDataContext().getAuthenticatedUser())) {
+                                        view.expandNode(userNode);
                                     }
 
-                                    @Override
-                                    public void onFailure(Throwable t) {
-                                        logger.error("Unable to display user node", t);
-                                    }
-                                });
-                                
-                                
+                                }
                             }
-                            
                         });
-                        
                     }
 
                     @Override
-                    public void onFailure(Throwable thrwbl) {
-                        logger.error("Unable to add analysis record to project", thrwbl);
+                    public void onFailure(Throwable t) {
+                        logger.error("Unable to display AnalysisRecord", t);
                     }
                 });
             }
         });
-        
     }
-    
+
     private Iterable<DataElement> showInputsDialog() {
         SelectDataElementsDialog addDialog = new SelectDataElementsDialog((JFrame) SwingUtilities.getRoot(this),
                 true,
@@ -289,6 +264,8 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
             }
 
             System.out.println(Sets.newHashSet(addDialog.getSelectedEntities()));
+        } else {
+            result = null;
         }
 
         addDialog.dispose();
@@ -347,7 +324,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                 @Override
                 public void run() {
                     tree.expandNode((Node) node);
-                    
+
                     new OpenNodeInBrowserAction(Lists.newArrayList(exp.getURI()),
                             null,
                             false,
@@ -406,8 +383,10 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         getProject().setStart(zonedDate(startPicker, startZoneComboBox));
     }
 
-    public Project getProject() {
-        return getNode().getEntity(Project.class);
+    public Project
+            getProject() {
+        return getNode().getEntity(Project.class
+        );
     }
 
     /**

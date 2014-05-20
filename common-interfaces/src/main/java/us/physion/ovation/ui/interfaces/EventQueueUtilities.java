@@ -17,8 +17,8 @@ import us.physion.ovation.exceptions.OvationException;
 
 public class EventQueueUtilities
 {
-    private static ListeningExecutorService executorService = MoreExecutors.listeningDecorator(
-            Executors.newFixedThreadPool(2));
+    private static final ListeningExecutorService executorService = MoreExecutors.listeningDecorator(
+            Executors.newWorkStealingPool(3));
 
     public static <T>  ListenableFuture<T> runOnEDT(Callable<T> c) {
         if(EventQueue.isDispatchThread()) {
@@ -29,14 +29,14 @@ public class EventQueueUtilities
             }
         } else {
             ListenableFutureTask<T> task = ListenableFutureTask.create(c);
-            
+
             SwingUtilities.invokeLater(task);
-            
+
             return task;
         }
-        
+
     }
-    
+
     public static ListenableFuture<Void> runOnEDT(final Runnable r) {
 	if (EventQueue.isDispatchThread()) {
             r.run();
@@ -50,13 +50,13 @@ public class EventQueueUtilities
                     return null;
                 }
             });
-            
+
 	    SwingUtilities.invokeLater(r);
-            
+
             return task;
 	}
     }
-    
+
 
     public static void runOnEDT(Runnable r, ProgressHandle ph) {
 	if (EventQueue.isDispatchThread()) {
@@ -168,12 +168,12 @@ public class EventQueueUtilities
             return Futures.immediateFuture(result);
         }
     }
-    
+
     public static <T> ListenableFuture<T> runOffEDT(Callable<T> r) {
         if (EventQueue.isDispatchThread()) {
             ListenableFuture<T> f = executorService.submit(r);
-            
-            
+
+
             return f;
         } else {
             T result;

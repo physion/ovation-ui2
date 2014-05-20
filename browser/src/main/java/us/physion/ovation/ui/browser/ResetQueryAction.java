@@ -26,9 +26,10 @@ displayName = "#CTL_ResetQueryAction")
     //@ActionReference(path = "Toolbars/Find", position = 150),
     @ActionReference(path = "Shortcuts", name = "DS-R")
 })
-@Messages("CTL_ResetQueryAction=Reset Query")
+@Messages("CTL_ResetQueryAction=Reset Display")
 public final class ResetQueryAction implements ResetBrowser{
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         Lookup.getDefault().lookup(QueryProvider.class).setQuerySet(null);
         BrowserUtilities.resetView();
