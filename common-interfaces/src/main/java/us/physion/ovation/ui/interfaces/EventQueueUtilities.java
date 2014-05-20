@@ -18,7 +18,7 @@ import us.physion.ovation.exceptions.OvationException;
 public class EventQueueUtilities
 {
     private static final ListeningExecutorService executorService = MoreExecutors.listeningDecorator(
-            Executors.newWorkStealingPool(3));
+            Executors.newFixedThreadPool(2)); //TODO We'd like to move to a work stealing queue when we can target JDK 8
 
     public static <T>  ListenableFuture<T> runOnEDT(Callable<T> c) {
         if(EventQueue.isDispatchThread()) {
