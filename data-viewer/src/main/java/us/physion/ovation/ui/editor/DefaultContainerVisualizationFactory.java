@@ -18,7 +18,9 @@
 package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Sets;
+import java.awt.Color;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.ui.interfaces.IEntityNode;
@@ -46,6 +48,12 @@ public class DefaultContainerVisualizationFactory implements ContainerVisualizat
 
         @Override
         public JComponent generatePanel() {
+            if (entity == null) {
+                JPanel result = new JPanel();
+                result.setBackground(Color.white);
+
+                return result;
+            }
             return new DefaultContainerPanel(entity);
         }
 

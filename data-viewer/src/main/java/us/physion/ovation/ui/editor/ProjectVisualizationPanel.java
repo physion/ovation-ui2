@@ -18,6 +18,7 @@ package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -28,7 +29,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import org.joda.time.DateTime;
 import org.netbeans.api.progress.ProgressHandle;
@@ -36,18 +40,23 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.TreeView;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.AnalysisRecord;
+import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.browser.BrowserUtilities;
+import static us.physion.ovation.ui.editor.AnalysisRecordVisualizationPanel.getDataElementsFromEntity;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
+import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
 /**
@@ -57,11 +66,11 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
  */
 @Messages({
     "Default_Experiment_Purpose=New Experiment",
-    "Project_New_Analysis_Record_Name=New Analysis"
+    "Project_New_Analysis_Record_Name=New Analysis",
+    "Project_Drop_Files_To_Add_Experiment_Data=Drop files to add Exerpiment data",
+    "Project_Drop_Files_To_Add_Analysis=Drop files to add analyses"
 })
 public class ProjectVisualizationPanel extends AbstractContainerVisualizationPanel {
-
-    FileDrop dropListener;
 
     /**
      * Creates new form ProjectVisualizationPanel
@@ -103,33 +112,78 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                final Experiment exp = getProject().insertExperiment(Bundle.Default_Experiment_Purpose(), new DateTime());
-
-                node.refresh();
-
-                TopComponent projectBrowser = WindowManager.getDefault().findTopComponent(BrowserUtilities.PROJECT_BROWSER_ID);
-
-                final TreeView tree = (TreeView) ((TreeViewProvider) projectBrowser).getTreeView();
-
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        tree.expandNode((Node) node);
-                        new OpenNodeInBrowserAction(Lists.newArrayList(exp.getURI()),
-                                null,
-                                false,
-                                Lists.<URI>newArrayList(),
-                                OpenNodeInBrowserAction.PROJECT_BROWSER_ID).actionPerformed(e);
-                    }
-                });
+                addExperiment(e);
 
             }
         });
 
-        dropListener = new FileDrop(this, new FileDrop.Listener() {
+        experimentFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.Project_Drop_Files_To_Add_Experiment_Data()) {
 
             @Override
             public void filesDropped(final File[] files) {
+                ListenableFuture<Experiment> addExp = addExperiment(new ActionEvent(this, 0, "experiment"));
+                Futures.addCallback(addExp, new FutureCallback<Experiment>() {
+
+                    @Override
+                    public void onSuccess(final Experiment result) {
+                        final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
+
+                        TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
+                        if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
+                            throw new IllegalStateException();
+                        }
+
+                        TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
+
+                        view.expandNode((Node) node);
+
+                        Node expNode = null;
+                        for (Node child : ((Node) node).getChildren().getNodes()) {
+                            if (((IEntityNode) child).getEntity(Experiment.class).equals(result)) {
+                                view.expandNode(child);
+                                expNode = child;
+                                break;
+                            }
+                        }
+
+                        final Node foundExpNode = expNode;
+                        EventQueueUtilities.runOffEDT(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                insertMeasurements(result, files);
+                                EventQueueUtilities.runOnEDT(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        node.refresh();
+                                        if (foundExpNode != null) {
+                                            ((IEntityNode) foundExpNode).refresh();
+                                        }
+                                    }
+                                });
+                            }
+                        }, ph);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        logger.error("Unable to add measurements", t);
+                    }
+                });
+            }
+        });
+
+        analysisFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.Project_Drop_Files_To_Add_Analysis()) {
+
+            @Override
+            public void filesDropped(final File[] files) {
+
+                Iterable<DataElement> inputElements = showInputsDialog();
+                if (inputElements == null) {
+                    inputElements = Lists.newArrayList();
+                }
+
+                final List<DataElement> inputs = Lists.newArrayList(inputElements);
 
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.AnalysisRecord_Adding_Outputs());
 
@@ -140,45 +194,156 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
                 final TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
 
-                view.expandNode((Node) node);
-
-
-
                 ListenableFuture<AnalysisRecord> addRecord = EventQueueUtilities.runOffEDT(new Callable<AnalysisRecord>() {
 
                     @Override
-                    public AnalysisRecord call() {
-                        return addAnalysisRecord(files);
+                    public AnalysisRecord call() throws Exception {
+                        return addAnalysisRecord(files, inputs);
                     }
-                }, ph);
+
+                });
 
                 Futures.addCallback(addRecord, new FutureCallback<AnalysisRecord>() {
 
                     @Override
-                    public void onSuccess(final AnalysisRecord v) {
-                        SwingUtilities.invokeLater(new Runnable() {
+                    public void onSuccess(final AnalysisRecord ar) {
+                        EventQueueUtilities.runOnEDT(new Runnable() {
+
                             @Override
                             public void run() {
-                                new OpenNodeInBrowserAction(OpenNodeInBrowserAction.PROJECT_BROWSER_ID,
-                                        Lists.newArrayList(v.getURI())).actionPerformed(new ActionEvent(this, 0, ""));
+                                try {
+                                    node.refresh().get();
+                                } catch (InterruptedException ex) {
+                                    logger.error("Unable to refresh Project node", ex);
+                                } catch (ExecutionException ex) {
+                                    logger.error("Unable to refresh Project node", ex);
+                                }
+
+                                view.expandNode((Node) node);
+
+                                try {
+                                    node.refresh().get();
+                                } catch (InterruptedException ex) {
+                                    logger.error("Unable to refresh Project node", ex);
+                                } catch (ExecutionException ex) {
+                                    logger.error("Unable to refresh Project node", ex);
+                                }
+
+                                for (final Node userNode : ((Node) node).getChildren().getNodes()) {
+                                    if (((IEntityNode) userNode).getEntity(User.class).equals(ar.getDataContext().getAuthenticatedUser())) {
+                                        view.expandNode(userNode);
+                                    }
+
+                                }
                             }
                         });
                     }
 
                     @Override
-                    public void onFailure(Throwable thrwbl) {
-                        logger.error("Unable to add analysis record to project", thrwbl);
+                    public void onFailure(Throwable t) {
+                        logger.error("Unable to display AnalysisRecord", t);
                     }
                 });
             }
         });
     }
 
-    private AnalysisRecord addAnalysisRecord(File[] files) {
+    private Iterable<DataElement> showInputsDialog() {
+        SelectDataElementsDialog addDialog = new SelectDataElementsDialog((JFrame) SwingUtilities.getRoot(this),
+                true,
+                null);
+
+        addDialog.setVisible(true);
+
+        List<DataElement> result = Lists.newArrayList();
+        if (addDialog.isSuccess()) {
+            for (IEntityWrapper entityWrapper : addDialog.getSelectedEntities()) {
+                for (DataElement entity : getDataElementsFromEntity(entityWrapper.getEntity())) {
+                    result.add(entity);
+                }
+            }
+
+            System.out.println(Sets.newHashSet(addDialog.getSelectedEntities()));
+        } else {
+            result = null;
+        }
+
+        addDialog.dispose();
+
+        return result;
+    }
+
+    private void insertMeasurements(Experiment exp, File[] files) {
+        DateTime start = new DateTime();
+        DateTime end = new DateTime();
+
+        for (File f : files) {
+            DateTime lastModified = new DateTime(f.lastModified());
+            if (lastModified.isBefore(end)) {
+                end = lastModified;
+            }
+
+            if (start.isBefore(lastModified)) {
+                start = lastModified;
+            }
+
+        }
+
+        Epoch e = exp.insertEpoch(start,
+                end,
+                null,
+                Maps.<String, Object>newHashMap(),
+                Maps.<String, Object>newHashMap());
+
+        for (File f : files) {
+            try {
+                e.insertMeasurement(f.getName(),
+                        Sets.<String>newHashSet(),
+                        Sets.<String>newHashSet(),
+                        f.toURI().toURL(),
+                        ContentTypes.getContentType(f));
+            } catch (MalformedURLException ex) {
+                Toolkit.getDefaultToolkit().beep();
+            } catch (IOException ex) {
+                Toolkit.getDefaultToolkit().beep();
+            }
+        }
+    }
+
+    private ListenableFuture<Experiment> addExperiment(final ActionEvent e) {
+        final Experiment exp = getProject().insertExperiment(Bundle.Default_Experiment_Purpose(), new DateTime());
+
+        node.refresh();
+
+        TopComponent projectBrowser = WindowManager.getDefault().findTopComponent(BrowserUtilities.PROJECT_BROWSER_ID);
+
+        final TreeView tree = (TreeView) ((TreeViewProvider) projectBrowser).getTreeView();
+
+        try {
+            EventQueueUtilities.runAndWaitOnEDT(new Runnable() {
+                @Override
+                public void run() {
+                    tree.expandNode((Node) node);
+
+                    new OpenNodeInBrowserAction(Lists.newArrayList(exp.getURI()),
+                            null,
+                            false,
+                            Lists.<URI>newArrayList(),
+                            OpenNodeInBrowserAction.PROJECT_BROWSER_ID).actionPerformed(e);
+                }
+            });
+        } catch (InterruptedException ex) {
+            return Futures.immediateFailedFuture(ex);
+        }
+
+        return Futures.immediateFuture(exp);
+    }
+
+    private AnalysisRecord addAnalysisRecord(File[] files, Iterable<DataElement> inputs) {
         getContext().beginTransaction();
         try {
             AnalysisRecord ar = getProject().addAnalysisRecord(Bundle.Project_New_Analysis_Record_Name(),
-                    Maps.<String,DataElement>newHashMap(),
+                    inputs,
                     null,
                     Maps.<String, Object>newHashMap());
 
@@ -218,8 +383,10 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         getProject().setStart(zonedDate(startPicker, startZoneComboBox));
     }
 
-    public Project getProject() {
-        return getNode().getEntity(Project.class);
+    public Project
+            getProject() {
+        return getNode().getEntity(Project.class
+        );
     }
 
     /**
@@ -240,7 +407,9 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         projectNameField = new javax.swing.JTextField();
         startZoneComboBox = new javax.swing.JComboBox();
         addExperimentButton = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        dropPanelContainer = new javax.swing.JPanel();
+        experimentFileWell = new us.physion.ovation.ui.editor.FileWell();
+        analysisFileWell = new us.physion.ovation.ui.editor.FileWell();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
 
@@ -276,9 +445,10 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
         org.openide.awt.Mnemonics.setLocalizedText(addExperimentButton, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.addExperimentButton.text")); // NOI18N
 
-        jLabel1.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.jLabel1.text")); // NOI18N
+        dropPanelContainer.setBackground(java.awt.Color.white);
+        dropPanelContainer.setLayout(new java.awt.GridLayout());
+        dropPanelContainer.add(experimentFileWell);
+        dropPanelContainer.add(analysisFileWell);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -287,7 +457,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(projectTitleLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -301,7 +471,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                                 .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(addExperimentButton))
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(dropPanelContainer, javax.swing.GroupLayout.DEFAULT_SIZE, 605, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -322,8 +492,8 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                 .addGap(18, 18, 18)
                 .addComponent(addExperimentButton)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(dropPanelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(128, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -332,8 +502,10 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addExperimentButton;
+    private us.physion.ovation.ui.editor.FileWell analysisFileWell;
     private javax.swing.JLabel dateLabel;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel dropPanelContainer;
+    private us.physion.ovation.ui.editor.FileWell experimentFileWell;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField projectNameField;
     private javax.swing.JLabel projectTitleLabel;

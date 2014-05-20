@@ -1,5 +1,7 @@
 package us.physion.ovation.ui.browser;
 
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
@@ -41,6 +43,8 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
 
         loadURI();
 
+        setDisplayName(entityWrapper.getDisplayName());
+        
         entityWrapper.addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
@@ -172,14 +176,16 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
     }
 
     @Override
-    public void refresh() {
+    public ListenableFuture<Void> refresh() {
         Children c = getChildren();
         if (c == null || this.isLeaf()) {
-            return;
+            return Futures.immediateFuture(null);
         }
         if (c instanceof EntityChildren) {
-            ((EntityChildren) c).refreshKeys();
+            return ((EntityChildren) c).refreshKeys();
         }
+        
+        return Futures.immediateFuture(null);
     }
 
     protected void setActionList(Action[] actions) {

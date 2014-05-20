@@ -16,6 +16,9 @@
  */
 package us.physion.ovation.ui.browser;
 
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import java.awt.BorderLayout;
 import java.awt.Toolkit;
 import java.util.concurrent.ExecutionException;
@@ -31,10 +34,10 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
-import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.Lookups;
+import org.openide.windows.TopComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.DataContext;
@@ -103,8 +106,8 @@ public final class TrashTopComponent extends TopComponent implements ExplorerMan
         }
 
         @Override
-        public void refresh() {
-            populateTrash();
+        public ListenableFuture<Void> refresh() {
+            return populateTrash();
         }
 
         @Override
@@ -135,7 +138,7 @@ public final class TrashTopComponent extends TopComponent implements ExplorerMan
         return ActionUtils.appendToArray(new Action[]{new ResettableAction(this), null}, super.getActions());
     }
 
-    private void populateTrash() {
+    private ListenableFuture<Void> populateTrash() {
         final DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
 
         if (c == null) {
@@ -144,9 +147,10 @@ public final class TrashTopComponent extends TopComponent implements ExplorerMan
 
             log.warn("Null DataContext");
             Toolkit.getDefaultToolkit().beep();
-            return;
+            return Futures.immediateFuture(null);
         }
 
+        final SettableFuture<Void> result = SettableFuture.create();
         new SwingWorker<Iterable<OvationEntity>, Void>() {
             @Override
             protected Iterable<OvationEntity> doInBackground() throws Exception {
@@ -156,19 +160,26 @@ public final class TrashTopComponent extends TopComponent implements ExplorerMan
             @Override
             protected void done() {
                 if (isCancelled()) {
+                    result.set(null);
                     return;
                 }
                 try {
                     Iterable<OvationEntity> roots = get();
 
                     explorerManager.setRootContext(new TrashRootNode(new TopTrashChildren(roots)));
+                    
+                    result.set(null);
                 } catch (InterruptedException ex) {
                     log.warn("Cannot load trash roots", ex);
+                    result.setException(ex);
                 } catch (ExecutionException ex) {
                     log.warn("Cannot load trash roots", ex);
+                    result.setException(ex);
                 }
             }
         }.execute();
+        
+        return result;
     }
 
     @Override

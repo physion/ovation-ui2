@@ -2,6 +2,7 @@ package us.physion.ovation.ui.interfaces;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListenableFutureTask;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.awt.EventQueue;
@@ -16,16 +17,46 @@ import us.physion.ovation.exceptions.OvationException;
 
 public class EventQueueUtilities
 {
-    private static ListeningExecutorService executorService = MoreExecutors.listeningDecorator(
-            Executors.newFixedThreadPool(2));
+    private static final ListeningExecutorService executorService = MoreExecutors.listeningDecorator(
+            Executors.newWorkStealingPool(3));
 
-    public static void runOnEDT(Runnable r) {
+    public static <T>  ListenableFuture<T> runOnEDT(Callable<T> c) {
+        if(EventQueue.isDispatchThread()) {
+            try {
+                return Futures.immediateFuture(c.call());
+            } catch (Exception ex) {
+                return Futures.immediateFailedFuture(ex);
+            }
+        } else {
+            ListenableFutureTask<T> task = ListenableFutureTask.create(c);
+
+            SwingUtilities.invokeLater(task);
+
+            return task;
+        }
+
+    }
+
+    public static ListenableFuture<Void> runOnEDT(final Runnable r) {
 	if (EventQueue.isDispatchThread()) {
-	    r.run();
+            r.run();
+	    return Futures.immediateFuture(null);
 	} else {
+            ListenableFutureTask<Void> task = ListenableFutureTask.create(new Callable<Void>() {
+
+                @Override
+                public Void call() throws Exception {
+                    r.run();
+                    return null;
+                }
+            });
+
 	    SwingUtilities.invokeLater(r);
+
+            return task;
 	}
     }
+
 
     public static void runOnEDT(Runnable r, ProgressHandle ph) {
 	if (EventQueue.isDispatchThread()) {
@@ -134,6 +165,23 @@ public class EventQueueUtilities
                 throw new OvationException("Operation failed", ex);
             }
             finish(ph);
+            return Futures.immediateFuture(result);
+        }
+    }
+
+    public static <T> ListenableFuture<T> runOffEDT(Callable<T> r) {
+        if (EventQueue.isDispatchThread()) {
+            ListenableFuture<T> f = executorService.submit(r);
+
+
+            return f;
+        } else {
+            T result;
+            try {
+                result = r.call();
+            } catch (Exception ex) {
+                throw new OvationException("Operation failed", ex);
+            }
             return Futures.immediateFuture(result);
         }
     }

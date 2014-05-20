@@ -3,19 +3,11 @@ package us.physion.ovation.ui.browser;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import org.openide.nodes.Children;
-import org.openide.nodes.Node;
-import org.openide.util.Lookup;
-import us.physion.ovation.DataContext;
-import us.physion.ovation.domain.*;
-import us.physion.ovation.domain.mixin.DataElement;
-import us.physion.ovation.exceptions.OvationException;
-import us.physion.ovation.ui.interfaces.ConnectionProvider;
-import us.physion.ovation.ui.interfaces.EventQueueUtilities;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -24,8 +16,17 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import us.physion.ovation.DataContext;
+import us.physion.ovation.domain.*;
+import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.ProcedureElement;
+import us.physion.ovation.exceptions.OvationException;
+import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.LazyChildren;
 
 /**
@@ -96,8 +97,8 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
         return new Node[]{EntityWrapperUtilities.createNode(key, Children.createLazy(getChildrenCallable(key)))};
     }
 
-    protected final void updateWithKeys(final List<EntityWrapper> list) {
-        EventQueueUtilities.runOnEDT(new Runnable() {
+    protected final ListenableFuture<Void> updateWithKeys(final List<EntityWrapper> list) {
+        return EventQueueUtilities.runOnEDT(new Runnable() {
             @Override
             public void run() {
                 setKeys(list);
@@ -124,16 +125,17 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
         }, ph);
     }
 
-    public void refreshKeys() {
-        createKeys(null);
+    public ListenableFuture<Void> refreshKeys() {
+        return createKeys(null);
     }
 
-    protected void createKeys(ProgressHandle ph) {
+    protected ListenableFuture<Void> createKeys(ProgressHandle ph) {
         DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
         if (c == null) {
-            return;
+            return Futures.immediateFuture(null);
         }
-        updateWithKeys(createKeysForEntity(c, parent, ph));
+        
+        return updateWithKeys(createKeysForEntity(c, parent, ph));
     }
 
     private void absorbFilteredChildren(boolean isVisible, List<EntityWrapper> list, DataContext c, /* @Nullable*/ ProgressHandle ph, EntityComparator entityComparator) {

@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.browser;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.swing.Action;
@@ -30,10 +31,10 @@ class EntityRootNode extends EntityNode {
      * reload the children keys in case a child is deleted.
      */
     @Override
-    public void refresh() {
+    public ListenableFuture<Void> refresh() {
         EntityChildren children = (EntityChildren) getChildren();
         //children.refreshKeys();
-        children.updateWithKeys(safeCall(childrenKeysFactory));
+        return children.updateWithKeys(safeCall(childrenKeysFactory));
     }
 
     @Override
