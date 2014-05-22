@@ -16,14 +16,18 @@
  */
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import org.joda.time.DateTime;
@@ -36,8 +40,10 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Protocol;
+import us.physion.ovation.ui.browser.BrowserUtilities;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
@@ -52,7 +58,8 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
 @Messages({
     "Adding_measurements=Adding measurements…",
     "Experiment_No_protocol=(No protocol)",
-    "Experiment_Drop_Files_To_Add_Data=Drop files here to add data"
+    "Experiment_Drop_Files_To_Add_Data=Drop files here to add data",
+    "EpochGroup_Default_Name=New Group"
 })
 public class ExperimentVisualizationPanel extends AbstractContainerVisualizationPanel {
 
@@ -139,10 +146,10 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
         });
 
         String prompt = Bundle.Experiment_Drop_Files_To_Add_Data();
-        
-        
+
+
         fileWell.setDelegate(new FileWell.AbstractDelegate(prompt) {
-            
+
             @Override
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
@@ -171,9 +178,15 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 }, ph);
             }
         });
-        
-        
 
+
+        addEpochGroupButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addEpochGroup(e);
+            }
+        });
         /*
          AutoCompleteDecorator.decorate(protocolComboBox, new ObjectToStringConverter() {
 
@@ -193,6 +206,39 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
 
          });
          */
+    }
+
+    private ListenableFuture<EpochGroup> addEpochGroup(final ActionEvent e) {
+        final EpochGroup group = getExperiment().insertEpochGroup(Bundle.EpochGroup_Default_Name(),
+                new DateTime(),
+                null,
+                Maps.<String, Object>newHashMap(),
+                Maps.<String, Object>newHashMap());
+
+        node.refresh();
+
+        TopComponent projectBrowser = WindowManager.getDefault().findTopComponent(BrowserUtilities.PROJECT_BROWSER_ID);
+
+        final TreeView tree = (TreeView) ((TreeViewProvider) projectBrowser).getTreeView();
+
+        try {
+            EventQueueUtilities.runAndWaitOnEDT(new Runnable() {
+                @Override
+                public void run() {
+                    tree.expandNode((Node) node);
+
+                    new OpenNodeInBrowserAction(Lists.newArrayList(group.getURI()),
+                            null,
+                            false,
+                            Lists.<URI>newArrayList(),
+                            OpenNodeInBrowserAction.PROJECT_BROWSER_ID).actionPerformed(e);
+                }
+            });
+        } catch (InterruptedException ex) {
+            return Futures.immediateFailedFuture(ex);
+        }
+
+        return Futures.immediateFuture(group);
     }
 
     private void insertMeasurements(File[] files) {
@@ -268,6 +314,7 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
         protocolParametersTable = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
         fileWell = new us.physion.ovation.ui.editor.FileWell();
+        addEpochGroupButton = new javax.swing.JButton();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -362,6 +409,8 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 .addContainerGap())
         );
 
+        org.openide.awt.Mnemonics.setLocalizedText(addEpochGroupButton, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.addEpochGroupButton.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -380,12 +429,15 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(fileWell, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(addEpochGroupButton)
+                                .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(titleLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(puropseField)))
-                        .addContainerGap())))
+                        .addContainerGap())
+                    .addComponent(fileWell, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -402,9 +454,11 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                     .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(addEpochGroupButton)
                 .addGap(18, 18, 18)
                 .addComponent(fileWell, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(165, Short.MAX_VALUE))
+                .addContainerGap(130, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -412,6 +466,7 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addEpochGroupButton;
     private javax.swing.JLabel dateEntryLabel;
     private us.physion.ovation.ui.editor.FileWell fileWell;
     private javax.swing.JLabel jLabel1;

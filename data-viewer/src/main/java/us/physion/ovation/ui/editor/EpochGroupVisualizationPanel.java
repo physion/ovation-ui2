@@ -17,23 +17,43 @@
 
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import java.awt.Toolkit;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import org.jdesktop.beansbinding.Binding;
 import org.jdesktop.beansbinding.BindingGroup;
 import org.jdesktop.beansbinding.Bindings;
 import org.joda.time.DateTime;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.view.TreeView;
+import org.openide.nodes.Node;
+import org.openide.util.NbBundle.Messages;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
+import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Protocol;
+import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
+import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
 /**
  *
  * @author barry
  */
+@Messages({
+    "EpochGroup_Drop_Files_To_Add_Data=Drop files to add data"
+})
 public final class EpochGroupVisualizationPanel extends AbstractContainerVisualizationPanel {
 
     /**
@@ -122,6 +142,37 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
             }
 
         });
+
+        fileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.EpochGroup_Drop_Files_To_Add_Data()) {
+
+            @Override
+            public void filesDropped(final File[] files) {
+                final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
+
+                TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
+                if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
+                    throw new IllegalStateException();
+                }
+
+                TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
+
+                view.expandNode((Node) node);
+
+                EventQueueUtilities.runOffEDT(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        insertMeasurements(files);
+                        EventQueueUtilities.runOnEDT(new Runnable() {
+                            @Override
+                            public void run() {
+                                node.refresh();
+                            }
+                        });
+                    }
+                }, ph);
+            }
+        });
     }
 
     protected void startDateTimeChanged() {
@@ -131,6 +182,44 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
     public EpochGroup getEpochGroup() {
         return getNode().getEntity(EpochGroup.class);
     }
+
+    private void insertMeasurements(File[] files) {
+        DateTime start = new DateTime();
+        DateTime end = new DateTime();
+
+        for (File f : files) {
+            DateTime lastModified = new DateTime(f.lastModified());
+            if (lastModified.isBefore(end)) {
+                end = lastModified;
+            }
+
+            if (start.isBefore(lastModified)) {
+                start = lastModified;
+            }
+
+        }
+
+        Epoch e = getEpochGroup().insertEpoch(start,
+                end,
+                null,
+                Maps.<String, Object>newHashMap(),
+                Maps.<String, Object>newHashMap());
+
+        for (File f : files) {
+            try {
+                e.insertMeasurement(f.getName(),
+                        Sets.<String>newHashSet(),
+                        Sets.<String>newHashSet(),
+                        f.toURI().toURL(),
+                        ContentTypes.getContentType(f));
+            } catch (MalformedURLException ex) {
+                Toolkit.getDefaultToolkit().beep();
+            } catch (IOException ex) {
+                Toolkit.getDefaultToolkit().beep();
+            }
+        }
+    }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -153,6 +242,7 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
         jScrollPane2 = new javax.swing.JScrollPane();
         protocolParametersTable = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
+        fileWell = new us.physion.ovation.ui.editor.FileWell();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
 
@@ -247,11 +337,12 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
                         .addComponent(startPicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 40, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(fileWell, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(titleLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(labelTextField)))
@@ -272,7 +363,9 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
                     .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(fileWell, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(56, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -281,6 +374,7 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel dateLabel;
+    private us.physion.ovation.ui.editor.FileWell fileWell;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
