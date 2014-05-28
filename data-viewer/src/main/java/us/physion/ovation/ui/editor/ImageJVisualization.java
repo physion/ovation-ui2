@@ -3,6 +3,7 @@ package us.physion.ovation.ui.editor;
 import com.google.common.collect.Sets;
 import ij.ImagePlus;
 import ij.io.Opener;
+import loci.plugins.BF;
 import java.awt.Color;
 import java.io.File;
 import java.util.concurrent.ExecutionException;
@@ -44,7 +45,10 @@ public class ImageJVisualization extends AbstractDataVisualization {
 
         // open a file with ImageJ
         try {
-            final ImagePlus imp = new Opener().openImage(imageFile.getAbsolutePath());
+            final Opener imageOpener = new Opener();
+            imageOpener.setOpenUsingPlugins(true);
+            final ImagePlus imp = imageOpener.openImage(imageFile.getAbsolutePath());
+            final ImagePlus[] imps = BF.openImagePlus(imageFile.getAbsolutePath());
             if (imp != null) {
                 panel = new ImagePanel(imageFile.getName(), new BufferedImagePanel(imp.getBufferedImage()));
             } else {
