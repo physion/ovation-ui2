@@ -2,8 +2,9 @@ package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Sets;
 import ij.ImagePlus;
-import ij.io.Opener;
+import loci.plugins.BF;
 import java.awt.Color;
+import java.awt.GridLayout;
 import java.io.File;
 import java.util.concurrent.ExecutionException;
 import javax.swing.JButton;
@@ -36,17 +37,22 @@ public class ImageJVisualization extends AbstractDataVisualization {
         File imageFile;
         try {
             imageFile = d.getData().get();
-        } catch (InterruptedException ex) {
-            imageFile = null;
-        } catch (ExecutionException ex) {
+        } catch (InterruptedException | ExecutionException ex) {
             imageFile = null;
         }
 
         // open a file with ImageJ
         try {
-            final ImagePlus imp = new Opener().openImage(imageFile.getAbsolutePath());
-            if (imp != null) {
-                panel = new ImagePanel(imageFile.getName(), new BufferedImagePanel(imp.getBufferedImage()));
+            final ImagePlus[] imps = BF.openImagePlus(imageFile.getAbsolutePath());
+            if (imps.length > 0) {
+                panel = new JPanel();
+                int n = (int) Math.ceil(Math.sqrt(imps.length));
+                panel.setLayout(new GridLayout(n, n));
+                
+                for(ImagePlus imp : imps) {
+                    JPanel imagePanel = new ImagePanel(imageFile.getName(), new BufferedImagePanel(imp.getBufferedImage()));
+                    panel.add(imagePanel);
+                }
             } else {
                 panel = new JPanel();
                 panel.setBackground(Color.WHITE);

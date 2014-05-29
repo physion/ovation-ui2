@@ -48,6 +48,8 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
     private int childcount = 0;
     private final int UPDATE_FACTOR = 1;
 
+    protected boolean initKeysAfterFirstAddNotify = false;
+            
     public EntityChildren(EntityWrapper e) {
         this(e, TreeFilter.NO_FILTER);
     }
@@ -64,7 +66,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
             loadedKeys = true;
             setKeys(((PerUserEntityWrapper) e).getChildren());
         } else {
-            initKeys();
+            initKeysAfterFirstAddNotify = true;
         }
     }
 
@@ -92,6 +94,15 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
         };
     }
 
+    @Override
+    protected void addNotify() {
+        super.addNotify();
+        if (initKeysAfterFirstAddNotify && !loadedKeys) {
+            initKeysAfterFirstAddNotify = false;
+            initKeys();
+        }
+    }
+    
     @Override
     protected Node[] createNodes(final EntityWrapper key) {
         return new Node[]{EntityWrapperUtilities.createNode(key, Children.createLazy(getChildrenCallable(key)))};

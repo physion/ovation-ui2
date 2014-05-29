@@ -54,6 +54,19 @@
         </dependency>
 
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ovation-ui-imagej</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>us.physion</groupId>
+            <artifactId>ovation-ui-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-actions</artifactId>
             <type>jar</type>
@@ -95,13 +108,6 @@
         </dependency>
 
         <dependency>
-            <groupId>us.physion</groupId>
-            <artifactId>ovation-ui-test</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.swinglabs</groupId>
             <artifactId>swing-layout</artifactId>
         </dependency>
@@ -123,33 +129,17 @@
             <version>2.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>us.physion</groupId>
-            <artifactId>ij-bundle</artifactId>
-            <version>1.0</version>
-            <type>jar</type>
-            <!--<scope>system</scope>
-                <systemPath>${project.basedir}/../lib/pixelmed.jar</systemPath>
-            -->
-        </dependency>
 
         <dependency>
             <groupId>us.physion</groupId>
             <artifactId>pixelmed</artifactId>
             <version>1.0</version>
-            <type>jar</type>
-            <!--<scope>system</scope>
-                <systemPath>${project.basedir}/../lib/pixelmed.jar</systemPath>
-            -->
         </dependency>
 
         <dependency>
-            <groupId>us.physion</groupId>
-            <artifactId>bioFormats</artifactId>
-            <version>1.0</version>
-            <type>jar</type>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
         </dependency>
-        
     </dependencies>
 
     <build>
