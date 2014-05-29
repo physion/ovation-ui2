@@ -255,7 +255,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
             @Override
             public void run() {
-                inputsTextPane.setText("");
+                    inputsTextPane.setText("");
 
                 for (Map.Entry<String, Source> namedSource : sources.entries()) {
                     insertInputsPanel(namedSource.getKey(), namedSource.getValue());

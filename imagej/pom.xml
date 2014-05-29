@@ -74,6 +74,7 @@
                         <publicPackage>imagej.*</publicPackage>
                         <publicPackage>imagej.data.*</publicPackage>
                         <publicPackage>imagej.display.*</publicPackage>
+                        <publicPackage>ij.*</publicPackage>
                         <publicPackage>ij.io.*</publicPackage>
                         <publicPackage>loci.*</publicPackage>
                         <publicPackage>loci.plugins.*</publicPackage>
@@ -81,6 +82,14 @@
                         <publicPackage>loci.formats.*</publicPackage>
                         <publicPackage>loci.formats.meta.*</publicPackage>
                         <publicPackage>loci.formats.services.*</publicPackage>
+                        <publicPackage>javax.xml.parsers.*</publicPackage>
+                        <publicPackage>javax.xml.transform.dom.*</publicPackage>
+                        <publicPackage>javax.xml.xpath.*</publicPackage>
+                        <publicPackage>javax.xml.transform.stream.*</publicPackage>
+                        <publicPackage>javax.xml.transform.*</publicPackage>
+                        <publicPackage>org.w3c.dom.*</publicPackage>
+                        <publicPackage>org.xml.sax.*</publicPackage>
+                        <publicPackage>org.xml.sax.helpers.*</publicPackage>
                     </publicPackages>
 
                     <licenseName>GNU General Public License, Version 3</licenseName>
