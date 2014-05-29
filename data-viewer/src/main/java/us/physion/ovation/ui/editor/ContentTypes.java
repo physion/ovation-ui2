@@ -29,7 +29,7 @@ import org.apache.commons.io.FilenameUtils;
  * @author barry
  */
 public class ContentTypes {
-    
+
     public static String getContentType(File file) throws IOException {
         String contentType = URLConnection.guessContentTypeFromName(file.getName());
         if (contentType == null) {
@@ -44,10 +44,12 @@ public class ContentTypes {
             customContentTypes.put("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
 
             customContentTypes.put("csv", "text/csv");
-            
+
             customContentTypes.put("tif", "image/tiff");
             customContentTypes.put("tiff", "image/tiff");
-            
+
+            customContentTypes.put("lsm", "image/tiff");
+
             final String extension = FilenameUtils.getExtension(file.getName());
             if (customContentTypes.containsKey(extension)) {
                 contentType = customContentTypes.get(extension);
@@ -55,8 +57,8 @@ public class ContentTypes {
                 contentType = "application/octet-stream"; // fallback to binary
             }
         }
-        
+
         return contentType;
     }
-    
+
 }

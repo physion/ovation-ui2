@@ -47,6 +47,12 @@
             <artifactId>swingx</artifactId>
             <version>1.6.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.netflix.rxjava</groupId>
+            <artifactId>rxjava-core</artifactId>
+            <version>0.18.3</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -95,6 +101,17 @@
                         <publicPackage>visad.jmet</publicPackage>
                         <publicPackage>javax.inject.*</publicPackage>
                         <publicPackage>com.mchange.v2.c3p0.*</publicPackage>
+
+                        <publicPackage>rx.*</publicPackage>
+                        <publicPackage>rx.exceptions.*</publicPackage>
+                        <publicPackage>rx.functions.*</publicPackage>
+                        <publicPackage>rx.observables.*</publicPackage>
+                        <publicPackage>rx.observers.*</publicPackage>
+                        <publicPackage>rx.operators.*</publicPackage>
+                        <publicPackage>rx.plugins.*</publicPackage>
+                        <publicPackage>rx.schedulers.*</publicPackage>
+                        <publicPackage>rx.subjects.*</publicPackage>
+                        <publicPackage>rx.subscriptions.*</publicPackage>
                     </publicPackages>
 
                     <licenseName>GNU General Public License, Version 3</licenseName>

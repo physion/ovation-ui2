@@ -90,6 +90,8 @@
                         <publicPackage>org.w3c.dom.*</publicPackage>
                         <publicPackage>org.xml.sax.*</publicPackage>
                         <publicPackage>org.xml.sax.helpers.*</publicPackage>
+                        <publicPackage>ome.xml.model.primitives.*</publicPackage>
+
                     </publicPackages>
 
                     <licenseName>GNU General Public License, Version 3</licenseName>

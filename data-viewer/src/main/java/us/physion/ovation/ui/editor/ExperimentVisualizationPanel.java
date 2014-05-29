@@ -16,6 +16,8 @@
  */
 package us.physion.ovation.ui.editor;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -28,6 +30,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.List;
+import java.util.Set;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import org.joda.time.DateTime;
@@ -42,9 +46,12 @@ import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
+import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
+import us.physion.ovation.ui.importer.FileMetadata;
+import us.physion.ovation.ui.importer.ImageImporter;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
@@ -245,9 +252,29 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
         DateTime start = new DateTime();
         DateTime end = new DateTime();
 
+        List<File> images = Lists.newLinkedList(Iterables.filter(Lists.newArrayList(files),
+                new Predicate<File>() {
+
+                    @Override
+                    public boolean apply(File input) {
+                        return ImageImporter.canImport(input);
+                    }
+                }));
+
+        for (File f : images) {
+            FileMetadata m = new FileMetadata(f);
+            if (m.getEnd(false).isAfter(end)) {
+                end = m.getEnd(false);
+            }
+
+            if (m.getStart().isBefore(start)) {
+                start = m.getStart();
+            }
+        }
+
         for (File f : files) {
             DateTime lastModified = new DateTime(f.lastModified());
-            if (lastModified.isBefore(end)) {
+            if (lastModified.isAfter(end)) {
                 end = lastModified;
             }
 
@@ -263,7 +290,11 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 Maps.<String, Object>newHashMap(),
                 Maps.<String, Object>newHashMap());
 
-        for (File f : files) {
+        List<Measurement> imageMeasurements = ImageImporter.importImageMeasurements(e, images).toList().toBlockingObservable().last();
+
+        Set<File> others = Sets.newHashSet(files);
+        others.removeAll(images);
+        for (File f : others) {
             try {
                 e.insertMeasurement(f.getName(),
                         Sets.<String>newHashSet(),

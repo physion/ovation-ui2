@@ -10,9 +10,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.ByteOrder;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,9 +25,7 @@ import loci.formats.meta.MetadataRetrieve;
 import loci.formats.meta.MetadataStore;
 import loci.formats.services.OMEXMLService;
 import ome.xml.model.primitives.PositiveInteger;
-import ome.xml.model.primitives.Timestamp;
 import org.joda.time.DateTime;
-import org.openide.WizardDescriptor;
 import org.openide.util.Exceptions;
 import us.physion.ovation.exceptions.OvationException;
 
@@ -49,23 +44,20 @@ public class FileMetadata {
     List<Map<String, Object>> instruments;
     List<Map<String, Object>> measurements;
     Map<String, Object> parentEpochGroup;
-    
+
     boolean isPrairie;
 
-    FileMetadata(File f)
-    {
+    public FileMetadata(File f)    {
         this(f, false);
     }
-    FileMetadata(File f, boolean isPrairie) {
+
+    public FileMetadata(File f, boolean isPrairie) {
         file = f;
         this.isPrairie = isPrairie;
         ServiceFactory factory = null;
         OMEXMLService service = null;
         IMetadata meta = null;
         try {
-            //LoggerFactory l;
-            //LoggerFactory.getLogger(FileMetadata.class);
-            //ILoggerFactory iLoggerFactory = LoggerFactory.getILoggerFactory();
             factory = new ServiceFactory();
 
             service = factory.getInstance(OMEXMLService.class);
@@ -79,12 +71,12 @@ public class FileMetadata {
             Logger.getLogger(ImportImage.class.getName()).log(Level.SEVERE, null, ex);
             throw new OvationException("Unable to create metadata. " + ex.getMessage());
         }
-        
+
         IFormatReader r;
         if (isPrairie) {
             r = new PrairieReader();
         } else {
-            r = new ImageReader(); 
+            r = new ImageReader();
             if (r instanceof PrairieReader)
                 isPrairie = true;
         }
@@ -175,12 +167,12 @@ public class FileMetadata {
         end = s;
     }
 
-    public Map<String, Object> getEpochProperties() {
+    public Map<String, Object> getEpochProtocolParameters() {
         return epochProperties;
     }
-    
+
     public Map<String, Object> getDeviceParameters() {
-        return epochProperties;
+        return deviceParameters;
     }
 
     public List<Map<String, Object>> getDevices() {
@@ -194,16 +186,16 @@ public class FileMetadata {
     private void parseRetrieve(MetadataRetrieve retrieve, Hashtable original) {
         instruments = getInstrumentData();
 
-        epochProperties = getEpochProperties(retrieve, original);
-        
+        epochProperties = getEpochProtocolParameters(retrieve, original);
+
         measurements = new ArrayList<Map<String, Object>>();
-        
+
         int imageCount = checkValidImageCount(retrieve);
-        
+
         deviceParameters = getDeviceParameters(imageCount);
         for(int imageNumber =0; imageNumber < imageCount; imageNumber++)
         {
-           
+
             if (isPrairie)
             {
                 createPrairieEpochGroupStructure(imageNumber);
@@ -213,28 +205,33 @@ public class FileMetadata {
             }
         }
     }
-    
+
     private Map<String, Object> createMeasurement(int imageNumber)
     {
         Map<String, Object> measurement = new HashMap<String, Object>();
-        put("imageNumber", imageNumber, measurement, true);
+        put(IMAGE_NUMBER, imageNumber, measurement, true);
 
-        put("deviceNames", getDeviceNamesForImage(retrieve, imageNumber, instruments), measurement, true);
+        put(DEVICE_NAMES, getDeviceNamesForImage(retrieve, imageNumber, instruments), measurement, true);
 
         try {
-            put("url", getFile().toURI().toURL().toExternalForm(), measurement, true);
+            put(IMAGE_URL, getFile().toURI().toURL().toExternalForm(), measurement, true);
         } catch (MalformedURLException ex) {
             throw new OvationException("Unable to get url for image file. " + ex.getMessage());
         }
 
-        put("mimeType", "application/tiff", measurement, true);
+        put(MIME_TYPE, "image/tiff", measurement, true);
 
         Map<String, Object> properties = getDimensionsAndSamplingRates(retrieve, imageNumber);
         put("units", "pixels", properties, true);
-        put("properties", properties, measurement, true);
+        put(MEASUREMENT_PROPERTIES, properties, measurement, true);
 
         return measurement;
     }
+    public static final String MEASUREMENT_PROPERTIES = "properties";
+    public static final String MIME_TYPE = "mimeType";
+    public static final String IMAGE_URL = "url";
+    public static final String DEVICE_NAMES = "deviceNames";
+    public static final String IMAGE_NUMBER = "imageNumber";
 
     private Map<String, Object> createMeasurement(int imageNumber, int tNumber, int zNumber) {
         Map<String, Object> m = createMeasurement(imageNumber);
@@ -264,7 +261,7 @@ public class FileMetadata {
             if (imageCount > 1) {
                 prefix = "image_" + imageNum + ".";
             }
-            
+
             put(prefix + "imageName", retrieve.getImageName(imageNum), parameters);
             put(prefix + "imageDescription", retrieve.getImageDescription(imageNum), parameters);
             put(prefix + "imageID", retrieve.getImageID(imageNum), parameters);
@@ -450,8 +447,8 @@ public class FileMetadata {
         return parameters;
     }
 
-    protected Map<String, Object> getEpochProperties(MetadataRetrieve retrieve, Hashtable original) {
-        
+    protected Map<String, Object> getEpochProtocolParameters(MetadataRetrieve retrieve, Hashtable original) {
+
         Map<String, Object> properties = new HashMap();
         int dsCount = 0;
         try {
@@ -478,19 +475,19 @@ public class FileMetadata {
             put(userPrefix + ".email", retrieve.getExperimenterEmail(i), properties);
             put(userPrefix + ".institution", retrieve.getExperimenterInstitution(i), properties);
         }
-        
+
         try {
             this.getImageProperties(0);
         } catch (IndexOutOfBoundsException e) {
         }
-        
+
         //add the original metadata, if any, as properties on the epoch
         if (original != null) {
             for (Object key : original.keySet()) {
                 properties.put("original." + key, original.get(key));
             }
         }
-                
+
         return properties;
     }
 
@@ -706,7 +703,7 @@ public class FileMetadata {
 
     private Map<String, Object> getDimensionsAndSamplingRates(MetadataRetrieve retrieve, int j) {
         Map<String, Object> dimensionFields = new HashMap();
-        
+
         int shapeCount = 0;
         int shapeX = -1, shapeY = -1, shapeZ = -1, shapeC = -1, shapeT = -1;
         double rateX = -1, rateY = -1, rateZ = -1, rateC = -1, rateT = -1;
@@ -800,7 +797,7 @@ public class FileMetadata {
         put("samplingRates", samplingRates, dimensionFields, true);
         put("samplingRateUnits", samplingRateUnits, dimensionFields, true);//TODO make sure the UI handles dimension errors gracefully
         put("dimensionLabels", dimensionLabels, dimensionFields, true);
-        
+
         return dimensionFields;
     }
 
@@ -854,7 +851,7 @@ public class FileMetadata {
         {
             throw new OvationException("No Images located");//?
         }
-        
+
         if (imageNumber > 1)
         {
             throw new OvationException("Multi image import not supported yet");
@@ -866,18 +863,18 @@ public class FileMetadata {
 
     private Set<String> getDeviceNamesForImage(MetadataRetrieve retrieve, int imageNumber, List<Map<String, Object>> instruments) {
         Set<String> allDevices = new HashSet();
-        
+
         String ref = (String) catchNullPointer(retrieve, "getImageInstrumentRef", new Class[]{Integer.TYPE}, new Object[]{imageNumber});
         if (ref != null) {
             for (Map<String, Object> device : instruments) {
                 if (device.get("ID").equals(ref)) {
                     return Sets.newHashSet((String)device.get("name"));
                 }
-                
+
                 allDevices.add((String)device.get("name"));
             }
         }
-        
+
         return allDevices;
     }
 
@@ -887,7 +884,7 @@ public class FileMetadata {
     //*
     /**
      * Prairie measurement is as follows:
-     * @param imageNumber 
+     * @param imageNumber
      */
     private Map<String, Object> createPrairieEpochGroupStructure(int imageNumber) {
         //name is the URL to the config file
@@ -915,14 +912,14 @@ public class FileMetadata {
         }
         return parentEpochGroup;
     }
-    
+
     private Map<String, Object> generateEpochGroup(int imageNumber, int tNumber)
     {
             List<Map<String, Object>> measurements = new LinkedList();
             Map<String, Object> eg = new HashMap<String, Object>();
             put("label", "Cycle_" + tNumber, eg, true);
             int zCount = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeZ", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
-            
+
             double deltaTForEpochGroup = 0;
             for (int j = 0; j < zCount; j++) {//for each measurement
                 deltaTForEpochGroup += retrieve.getPlaneDeltaT(imageNumber, j);
