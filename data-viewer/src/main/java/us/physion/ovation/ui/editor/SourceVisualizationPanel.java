@@ -17,13 +17,29 @@
 
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Lists;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.URI;
+import org.openide.explorer.view.TreeView;
+import org.openide.nodes.Node;
+import org.openide.util.NbBundle.Messages;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.Source;
+import us.physion.ovation.ui.browser.BrowserUtilities;
+import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
+import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
 /**
  *
  * @author barry
  */
+@Messages({
+    "Source_Default_Label=New Source",
+    "Source_Default_Identifier="
+})
 public class SourceVisualizationPanel extends AbstractContainerVisualizationPanel {
 
     final Source source;
@@ -40,6 +56,37 @@ public class SourceVisualizationPanel extends AbstractContainerVisualizationPane
         initComponents();
 
         setEntityBorder(this);
+        
+        addChildButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                final Source child = getSource().insertSource(Bundle.Source_Default_Label(), Bundle.Source_Default_Identifier());
+                
+                getNode().refresh();
+                
+                TopComponent sourceBrowser = WindowManager.getDefault().findTopComponent(BrowserUtilities.SOURCE_BROWSER_ID);
+
+                final TreeView tree = (TreeView) ((TreeViewProvider) sourceBrowser).getTreeView();
+
+                try {
+                    EventQueueUtilities.runAndWaitOnEDT(new Runnable() {
+                        @Override
+                        public void run() {
+                            tree.expandNode((Node) node);
+
+                            new OpenNodeInBrowserAction(Lists.newArrayList(child.getURI()),
+                                    null,
+                                    false,
+                                    Lists.<URI>newArrayList(),
+                                    OpenNodeInBrowserAction.SOURCE_BROWSER_ID).actionPerformed(e);
+                        }
+                    });
+                } catch (InterruptedException ex) {
+                    //pass
+                }
+            }
+        });
     }
 
     public Source getSource() {
@@ -60,6 +107,7 @@ public class SourceVisualizationPanel extends AbstractContainerVisualizationPane
         labelTextField = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         identifierTextField = new javax.swing.JTextField();
+        addChildButton = new javax.swing.JButton();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
 
@@ -79,18 +127,23 @@ public class SourceVisualizationPanel extends AbstractContainerVisualizationPane
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${source.identifier}"), identifierTextField, org.jdesktop.beansbinding.BeanProperty.create("text_ON_ACTION_OR_FOCUS_LOST"));
         bindingGroup.addBinding(binding);
 
+        org.openide.awt.Mnemonics.setLocalizedText(addChildButton, org.openide.util.NbBundle.getMessage(SourceVisualizationPanel.class, "SourceVisualizationPanel.addChildButton.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(17, 17, 17)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(titleLabel)
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(identifierTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(addChildButton)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(identifierTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 285, Short.MAX_VALUE)
                     .addComponent(labelTextField))
                 .addContainerGap())
         );
@@ -105,7 +158,9 @@ public class SourceVisualizationPanel extends AbstractContainerVisualizationPane
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(identifierTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(addChildButton)
+                .addContainerGap(51, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -113,6 +168,7 @@ public class SourceVisualizationPanel extends AbstractContainerVisualizationPane
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addChildButton;
     private javax.swing.JTextField identifierTextField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JTextField labelTextField;
