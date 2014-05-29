@@ -112,7 +112,7 @@ public class GetImageFilesController extends BasicWizardPanel{
         epoch.put("name", "epoch" + i);
         epoch.put("start", data.getStart());
         epoch.put("end", data.getEnd(false));
-        epoch.put("properties", data.getEpochProperties());
+        epoch.put("properties", data.getEpochProtocolParameters());
         epoch.put("measurements", data.getMeasurements());
         epoch.put("deviceParameters", data.getDeviceParameters());
         
@@ -130,7 +130,7 @@ public class GetImageFilesController extends BasicWizardPanel{
         parentEpochGroup.put("number", i);
         parentEpochGroup.put("start", data.getStart());
         parentEpochGroup.put("end", data.getEnd(false));
-        parentEpochGroup.put("epoch.properties", data.getEpochProperties());//TODO: maybe FileMetadata should do this?
+        parentEpochGroup.put("epoch.properties", data.getEpochProtocolParameters());//TODO: maybe FileMetadata should do this?
         
         List<Map<String, Object>> parentEpochGroups = (List<Map<String, Object>>)wiz.getProperty("parentEpochGroups");
         if (parentEpochGroups == null)

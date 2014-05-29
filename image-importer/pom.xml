@@ -114,8 +114,8 @@
 
 		<dependency>
 			<groupId>us.physion</groupId>
-			<artifactId>bioFormats</artifactId>
-			<version>1.0</version>
+                        <artifactId>ovation-ui-imagej</artifactId>
+                        <version>${project.version}</version>
 		</dependency>
 
 		<dependency>
@@ -135,6 +135,10 @@
                                 <extensions>true</extensions>
 
                                 <configuration>
+                                    <publicPackages>
+                                        <publicPackage>us.physion.ovation.ui.importer.*</publicPackage>
+                                    </publicPackages>
+
                                     <licenseName>GNU General Public License, Version 3</licenseName>
                                     <licenseFile>../licenses/license-GPL.txt</licenseFile>
                                 </configuration>
