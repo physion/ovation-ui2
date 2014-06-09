@@ -371,6 +371,12 @@
             </build>
         </profile>
 
+        <!-- Profile used with deployment to build Linux RPM -->
+        <profile>
+            <id>deploy-rpm</id>
+            <build>
+            </build>
+        </profile>
         <!-- Profile used along with deployment to attach the dmg archive -->
         <profile>
             <id>deploy-dmg</id>
@@ -461,30 +467,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
-                    <!-- Deploy dmg artifact -->
-                    <!--<plugin>-->
-                        <!--<groupId>org.apache.maven.plugins</groupId>-->
-                        <!--<artifactId>maven-deploy-plugin</artifactId>-->
-                        <!--<executions>-->
-                            <!--<execution>-->
-                                <!--<phase>deploy</phase>-->
-                                <!--<goals>-->
-                                    <!--<goal>deploy-file</goal>-->
-                                <!--</goals>-->
-                                <!--<configuration>-->
-                                    <!--<packaging>dmg</packaging>-->
-                                    <!--<generatePom>false</generatePom>-->
-                                    <!--<repositoryId>${ovation.release.repository.id}</repositoryId>-->
-                                    <!--<url>${ovation.release.repository.url}</url>-->
-                                    <!--<artifactId>${project.artifactId}-dmg</artifactId>-->
-                                    <!--<groupId>${project.groupId}</groupId>-->
-                                    <!--<version>${project.version}</version>-->
-                                    <!--<file>${project.build.directory}/Ovation-${project.version}.dmg</file>-->
-                                <!--</configuration>-->
-                            <!--</execution>-->
-                        <!--</executions>-->
-                    <!--</plugin>-->
                 </plugins>
             </build>
         </profile>
