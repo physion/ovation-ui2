@@ -1,0 +1,176 @@
+PLATFORM_OS		:=	Linux
+
+INSTALLERS_ROOT		?=	$(shell pwd)/..
+BRANCH_ROOT		:=	$(INSTALLERS_ROOT)/..
+OBJY_PLUGINS		:=	$(BRANCH_ROOT)/cxx/plugins/plugin_specs
+
+
+RPM_BUILD_ROOT		?=	$(shell pwd)/build
+BUILD_ROOT		:= $(RPM_BUILD_ROOT)/BUILD
+
+OBJY_ROOT		?=	usr/object/linux86_64
+OBJYARCH		?=	linux86_64
+OBJY			:=	$(BUILD_ROOT)/$(OBJY_ROOT)
+
+OVATION_ROOT		?=	usr/ovation
+OVATION			:=	$(BUILD_ROOT)/$(OVATION_ROOT)
+ARTIFACTS		?=	$(INSTALLERS_ROOT)/artifacts
+
+MATLAB_API_FILES := $(BRANCH_ROOT)/matlab
+JARS_DIR		?=	$(BRANCH_ROOT)/java/Ovation/artifacts
+
+DYLIB_EXT		?= 1.0
+
+OVATION_MARKETING_VERSION	?= 2.0
+
+all: ovation objectivity-devel
+
+clean:
+	rm -rf $(RPM_BUILD_ROOT)
+
+rpmmacros:
+	mkdir -p $(RPM_BUILD_ROOT)/BUILD
+	mkdir -p $(RPM_BUILD_ROOT)/RPMS/x86_64
+	mkdir -p $(RPM_BUILD_ROOT)/SOURCES
+	mkdir -p $(RPM_BUILD_ROOT)/SPECS
+	mkdir -p $(RPM_BUILD_ROOT)/SRPMS
+	mkdir -p $(RPM_BUILD_ROOT)/tmp
+	@echo "%_topdir $(RPM_BUILD_ROOT)" > ~/.rpmmacros
+	@echo "%_build_number $(BUILD_NUMBER)" >> ~/.rpmmacros
+	@echo '%_signature gpg' >> ~/.rpmmacros
+	@echo '%_gpg_name  Physion Consulting LLC' >> ~/.rpmmacros
+	@echo "%_ovation_marketing_version $(OVATION_MARKETING_VERSION)" >> ~/.rpmmacros
+
+
+objectivity-rpm-repo: objectivity-devel
+	createrepo $(RPM_BUILD_ROOT)
+
+objectivity-devel: rpmmacros objy-dist
+	rpmbuild -bb --buildroot="$(BUILD_ROOT)" objectivity-devel.spec
+
+objectivity-runtime: rpmmacros objy-runtime-dist
+	rpmbuild -bb --buildroot="$(BUILD_ROOT)" objectivity.spec
+
+ovation: rpmmacros ovation-dist objy-runtime-dist
+	rpmbuild -bb --buildroot="$(BUILD_ROOT)" ovation.spec
+
+ovation-dist:
+	mkdir -p "$(OVATION)/docs/api"
+
+	cp -R "$(ARTIFACTS)"/java_docs/* $(OVATION)/docs/api
+
+	cp "$(BRANCH_ROOT)/cxx/oolicense.txt" "$(OVATION)/oolicense.txt"
+	chmod 755 $(OVATION)/oolicense.txt
+	chmod a-x $(OVATION)/oolicense.txt
+
+	mkdir -p $(OVATION)/tutorials/introduction
+	cp $(BRANCH_ROOT)/tutorials/introduction/OvationIntroduction.m $(OVATION)/tutorials/introduction
+	mkdir -p $(OVATION)/tutorials/quickstart
+	cp -R $(BRANCH_ROOT)/tutorials/quickstart/* $(OVATION)/tutorials/quickstart
+
+	chmod -R 755 $(OVATION)/tutorials
+
+	mkdir -p $(OVATION)/docs/ovation_matlab
+	cp -R $(ARTIFACTS)/matlab_docs/matlab/* $(OVATION)/docs/ovation_matlab
+	cp $(ARTIFACTS)/matlab_docs/info.xml $(OVATION)/info.xml
+
+	cp $(ARTIFACTS)/Ovation.pdf "$(OVATION)/docs/Ovation Guide.pdf"
+
+	chmod -R 755 $(OVATION)/docs
+
+	mkdir -p $(OVATION)/+ovation
+	cp -R $(MATLAB_API_FILES)/+ovation/* $(OVATION)/+ovation
+	rm -rf $(OVATION)/+ovation/test
+
+	cp "$(BRANCH_ROOT)/schemas/current/ovation.schema" "$(OVATION)/ovation.schema"
+
+	cp "$(JARS_DIR)/ovation.jar" "$(OVATION)/ovation.jar"
+	chmod 755 $(OVATION)/ovation.jar
+	chmod a-x $(OVATION)/ovation.jar
+
+	mkdir -p $(OVATION)/lib
+	cp $(JARS_DIR)/ovadduser.jar $(OVATION)/lib/ovadduser.jar
+	chmod 755 $(OVATION)/lib/ovadduser.jar
+	chmod a-x $(OVATION)/lib/ovadduser.jar
+
+	cp $(JARS_DIR)/ovlicense.jar $(OVATION)/lib/ovlicense.jar
+	chmod 755 $(OVATION)/lib/ovlicense.jar
+	chmod a-x $(OVATION)/lib/ovlicense.jar
+
+	cp $(JARS_DIR)/ovation-ui.jar $(OVATION)/lib/ovation-ui.jar
+	chmod 755 $(OVATION)/lib/ovation-ui.jar
+	chmod a-x $(OVATION)/lib/ovation-ui.jar 
+
+	cp "$(ARTIFACTS)/libovdbcore.so" "$(OVATION)/lib/libovdbcore.so.1"
+
+	cp "$(ARTIFACTS)/libNameMapLookup.so" "$(OVATION)/lib/libNameMapLookup.so"
+	chmod 755 "$(OVATION)/lib/libNameMapLookup.so"
+
+	cp "$(ARTIFACTS)/libOvationEncryption.so" "$(OVATION)/lib/libOvationEncryption.so"
+	chmod 755 "$(OVATION)/lib/libOvationEncryption.so"
+
+	cp "$(ARTIFACTS)/libDistributedAssociationQuery.so" "$(OVATION)/lib/libDistributedAssociationQuery.so"
+	chmod 755 "$(OVATION)/lib/libDistributedAssociationQuery.so"
+
+	cp "$(ARTIFACTS)/libOvationServerAdminSecurity.so" "$(OVATION)/lib/libOvationServerAdminSecurity.so"
+	chmod 755 "$(OVATION)/lib/libOvationServerAdminSecurity.so"
+
+	mkdir -p $(OVATION)/bin
+	cp $(INSTALLERS_ROOT)/activate.sh $(OVATION)/bin/activate
+	cp $(INSTALLERS_ROOT)/update_user_environment.py $(OVATION)/bin/update_user_environment.py
+	chmod a+x $(OVATION)/bin/activate 
+	chmod a+x $(OVATION)/bin/update_user_environment.py
+
+	mkdir -p $(OVATION)/plugins
+
+	# Get plugin specs => $(OVATION)/plugins
+	cp "$(OBJY_PLUGINS)/$(PLATFORM_OS)/"*.plugin "$(OVATION)/plugins"
+	cp "$(OBJY_PLUGINS)/objy/$(PLATFORM_OS)/"*.plugin "$(OVATION)/plugins"
+
+	chmod -R 755 $(OVATION)/plugins
+	chmod -R 755 $(OVATION)/bin
+	chmod -R 755 $(OVATION)/+ovation
+	chmod -R 755 $(OVATION)/docs
+	chmod -R a+x $(OVATION)/plugins
+	chmod -R a+x $(OVATION)/bin
+	chmod -R a+x $(OVATION)/+ovation
+	chmod -R a+x $(OVATION)/docs
+
+objy-runtime-dist: objy-dist
+	rm -rf "$(OBJY)/assist"
+	rm -rf "$(OBJY)/etc"
+	rm -rf "$(OBJY)/include"
+	rm -rf "$(OBJY)/samples"
+	rm -rf "$(OBJY)/java/src"
+	rm -f "$(OBJY)/java/lib/*.rar"
+
+	# Remove binaries we can't distribute (per administration.pdf)
+	rm -f "$(OBJY)/bin/oobrowse"
+	rm -f "$(OBJY)/bin/ootoolmgr"
+	rm -f "$(OBJY)/bin/oodebug"
+	rm -f "$(OBJY)/bin/ooconfig"
+	rm -f "$(OBJY)/bin/ooddlx"
+	rm -f "$(OBJY)/bin/oodump"
+	rm -f "$(OBJY)/bin/ooload"
+
+	# Overwrite development license with RT license
+	cp "$(BRANCH_ROOT)/cxx/oolicense.txt" "$(OBJY)/oolicense.txt"
+
+
+objy-initd-dist:
+	mkdir -p "$(BUILD_ROOT)/etc/init.d"
+	cp ooams "$(BUILD_ROOT)/etc/init.d"
+	cp ooqs "$(BUILD_ROOT)/etc/init.d"
+	cp ools "$(BUILD_ROOT)/etc/init.d"
+
+objy-dist: objy-initd-dist
+	mkdir -p "$(OBJY)"
+	cp -rf /$(OBJY_ROOT)/* "$(OBJY)"
+	chmod -R a+r "$(OBJY)/java/lib/oojava.jar"
+	chmod -R a+r "$(OBJY)/java/lib/oojavad.jar"
+	chmod -R a+r "$(OBJY)/java/lib/objyjca.rar"
+	chmod -R a+r "$(OBJY)/java/lib/objyjcad.rar"
+	
+	# Overwrite development license with RT license
+	cp "$(BRANCH_ROOT)/cxx/oolicense.txt" "$(OBJY)/oolicense.txt"
+	
