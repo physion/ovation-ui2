@@ -115,6 +115,11 @@ public class FileWell extends javax.swing.JPanel {
      * @param listener
      */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
+        if(propertyChangeSupport == null) {
+            super.addPropertyChangeListener(listener);
+            return;
+        }
+        
         propertyChangeSupport.addPropertyChangeListener(listener);
     }
 
