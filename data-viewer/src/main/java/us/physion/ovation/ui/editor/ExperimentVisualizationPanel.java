@@ -360,7 +360,7 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
         ));
         jScrollPane1.setViewportView(jTable1);
 
-        setBackground(java.awt.SystemColor.control);
+        setBackground(java.awt.Color.white);
 
         titleLabel.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(titleLabel, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.titleLabel.text")); // NOI18N
