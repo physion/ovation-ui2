@@ -213,7 +213,7 @@
 
                         <configuration>
                             <installerLicenseFile>../licenses/license-GPL.txt</installerLicenseFile>
-                            <installerOsLinux>false</installerOsLinux>
+                            <installerOsLinux>true</installerOsLinux>
                             <installerOsMacosx>false</installerOsMacosx>
                             <installerOsWindows>true</installerOsWindows>
                             <installerOsSolaris>false</installerOsSolaris>
@@ -371,12 +371,29 @@
             </build>
         </profile>
 
-        <!-- Profile used with deployment to build Linux RPM -->
+        <!-- Profile used with deployment to build Linux installer -->
         <profile>
-            <id>deploy-rpm</id>
+            <id>deploy-linux</id>
             <build>
                 <plugins>
-                    <!-- Create the Mac OS X application bundle and dmg file -->
+		  <!--Override to produce the linux installer-->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>nbm-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>extra</id>
+                                <!--Run post-package, but before install-->
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>build-installers</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+
+		    <!-- Build RPM -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
