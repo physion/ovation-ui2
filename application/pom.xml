@@ -375,6 +375,49 @@
         <profile>
             <id>deploy-rpm</id>
             <build>
+                <plugins>
+                    <!-- Create the Mac OS X application bundle and dmg file -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <id>package-app-bundle</id>
+
+                                <phase>package</phase>
+
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+
+                                <configuration>
+
+                                    <target>
+                                        <echo message="Building RPM ${line.separator}" />
+
+                                        <delete includeEmptyDirs="true" failonerror="false">
+                                            <fileset dir="${project.build.directory}/rpmbuild" />
+                                        </delete>
+
+                                        <mkdir dir="${project.build.directory}/rpmbuild/BUILD" />
+                                        <mkdir dir="${project.build.directory}/rpmbuild/BUILDROOT" />
+                                        <mkdir dir="${project.build.directory}/rpmbuild/RPMS" />
+                                        <mkdir dir="${project.build.directory}/rpmbuild/SOURCES" />
+                                        <mkdir dir="${project.build.directory}/rpmbuild/SPECS" />
+                                        <mkdir dir="${project.build.directory}/rpmbuild/SRPMS" />
+                
+                                        <copy todir="${project.build.directory}/rpmbuild/SOURCES/${brandingToken}">
+                                            <fileset dir="${project.build.directory}/${brandingToken}" />
+                                        </copy>
+                                        
+                                        
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
             </build>
         </profile>
         <!-- Profile used along with deployment to attach the dmg archive -->
