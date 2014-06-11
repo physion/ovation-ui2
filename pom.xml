@@ -35,6 +35,11 @@
             <url>s3://maven.ovation.io/release</url>
         </repository>
 
+        <repository>
+            <id>icepdf</id>
+            <name>ICEpdf</name>
+            <url>http://anonsvn.icesoft.org/repo/maven2/releases/</url>
+        </repository>
     </repositories>
 
     <build>
