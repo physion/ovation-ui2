@@ -50,6 +50,8 @@ public class ContentTypes {
 
             customContentTypes.put("lsm", "image/tiff");
 
+            customContentTypes.put("pdf", "application/pdf");
+
             final String extension = FilenameUtils.getExtension(file.getName());
             if (customContentTypes.containsKey(extension)) {
                 contentType = customContentTypes.get(extension);
