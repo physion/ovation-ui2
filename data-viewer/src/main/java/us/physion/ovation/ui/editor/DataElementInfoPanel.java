@@ -117,6 +117,10 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         return elements;
     }
 
+    public List<String> getAvailableContentTypes() {
+        return ContentTypes.getContentTypes();
+    }
+
     <T extends OvationEntity> Iterable<T> getEntities(final Class<T> cls) {
         return Iterables.transform(Iterables.filter(getElements(), new Predicate<OvationEntity>() {
             @Override
@@ -136,11 +140,11 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         });
     }
 
-    Set<Measurement> getMeasurements() {
+    final Set<Measurement> getMeasurements() {
         return ImmutableSet.copyOf(getEntities(Measurement.class));
     }
 
-    Set<Resource> getResources() {
+    final Set<Resource> getResources() {
         return ImmutableSet.copyOf(getEntities(Resource.class));
     }
 
@@ -152,12 +156,15 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         addSourcesTextField = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         inputsTextPane = new javax.swing.JTextPane();
+        jLabel2 = new javax.swing.JLabel();
+        contentTypeComboBox = new javax.swing.JComboBox();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
 
@@ -175,6 +182,15 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         inputsTextPane.setBorder(null);
         jScrollPane1.setViewportView(inputsTextPane);
 
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(DataElementInfoPanel.class, "DataElementInfoPanel.jLabel2.text")); // NOI18N
+
+        contentTypeComboBox.setEditable(true);
+        contentTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        org.jdesktop.beansbinding.ELProperty eLProperty = org.jdesktop.beansbinding.ELProperty.create("${availableContentTypes}");
+        org.jdesktop.swingbinding.JComboBoxBinding jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, eLProperty, contentTypeComboBox);
+        bindingGroup.addBinding(jComboBoxBinding);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -186,7 +202,11 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(addSourcesTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 535, Short.MAX_VALUE)))
+                        .addComponent(addSourcesTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 535, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(contentTypeComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -194,10 +214,14 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(contentTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(addSourcesTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -217,15 +241,20 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        bindingGroup.bind();
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField addSourcesTextField;
+    private javax.swing.JComboBox contentTypeComboBox;
     private javax.swing.JTextPane inputsTextPane;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
     Logger logger = LoggerFactory.getLogger(DataElementInfoPanel.class);
@@ -442,7 +471,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                             if (!s.equals(epoch.getInputSources().get(epochId))) {
                                 epochId = s.getLabel() + " (" + s.getIdentifier() + "; " + s.getURI().toString() + ")";
                             }
-                            
+
                             if (!epoch.getInputSources().containsValue(s)) {
                                 ctx.beginTransaction();
                                 try {

@@ -145,7 +145,8 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
                         Node expNode = null;
                         for (Node child : ((Node) node).getChildren().getNodes()) {
-                            if (((IEntityNode) child).getEntity(Experiment.class).equals(result)) {
+                            final Experiment exp = ((IEntityNode) child).getEntity(Experiment.class);
+                            if (exp != null && exp.equals(result)) {
                                 view.expandNode(child);
                                 expNode = child;
                                 break;
@@ -236,7 +237,8 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                                 }
 
                                 for (final Node userNode : ((Node) node).getChildren().getNodes()) {
-                                    if (((IEntityNode) userNode).getEntity(User.class).equals(ar.getDataContext().getAuthenticatedUser())) {
+                                    final User user = ((IEntityNode) userNode).getEntity(User.class);
+                                    if (user != null && user.equals(ar.getDataContext().getAuthenticatedUser())) {
                                         view.expandNode(userNode);
                                     }
 

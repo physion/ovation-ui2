@@ -17,10 +17,14 @@
 
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLConnection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FilenameUtils;
 
@@ -33,24 +37,7 @@ public class ContentTypes {
     public static String getContentType(File file) throws IOException {
         String contentType = URLConnection.guessContentTypeFromName(file.getName());
         if (contentType == null) {
-            final Map<String, String> customContentTypes = Maps.newHashMap();
-            customContentTypes.put("doc", "application/msword");
-            customContentTypes.put("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-
-            customContentTypes.put("xls", "application/vnd.ms-excel");
-            customContentTypes.put("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
-            customContentTypes.put("ppt", "application/vnd.ms-powerpoint");
-            customContentTypes.put("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
-
-            customContentTypes.put("csv", "text/csv");
-
-            customContentTypes.put("tif", "image/tiff");
-            customContentTypes.put("tiff", "image/tiff");
-
-            customContentTypes.put("lsm", "image/tiff");
-
-            customContentTypes.put("pdf", "application/pdf");
+            Map<String, String> customContentTypes = customTypes();
 
             final String extension = FilenameUtils.getExtension(file.getName());
             if (customContentTypes.containsKey(extension)) {
@@ -61,6 +48,31 @@ public class ContentTypes {
         }
 
         return contentType;
+    }
+
+    private static Map<String, String> customTypes() {
+        final Map<String, String> customContentTypes = Maps.newHashMap();
+        customContentTypes.put("doc", "application/msword");
+        customContentTypes.put("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        customContentTypes.put("xls", "application/vnd.ms-excel");
+        customContentTypes.put("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        customContentTypes.put("ppt", "application/vnd.ms-powerpoint");
+        customContentTypes.put("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+        customContentTypes.put("csv", "text/csv");
+        customContentTypes.put("tif", "image/tiff");
+        customContentTypes.put("tiff", "image/tiff");
+        customContentTypes.put("lsm", "image/tiff");
+        customContentTypes.put("pdf", "application/pdf");
+        return customContentTypes;
+    }
+
+    public static List<String> getContentTypes() {
+        List<String> result = Lists.newArrayList(
+                Sets.newHashSet(customTypes().values()));
+
+        Collections.sort(result);
+
+        return result;
     }
 
 }
