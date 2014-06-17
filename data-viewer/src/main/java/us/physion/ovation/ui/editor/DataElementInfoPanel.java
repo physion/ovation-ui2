@@ -112,14 +112,6 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     String selection = (String) e.getItem();
-                    // Skip events created by the autocomplete
-                    for (String contentType : getAvailableContentTypes()) {
-                        if (contentType.startsWith(selection)) {
-                            return;
-                        }
-                    }
-
-                    System.out.println(selection);
                     setContentType(selection);
                 }
             }
