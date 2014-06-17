@@ -16,6 +16,7 @@
  */
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.awt.GraphicsDevice;
 import static java.awt.GraphicsDevice.WindowTranslucency.PERPIXEL_TRANSPARENT;
@@ -29,7 +30,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
-import java.util.Collections;
+import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import javax.swing.JComponent;
@@ -42,10 +43,18 @@ import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import us.physion.ovation.DataContext;
+import us.physion.ovation.domain.AnalysisRecord;
+import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.Experiment;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.User;
+import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.browser.EntityChildren;
-import us.physion.ovation.ui.browser.EntityComparator;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.browser.FilteredEntityChildren;
+import us.physion.ovation.ui.browser.TreeFilter;
+import us.physion.ovation.ui.browser.TreeFilter.NavigatorType;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
@@ -61,6 +70,7 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
     private final Lookup lookup;
     private boolean success = false;
     private final Set<IEntityWrapper> selectedEntities;
+    private final BeanTreeView entitiesTree;
 
     /**
      * Creates new form SelectDataElementsDialog
@@ -70,6 +80,7 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
             final Area border) {
 
         super(parent, modal);
+
 
         explorerManager = new ExplorerManager();
         lookup = ExplorerUtils.createLookup(explorerManager, getRootPane().getActionMap());
@@ -109,6 +120,9 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
         }
 
         initComponents();
+
+        this.entitiesTree = new BeanTreeView();
+
         initUi();
 
         if(border == null) { // No border, center on screen
@@ -116,7 +130,7 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
         }
     }
 
-    private void initUi() {
+    private final void initUi() {
 
         getRootPane().setDefaultButton(addButton);
 
@@ -134,7 +148,6 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
             }
         });
 
-        BeanTreeView entitiesTree = new BeanTreeView();
         entitiesTree.setRootVisible(false);
 
         contentScrollPane.setViewportView(entitiesTree);
@@ -157,6 +170,8 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
             }
         };
 
+        cancelButton.addActionListener(escListener);
+
         getRootPane().registerKeyboardAction(escListener,
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
@@ -172,9 +187,13 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
                 List<EntityWrapper> wrappers = FilteredEntityChildren.wrap(
                         ctx.getProjects());
 
-                Collections.sort(wrappers, new EntityComparator());
+                TreeFilter filter = new TreeFilter(NavigatorType.PROJECT);
+                filter.setEpochsVisible(true);
+                filter.setExperimentsVisible(true);
+                filter.setEpochGroupsVisible(true);
 
-                getExplorerManager().setRootContext(new AbstractNode(new EntityChildren(wrappers)));
+                getExplorerManager().setRootContext(
+                        new AbstractNode(new EntityChildren(wrappers, filter)));
             }
         });
     }
@@ -200,6 +219,7 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
         contentScrollPane = new javax.swing.JScrollPane();
         jLabel1 = new javax.swing.JLabel();
         addButton = new javax.swing.JButton();
+        cancelButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
@@ -235,6 +255,8 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
             }
         });
 
+        org.openide.awt.Mnemonics.setLocalizedText(cancelButton, org.openide.util.NbBundle.getMessage(SelectDataElementsDialog.class, "SelectDataElementsDialog.cancelButton.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -242,6 +264,8 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(cancelButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(addButton)
                 .addContainerGap())
         );
@@ -250,7 +274,9 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(addButton))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addButton)
+                    .addComponent(cancelButton)))
         );
 
         pack();
@@ -263,6 +289,7 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
+    private javax.swing.JButton cancelButton;
     private javax.swing.JScrollPane contentScrollPane;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;

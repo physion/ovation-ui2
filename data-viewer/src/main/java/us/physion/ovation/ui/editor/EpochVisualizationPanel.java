@@ -168,10 +168,7 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
             @Override
             public void filesDropped(final File[] files) {
 
-                Iterable<DataElement> inputElements = showInputsDialog();
-                if (inputElements == null) {
-                    inputElements = Lists.newArrayList();
-                }
+                Iterable<? extends DataElement> inputElements = getEpoch().getMeasurements();
 
                 final List<DataElement> inputs = Lists.newArrayList(inputElements);
 
@@ -204,7 +201,6 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
                                 try {
                                     node.refresh().get();
                                     view.expandNode((Node) node);
-                                    node.refresh().get();
                                 } catch (InterruptedException ex) {
                                     logger.error("Unable to refresh Epoch node", ex);
                                 } catch (ExecutionException ex) {
@@ -231,30 +227,30 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
         });
     }
 
-    private Iterable<DataElement> showInputsDialog() {
-        SelectDataElementsDialog addDialog = new SelectDataElementsDialog((JFrame) SwingUtilities.getRoot(this),
-                true,
-                null);
-
-        addDialog.setVisible(true);
-
-        List<DataElement> result = Lists.newArrayList();
-        if (addDialog.isSuccess()) {
-            for (IEntityWrapper entityWrapper : addDialog.getSelectedEntities()) {
-                for (DataElement entity : getDataElementsFromEntity(entityWrapper.getEntity())) {
-                    result.add(entity);
-                }
-            }
-
-            System.out.println(Sets.newHashSet(addDialog.getSelectedEntities()));
-        } else {
-            result = null;
-        }
-
-        addDialog.dispose();
-
-        return result;
-    }
+//    private Iterable<DataElement> showInputsDialog() {
+//        SelectDataElementsDialog addDialog = new SelectDataElementsDialog((JFrame) SwingUtilities.getRoot(this),
+//                true,
+//                null);
+//
+//        addDialog.setVisible(true);
+//
+//        List<DataElement> result = Lists.newArrayList();
+//        if (addDialog.isSuccess()) {
+//            for (IEntityWrapper entityWrapper : addDialog.getSelectedEntities()) {
+//                for (DataElement entity : getDataElementsFromEntity(entityWrapper.getEntity())) {
+//                    result.add(entity);
+//                }
+//            }
+//
+//            System.out.println(Sets.newHashSet(addDialog.getSelectedEntities()));
+//        } else {
+//            result = null;
+//        }
+//
+//        addDialog.dispose();
+//
+//        return result;
+//    }
 
     protected void startDateTimeChanged() {
         getEpoch().setStart(zonedDate(startPicker, startZoneComboBox));
