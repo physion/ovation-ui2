@@ -244,7 +244,9 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
 //                    actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
 //                }
 
-                if (OvationEntity.class.isAssignableFrom(entityClass)) {
+                if (OvationEntity.class.isAssignableFrom(entityClass)
+                        //User entities cannot be sent to the trash
+                        && !User.class.isAssignableFrom(entityClass)) {
                     actionList = appendToArray(actionList, null, SystemAction.get(TrashEntityAction.class));
                 }
 
