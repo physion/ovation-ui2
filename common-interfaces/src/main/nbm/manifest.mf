@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Localizing-Bundle: us/physion/ovation/ui/interfaces/Bundle.properties
 OpenIDE-Module-Layer: us/physion/ovation/ui/interfaces/layer.xml
-OpenIDE-Module-Specification-Version: 2.1.9
+OpenIDE-Module-Specification-Version: 2.1.10
