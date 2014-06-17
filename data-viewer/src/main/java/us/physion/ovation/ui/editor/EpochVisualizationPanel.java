@@ -227,31 +227,6 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
         });
     }
 
-//    private Iterable<DataElement> showInputsDialog() {
-//        SelectDataElementsDialog addDialog = new SelectDataElementsDialog((JFrame) SwingUtilities.getRoot(this),
-//                true,
-//                null);
-//
-//        addDialog.setVisible(true);
-//
-//        List<DataElement> result = Lists.newArrayList();
-//        if (addDialog.isSuccess()) {
-//            for (IEntityWrapper entityWrapper : addDialog.getSelectedEntities()) {
-//                for (DataElement entity : getDataElementsFromEntity(entityWrapper.getEntity())) {
-//                    result.add(entity);
-//                }
-//            }
-//
-//            System.out.println(Sets.newHashSet(addDialog.getSelectedEntities()));
-//        } else {
-//            result = null;
-//        }
-//
-//        addDialog.dispose();
-//
-//        return result;
-//    }
-
     protected void startDateTimeChanged() {
         getEpoch().setStart(zonedDate(startPicker, startZoneComboBox));
     }

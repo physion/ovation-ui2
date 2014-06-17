@@ -53,6 +53,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.AbstractBorder;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.StyleConstants;
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.Lookup;
@@ -78,7 +79,8 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
  * @author barry
  */
 @Messages({
-    "Adding_source=Adding Source {0}"
+    "Adding_source=Adding Source {0}",
+    "DataElement_Multiple_Content_Types=<Multiple>"
 })
 public class DataElementInfoPanel extends javax.swing.JPanel {
 
@@ -96,6 +98,8 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
         initComponents();
 
+        AutoCompleteDecorator.decorate(contentTypeComboBox);
+
         final DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
 
         addSourcesTextField.addActionListener(new ActionListener() {
@@ -111,6 +115,25 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         addSourcesTextField.setVisible(getMeasurements().size() > 0);
 
         updateInputs();
+    }
+
+    public String getSelectedContentType() {
+        List<String> contentTypes = Lists.newLinkedList();
+        for (DataElement e : getEntities(DataElement.class)) {
+            contentTypes.add(e.getDataContentType());
+        }
+
+        if (contentTypes.size() == 1) {
+            return contentTypes.get(0);
+        } else {
+            return Bundle.DataElement_Multiple_Content_Types();
+        }
+    }
+
+    public void setSelectedContentType(String contentType) {
+        for (DataElement e : getEntities(DataElement.class)) {
+            e.setDataContentType(contentType);
+        }
     }
 
     public Set<? extends OvationEntity> getElements() {
@@ -190,6 +213,8 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         org.jdesktop.beansbinding.ELProperty eLProperty = org.jdesktop.beansbinding.ELProperty.create("${availableContentTypes}");
         org.jdesktop.swingbinding.JComboBoxBinding jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, eLProperty, contentTypeComboBox);
         bindingGroup.addBinding(jComboBoxBinding);
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${selectedContentType}"), contentTypeComboBox, org.jdesktop.beansbinding.BeanProperty.create("selectedItem"));
+        bindingGroup.addBinding(binding);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
