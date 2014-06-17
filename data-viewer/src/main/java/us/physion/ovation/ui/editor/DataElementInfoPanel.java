@@ -39,13 +39,17 @@ import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -53,6 +57,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.AbstractBorder;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.StyleConstants;
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.Lookup;
@@ -78,7 +83,8 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
  * @author barry
  */
 @Messages({
-    "Adding_source=Adding Source {0}"
+    "Adding_source=Adding Source {0}",
+    "DataElement_Multiple_Content_Types=<Multiple>"
 })
 public class DataElementInfoPanel extends javax.swing.JPanel {
 
@@ -95,6 +101,22 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         this.elements = ImmutableSet.copyOf(elements);
 
         initComponents();
+
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(getAvailableContentTypes().toArray(new String[0]));
+        contentTypeComboBox.setModel(model);
+        contentTypeComboBox.setSelectedItem(getContentType());
+
+        contentTypeComboBox.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    String selection = (String) e.getItem();
+                    setContentType(selection);
+                }
+            }
+        });
+
 
         final DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
 
@@ -113,8 +135,46 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         updateInputs();
     }
 
+    public final String getContentType() {
+        List<String> contentTypes = Lists.newLinkedList();
+        for (DataElement e : getEntities(DataElement.class)) {
+            contentTypes.add(e.getDataContentType());
+        }
+
+        if (contentTypes.size() == 1) {
+            return contentTypes.get(0);
+        } else {
+            return Bundle.DataElement_Multiple_Content_Types();
+        }
+    }
+
+    public void setContentType(String contentType) {
+        if (Bundle.DataElement_Multiple_Content_Types().equals(contentType)) {
+            return;
+        }
+
+        for (DataElement e : getEntities(DataElement.class)) {
+            if (!e.getDataContentType().equals(contentType)) {
+                e.setDataContentType(contentType);
+            }
+        }
+    }
+
     public Set<? extends OvationEntity> getElements() {
         return elements;
+    }
+
+    public final List<String> getAvailableContentTypes() {
+        List<String> contentTypes = ContentTypes.getContentTypes();
+        contentTypes.add("application/octet-stream");
+
+        if (!contentTypes.contains(getContentType())) {
+            contentTypes.add(getContentType());
+        }
+
+        Collections.sort(contentTypes);
+
+        return contentTypes;
     }
 
     <T extends OvationEntity> Iterable<T> getEntities(final Class<T> cls) {
@@ -136,11 +196,11 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         });
     }
 
-    Set<Measurement> getMeasurements() {
+    final Set<Measurement> getMeasurements() {
         return ImmutableSet.copyOf(getEntities(Measurement.class));
     }
 
-    Set<Resource> getResources() {
+    final Set<Resource> getResources() {
         return ImmutableSet.copyOf(getEntities(Resource.class));
     }
 
@@ -158,6 +218,8 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         addSourcesTextField = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         inputsTextPane = new javax.swing.JTextPane();
+        jLabel2 = new javax.swing.JLabel();
+        contentTypeComboBox = new javax.swing.JComboBox();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
 
@@ -175,6 +237,10 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         inputsTextPane.setBorder(null);
         jScrollPane1.setViewportView(inputsTextPane);
 
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(DataElementInfoPanel.class, "DataElementInfoPanel.jLabel2.text")); // NOI18N
+
+        contentTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -186,7 +252,11 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(addSourcesTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 535, Short.MAX_VALUE)))
+                        .addComponent(addSourcesTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 535, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(contentTypeComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -194,10 +264,14 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(contentTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(addSourcesTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -222,8 +296,10 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField addSourcesTextField;
+    private javax.swing.JComboBox contentTypeComboBox;
     private javax.swing.JTextPane inputsTextPane;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
@@ -442,7 +518,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                             if (!s.equals(epoch.getInputSources().get(epochId))) {
                                 epochId = s.getLabel() + " (" + s.getIdentifier() + "; " + s.getURI().toString() + ")";
                             }
-                            
+
                             if (!epoch.getInputSources().containsValue(s)) {
                                 ctx.beginTransaction();
                                 try {

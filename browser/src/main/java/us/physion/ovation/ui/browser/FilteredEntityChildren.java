@@ -4,7 +4,8 @@
  */
 package us.physion.ovation.ui.browser;
 
-import java.util.ArrayList;
+import com.google.common.collect.Lists;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -28,13 +29,16 @@ public class FilteredEntityChildren extends EntityChildren {
         super(childrenList);
         this.classesToInclude = classesToInclude;
     }
-    public static List<EntityWrapper> wrap(Iterable<? extends OvationEntity> entities)
-    {
-        ArrayList<EntityWrapper> wrapped = new ArrayList<EntityWrapper>();
+
+    public static List<EntityWrapper> wrap(Iterable<? extends OvationEntity> entities)    {
+        List<EntityWrapper> wrapped = Lists.newArrayList();
          for (OvationEntity entity : entities)
          {
              wrapped.add(new EntityWrapper(entity));
-         }
+        }
+
+        Collections.sort(wrapped, new EntityComparator());
+
          return wrapped;
     }
 
@@ -43,6 +47,7 @@ public class FilteredEntityChildren extends EntityChildren {
     {
         return new Node[]{EntityWrapperUtilities.createNewNode(key, Children.createLazy(getFilteredChildrenCallable(key)))};
     }
+
     @Override
     public List<EntityWrapper> createKeysForEntity(DataContext ctx, EntityWrapper ew)
     {

@@ -301,8 +301,8 @@ public final class DataViewerTopComponent extends TopComponent {
                 DataElementContainer container = (DataElementContainer) (ew.getEntity());//getEntity gets the context for the given thread
 
                 if (container instanceof Epoch) {
-                    List<AnalysisRecord> analysisRecords
-                            = Lists.newArrayList(((Epoch) container).getAnalysisRecords());
+                    /*
+                     List<AnalysisRecord> analysisRecords                            = Lists.newArrayList(((Epoch) container).getAnalysisRecords());
                     if (analysisRecords.size() > 0) {
                         for (AnalysisRecord a : analysisRecords) {
                             dataElements.addAll(Sets.newHashSet(a.getOutputs().values()));
@@ -310,6 +310,8 @@ public final class DataViewerTopComponent extends TopComponent {
                     } else {
                         dataElements.addAll(Sets.newHashSet(container.getDataElements().values()));
                     }
+                     */
+                    containers.add(n);
                 } else if (container instanceof AnalysisRecord) {
                     containers.add(n);
                     //dataElements.addAll(Sets.newHashSet(container.getDataElements().values()));
