@@ -39,13 +39,17 @@ import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -98,7 +102,29 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
         initComponents();
 
-        AutoCompleteDecorator.decorate(contentTypeComboBox);
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(getAvailableContentTypes().toArray(new String[0]));
+        contentTypeComboBox.setModel(model);
+        contentTypeComboBox.setSelectedItem(getContentType());
+
+        contentTypeComboBox.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    String selection = (String) e.getItem();
+                    // Skip events created by the autocomplete
+                    for (String contentType : getAvailableContentTypes()) {
+                        if (contentType.startsWith(selection)) {
+                            return;
+                        }
+                    }
+
+                    System.out.println(selection);
+                    setContentType(selection);
+                }
+            }
+        });
+
 
         final DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
 
@@ -117,7 +143,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         updateInputs();
     }
 
-    public String getSelectedContentType() {
+    public final String getContentType() {
         List<String> contentTypes = Lists.newLinkedList();
         for (DataElement e : getEntities(DataElement.class)) {
             contentTypes.add(e.getDataContentType());
@@ -130,9 +156,15 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         }
     }
 
-    public void setSelectedContentType(String contentType) {
+    public void setContentType(String contentType) {
+        if (Bundle.DataElement_Multiple_Content_Types().equals(contentType)) {
+            return;
+        }
+
         for (DataElement e : getEntities(DataElement.class)) {
-            e.setDataContentType(contentType);
+            if (!e.getDataContentType().equals(contentType)) {
+                e.setDataContentType(contentType);
+            }
         }
     }
 
@@ -140,8 +172,17 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         return elements;
     }
 
-    public List<String> getAvailableContentTypes() {
-        return ContentTypes.getContentTypes();
+    public final List<String> getAvailableContentTypes() {
+        List<String> contentTypes = ContentTypes.getContentTypes();
+        contentTypes.add("application/octet-stream");
+
+        if (!contentTypes.contains(getContentType())) {
+            contentTypes.add(getContentType());
+        }
+
+        Collections.sort(contentTypes);
+
+        return contentTypes;
     }
 
     <T extends OvationEntity> Iterable<T> getEntities(final Class<T> cls) {
@@ -179,7 +220,6 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -207,14 +247,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(DataElementInfoPanel.class, "DataElementInfoPanel.jLabel2.text")); // NOI18N
 
-        contentTypeComboBox.setEditable(true);
         contentTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        org.jdesktop.beansbinding.ELProperty eLProperty = org.jdesktop.beansbinding.ELProperty.create("${availableContentTypes}");
-        org.jdesktop.swingbinding.JComboBoxBinding jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, eLProperty, contentTypeComboBox);
-        bindingGroup.addBinding(jComboBoxBinding);
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${selectedContentType}"), contentTypeComboBox, org.jdesktop.beansbinding.BeanProperty.create("selectedItem"));
-        bindingGroup.addBinding(binding);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -266,8 +299,6 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-
-        bindingGroup.bind();
     }// </editor-fold>//GEN-END:initComponents
 
 
@@ -279,7 +310,6 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
     Logger logger = LoggerFactory.getLogger(DataElementInfoPanel.class);
