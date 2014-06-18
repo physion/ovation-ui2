@@ -17,6 +17,8 @@
 
 package us.physion.ovation.ui.editor;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -30,12 +32,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import org.joda.time.DateTime;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.explorer.ExplorerManager;
@@ -46,15 +48,16 @@ import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
-import static us.physion.ovation.ui.editor.AnalysisRecordVisualizationPanel.getDataElementsFromEntity;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
+import us.physion.ovation.ui.importer.FileMetadata;
+import us.physion.ovation.ui.importer.ImageImporter;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
-import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
 
@@ -62,7 +65,9 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
  *
  * @author barry
  */
-@Messages({})
+@Messages({
+    "Epoch_Drop_Files_To_Add_Measurements=Drop files to add Measurements"
+})
 public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel {
 
     FileDrop dropPanelListener;
@@ -163,6 +168,55 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
             }
         });
 
+        measurementFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.Epoch_Drop_Files_To_Add_Measurements()) {
+
+            @Override
+            public void filesDropped(final File[] files) {
+                final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
+
+                TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
+                if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
+                    throw new IllegalStateException();
+                }
+
+                final TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
+
+                ListenableFuture<Iterable<Measurement>> addMeasurements = EventQueueUtilities.runOffEDT(new Callable<Iterable<Measurement>>() {
+
+                    @Override
+                    public Iterable<Measurement> call() {
+                        return insertMeasurements(files);
+                    }
+                }, ph);
+
+                Futures.addCallback(addMeasurements, new FutureCallback<Iterable<Measurement>>() {
+
+                    @Override
+                    public void onSuccess(final Iterable<Measurement> result) {
+                        EventQueueUtilities.runOnEDT(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                try {
+                                    node.refresh().get();
+                                    view.expandNode((Node) node);
+                                } catch (InterruptedException ex) {
+                                    logger.error("Unable to refresh Epoch node", ex);
+                                } catch (ExecutionException ex) {
+                                    logger.error("Unable to refresh Epoch node", ex);
+                                }
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        logger.error("Unable to display added Measurements", t);
+                    }
+                });
+            }
+        });
+
         analysisFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.Project_Drop_Files_To_Add_Analysis()) {
 
             @Override
@@ -239,6 +293,44 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
         return getNode().getEntity(Epoch.class);
     }
 
+    private Iterable<Measurement> insertMeasurements(File[] files) {
+        List<File> images = Lists.newLinkedList(Iterables.filter(Lists.newArrayList(files),
+                new Predicate<File>() {
+
+                    @Override
+                    public boolean apply(File input) {
+                        return ImageImporter.canImport(input);
+                    }
+                }));
+
+        final Epoch e = getEpoch();
+
+        List<Measurement> result = Lists.newLinkedList(ImageImporter.importImageMeasurements(e, images)
+                .toList()
+                .toBlockingObservable()
+                .lastOrDefault(Lists.<Measurement>newArrayList()));
+
+        Set<File> others = Sets.newHashSet(files);
+        others.removeAll(images);
+        for (File f : others) {
+            try {
+                Measurement m = e.insertMeasurement(f.getName(),
+                        Sets.<String>newHashSet(),
+                        Sets.<String>newHashSet(),
+                        f.toURI().toURL(),
+                        ContentTypes.getContentType(f));
+
+                result.add(m);
+            } catch (MalformedURLException ex) {
+                Toolkit.getDefaultToolkit().beep();
+            } catch (IOException ex) {
+                Toolkit.getDefaultToolkit().beep();
+            }
+        }
+
+        return result;
+    }
+
     private AnalysisRecord addAnalysisRecord(File[] files, final Iterable<DataElement> inputs) {
         getContext().beginTransaction();
         try {
@@ -296,13 +388,15 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
         jLabel3 = new javax.swing.JLabel();
         startZoneComboBox = new javax.swing.JComboBox();
         endZoneComboBox = new javax.swing.JComboBox();
-        analysisFileWell = new us.physion.ovation.ui.editor.FileWell();
         protocolPanel = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         protocolComboBox = new javax.swing.JComboBox<Protocol>();
         jScrollPane2 = new javax.swing.JScrollPane();
         protocolParametersTable = new javax.swing.JTable();
         jLabel5 = new javax.swing.JLabel();
+        dropPanelContainer = new javax.swing.JPanel();
+        measurementFileWell = new us.physion.ovation.ui.editor.FileWell();
+        analysisFileWell = new us.physion.ovation.ui.editor.FileWell();
 
         setBackground(java.awt.Color.white);
 
@@ -384,6 +478,11 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
                 .addContainerGap())
         );
 
+        dropPanelContainer.setBackground(java.awt.Color.white);
+        dropPanelContainer.setLayout(new java.awt.GridLayout());
+        dropPanelContainer.add(measurementFileWell);
+        dropPanelContainer.add(analysisFileWell);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -391,6 +490,7 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(protocolPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
@@ -408,10 +508,9 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(endZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(analysisFileWell, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(protocolPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addComponent(dropPanelContainer, javax.swing.GroupLayout.DEFAULT_SIZE, 574, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -431,8 +530,8 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
                 .addGap(18, 18, 18)
                 .addComponent(protocolPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(analysisFileWell, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(51, Short.MAX_VALUE))
+                .addComponent(dropPanelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(140, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -441,6 +540,7 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private us.physion.ovation.ui.editor.FileWell analysisFileWell;
+    private javax.swing.JPanel dropPanelContainer;
     private us.physion.ovation.ui.interfaces.DateTimePicker endPicker;
     private javax.swing.JComboBox endZoneComboBox;
     private javax.swing.JLabel jLabel1;
@@ -449,6 +549,7 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane2;
+    private us.physion.ovation.ui.editor.FileWell measurementFileWell;
     private javax.swing.JComboBox protocolComboBox;
     private javax.swing.JPanel protocolPanel;
     private javax.swing.JTable protocolParametersTable;

@@ -24,6 +24,7 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="protocolPanel" alignment="1" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -49,11 +50,10 @@
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="analysisFileWell" max="32767" attributes="0"/>
-                  <Component id="protocolPanel" alignment="1" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
+          <Component id="dropPanelContainer" alignment="0" pref="574" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -76,8 +76,8 @@
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="protocolPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="analysisFileWell" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="51" max="32767" attributes="0"/>
+              <Component id="dropPanelContainer" min="-2" max="-2" attributes="0"/>
+              <EmptySpace pref="140" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -140,8 +140,6 @@
       <BindingProperties>
         <BindingProperty name="elements" source="Form" sourcePath="${availableZoneIDs}" target="endZoneComboBox" targetPath="elements" updateStrategy="0" immediately="false"/>
       </BindingProperties>
-    </Component>
-    <Component class="us.physion.ovation.ui.editor.FileWell" name="analysisFileWell">
     </Component>
     <Container class="javax.swing.JPanel" name="protocolPanel">
       <Properties>
@@ -249,6 +247,24 @@
               <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="EpochVisualizationPanel.jLabel5.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPanel" name="dropPanelContainer">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" id="white" palette="1" red="ff" type="palette"/>
+        </Property>
+      </Properties>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
+        <Property name="columns" type="int" value="0"/>
+        <Property name="rows" type="int" value="1"/>
+      </Layout>
+      <SubComponents>
+        <Component class="us.physion.ovation.ui.editor.FileWell" name="measurementFileWell">
+        </Component>
+        <Component class="us.physion.ovation.ui.editor.FileWell" name="analysisFileWell">
         </Component>
       </SubComponents>
     </Container>
