@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package us.physion.ovation.ui.editor;
 
 import com.google.common.base.Predicate;
@@ -37,7 +36,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import org.joda.time.DateTime;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.explorer.ExplorerManager;
@@ -54,7 +52,6 @@ import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
-import us.physion.ovation.ui.importer.FileMetadata;
 import us.physion.ovation.ui.importer.ImageImporter;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
@@ -148,9 +145,11 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
             }
         });
 
-        endPicker.setDateTime(getEpoch().getEnd());
+        if (getEpoch().getEnd() != null) {
+            endPicker.setDateTime(getEpoch().getEnd());
 
-        endZoneComboBox.setSelectedItem(getEpoch().getEnd().getZone().getID());
+            endZoneComboBox.setSelectedItem(getEpoch().getEnd().getZone().getID());
+        }
 
         endPicker.addActionListener(new ActionListener() {
 

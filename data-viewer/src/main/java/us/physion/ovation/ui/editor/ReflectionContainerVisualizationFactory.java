@@ -22,6 +22,8 @@ import java.awt.Component;
 import java.lang.reflect.InvocationTargetException;
 import javax.swing.JComponent;
 import org.openide.util.lookup.ServiceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 /**
@@ -97,12 +99,15 @@ public class ReflectionContainerVisualizationFactory implements ContainerVisuali
                         .createVisualization(entity)
                         .generatePanel();
             } catch (InvocationTargetException ex) {
+                logger.error("Unable to load visualization", ex);
                 return new DefaultContainerVisualizationFactory()
                         .createVisualization(entity)
                         .generatePanel();
             }
         }
 
+        Logger logger = LoggerFactory.getLogger(ReflectionContainerVisualizationFactory.class);
+        
         @Override
         public Iterable<? extends OvationEntity> getEntities() {
             return Sets.newHashSet(entity.getEntity());
