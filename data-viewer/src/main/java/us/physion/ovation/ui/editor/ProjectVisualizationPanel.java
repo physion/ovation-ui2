@@ -43,7 +43,6 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.TreeView;
 import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -87,7 +86,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         initComponents();
         initUI();
 
-        node.refresh();
+        //node.refresh();
     }
 
     private void initUI() {

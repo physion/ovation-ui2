@@ -50,6 +50,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider, EventBusP
         connectionListeners = Collections.synchronizedSet(new HashSet());
     }
 
+    @Override
     public synchronized void resetConnection()
     {
         context = null;
