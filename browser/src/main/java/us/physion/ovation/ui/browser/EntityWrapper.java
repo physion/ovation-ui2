@@ -1,7 +1,7 @@
 package us.physion.ovation.ui.browser;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import java.awt.Color;
 import java.awt.Toolkit;
@@ -9,7 +9,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -21,9 +20,9 @@ import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.events.EntityModifiedEvent;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.EntityNotFoundException;
+import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EntityColors;
-import us.physion.ovation.ui.interfaces.EventBusProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /**
@@ -32,36 +31,49 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  */
 public class EntityWrapper implements IEntityWrapper {
 
-    private URI uri;
-    private final List<URI> filteredParentURIs = new ArrayList<URI>();
-    private final Set<URI> watchUris = Sets.newHashSet();;
+    private final URI uri;
+    private OvationEntity entity = null;
+    private final List<URI> filteredParentURIs = Lists.newArrayList();
+    private final Set<URI> watchUris = Sets.newHashSet();
 
     private final Class type;
 
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
+    private final DataContext context;
+
     public EntityWrapper(OvationEntity e) {
         uri = e.getURI();
         type = e.getClass();
+        entity = e;
 
         watchUris.add(uri);
-        if (Measurement.class.isAssignableFrom(type)) {
+        if (e instanceof Measurement) {
             watchUris.add(((Measurement) e).getDataResource().getURI());
         }
 
+        context = e.getDataContext();
+        context.getEventBus().register(this);
 
-        EventBusProvider evp = Lookup.getDefault().lookup(EventBusProvider.class);
-
-        EventBus bus = evp.getDefaultEventBus();
-        bus.register(this);
-
+    }
+    
+    //used by the PerUserEntityWrapper object
+    protected EntityWrapper(String name, Class clazz, String uri) {
+        type = clazz;
+        this.context = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
+        entity = null;
+        try {
+            this.uri = new URI(uri);
+        } catch (URISyntaxException ex) {
+            throw new OvationException(ex);
+        }
     }
 
     @Subscribe
     public void entityUpdated(EntityModifiedEvent updateEvent) {
         if (watchUris.contains(updateEvent.getEntityUri())) {
             OvationEntity e = getEntity();
-            if(e != null) {
+            if (e != null) {
                 propertyChangeSupport.firePropertyChange(PROP_ENTITY_UPDATE, null, null);
                 if (Measurement.class.isAssignableFrom(type)) {
                     watchUris.add(getEntity(Measurement.class).getDataResource().getURI());
@@ -71,17 +83,6 @@ public class EntityWrapper implements IEntityWrapper {
     }
 
 
-    //used by the PerUserEntityWrapper object
-    protected EntityWrapper(String name, Class clazz, String uri) {
-        type = clazz;
-        try {
-            this.uri = new URI(uri);
-        } catch (URISyntaxException ex) {
-            //pass
-        }
-
-
-    }
 
     @Override
     public OvationEntity getEntity() {
@@ -89,15 +90,14 @@ public class EntityWrapper implements IEntityWrapper {
     }
 
     @Override
-    public OvationEntity getEntity(boolean includeTrash) {
-        OvationEntity b = null;
+    public synchronized OvationEntity getEntity(boolean includeTrash) {
+        
         try {
-            DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
-            if (c == null) {
-                return null;
+            if(entity == null) {
+                entity = context.getObjectWithURI(getURI(), includeTrash);
             }
-            b = c.getObjectWithURI(getURI(), includeTrash);
-
+            
+            return entity;
         } catch (EntityNotFoundException e) {
             Toolkit.getDefaultToolkit().beep();
         } catch (RuntimeException e) {
@@ -107,7 +107,8 @@ public class EntityWrapper implements IEntityWrapper {
             ErrorManager.getDefault().notify(e);
             throw new RuntimeException(e.getLocalizedMessage());
         }
-        return b;
+        
+        return entity;
     }
 
     @Override
@@ -141,16 +142,15 @@ public class EntityWrapper implements IEntityWrapper {
     }
 
     public static String inferDisplayName(OvationEntity e) {
-        Class type = e.getClass();
-        if (Source.class.isAssignableFrom(type)) {
+        if (e instanceof Source) {
             return ((Source) e).getLabel() + " (" + ((Source) e).getIdentifier() + ")";
-        } else if (Project.class.isAssignableFrom(type)) {
+        } else if (e instanceof Project) {
             return ((Project) e).getName();
-        } else if (Experiment.class.isAssignableFrom(type)) {
+        } else if (e instanceof Experiment) {
             return ((Experiment) e).getPurpose() + " (" + ((Experiment) e).getStart().toString("MM/dd/yyyy") + ")";
-        } else if (EpochGroup.class.isAssignableFrom(type)) {
+        } else if (e instanceof EpochGroup) {
             return ((EpochGroup) e).getLabel();
-        } else if (Epoch.class.isAssignableFrom(type)) {
+        } else if (e instanceof Epoch) {
             if (((Epoch) e).getProtocol() != null) {
                 String epochTime;
                 Epoch epoch = (Epoch) e;
@@ -165,15 +165,15 @@ public class EntityWrapper implements IEntityWrapper {
             } else {
                 return ((Epoch) e).getStart().toString("MM/dd/yyyy hh:mm:ss");
             }
-        } else if (DataElement.class.isAssignableFrom(type)) {
+        } else if (e instanceof DataElement) {
             return ((DataElement) e).getName();
-        } else if (AnalysisRecord.class.isAssignableFrom(type)) {
+        } else if (e instanceof AnalysisRecord) {
             return ((AnalysisRecord) e).getName();
-        } else if (Protocol.class.isAssignableFrom(type)) {
+        } else if (e instanceof Protocol) {
             String name = ((Protocol) e).getName();
             return name == null ? e.getURI().toString() : name;
-        } else if(User.class.isAssignableFrom(type)) {
-            User u = (User)e;
+        } else if (e instanceof User) {
+            User u = (User) e;
             return u.getUsername() == null ? u.getEmail() : u.getUsername();
         }
 
@@ -248,7 +248,6 @@ public class EntityWrapper implements IEntityWrapper {
 
         //not sure if EquipmentSetup even has a Node...
         //EquipmentSetup.class.isAssignableFrom(getType()) ||
-        //Protocol.class.isAssignableFrom(getType());
     }
 
     @Override
