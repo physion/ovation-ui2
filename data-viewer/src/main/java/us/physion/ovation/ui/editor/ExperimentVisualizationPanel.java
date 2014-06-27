@@ -360,7 +360,7 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
         ));
         jScrollPane1.setViewportView(jTable1);
 
-        setBackground(java.awt.SystemColor.control);
+        setBackground(java.awt.Color.white);
 
         titleLabel.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(titleLabel, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.titleLabel.text")); // NOI18N
@@ -384,6 +384,7 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
         jPanel1.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.jPanel1.border.title"))); // NOI18N
 
+        jLabel1.setBackground(java.awt.Color.white);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.jLabel1.text")); // NOI18N
 
         protocolComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
@@ -393,6 +394,8 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
         bindingGroup.addBinding(jComboBoxBinding);
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${experiment.protocol}"), protocolComboBox, org.jdesktop.beansbinding.BeanProperty.create("selectedItem"));
         bindingGroup.addBinding(binding);
+
+        jScrollPane2.setBackground(java.awt.Color.white);
 
         protocolParametersTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {

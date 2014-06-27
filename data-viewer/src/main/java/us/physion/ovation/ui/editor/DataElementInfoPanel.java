@@ -232,6 +232,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         addSourcesTextField.setToolTipText(org.openide.util.NbBundle.getMessage(DataElementInfoPanel.class, "DataElementInfoPanel.addSourcesTextField.toolTipText")); // NOI18N
         addSourcesTextField.setBorder(new javax.swing.border.LineBorder(javax.swing.UIManager.getDefaults().getColor("InternalFrame.background"), 1, true));
 
+        jScrollPane1.setBackground(java.awt.Color.white);
         jScrollPane1.setBorder(null);
 
         inputsTextPane.setBorder(null);

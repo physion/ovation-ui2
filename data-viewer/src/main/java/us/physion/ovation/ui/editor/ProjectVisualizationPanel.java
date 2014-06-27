@@ -440,6 +440,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         projectTitleLabel.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(projectTitleLabel, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.projectTitleLabel.text")); // NOI18N
 
+        jScrollPane1.setBackground(java.awt.Color.white);
         jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.jScrollPane1.border.title"))); // NOI18N
 
         purposeTextArea.setColumns(20);
@@ -470,7 +471,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         org.openide.awt.Mnemonics.setLocalizedText(addExperimentButton, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.addExperimentButton.text")); // NOI18N
 
         dropPanelContainer.setBackground(java.awt.Color.white);
-        dropPanelContainer.setLayout(new java.awt.GridLayout());
+        dropPanelContainer.setLayout(new java.awt.GridLayout(1, 0));
         dropPanelContainer.add(experimentFileWell);
         dropPanelContainer.add(analysisFileWell);
 
