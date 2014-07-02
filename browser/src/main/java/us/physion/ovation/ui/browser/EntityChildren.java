@@ -49,7 +49,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
     private final int UPDATE_FACTOR = 1;
 
     protected boolean initKeysAfterFirstAddNotify = false;
-            
+
     public EntityChildren(EntityWrapper e) {
         this(e, TreeFilter.NO_FILTER);
     }
@@ -102,7 +102,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
             initKeys();
         }
     }
-    
+
     @Override
     protected Node[] createNodes(final EntityWrapper key) {
         return new Node[]{EntityWrapperUtilities.createNode(key, Children.createLazy(getChildrenCallable(key)))};
@@ -145,7 +145,7 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
         if (c == null) {
             return Futures.immediateFuture(null);
         }
-        
+
         return updateWithKeys(createKeysForEntity(c, parent, ph));
     }
 
@@ -300,12 +300,12 @@ public class EntityChildren extends Children.Keys<EntityWrapper> implements Lazy
     }
 
     private List<Epoch> sortedEpochs(Source entity) {
-        List<Epoch> epochs = Lists.newArrayList(entity.getEpochs());
+        List<Epoch> epochs = Lists.newArrayList(Lists.newLinkedList(entity.getEpochs()));
         return sortEpochList(epochs);
     }
 
     private List<Epoch> sortedEpochs(EpochContainer entity) {
-        List<Epoch> epochs = Lists.newArrayList(entity.getEpochs());
+        List<Epoch> epochs = Lists.newArrayList(Lists.newLinkedList(entity.getEpochs()));
         return sortEpochList(epochs);
     }
 

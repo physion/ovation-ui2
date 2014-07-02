@@ -1,7 +1,5 @@
 package us.physion.ovation.ui.browser;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.*;
@@ -87,29 +85,30 @@ public class BrowserUtilities {
         QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
         switch (filter.getNavigatorType()) {
             case PROJECT:
-                List<EntityWrapper> projects = Lists.newArrayList(Iterables.transform(ctx.getProjects(), new Function<Project, EntityWrapper>() {
-
-                    @Override
-                    public EntityWrapper apply(Project input) {
-                        return new EntityWrapper(input);
-                    }
-                }));
-                Collections.sort(projects, new EntityComparator());
-                return projects;
+                List<Project> projects = Lists.newLinkedList(ctx.getProjects());
+                List<EntityWrapper> projectWrappers = Lists.newArrayListWithExpectedSize(projects.size());
+                
+                for(Project p : projects) {
+                    projectWrappers.add(new EntityWrapper(p));
+                }
+                
+                
+                Collections.sort(projectWrappers, new EntityComparator());
+                return projectWrappers;
 
             case SOURCE:
-                List<EntityWrapper> sources = Lists.newArrayList(Iterables.transform(ctx.getTopLevelSources(), new Function<Source, EntityWrapper>() {
-
-                    @Override
-                    public EntityWrapper apply(Source input) {
-                        return new EntityWrapper(input);
-                    }
-                }));
+                List<Source> srcEntities = Lists.newLinkedList(ctx.getTopLevelSources());
+                List<EntityWrapper> sources = Lists.newArrayListWithExpectedSize(srcEntities.size());
+                
+                for(Source s : srcEntities) {
+                    sources.add(new EntityWrapper(s));
+                }
+                        
                 Collections.sort(sources, new EntityComparator());
                 return sources;
 
             case PROTOCOL:
-                List<Protocol> protocols = Lists.newArrayList(ctx.getProtocols());
+                List<Protocol> protocols = Lists.newLinkedList(ctx.getProtocols());
                 List<EntityWrapper> protocolWrappers = Lists.newArrayListWithExpectedSize(protocols.size());
 
                 for(Protocol p : protocols) {
