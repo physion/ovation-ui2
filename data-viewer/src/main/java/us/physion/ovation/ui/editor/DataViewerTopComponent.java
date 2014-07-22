@@ -52,9 +52,9 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 @TopComponent.OpenActionRegistration(displayName = "#CTL_DataViewerAction",
         preferredID = "DataViewerTopComponent")
 @Messages({
-    "CTL_DataViewerAction=Selection View",
-    "CTL_DataViewerTopComponent=Selection Viewer",
-    "HINT_DataViewerTopComponent=Displays the current selected entity",
+    "CTL_DataViewerAction=Data Viewer",
+    "CTL_DataViewerTopComponent=Data Viewer",
+    "HINT_DataViewerTopComponent=Displays the current entity selection",
     "# {0} - data element name",
     "Temporary_Data_Viewer_Title=Data Viewer: {0}",
     "Temporary_Data_Viewer_Loading=Opening...",
