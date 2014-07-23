@@ -1,0 +1,5 @@
+ovation (2.1.17-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Barry Wark <support@ovation.io>  Wed, 23 Jul 2014 07:53:51 -0700

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Ovation
+Comment=Ovation Desktop
+Exec=/opt/ovation/bin/ovation
+Icon=ovation.png
+Terminal=false
+Type=Application
+Categories=Science;Database;DataVisualization;

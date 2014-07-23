@@ -1,0 +1,12 @@
+Source: ovation
+Section: unknown
+Priority: extra
+Maintainer: Barry Wark <support@ovation.io>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: http://ovation.io
+Package: ovation
+Version: VERSION
+Architecture: any
+Depends: java7-runtime, couchdb (>=1.5), libc
+Description: Desktop application for the Ovation Scientific Data Management System
