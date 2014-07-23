@@ -24,4 +24,4 @@ cp -r ../application/target/ovation/* $TARGET_DIR
 # Build the package
 fpm --force -s dir -t rpm -n ovation -v $VERSION --license gpl3 --vendor Physion --category Science -d 'couchdb >= 1.4' -d 'java7-runtime' --url http://ovation.io -m 'Barry Wark <support@ovation.io>' $TARGET_DIR=/opt $ICON_DIR=/usr/share/icons/hicolor/48x48 $DESKTOP_INFO_DIR=/usr/share
 
-lintian ovation_$VERSION*.deb
+
