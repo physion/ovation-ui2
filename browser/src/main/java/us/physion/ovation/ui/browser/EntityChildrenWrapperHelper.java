@@ -46,9 +46,11 @@ import us.physion.ovation.domain.mixin.ProcedureElement;
 
 public class EntityChildrenWrapperHelper {
     private final TreeFilter filter;
+    private final BusyCancellable cancel;
 
-    public EntityChildrenWrapperHelper(TreeFilter filter) {
+    public EntityChildrenWrapperHelper(TreeFilter filter, BusyCancellable cancel) {
         this.filter = filter;
+        this.cancel = cancel;
     }
     
     private void absorbFilteredChildren(EntityWrapper pop, boolean isVisible, List<EntityWrapper> list, DataContext c, /* @Nullable*/ ProgressHandle ph, EntityComparator entityComparator) {
@@ -97,6 +99,10 @@ public class EntityChildrenWrapperHelper {
             return list;
         }
 
+        if (cancel.isCancelled()) {
+            return list;
+        }
+
         if (ew != null) {
             Class entityClass = ew.getType();
             if (Project.class.isAssignableFrom(entityClass)) {
@@ -125,6 +131,12 @@ public class EntityChildrenWrapperHelper {
             } else if (Protocol.class.isAssignableFrom(entityClass)) {
                 Protocol entity = ew.getEntity(Protocol.class);
                 addProcedureElements(list, entity, ph);
+            }
+        }
+        if (cancel.isCancelled()) {
+            //dummy value
+            if (!list.contains(EntityWrapper.EMPTY)) {
+                list.add(EntityWrapper.EMPTY);
             }
         }
         return list;
@@ -289,6 +301,10 @@ public class EntityChildrenWrapperHelper {
     }
 
     private void addExperiments(List<EntityWrapper> list, Project entity, ProgressHandle ph) {
+        if (cancel.isCancelled()) {
+            return;
+        }
+
         EntityComparator entityComparator = new EntityComparator();
         List<Experiment> experiments = sortedExperiments(entity);
 
@@ -298,6 +314,9 @@ public class EntityChildrenWrapperHelper {
         }
 
         for (Experiment e : experiments) {
+            if (cancel.isCancelled()) {
+                return;
+            }
             absorbFilteredChildren(new EntityWrapper(e), filter.isExperimentsVisible(), list, entity.getDataContext(), ph, entityComparator);
 
             if (ph != null) {

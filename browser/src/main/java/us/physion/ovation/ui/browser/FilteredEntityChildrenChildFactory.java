@@ -33,7 +33,7 @@ public class FilteredEntityChildrenChildFactory extends EntityChildrenChildFacto
     }
 
     @Override
-    protected EntityChildrenWrapperHelper createEntityChildrenWrapperHelper(TreeFilter filter) {
-        return new FilteredEntityChildrenWrapperHelper(filter, classesToInclude);
+    protected EntityChildrenWrapperHelper createEntityChildrenWrapperHelper(TreeFilter filter, BusyCancellable cancel) {
+        return new FilteredEntityChildrenWrapperHelper(filter, classesToInclude, cancel);
     }
 }

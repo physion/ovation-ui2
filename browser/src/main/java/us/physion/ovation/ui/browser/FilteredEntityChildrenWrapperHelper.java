@@ -24,8 +24,8 @@ import us.physion.ovation.DataContext;
 public class FilteredEntityChildrenWrapperHelper extends EntityChildrenWrapperHelper {
     private final Iterable<Class> classesToInclude;
 
-    public FilteredEntityChildrenWrapperHelper(TreeFilter filter, Iterable<Class> classesToInclude) {
-        super(filter);
+    public FilteredEntityChildrenWrapperHelper(TreeFilter filter, Iterable<Class> classesToInclude,  BusyCancellable cancel) {
+        super(filter, cancel);
         this.classesToInclude = classesToInclude;
     }
     

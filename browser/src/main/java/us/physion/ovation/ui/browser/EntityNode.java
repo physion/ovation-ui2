@@ -185,6 +185,10 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
             childFactory.refresh();
         }
     }
+    
+    private boolean isRefreshable() {
+        return childFactory != null;
+    }
 
     protected void setActionList(Action[] actions) {
         actionList = actions;
@@ -241,6 +245,10 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
 //                if (canRename()) {
 //                    actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
 //                }
+
+                if (isRefreshable()) {
+                    actionList = appendToArray(actionList, null, new ResettableAction(this));
+                }
 
                 if (OvationEntity.class.isAssignableFrom(entityClass)
                         //User entities cannot be sent to the trash

@@ -62,6 +62,8 @@ public class BrowserUtilities {
         registeredViewManagers.put(em, projectView);//TODO: don't need this. we should be able to look up the explorerManagers from TopComponents
         ConnectionProvider cp = Lookup.getDefault().lookup(ConnectionProvider.class);
         cp.addConnectionListener(cn);
+        
+        HeavyLoadManager.getDefault().register(em);
 
         if (ql == null) {
             final ExpressionTreeProvider etp = Lookup.getDefault().lookup(ExpressionTreeProvider.class);

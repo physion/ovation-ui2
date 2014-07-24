@@ -14,19 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package us.physion.ovation.ui.browser;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.nodes.AbstractNode;
 import org.openide.nodes.ChildFactory;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
+@Messages({
+    "Loading_Interrupted=Loading interrupted"
+})
 public class EntityChildrenChildFactory extends ChildFactory<EntityWrapper> {
     private final EntityWrapper parent;
     protected final TreeFilter filter;
@@ -42,6 +48,13 @@ public class EntityChildrenChildFactory extends ChildFactory<EntityWrapper> {
 
     @Override
     protected Node createNodeForKey(EntityWrapper key) {
+        if(key == EntityWrapper.EMPTY) {
+            return new AbstractNode(Children.LEAF) {
+                {
+                    setDisplayName(Bundle.Loading_Interrupted());
+                }
+            };
+        }
         return EntityWrapperUtilities.createNode(key, new EntityChildrenChildFactory(key, filter));
     }
     
@@ -57,23 +70,45 @@ public class EntityChildrenChildFactory extends ChildFactory<EntityWrapper> {
             return true;
         }
 
-        final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Loading_Entity_Children(parent.getDisplayName()));
+        BusyCancellable cancel = new BusyCancellable() {
+
+            private final AtomicBoolean cancelled = new AtomicBoolean();
+
+            @Override
+            public boolean cancel() {
+                //user expressly cancelled in the progress UI, allow it.
+                cancelled.set(true);
+                return true;
+            }
+
+            @Override
+            public boolean isCancelled() {
+                return cancelled.get()
+                        || HeavyLoadManager.getDefault().isCancelled(parent)
+                        || Thread.interrupted();
+            }
+        };
+        
+        final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Loading_Entity_Children(parent.getDisplayName()), cancel);
         ph.start();
         
+        HeavyLoadManager.getDefault().startLoading(parent);
+
         try {
-            createEntityChildrenWrapperHelper(filter).createKeysForEntity(toPopulate, c, parent, ph);
+            createEntityChildrenWrapperHelper(filter, cancel).createKeysForEntity(toPopulate, c, parent, ph);
 
             //XXX: Technically here we only need to sort the newly added elements since the previous call but it's too finicky and I'm not certain it's such a performance bottleneck
             Collections.sort(toPopulate, new EntityComparator());
             
         } finally {
             ph.finish();
+            HeavyLoadManager.getDefault().finishedLoading(parent);
         }
         
         return true;
     }
     
-    protected EntityChildrenWrapperHelper createEntityChildrenWrapperHelper(TreeFilter filter) {
-        return new EntityChildrenWrapperHelper(filter);
+    protected EntityChildrenWrapperHelper createEntityChildrenWrapperHelper(TreeFilter filter,  BusyCancellable cancel) {
+        return new EntityChildrenWrapperHelper(filter, cancel);
     }
 }
