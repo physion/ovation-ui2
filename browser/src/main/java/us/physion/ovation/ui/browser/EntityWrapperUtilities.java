@@ -16,6 +16,10 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  */
 public class EntityWrapperUtilities {
 
+    public static Node createNode(IEntityWrapper key, EntityChildrenChildFactory cf) {
+        return createNewNode(key, cf);
+    }
+    
     public static Node createNode(IEntityWrapper key, Children c) {
 
         boolean forceCreateNode = false;
@@ -38,6 +42,13 @@ public class EntityWrapperUtilities {
         return n;
     }
 
+    public static Node createNewNode(IEntityWrapper key, EntityChildrenChildFactory cf) {
+        EntityNode n = new EntityNode(cf, Lookups.singleton(key), key);
+        n.setDisplayName(key.getDisplayName());
+        setIconForType(n, key.getType());
+        return n;
+    }
+    
     public static EntityNode createNewNode(IEntityWrapper key, Children c)
     {
         EntityNode n = new EntityNode(key.isLeaf() ? Children.LEAF : c, Lookups.singleton(key), key);

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.browser;
 
 import java.util.*;
@@ -47,7 +43,9 @@ public class QueryChildren extends Children.Keys<IEntityWrapper> {
         Set<List<IEntityWrapper>> childPaths = pathMap.get(child.getURI());
         if (childPaths == null || childPaths.isEmpty())
         {
-            children = new EntityChildren((EntityWrapper)child, filter);
+            return new Node[]{
+                EntityWrapperUtilities.createNewNode(child, new EntityChildrenChildFactory((EntityWrapper) child, filter))
+            };
         }else{
             children = new QueryChildren(childPaths, filter);
         }

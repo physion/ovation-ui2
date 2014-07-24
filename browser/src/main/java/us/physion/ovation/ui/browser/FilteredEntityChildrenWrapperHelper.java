@@ -21,7 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import us.physion.ovation.DataContext;
 
-public abstract class FilteredEntityChildrenWrapperHelper extends EntityChildrenWrapperHelper {
+public class FilteredEntityChildrenWrapperHelper extends EntityChildrenWrapperHelper {
     private final Iterable<Class> classesToInclude;
 
     public FilteredEntityChildrenWrapperHelper(TreeFilter filter, Iterable<Class> classesToInclude) {

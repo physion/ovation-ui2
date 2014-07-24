@@ -28,6 +28,7 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
     private final IEntityWrapper entityWrapper;
     private static Map<String, Class> insertableMap = createMap();
     private URI uri;
+    private EntityChildrenChildFactory childFactory;
 
     public EntityNode(Children c, Lookup l, IEntityWrapper entity) {
         this(c, l, new URITreePathProviderImpl(), entity);
@@ -58,6 +59,11 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
                 });
             }
         });
+    }
+
+    public EntityNode(EntityChildrenChildFactory cf, Lookup lookup, IEntityWrapper key) {
+        this(key.isLeaf() ? Children.LEAF : Children.create(cf, true), lookup, key);
+        this.childFactory = cf;
     }
 
     @Override
@@ -175,12 +181,8 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
 
     @Override
     public void refresh() {
-        Children c = getChildren();
-        if (c == null || this.isLeaf()) {
-            return;
-        }
-        if (c instanceof EntityChildren) {
-            ((EntityChildren) c).refreshKeys();
+        if (childFactory != null) {
+            childFactory.refresh();
         }
     }
 
