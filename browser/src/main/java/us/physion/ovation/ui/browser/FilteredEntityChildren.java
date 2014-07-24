@@ -1,23 +1,14 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.browser;
 
 import com.google.common.collect.Lists;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.OvationEntity;
 
-/**
- *
- * @author huecotanks
- */
 public class FilteredEntityChildren extends EntityChildren {
     Iterable<Class> classesToInclude;
     public FilteredEntityChildren(EntityWrapper e, Iterable<Class> classesToInclude) {
@@ -48,24 +39,6 @@ public class FilteredEntityChildren extends EntityChildren {
         return new Node[]{EntityWrapperUtilities.createNewNode(key, Children.createLazy(getFilteredChildrenCallable(key)))};
     }
 
-    @Override
-    public List<EntityWrapper> createKeysForEntity(DataContext ctx, EntityWrapper ew)
-    {
-        List<EntityWrapper> all = super.createKeysForEntity(ctx, ew);
-        List<EntityWrapper> filtered = new LinkedList();
-        for(EntityWrapper child : all)
-        {
-            for (Class c : classesToInclude) {
-                if (c.isAssignableFrom(child.getType())) {
-                    filtered.add(child);
-                    break;//break from for class in classesToInclude loop
-                }
-            }
-        }
-
-        return filtered;
-    }
-
     protected Callable<Children> getFilteredChildrenCallable(final EntityWrapper parent)
     {
         return new Callable<Children>() {
@@ -76,4 +49,16 @@ public class FilteredEntityChildren extends EntityChildren {
             }
         };
     }
+
+    @Override
+    protected EntityChildrenWrapperHelper createEntityChildrenWrapperHelper(TreeFilter filter) {
+        return new FilteredEntityChildrenWrapperHelper(filter, classesToInclude) {
+
+            @Override
+            protected void displayUpdatedList(List<EntityWrapper> list, Comparator entityComparator) {
+                FilteredEntityChildren.this.updatedList(list, entityComparator);
+            }
+            
+        };
+    }    
 }
