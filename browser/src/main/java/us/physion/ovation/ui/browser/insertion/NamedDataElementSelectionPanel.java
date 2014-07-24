@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.browser.insertion;
 
 import java.util.Collections;
@@ -21,7 +17,7 @@ import us.physion.ovation.domain.mixin.EpochGroupContainer;
 import us.physion.ovation.ui.browser.EntityChildren;
 import us.physion.ovation.ui.browser.EntityComparator;
 import us.physion.ovation.ui.browser.EntityWrapper;
-import us.physion.ovation.ui.browser.FilteredEntityChildren;
+import us.physion.ovation.ui.browser.EntityWrapperUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 /**
@@ -37,7 +33,7 @@ public class NamedDataElementSelectionPanel extends NamedEntitySelectionPanel
     }
     @Override
     public void resetEntities() {
-        List<EntityWrapper> wrappers = FilteredEntityChildren.wrap(
+        List<EntityWrapper> wrappers = EntityWrapperUtilities.wrap(
                 context.getProjects());
         
         Collections.sort(wrappers, new EntityComparator());

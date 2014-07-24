@@ -1,24 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.browser.insertion;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -28,19 +16,13 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.Node;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.domain.Epoch;
-import us.physion.ovation.domain.EpochContainer;
-import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.mixin.ProcedureElement;
-import us.physion.ovation.ui.browser.EntityChildren;
 import us.physion.ovation.ui.browser.EntityWrapper;
 import us.physion.ovation.ui.browser.EntityWrapperUtilities;
 import us.physion.ovation.ui.browser.FilteredEntityChildren;
@@ -122,7 +104,7 @@ public class ProcedureElementSelector extends JPanel implements Lookup.Provider,
                     return new EntityWrapper(input);
                 }
             }));
-        em.setRootContext(new AbstractNode(new FilteredEntityChildren(FilteredEntityChildren.wrap(ctx.getProjects()), Sets.<Class>newHashSet(ProcedureElement.class))));
+        em.setRootContext(new AbstractNode(new FilteredEntityChildren(EntityWrapperUtilities.wrap(ctx.getProjects()), Sets.<Class>newHashSet(ProcedureElement.class))));
     }
     
     public ProcedureElement getProcedureElement()

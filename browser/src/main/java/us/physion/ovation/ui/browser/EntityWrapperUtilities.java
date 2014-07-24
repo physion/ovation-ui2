@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.browser;
 
+import com.google.common.collect.Lists;
 import java.util.*;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -65,5 +66,17 @@ public class EntityWrapperUtilities {
         //else if (DataElement.class.isAssignableFrom(entityClass)) {
         //        n.setIconBaseWithExtension("us/physion/ovation/ui/browser/analysis-record.png");
         //    }
+    }
+
+    public static List<EntityWrapper> wrap(Iterable<? extends OvationEntity> entities)    {
+        List<EntityWrapper> wrapped = Lists.newArrayList();
+         for (OvationEntity entity : entities)
+         {
+             wrapped.add(new EntityWrapper(entity));
+        }
+
+        Collections.sort(wrapped, new EntityComparator());
+
+         return wrapped;
     }
 }

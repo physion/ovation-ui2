@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.browser.insertion;
 
 import com.google.common.base.Function;
@@ -36,6 +32,7 @@ import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.browser.EntityComparator;
 import us.physion.ovation.ui.browser.EntityWrapper;
+import us.physion.ovation.ui.browser.EntityWrapperUtilities;
 import us.physion.ovation.ui.browser.FilteredEntityChildren;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
@@ -280,7 +277,7 @@ public class NamedSourceSelector extends javax.swing.JPanel implements Lookup.Pr
     }
 
     private void resetSources() {
-        List<EntityWrapper> topLevelSources = FilteredEntityChildren.wrap(
+        List<EntityWrapper> topLevelSources = EntityWrapperUtilities.wrap(
                 context.getTopLevelSources());
 
         Collections.sort(topLevelSources, new EntityComparator());
