@@ -106,8 +106,8 @@ public final class TrashTopComponent extends TopComponent implements ExplorerMan
         }
 
         @Override
-        public ListenableFuture<Void> refresh() {
-            return populateTrash();
+        public void refresh() {
+            populateTrash();
         }
 
         @Override

@@ -217,15 +217,9 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
                             @Override
                             public void run() {
-                                try {
-                                    node.refresh().get();
+                                    node.refresh();
                                     view.expandNode((Node) node);
-                                    node.refresh().get();
-                                } catch (InterruptedException ex) {
-                                    logger.error("Unable to refresh Project node", ex);
-                                } catch (ExecutionException ex) {
-                                    logger.error("Unable to refresh Project node", ex);
-                                }
+                                    node.refresh();
 
 
                                 for (final Node userNode : ((Node) node).getChildren().getNodes()) {
