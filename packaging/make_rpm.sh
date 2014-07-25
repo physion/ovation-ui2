@@ -4,7 +4,7 @@ VERSION=$1
 BUILD=$2
 
 #git checkout v$VERSION
-
+# Make BUILD_DIR ../ovation-$VERSION; add ARTIFACTS; cd to ARTIFACTS, then run fpm; Jenkins save all contents of ARTIFACTS
 BUILD_DIR=ovation-$VERSION
 
 TARGET_DIR=$BUILD_DIR/opt/ovation
