@@ -2,6 +2,7 @@
 
 BUILD_DIR = ovation-$(VERSION)
 EPOCH = $(BUILD_NUMBER)
+DESCRIPTION = "Ovation Desktop"
 
 TARGET_DIR = $(BUILD_DIR)/opt/ovation
 ARTIFACTS_DIR = target
@@ -26,11 +27,9 @@ stage:
 	cp -r ../application/target/ovation/* $(TARGET_DIR)
 
 deb: stage
-	DESCRIPTION="Ovation Desktop"
 	fpm --force -s dir -t deb -n ovation -v $(VERSION) --epoch $(EPOCH) --license gpl3 --vendor Physion --category Science -d 'couchdb >= 1.4' -d 'java7-runtime' --url http://ovation.io -m 'Physion <support@ovation.io>' --description "$(DESCRIPTION)"  $(TARGET_DIR)=/opt $(ICON_DIR)=/usr/share/icons/hicolor/48x48 $(DESKTOP_INFO_DIR)=/usr/share
 	mv *.deb $(ARTIFACTS_DIR)
 
 rpm: stage
-	DESCRIPTION="Ovation Desktop"
 	fpm --force -s dir -t rpm -n ovation -v $(VERSION) --epoch $(EPOCH) --license gpl3 --vendor Physion --category Science -d 'couchdb >= 1.3' -d 'java >= 1.7' --url http://ovation.io -m 'Physion <support@ovation.io>' --description "$(DESCRIPTION)"  $(TARGET_DIR)=/opt $(ICON_DIR)=/usr/share/icons/hicolor/48x48 $(DESKTOP_INFO_DIR)=/usr/share
 	mv *.rpm $(ARTIFACTS_DIR)
