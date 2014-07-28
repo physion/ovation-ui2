@@ -22,320 +22,320 @@
             Repository hosting NetBeans modules, especially APIs.
             Versions are based on IDE releases, e.g.: RELEASE691
             To create your own repository, use: nbm:populate-repository
-        -->
-        <repository>
-            <id>netbeans</id>
-            <name>NetBeans</name>
-            <url>http://bits.netbeans.org/maven2/</url>
-        </repository>
+            -->
+            <repository>
+                <id>netbeans</id>
+                <name>NetBeans</name>
+                <url>http://bits.netbeans.org/maven2/</url>
+            </repository>
 
-        <repository>
-            <id>s3-ovation-release-repository</id>
-            <name>AWS Release Repository</name>
-            <url>s3://maven.ovation.io/release</url>
-        </repository>
+            <repository>
+                <id>s3-ovation-release-repository</id>
+                <name>AWS Release Repository</name>
+                <url>s3://maven.ovation.io/release</url>
+            </repository>
 
-        <repository>
-            <id>icepdf</id>
-            <name>ICEpdf</name>
-            <url>http://anonsvn.icesoft.org/repo/maven2/releases/</url>
-        </repository>
-    </repositories>
+            <repository>
+                <id>icepdf</id>
+                <name>ICEpdf</name>
+                <url>http://anonsvn.icesoft.org/repo/maven2/releases/</url>
+            </repository>
+        </repositories>
 
-    <build>
-        <extensions>
-            <extension>
-                <groupId>org.springframework.build</groupId>
-                <artifactId>aws-maven</artifactId>
-                <version>5.0.0.RELEASE</version>
-            </extension>
-        </extensions>
+        <build>
+            <extensions>
+                <extension>
+                    <groupId>org.springframework.build</groupId>
+                    <artifactId>aws-maven</artifactId>
+                    <version>5.0.0.RELEASE</version>
+                </extension>
+            </extensions>
 
-        <plugins>
-            <plugin>
-                <!-- NetBeans 6.9+ requires JDK 6 -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-                <version>${nbm.plugin.version}</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <brandingToken>${brandingToken}</brandingToken>
-                    <cluster>${brandingToken}</cluster>
-                    <useOSGiDependencies>false</useOSGiDependencies>
-                    <userSettings>
-                        <releaseVersion>${project.version}</releaseVersion>
-                    </userSettings>
-                </configuration>
-            </plugin>
-
-            <!--Release-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <configuration>
-                    <!-- During release:perform, enable the "deployment" profile  -->
-                    <releaseProfiles>deployment,deploy-updates,sign</releaseProfiles>
-                    <!-- Deploy, then clean so that the post-release build succeeds -->
-                    <goals>deploy clean</goals>
-                    <!-- Before commit, clean and verify -->
-                    <preparationGoals>clean verify</preparationGoals>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-                <version>2.1</version>
-                <configuration>
-                    <includes>
-                        <include>us.physion:*</include>
-                    </includes>
-                </configuration>
-            </plugin>
-        </plugins>
-
-        <pluginManagement>
             <plugins>
-	      <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-		<version>2.5</version>
-	      </plugin>
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
-              </plugin>
-              <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-                <version>${nbm.plugin.version}</version>
-              </plugin>
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.4.1</version>
-              </plugin>
+                <plugin>
+                    <!-- NetBeans 6.9+ requires JDK 6 -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                    <configuration>
+                        <source>1.7</source>
+                        <target>1.7</target>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>nbm-maven-plugin</artifactId>
+                    <version>${nbm.plugin.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <brandingToken>${brandingToken}</brandingToken>
+                        <cluster>${brandingToken}</cluster>
+                        <useOSGiDependencies>false</useOSGiDependencies>
+                        <userSettings>
+                            <releaseVersion>${project.version}</releaseVersion>
+                        </userSettings>
+                    </configuration>
+                </plugin>
+
+                <!--Release-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <configuration>
+                        <!-- During release:perform, enable the "deployment" profile  -->
+                        <releaseProfiles>deployment,deploy-updates,sign</releaseProfiles>
+                        <!-- Deploy, then clean so that the post-release build succeeds -->
+                        <goals>deploy clean</goals>
+                        <!-- Before commit, clean and verify -->
+                        <preparationGoals>clean verify</preparationGoals>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>2.1</version>
+                    <configuration>
+                        <includes>
+                            <include>us.physion:*</include>
+                        </includes>
+                    </configuration>
+                </plugin>
             </plugins>
-        </pluginManagement>
-    </build>
 
-    <distributionManagement>
-        <repository>
-            <id>s3-ovation-release-repository</id>
-            <name>AWS Release Repository</name>
-            <url>s3://maven.ovation.io/release</url>
-        </repository>
-        <snapshotRepository>
-            <id>s3-ovation-snapshot-repository</id>
-            <name>AWS Snapshot Repository</name>
-            <url>s3://maven.ovation.io/snapshot</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-netbeans-api-annotations-common</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-openide-actions</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-openide-util</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-jdesktop-beansbinding</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-openide-dialogs</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-openide-awt</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-openide-explorer</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-openide-nodes</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-openide-windows</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-openide-util-lookup</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.swinglabs</groupId>
-                <artifactId>swing-layout</artifactId>
-                <version>1.0.3</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-netbeans-modules-settings</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-openide-modules</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-netbeans-modules-jellytools-platform</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.cluster</groupId>
-                <artifactId>platform</artifactId>
-                <version>${netbeans.version}</version>
-                <type>pom</type>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-netbeans-modules-nbjunit</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-netbeans-api-progress</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-netbeans-spi-quicksearch</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.netbeans.modules</groupId>
-                <artifactId>org-netbeans-modules-web-jsf</artifactId>
-                <version>${netbeans.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.jdesktop</groupId>
-                <artifactId>beansbinding</artifactId>
-                <version>1.2.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.8.1</version>
-            </dependency>
-
-        </dependencies>
-    </dependencyManagement>
-
-    <modules>
-        <module>branding</module>
-        <module>application</module>
-        <module>database-connection-provider</module>
-        <module>imagej</module>
-        <module>ovation-api</module>
-        <module>common-interfaces</module>
-        <module>test</module>
-        <module>browser</module>
-        <module>scrollable-table-tree</module>
-        <module>data-viewer</module>
-        <module>annotation-views</module>
-        <module>image-importer</module>
-        <module>query</module>
-        <module>osx</module>
-    </modules>
-
-    <properties>
-        <netbeans.version>RELEASE74</netbeans.version>
-        <brandingToken>ovation</brandingToken>
-        <keystore.path>../cert/dev.keystore</keystore.path>
-        <keystore.type>JKS</keystore.type>
-        <keystore.alias>dev</keystore.alias>
-        <keystore.store.password>ovation-core-dev</keystore.store.password>
-        <keystore.key.password>ovation-core-dev</keystore.key.password>
-        <nbm.plugin.version>3.11.1</nbm.plugin.version>
-    </properties>
-
-    <profiles>
-        <profile>
-            <id>sign</id>
-            <build>
+            <pluginManagement>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jarsigner-plugin</artifactId>
-                        <version>1.2</version>
-                        <executions>
-                            <execution>
-                                <id>sign</id>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <keystore>${keystore.path}</keystore>
-                            <alias>${keystore.alias}</alias>
-                            <storepass>${keystore.store.password}</storepass>
-                            <keypass>${keystore.key.password}</keypass>
-                        </configuration>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <version>2.5</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.2.1</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>nbm-maven-plugin</artifactId>
+                        <version>${nbm.plugin.version}</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>2.4.1</version>
                     </plugin>
                 </plugins>
-            </build>
-        </profile>
-    </profiles>
+            </pluginManagement>
+        </build>
+
+        <distributionManagement>
+            <repository>
+                <id>s3-ovation-release-repository</id>
+                <name>AWS Release Repository</name>
+                <url>s3://maven.ovation.io/release</url>
+            </repository>
+            <snapshotRepository>
+                <id>s3-ovation-snapshot-repository</id>
+                <name>AWS Snapshot Repository</name>
+                <url>s3://maven.ovation.io/snapshot</url>
+            </snapshotRepository>
+        </distributionManagement>
+
+        <dependencyManagement>
+            <dependencies>
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-api-annotations-common</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-openide-actions</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-openide-util</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-jdesktop-beansbinding</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-openide-dialogs</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-openide-awt</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-openide-explorer</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-openide-nodes</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-openide-windows</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-openide-util-lookup</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.swinglabs</groupId>
+                    <artifactId>swing-layout</artifactId>
+                    <version>1.0.3</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-modules-settings</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-openide-modules</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-modules-jellytools-platform</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.cluster</groupId>
+                    <artifactId>platform</artifactId>
+                    <version>${netbeans.version}</version>
+                    <type>pom</type>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-modules-nbjunit</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-api-progress</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-spi-quicksearch</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.netbeans.modules</groupId>
+                    <artifactId>org-netbeans-modules-web-jsf</artifactId>
+                    <version>${netbeans.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.jdesktop</groupId>
+                    <artifactId>beansbinding</artifactId>
+                    <version>1.2.1</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                    <version>4.8.1</version>
+                </dependency>
+
+            </dependencies>
+        </dependencyManagement>
+
+        <modules>
+            <module>branding</module>
+            <module>application</module>
+            <module>database-connection-provider</module>
+            <module>imagej</module>
+            <module>ovation-api</module>
+            <module>common-interfaces</module>
+            <module>test</module>
+            <module>browser</module>
+            <module>scrollable-table-tree</module>
+            <module>data-viewer</module>
+            <module>annotation-views</module>
+            <module>image-importer</module>
+            <module>query</module>
+            <module>osx</module>
+        </modules>
+
+        <properties>
+            <netbeans.version>RELEASE74</netbeans.version>
+            <brandingToken>ovation</brandingToken>
+            <keystore.path>../cert/dev.keystore</keystore.path>
+            <keystore.type>JKS</keystore.type>
+            <keystore.alias>dev</keystore.alias>
+            <keystore.store.password>ovation-core-dev</keystore.store.password>
+            <keystore.key.password>ovation-core-dev</keystore.key.password>
+            <nbm.plugin.version>3.11.1</nbm.plugin.version>
+        </properties>
+
+        <profiles>
+            <profile>
+                <id>sign</id>
+                <build>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-jarsigner-plugin</artifactId>
+                            <version>1.2</version>
+                            <executions>
+                                <execution>
+                                    <id>sign</id>
+                                    <goals>
+                                        <goal>sign</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                            <configuration>
+                                <keystore>${keystore.path}</keystore>
+                                <alias>${keystore.alias}</alias>
+                                <storepass>${keystore.store.password}</storepass>
+                                <keypass>${keystore.key.password}</keypass>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </build>
+            </profile>
+        </profiles>
 
 
-    <scm>
-        <connection>scm:git:git@github.com:physion/ovation-ui2.git</connection>
-        <developerConnection>scm:git:git@github.com:physion/ovation-ui2.git</developerConnection>
-        <url>scm:git:git@github.com:physion/ovation-ui2.git</url>
-    </scm>
-</project>
+        <scm>
+            <connection>scm:git:git@github.com:physion/ovation-ui2.git</connection>
+            <developerConnection>scm:git:git@github.com:physion/ovation-ui2.git</developerConnection>
+            <url>scm:git:git@github.com:physion/ovation-ui2.git</url>
+        </scm>
+    </project>
