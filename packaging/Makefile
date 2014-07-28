@@ -26,6 +26,8 @@ stage:
 	cp ../application/src/main/linux/ovation_48x48.png $(ICON_DIR)/ovation.png
 	cp -r ../application/target/ovation/* $(TARGET_DIR)
 
+	sed -i  "s|$(HOME)|\$$\{HOME\}|g" $(TARGET_DIR)/etc/ovation.conf
+
 deb: stage
 	fpm --force -s dir -t deb -n ovation -v $(VERSION) --epoch $(EPOCH) --license gpl3 --vendor Physion --category Science -d 'couchdb >= 1.4' -d 'java7-runtime' --url http://ovation.io -m 'Physion <support@ovation.io>'  $(TARGET_DIR)=/opt $(ICON_DIR)=/usr/share/icons/hicolor/48x48 $(DESKTOP_INFO_DIR)=/usr/share
 	mv *.deb $(ARTIFACTS_DIR)
