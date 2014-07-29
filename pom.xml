@@ -66,7 +66,6 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>nbm-maven-plugin</artifactId>
-                    <version>${nbm.plugin.version}</version>
                     <extensions>true</extensions>
                     <configuration>
                         <brandingToken>${brandingToken}</brandingToken>
@@ -125,6 +124,11 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
                         <version>2.4.1</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>nbm-maven-plugin</artifactId>
+                        <version>3.13.3</version>
                     </plugin>
                 </plugins>
             </pluginManagement>
@@ -300,7 +304,6 @@
             <keystore.alias>dev</keystore.alias>
             <keystore.store.password>ovation-core-dev</keystore.store.password>
             <keystore.key.password>ovation-core-dev</keystore.key.password>
-            <nbm.plugin.version>3.11.1</nbm.plugin.version>
         </properties>
 
         <profiles>
