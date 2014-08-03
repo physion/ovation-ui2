@@ -43,6 +43,7 @@ public class EntityChildrenChildFactory extends ChildFactory<EntityWrapper> {
     }
     
     public void refresh() {
+        loaded.set(false);
         super.refresh(false);
     }
 
@@ -59,7 +60,15 @@ public class EntityChildrenChildFactory extends ChildFactory<EntityWrapper> {
     }
     
     @Override
-    protected boolean createKeys(List<EntityWrapper> toPopulate) {
+    protected final boolean createKeys(List<EntityWrapper> toPopulate) {
+        boolean finished = createKeysInternal(toPopulate);
+        if (finished) {
+            loaded.set(true);
+        }
+        return finished;
+    }
+    
+    private boolean createKeysInternal(List<EntityWrapper> toPopulate) {
         if (parent instanceof PerUserEntityWrapper) {
             toPopulate.addAll(((PerUserEntityWrapper) parent).getChildren());
             return true;
@@ -110,5 +119,11 @@ public class EntityChildrenChildFactory extends ChildFactory<EntityWrapper> {
     
     protected EntityChildrenWrapperHelper createEntityChildrenWrapperHelper(TreeFilter filter,  BusyCancellable cancel) {
         return new EntityChildrenWrapperHelper(filter, cancel);
+    }
+
+    private final AtomicBoolean loaded = new AtomicBoolean();
+    
+    public boolean isLoaded() {
+        return loaded.get();
     }
 }

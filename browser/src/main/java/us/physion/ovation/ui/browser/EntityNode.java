@@ -9,6 +9,8 @@ import javax.swing.Action;
 import org.openide.nodes.*;
 import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 import us.physion.ovation.domain.*;
@@ -61,8 +63,25 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
         });
     }
 
-    public EntityNode(EntityChildrenChildFactory cf, Lookup lookup, IEntityWrapper key) {
-        this(key.isLeaf() ? Children.LEAF : Children.create(cf, true), lookup, key);
+    public EntityNode(EntityChildrenChildFactory cf, IEntityWrapper key) {
+        this(cf, new InstanceContent(), key);
+    }
+    
+    private EntityNode(final EntityChildrenChildFactory cf, InstanceContent ic, IEntityWrapper key) {
+        this(key.isLeaf() ? Children.LEAF : Children.create(cf, true), new AbstractLookup(ic), key);
+
+        ic.add(key);
+        
+        if (!key.isLeaf()) {
+            ic.add(new LazyChildren() {
+
+                @Override
+                public boolean isLoaded() {
+                    return cf.isLoaded();
+                }
+            });
+        }
+        
         this.childFactory = cf;
     }
 

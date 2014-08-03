@@ -43,7 +43,7 @@ public class EntityWrapperUtilities {
     }
 
     public static Node createNewNode(IEntityWrapper key, EntityChildrenChildFactory cf) {
-        EntityNode n = new EntityNode(cf, Lookups.singleton(key), key);
+        EntityNode n = new EntityNode(cf, key);
         n.setDisplayName(key.getDisplayName());
         setIconForType(n, key.getType());
         return n;
