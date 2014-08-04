@@ -2,5 +2,8 @@ package us.physion.ovation.ui.interfaces;
 
 public interface RefreshableNode
 {
-    public void refresh();
+    /**
+     * Refresh the node (asynchronously)
+     */
+    void refresh();
 }
