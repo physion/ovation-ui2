@@ -57,7 +57,7 @@ public final class NewProjectAction extends AbstractNewEntityAction<Project> {
                 "",
                 new DateTime());
 
-        ListenableFuture<Void> reset = BrowserUtilities.resetView(BrowserUtilities.PROJECT_BROWSER_ID);
+        ListenableFuture<Void> reset = BrowserUtilities.reloadView(BrowserUtilities.PROJECT_BROWSER_ID);
         Futures.addCallback(reset, new FutureCallback<Void>() {
 
             @Override

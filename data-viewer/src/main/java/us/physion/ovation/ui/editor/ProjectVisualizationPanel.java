@@ -34,7 +34,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import org.joda.time.DateTime;
@@ -51,7 +50,6 @@ import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.Project;
-import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.browser.BrowserUtilities;
@@ -193,12 +191,12 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.AnalysisRecord_Adding_Outputs());
 
-                TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
-                if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
-                    throw new IllegalStateException();
-                }
-
-                final TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
+//                final TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
+//                if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
+//                    throw new IllegalStateException();
+//                }
+//
+//                final TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
 
                 ListenableFuture<AnalysisRecord> addRecord = EventQueueUtilities.runOffEDT(new Callable<AnalysisRecord>() {
 
@@ -213,24 +211,48 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
                     @Override
                     public void onSuccess(final AnalysisRecord ar) {
+                        
+                        node.refresh();
+                        
                         EventQueueUtilities.runOnEDT(new Runnable() {
 
                             @Override
                             public void run() {
-                                    node.refresh();
-                                    view.expandNode((Node) node);
-                                    node.refresh();
-
-
-                                for (final Node userNode : ((Node) node).getChildren().getNodes()) {
-                                    final User user = ((IEntityNode) userNode).getEntity(User.class);
-                                    if (user != null && user.equals(ar.getDataContext().getAuthenticatedUser())) {
-                                        view.expandNode(userNode);
-                                    }
-
-                                }
+                                new OpenNodeInBrowserAction(OpenNodeInBrowserAction.PROJECT_BROWSER_ID, 
+                                        Lists.newArrayList(ar.getURI()))
+                                        .actionPerformed(null);
                             }
                         });
+                        
+                        
+                        
+//                        EventQueueUtilities.runOnEDT(new Runnable() {
+//
+//                            @Override
+//                            public void run() {
+//                                //node.refresh();
+//                                view.expandNode((Node) node);
+//
+//                                for (final Node userNode : ((Node) node).getChildren().getNodes()) {
+//                                    final User user = ((IEntityNode) userNode).getEntity(User.class);
+//                                    if (user != null && user.equals(ar.getDataContext().getAuthenticatedUser())) {
+//                                        view.expandNode(userNode);
+//                                        
+//                                        for(final Node arNode : userNode.getChildren().getNodes()) {
+//                                            AnalysisRecord analysisRecord = ((IEntityNode) arNode).getEntity(AnalysisRecord.class);
+//                                            if(analysisRecord.equals(ar)) {
+//                                                try {
+//                                                    ((ExplorerManager.Provider)tc).getExplorerManager().setSelectedNodes(new Node[] {arNode});
+//                                                } catch (PropertyVetoException ex) {
+//                                                    logger.error("Unable to select inserted AnalysisRecord node");
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+//
+//                                }
+//                            }
+//                        });
                     }
 
                     @Override
