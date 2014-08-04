@@ -196,14 +196,8 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
 
                             @Override
                             public void run() {
-                                try {
-                                    node.refresh().get();
+                                    node.refresh();
                                     view.expandNode((Node) node);
-                                } catch (InterruptedException ex) {
-                                    logger.error("Unable to refresh Epoch node", ex);
-                                } catch (ExecutionException ex) {
-                                    logger.error("Unable to refresh Epoch node", ex);
-                                }
                             }
                         });
                     }
@@ -251,14 +245,8 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
 
                             @Override
                             public void run() {
-                                try {
-                                    node.refresh().get();
+                                    node.refresh();
                                     view.expandNode((Node) node);
-                                } catch (InterruptedException ex) {
-                                    logger.error("Unable to refresh Epoch node", ex);
-                                } catch (ExecutionException ex) {
-                                    logger.error("Unable to refresh Epoch node", ex);
-                                }
 
                                 for (final Node userNode : ((Node) node).getChildren().getNodes()) {
                                     final User user = ((IEntityNode) userNode).getEntity(User.class);

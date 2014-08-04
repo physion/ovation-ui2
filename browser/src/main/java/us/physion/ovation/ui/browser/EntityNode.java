@@ -1,7 +1,5 @@
 package us.physion.ovation.ui.browser;
 
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
@@ -11,6 +9,8 @@ import javax.swing.Action;
 import org.openide.nodes.*;
 import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 import us.physion.ovation.domain.*;
@@ -30,6 +30,7 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
     private final IEntityWrapper entityWrapper;
     private static Map<String, Class> insertableMap = createMap();
     private URI uri;
+    private EntityChildrenChildFactory childFactory;
 
     public EntityNode(Children c, Lookup l, IEntityWrapper entity) {
         this(c, l, new URITreePathProviderImpl(), entity);
@@ -60,6 +61,28 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
                 });
             }
         });
+    }
+
+    public EntityNode(EntityChildrenChildFactory cf, IEntityWrapper key) {
+        this(cf, new InstanceContent(), key);
+    }
+    
+    private EntityNode(final EntityChildrenChildFactory cf, InstanceContent ic, IEntityWrapper key) {
+        this(key.isLeaf() ? Children.LEAF : Children.create(cf, true), new AbstractLookup(ic), key);
+
+        ic.add(key);
+        
+        if (!key.isLeaf()) {
+            ic.add(new LazyChildren() {
+
+                @Override
+                public boolean isLoaded() {
+                    return cf.isLoaded();
+                }
+            });
+        }
+        
+        this.childFactory = cf;
     }
 
     @Override
@@ -176,16 +199,14 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
     }
 
     @Override
-    public ListenableFuture<Void> refresh() {
-        Children c = getChildren();
-        if (c == null || this.isLeaf()) {
-            return Futures.immediateFuture(null);
+    public void refresh() {
+        if (childFactory != null) {
+            childFactory.refresh();
         }
-        if (c instanceof EntityChildren) {
-            return ((EntityChildren) c).refreshKeys();
-        }
-        
-        return Futures.immediateFuture(null);
+    }
+    
+    private boolean isRefreshable() {
+        return childFactory != null;
     }
 
     protected void setActionList(Action[] actions) {
@@ -243,6 +264,10 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
 //                if (canRename()) {
 //                    actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
 //                }
+
+                if (isRefreshable()) {
+                    actionList = appendToArray(actionList, null, new ResettableAction(this));
+                }
 
                 if (OvationEntity.class.isAssignableFrom(entityClass)
                         //User entities cannot be sent to the trash

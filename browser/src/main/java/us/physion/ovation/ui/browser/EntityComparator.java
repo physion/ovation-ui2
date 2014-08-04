@@ -18,6 +18,18 @@ public class EntityComparator<T extends EntityWrapper> implements Comparator<T> 
 
     @Override
     public int compare(T o1, T o2) {
+        //put the empty one last!
+        if (o1 == EntityWrapper.EMPTY) {
+            if (o2 == EntityWrapper.EMPTY) {
+                return 0;
+            } else {
+                return 1;
+            }
+        } else if (o2 == EntityWrapper.EMPTY) {
+            return -1;
+        }
+
+        
         final OvationEntity entity1 = o1.getEntity(true);
         final OvationEntity entity2 = o2.getEntity(true);
 

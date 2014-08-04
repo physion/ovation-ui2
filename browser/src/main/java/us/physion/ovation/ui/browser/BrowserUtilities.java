@@ -1,11 +1,8 @@
 package us.physion.ovation.ui.browser;
 
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.*;
 
-import java.util.List;
-import java.util.concurrent.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.netbeans.api.progress.ProgressHandle;
@@ -16,9 +13,6 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.domain.Project;
-import us.physion.ovation.domain.Protocol;
-import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -62,6 +56,8 @@ public class BrowserUtilities {
         registeredViewManagers.put(em, projectView);//TODO: don't need this. we should be able to look up the explorerManagers from TopComponents
         ConnectionProvider cp = Lookup.getDefault().lookup(ConnectionProvider.class);
         cp.addConnectionListener(cn);
+        
+        HeavyLoadManager.getDefault().register(em);
 
         if (ql == null) {
             final ExpressionTreeProvider etp = Lookup.getDefault().lookup(ExpressionTreeProvider.class);
@@ -79,49 +75,6 @@ public class BrowserUtilities {
             }
         }
     }
-
-    static List<EntityWrapper> getEntityList(TreeFilter filter, DataContext ctx) {
-        //check that I'm
-        QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
-        switch (filter.getNavigatorType()) {
-            case PROJECT:
-                List<Project> projects = Lists.newLinkedList(ctx.getProjects());
-                List<EntityWrapper> projectWrappers = Lists.newArrayListWithExpectedSize(projects.size());
-                
-                for(Project p : projects) {
-                    projectWrappers.add(new EntityWrapper(p));
-                }
-                
-                
-                Collections.sort(projectWrappers, new EntityComparator());
-                return projectWrappers;
-
-            case SOURCE:
-                List<Source> srcEntities = Lists.newLinkedList(ctx.getTopLevelSources());
-                List<EntityWrapper> sources = Lists.newArrayListWithExpectedSize(srcEntities.size());
-                
-                for(Source s : srcEntities) {
-                    sources.add(new EntityWrapper(s));
-                }
-                        
-                Collections.sort(sources, new EntityComparator());
-                return sources;
-
-            case PROTOCOL:
-                List<Protocol> protocols = Lists.newLinkedList(ctx.getProtocols());
-                List<EntityWrapper> protocolWrappers = Lists.newArrayListWithExpectedSize(protocols.size());
-
-                for(Protocol p : protocols) {
-                    protocolWrappers.add(new EntityWrapper(p));
-                }
-
-                Collections.sort(protocolWrappers, new EntityComparator());
-                return protocolWrappers;
-        }
-
-        return Lists.newArrayList();
-    }
-
 
     public static void resetView() {
         final DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
@@ -177,13 +130,7 @@ public class BrowserUtilities {
     }
 
     private static EntityNode createRootNode(final TreeFilter filter) {
-        return new EntityRootNode(new Callable<List<EntityWrapper>>() {
-            @Override
-            public List<EntityWrapper> call() throws Exception {
-                DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
-                return getEntityList(filter, ctx);
-            }
-        }, filter);
+        return new EntityRootNode(new EntityRootChildrenChildFactory(filter));
     }
 
     public static void switchToSourceView() {
