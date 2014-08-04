@@ -30,6 +30,7 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  * @author huecotanks
  */
 public class EntityWrapper implements IEntityWrapper {
+    public final static EntityWrapper EMPTY = new EntityWrapper();
 
     private final URI uri;
     private OvationEntity entity = null;
@@ -41,6 +42,15 @@ public class EntityWrapper implements IEntityWrapper {
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
     private final DataContext context;
+    
+    /**
+     * Not an actual constructor... this only makes sense for the EMPTY constant which is useful when EntityWrappers are keys in hashmaps etc. that don't accept NULL keys.
+     */
+    private EntityWrapper() {
+        uri = null;
+        type = null;
+        context = null;
+    }
 
     public EntityWrapper(OvationEntity e) {
         uri = e.getURI();
@@ -284,6 +294,10 @@ public class EntityWrapper implements IEntityWrapper {
         if (getClass() != obj.getClass()) {
             return false;
         }
+        if(obj == EMPTY && this == obj){
+            return true;
+        }
+        
         final EntityWrapper other = (EntityWrapper) obj;
         if (this.uri != other.uri && (this.uri == null || !this.uri.equals(other.uri))) {
             return false;

@@ -52,7 +52,7 @@ public final class NewProtocolAction extends AbstractNewEntityAction<Protocol> {
         DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
         final Protocol p = ctx.insertProtocol(Bundle.CTL_NewProtocolName(), "");
 
-        ListenableFuture<Void> reset = BrowserUtilities.resetView(BrowserUtilities.PROTOCOL_BROWSER_ID);
+        ListenableFuture<Void> reset = BrowserUtilities.reloadView(BrowserUtilities.PROTOCOL_BROWSER_ID);
         Futures.addCallback(reset, new FutureCallback<Void>() {
 
             @Override

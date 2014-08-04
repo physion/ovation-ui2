@@ -16,7 +16,6 @@
  */
 package us.physion.ovation.ui.editor;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.awt.GraphicsDevice;
 import static java.awt.GraphicsDevice.WindowTranslucency.PERPIXEL_TRANSPARENT;
@@ -30,7 +29,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
-import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import javax.swing.JComponent;
@@ -43,16 +41,9 @@ import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.domain.AnalysisRecord;
-import us.physion.ovation.domain.Epoch;
-import us.physion.ovation.domain.Experiment;
-import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.Project;
-import us.physion.ovation.domain.User;
-import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.browser.EntityChildren;
 import us.physion.ovation.ui.browser.EntityWrapper;
-import us.physion.ovation.ui.browser.FilteredEntityChildren;
+import us.physion.ovation.ui.browser.EntityWrapperUtilities;
 import us.physion.ovation.ui.browser.TreeFilter;
 import us.physion.ovation.ui.browser.TreeFilter.NavigatorType;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
@@ -184,7 +175,7 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
                         .lookup(ConnectionProvider.class)
                         .getDefaultContext();
 
-                List<EntityWrapper> wrappers = FilteredEntityChildren.wrap(
+                List<EntityWrapper> wrappers = EntityWrapperUtilities.wrap(
                         ctx.getProjects());
 
                 TreeFilter filter = new TreeFilter(NavigatorType.PROJECT);

@@ -103,8 +103,8 @@ public abstract class SelectInTreeViewRunnable<Path> implements Runnable {
         }
 
         Children c = root.getChildren();
-        boolean lazy = areChildrenLazy(c);
-        boolean loaded = areChildrenLoaded(c);
+        boolean lazy = areChildrenLazy(root);
+        boolean loaded = areChildrenLoaded(root);
         if (lazy && !loaded) {
             if (rootIsLoading && this.root == root) {
                 log.info(id + " root didn't finish loading, busy waiting...");
@@ -161,9 +161,9 @@ public abstract class SelectInTreeViewRunnable<Path> implements Runnable {
         return true;
     }
 
-    protected abstract boolean areChildrenLazy(Children c);
+    protected abstract boolean areChildrenLazy(Node n);
 
-    protected abstract boolean areChildrenLoaded(Children c);
+    protected abstract boolean areChildrenLoaded(Node n);
     
     protected abstract SelectInTreeViewRunnable reinstantiate(int id, Node root, Provider em, List<Path> entityPath, int entityPathIndex, TreeView view, ProgressHandle ph, boolean rootIsLoading, AtomicBoolean cancelled);
 

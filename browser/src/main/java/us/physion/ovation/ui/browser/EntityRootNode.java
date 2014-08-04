@@ -1,29 +1,18 @@
 package us.physion.ovation.ui.browser;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import java.util.List;
-import java.util.concurrent.Callable;
 import javax.swing.Action;
+import org.openide.nodes.Children;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class EntityRootNode extends EntityNode {
 
     private final static Logger log = LoggerFactory.getLogger(EntityRootNode.class);
-    private final Callable<List<EntityWrapper>> childrenKeysFactory;
+    private final EntityChildrenChildFactory childrenKeysFactory;
 
-    public EntityRootNode(Callable<List<EntityWrapper>> childrenKeysFactory, TreeFilter filter) {
-        super(new EntityChildren(safeCall(childrenKeysFactory), filter), null);
+    public EntityRootNode(EntityChildrenChildFactory childrenKeysFactory) {
+        super(Children.create(childrenKeysFactory, true), null);
         this.childrenKeysFactory = childrenKeysFactory;
-    }
-
-    private static <T> T safeCall(Callable<T> c) {
-        try {
-            return c.call();
-        } catch (Exception e) {
-            log.error("Cannot get children keys", e);
-            return null;
-        }
     }
 
     /**
@@ -31,10 +20,8 @@ class EntityRootNode extends EntityNode {
      * reload the children keys in case a child is deleted.
      */
     @Override
-    public ListenableFuture<Void> refresh() {
-        EntityChildren children = (EntityChildren) getChildren();
-        //children.refreshKeys();
-        return children.updateWithKeys(safeCall(childrenKeysFactory));
+    public void refresh() {
+        childrenKeysFactory.refresh();
     }
 
     @Override

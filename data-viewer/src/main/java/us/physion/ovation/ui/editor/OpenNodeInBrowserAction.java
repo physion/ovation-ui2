@@ -87,16 +87,15 @@ public class OpenNodeInBrowserAction extends AbstractAction {
         return new SelectInTreeViewRunnable<URI>(id, root, em, entityPath, entityPathIndex, view, ph, rootIsLoading, cancelled) {
 
             @Override
-            protected boolean areChildrenLazy(Children c) {
-                return c instanceof LazyChildren;
+            protected boolean areChildrenLazy(Node n) {
+                LazyChildren c = n.getLookup().lookup(LazyChildren.class);
+                return c != null;
             }
 
             @Override
-            protected boolean areChildrenLoaded(Children c) {
-                if (c instanceof LazyChildren) {
-                    return ((LazyChildren) c).isLoaded();
-                }
-                return true;
+            protected boolean areChildrenLoaded(Node n) {
+                LazyChildren c = n.getLookup().lookup(LazyChildren.class);
+                return c != null && c.isLoaded();
             }
 
             @Override
@@ -176,13 +175,10 @@ public class OpenNodeInBrowserAction extends AbstractAction {
             }
         }
         Children c = n.getChildren();
+        LazyChildren lazy = n.getLookup().lookup(LazyChildren.class);
         Node[] children = new Node[0];
-        if (c instanceof LazyChildren) {
-            if (!((LazyChildren) c).isLoaded()) {
+        if (lazy != null && !lazy.isLoaded()) {
                 //nothing
-            } else {
-                children = c.getNodes();
-            }
         } else {
             children = c.getNodes();
         }

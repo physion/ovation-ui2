@@ -53,7 +53,7 @@ public final class NewSourceAction extends AbstractNewEntityAction<Source> {
 
         final Source s = ctx.insertSource(Bundle.CTL_NewSourceLabel(), "");
 
-        ListenableFuture<Void> reset = BrowserUtilities.resetView(BrowserUtilities.SOURCE_BROWSER_ID);
+        ListenableFuture<Void> reset = BrowserUtilities.reloadView(BrowserUtilities.SOURCE_BROWSER_ID);
         Futures.addCallback(reset, new FutureCallback<Void>() {
 
             @Override
