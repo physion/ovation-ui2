@@ -23,8 +23,6 @@ import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.List;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
@@ -50,7 +48,7 @@ abstract class AbstractContainerVisualizationPanel extends javax.swing.JLayeredP
     final IEntityNode node;
 
     private final DataContext context;
-    private transient final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+    //private transient final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
     public AbstractContainerVisualizationPanel(IEntityNode entityNode) {
         node = entityNode;
@@ -90,18 +88,25 @@ abstract class AbstractContainerVisualizationPanel extends javax.swing.JLayeredP
         return node;
     }
 
-    @Override
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        getPropertyChangeSupport().addPropertyChangeListener(listener);
-    }
-
-    @Override
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
-        getPropertyChangeSupport().removePropertyChangeListener(listener);
-    }
-
-    protected PropertyChangeSupport getPropertyChangeSupport() {
-        return propertyChangeSupport;
+//    @Override
+//    public void addPropertyChangeListener(PropertyChangeListener listener) {
+//        getPropertyChangeSupport().addPropertyChangeListener(listener);
+//    }
+//
+//    @Override
+//    public void removePropertyChangeListener(PropertyChangeListener listener) {
+//        getPropertyChangeSupport().removePropertyChangeListener(listener);
+//    }
+//
+//    protected PropertyChangeSupport getPropertyChangeSupport() {
+//        return propertyChangeSupport;
+//    }
+    
+    protected Protocol addProtocol()
+    {
+        Protocol p = getContext().insertProtocol(Bundle.CTL_NewProtocolName(), "");
+        firePropertyChange("protocols", null, p);
+        return p;
     }
 
     static class ProtocolCellRenderer extends DefaultListCellRenderer {

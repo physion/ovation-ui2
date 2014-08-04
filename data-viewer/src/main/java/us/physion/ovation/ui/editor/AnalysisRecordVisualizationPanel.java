@@ -122,7 +122,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                getPropertyChangeSupport().firePropertyChange(PROP_INPUT_NAMES,
+                firePropertyChange(PROP_INPUT_NAMES,
                         null,
                         getInputNames());
             }
@@ -270,7 +270,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
     public void setSelectedInputs(List<String> elementNames) {
         List<String> current = getSelectedInputs() == null ? null : Lists.newArrayList(getSelectedInputs());
         selectedInputNames = Lists.newArrayList(elementNames);
-        getPropertyChangeSupport().firePropertyChange(PROP_SELECTED_INPUTS,
+        firePropertyChange(PROP_SELECTED_INPUTS,
                 current,
                 getSelectedInputs());
 
