@@ -212,13 +212,14 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                     @Override
                     public void onSuccess(final AnalysisRecord ar) {
                         
+                        node.refresh();
+                        
                         EventQueueUtilities.runOnEDT(new Runnable() {
 
                             @Override
                             public void run() {
-                                node.refresh();
-
-                                new OpenNodeInBrowserAction(OpenNodeInBrowserAction.PROJECT_BROWSER_ID, Lists.newArrayList(ar.getURI()))
+                                new OpenNodeInBrowserAction(OpenNodeInBrowserAction.PROJECT_BROWSER_ID, 
+                                        Lists.newArrayList(ar.getURI()))
                                         .actionPerformed(null);
                             }
                         });
