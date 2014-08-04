@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.browser;
 
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.*;
 
@@ -18,6 +19,7 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.ExpressionTreeProvider;
 import us.physion.ovation.ui.interfaces.QueryListener;
+import us.physion.ovation.ui.interfaces.RefreshableNode;
 
 /**
  *
@@ -99,6 +101,23 @@ public class BrowserUtilities {
             }
         }, ph);
     }
+    
+    public static ListenableFuture<Void> reloadView(String topComponendId) {
+        TopComponent tc = WindowManager.getDefault().findTopComponent(topComponendId);
+        if (!(tc instanceof ExplorerManager.Provider)) {
+            throw new IllegalStateException();
+        }
+        
+        final ExplorerManager explorerManager = ((ExplorerManager.Provider) tc).getExplorerManager();
+        
+        Node rootCtx = explorerManager.getRootContext();
+        if(rootCtx instanceof RefreshableNode) {
+        ((RefreshableNode)rootCtx).refresh();
+        }
+        
+        return Futures.immediateFuture(null);
+    }
+    
     
     public static ListenableFuture<Void> resetView(String topComponendId) {
         TopComponent tc = WindowManager.getDefault().findTopComponent(topComponendId);
