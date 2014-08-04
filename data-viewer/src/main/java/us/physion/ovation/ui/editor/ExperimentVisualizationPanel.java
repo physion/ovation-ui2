@@ -70,10 +70,7 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
 })
 public class ExperimentVisualizationPanel extends AbstractContainerVisualizationPanel {
 
-
-
     FileDrop dropPanelListener;
-
 
     /**
      * Creates new form ExperimentVisualizationPanel
@@ -87,14 +84,13 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
 
     }
 
-
     private void initUI() {
 
         setEntityBorder(this);
 
         protocolComboBox.setRenderer(new ProtocolCellRenderer());
 
-        addProtocolButton.addActionListener(new ActionListener() {
+        addProtocolHyperlink.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -102,6 +98,18 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 getExperiment().setProtocol(addProtocol());
                 firePropertyChange("experiment.protocol", current, getExperiment().getProtocol());
                 protocolComboBox.setSelectedItem(getExperiment().getProtocol());
+            }
+        });
+
+        editHyperlink.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (getExperiment().getProtocol() != null) {
+                    new OpenNodeInBrowserAction(BrowserUtilities.PROTOCOL_BROWSER_ID,
+                            Lists.newArrayList(getExperiment().getProtocol().getURI()))
+                            .actionPerformed(e);
+                }
             }
         });
 
@@ -165,7 +173,6 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
 
         String prompt = Bundle.Experiment_Drop_Files_To_Add_Data();
 
-
         fileWell.setDelegate(new FileWell.AbstractDelegate(prompt) {
 
             @Override
@@ -196,7 +203,6 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 }, ph);
             }
         });
-
 
         addEpochGroupButton.addActionListener(new ActionListener() {
 
@@ -355,7 +361,8 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
         jScrollPane2 = new javax.swing.JScrollPane();
         protocolParametersTable = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
-        addProtocolButton = new javax.swing.JButton();
+        editHyperlink = new org.jdesktop.swingx.JXHyperlink();
+        addProtocolHyperlink = new org.jdesktop.swingx.JXHyperlink();
         fileWell = new us.physion.ovation.ui.editor.FileWell();
         addEpochGroupButton = new javax.swing.JButton();
 
@@ -422,7 +429,11 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.jLabel2.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(addProtocolButton, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.addProtocolButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(editHyperlink, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.editHyperlink.text")); // NOI18N
+        editHyperlink.setToolTipText(org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.editHyperlink.toolTipText")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(addProtocolHyperlink, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.addProtocolHyperlink.text")); // NOI18N
+        addProtocolHyperlink.setToolTipText(org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.addProtocolHyperlink.toolTipText")); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -433,14 +444,16 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(protocolComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(addProtocolButton)))
+                        .addComponent(protocolComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(addProtocolHyperlink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(editHyperlink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -450,11 +463,12 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(protocolComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(addProtocolButton))
-                .addGap(18, 18, 18)
+                    .addComponent(editHyperlink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(addProtocolHyperlink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -507,7 +521,7 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 .addComponent(addEpochGroupButton)
                 .addGap(18, 18, 18)
                 .addComponent(fileWell, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(128, Short.MAX_VALUE))
+                .addContainerGap(73, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -516,8 +530,9 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addEpochGroupButton;
-    private javax.swing.JButton addProtocolButton;
+    private org.jdesktop.swingx.JXHyperlink addProtocolHyperlink;
     private javax.swing.JLabel dateEntryLabel;
+    private org.jdesktop.swingx.JXHyperlink editHyperlink;
     private us.physion.ovation.ui.editor.FileWell fileWell;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
