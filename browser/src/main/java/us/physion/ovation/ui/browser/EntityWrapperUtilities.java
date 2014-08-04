@@ -90,4 +90,10 @@ public class EntityWrapperUtilities {
 
          return wrapped;
     }
+
+    public static void wrap(List<EntityWrapper> list, Iterable<? extends OvationEntity> entities) {
+        for (OvationEntity entity : entities) {
+            list.add(new EntityWrapper(entity));
+        }
+    }
 }

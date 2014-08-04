@@ -74,6 +74,11 @@ public final class HeavyLoadManager {
     List<Boolean> loadingCanceled = new ArrayList<>();
 
     public void startLoading(EntityWrapper parent) {
+        if (parent == null) {
+            //top-level root
+            return;
+        }
+        
         String uri = parent.getURI();
         
         synchronized (this) {
@@ -90,6 +95,11 @@ public final class HeavyLoadManager {
     }
 
     public void finishedLoading(EntityWrapper parent) {
+        if (parent == null) {
+            //top-level root
+            return;
+        }
+        
         String uri = parent.getURI();
 
         synchronized (this) {
@@ -108,6 +118,11 @@ public final class HeavyLoadManager {
     }
 
     public boolean isCancelled(EntityWrapper parent) {
+        if (parent == null) {
+            //top-level root, never canceled
+            return false;
+        }
+        
         String uri = parent.getURI();
         synchronized (this) {
             int index = loadingURIs.indexOf(uri);

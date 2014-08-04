@@ -98,7 +98,7 @@ public class EntityChildrenChildFactory extends ChildFactory<EntityWrapper> {
             }
         };
         
-        final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Loading_Entity_Children(parent.getDisplayName()), cancel);
+        final ProgressHandle ph = ProgressHandleFactory.createHandle(getProgressDisplayName(), cancel);
         ph.start();
         
         HeavyLoadManager.getDefault().startLoading(parent);
@@ -115,6 +115,10 @@ public class EntityChildrenChildFactory extends ChildFactory<EntityWrapper> {
         }
         
         return true;
+    }
+    
+    protected String getProgressDisplayName(){
+        return Bundle.Loading_Entity_Children(parent.getDisplayName());
     }
     
     protected EntityChildrenWrapperHelper createEntityChildrenWrapperHelper(TreeFilter filter,  BusyCancellable cancel) {
