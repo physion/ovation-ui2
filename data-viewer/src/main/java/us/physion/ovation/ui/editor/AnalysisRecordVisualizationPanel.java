@@ -73,6 +73,7 @@ import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.DataElementContainer;
 import us.physion.ovation.domain.mixin.EpochGroupContainer;
@@ -132,6 +133,17 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         protocolComboBox.setRenderer(new ProtocolCellRenderer());
         final ParameterTableModel paramsModel = new ParameterTableModel(
                 getAnalysisRecord().canWrite(getContext().getAuthenticatedUser()));
+
+        addProtocolButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Protocol current = getAnalysisRecord().getProtocol();
+                getAnalysisRecord().setProtocol(addProtocol());
+                firePropertyChange("analysisRecord.protocol", current, getAnalysisRecord().getProtocol());
+                protocolComboBox.setSelectedItem(getAnalysisRecord().getProtocol());
+            }
+        });
 
         parametersTable.setModel(paramsModel);
 
@@ -208,7 +220,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         removeInputButton.setEnabled(false);
 
         outputsFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.AnalysisRecord_Drop_Files_To_Add_Outputs()) {
-            
+
             @Override
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.AnalysisRecord_Adding_Outputs());
@@ -237,7 +249,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
                 }, ph);
             }
         });
-        
+
 
         if (PlatformUtils.isMac()) {
             addInputButton.putClientProperty("JButton.buttonType", "gradient");
@@ -527,6 +539,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         protocolComboBox = new javax.swing.JComboBox();
         jScrollPane2 = new javax.swing.JScrollPane();
         parametersTable = new javax.swing.JTable();
+        addProtocolButton = new javax.swing.JButton();
         outputsFileWell = new us.physion.ovation.ui.editor.FileWell();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
@@ -619,18 +632,22 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         ));
         jScrollPane2.setViewportView(parametersTable);
 
+        org.openide.awt.Mnemonics.setLocalizedText(addProtocolButton, org.openide.util.NbBundle.getMessage(AnalysisRecordVisualizationPanel.class, "AnalysisRecordVisualizationPanel.addProtocolButton.text")); // NOI18N
+
         javax.swing.GroupLayout protocolPanelLayout = new javax.swing.GroupLayout(protocolPanel);
         protocolPanel.setLayout(protocolPanelLayout);
         protocolPanelLayout.setHorizontalGroup(
             protocolPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, protocolPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(protocolPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addGroup(protocolPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(protocolPanelLayout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(protocolComboBox, 0, 203, Short.MAX_VALUE)))
+                        .addComponent(protocolComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(addProtocolButton))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
         );
         protocolPanelLayout.setVerticalGroup(
@@ -639,7 +656,8 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
                 .addContainerGap()
                 .addGroup(protocolPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(protocolComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(protocolComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(addProtocolButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
@@ -685,6 +703,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addInputButton;
+    private javax.swing.JButton addProtocolButton;
     private javax.swing.JList inputsList;
     private javax.swing.JPanel inputsPanel;
     private javax.swing.JScrollPane inputsScrollPane;

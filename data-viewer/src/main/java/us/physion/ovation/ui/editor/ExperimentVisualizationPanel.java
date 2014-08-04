@@ -93,7 +93,7 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
         setEntityBorder(this);
 
         protocolComboBox.setRenderer(new ProtocolCellRenderer());
-        
+
         addProtocolButton.addActionListener(new ActionListener() {
 
             @Override
@@ -101,6 +101,7 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 Protocol current = getExperiment().getProtocol();
                 getExperiment().setProtocol(addProtocol());
                 firePropertyChange("experiment.protocol", current, getExperiment().getProtocol());
+                protocolComboBox.setSelectedItem(getExperiment().getProtocol());
             }
         });
 

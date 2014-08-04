@@ -48,7 +48,6 @@ abstract class AbstractContainerVisualizationPanel extends javax.swing.JLayeredP
     final IEntityNode node;
 
     private final DataContext context;
-    //private transient final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
     public AbstractContainerVisualizationPanel(IEntityNode entityNode) {
         node = entityNode;
@@ -65,17 +64,6 @@ abstract class AbstractContainerVisualizationPanel extends javax.swing.JLayeredP
 
     public List<Protocol> getProtocols() {
         List<Protocol> result = Lists.newLinkedList(context.getProtocols());
-//        result.sort(new Comparator<Protocol>() {
-//
-//            @Override
-//            public int compare(Protocol o1, Protocol o2) {
-//                if (o1 == null || o2 == null) {
-//                    return 0;
-//                }
-//
-//                return o1.getName().compareTo(o2.getName());
-//            }
-//        });
 
         return result;
     }
@@ -88,24 +76,11 @@ abstract class AbstractContainerVisualizationPanel extends javax.swing.JLayeredP
         return node;
     }
 
-//    @Override
-//    public void addPropertyChangeListener(PropertyChangeListener listener) {
-//        getPropertyChangeSupport().addPropertyChangeListener(listener);
-//    }
-//
-//    @Override
-//    public void removePropertyChangeListener(PropertyChangeListener listener) {
-//        getPropertyChangeSupport().removePropertyChangeListener(listener);
-//    }
-//
-//    protected PropertyChangeSupport getPropertyChangeSupport() {
-//        return propertyChangeSupport;
-//    }
-    
     protected Protocol addProtocol()
     {
+        List<Protocol> current = getProtocols();
         Protocol p = getContext().insertProtocol(Bundle.CTL_NewProtocolName(), "");
-        firePropertyChange("protocols", null, p);
+        firePropertyChange("protocols", current, getProtocols());
         return p;
     }
 
@@ -141,6 +116,7 @@ abstract class AbstractContainerVisualizationPanel extends javax.swing.JLayeredP
             super();
         }
 
+        @Override
         public void mousePressed(MouseEvent e) {
             if (SwingUtilities.isLeftMouseButton(e)) {
                 dragging = true;
@@ -149,6 +125,7 @@ abstract class AbstractContainerVisualizationPanel extends javax.swing.JLayeredP
             prevY = e.getYOnScreen();
         }
 
+        @Override
         public void mouseDragged(MouseEvent e) {
             if (prevX != -1 && prevY != -1 && dragging) {
                 Window w = SwingUtilities.getWindowAncestor(e.getComponent());
@@ -162,6 +139,7 @@ abstract class AbstractContainerVisualizationPanel extends javax.swing.JLayeredP
             prevY = e.getYOnScreen();
         }
 
+        @Override
         public void mouseReleased(MouseEvent e) {
             dragging = false;
         }
