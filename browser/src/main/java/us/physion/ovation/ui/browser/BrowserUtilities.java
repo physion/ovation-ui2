@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.explorer.ExplorerManager;
+import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
@@ -29,7 +30,7 @@ import us.physion.ovation.ui.interfaces.RefreshableNode;
     "Reset_Loading_Data=Loading data"
 })
 public class BrowserUtilities {
-    
+
     public final static String PROJECT_BROWSER_ID = "ProjectBrowserTopComponent"; //NOI18N
     public final static String SOURCE_BROWSER_ID = "SourceBrowserTopComponent"; //NOI18N
     public final static String PROTOCOL_BROWSER_ID = "ProtocolBrowserTopComponent"; //NOI18N
@@ -58,7 +59,7 @@ public class BrowserUtilities {
         registeredViewManagers.put(em, projectView);//TODO: don't need this. we should be able to look up the explorerManagers from TopComponents
         ConnectionProvider cp = Lookup.getDefault().lookup(ConnectionProvider.class);
         cp.addConnectionListener(cn);
-        
+
         HeavyLoadManager.getDefault().register(em);
 
         if (ql == null) {
@@ -101,24 +102,23 @@ public class BrowserUtilities {
             }
         }, ph);
     }
-    
+
     public static ListenableFuture<Void> reloadView(String topComponendId) {
         TopComponent tc = WindowManager.getDefault().findTopComponent(topComponendId);
         if (!(tc instanceof ExplorerManager.Provider)) {
             throw new IllegalStateException();
         }
-        
+
         final ExplorerManager explorerManager = ((ExplorerManager.Provider) tc).getExplorerManager();
-        
+
         Node rootCtx = explorerManager.getRootContext();
-        if(rootCtx instanceof RefreshableNode) {
-        ((RefreshableNode)rootCtx).refresh();
+        if (rootCtx instanceof RefreshableNode) {
+            ((RefreshableNode) rootCtx).refresh();
         }
-        
+
         return Futures.immediateFuture(null);
     }
-    
-    
+
     public static ListenableFuture<Void> resetView(String topComponendId) {
         TopComponent tc = WindowManager.getDefault().findTopComponent(topComponendId);
         if (!(tc instanceof ExplorerManager.Provider)) {
@@ -126,7 +126,7 @@ public class BrowserUtilities {
         }
 
         final ExplorerManager explorerManager = ((ExplorerManager.Provider) tc).getExplorerManager();
-        
+
         final DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
         final QuerySet qs = Lookup.getDefault().lookup(QueryProvider.class).getQuerySet();
 
@@ -191,20 +191,7 @@ public class BrowserUtilities {
             qs.reset(e, filter);
         }
     }
-    
-    public static void refreshView(String topComponendId) {
-        
-        TopComponent tc = WindowManager.getDefault().findTopComponent(topComponendId);
-        if (!(tc instanceof ExplorerManager.Provider)) {
-            throw new IllegalStateException();
-        }
-        
-//        Node root = ((ExplorerManager.Provider)tc).getExplorerManager().getRootContext();
-//        ((RefreshableNode)root).refresh();
-        
-        resetView(topComponendId);
 
-    }
 
     //TODO: uncomment when we have query capabiliites
     /*protected static void setTrees(final ExpressionTree result)
@@ -225,5 +212,4 @@ public class BrowserUtilities {
      EntityWrapperUtilities.createNodesFromQuery(mgrs, itr);
 
      }*/
-
 }
