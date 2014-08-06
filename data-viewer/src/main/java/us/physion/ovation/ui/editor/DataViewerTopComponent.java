@@ -64,7 +64,7 @@ public final class DataViewerTopComponent extends TopComponent {
 
     private final static class TemporaryViewTopComponent extends TopComponent {
 
-        private final List<AbstractAction> tabActions = new ArrayList<AbstractAction>();
+        private final List<AbstractAction> tabActions = Lists.newArrayList();
 
         public TemporaryViewTopComponent(final DataElement element) {
             setName(Bundle.Temporary_Data_Viewer_Title(element.getName()));
