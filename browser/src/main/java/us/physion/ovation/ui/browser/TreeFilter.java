@@ -31,8 +31,8 @@ public class TreeFilter {
 
     public TreeFilter(NavigatorType t) {
         navigatorType = t;
-        experimentsVisible = t == NavigatorType.PROJECT;
-        epochGroupsVisible = false;
+        experimentsVisible = true;
+        epochGroupsVisible = true;
         epochsVisible = false;
     }
 

@@ -3,6 +3,7 @@ package us.physion.ovation.ui.editor;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.net.URI;
@@ -69,6 +70,7 @@ public final class DataViewerTopComponent extends TopComponent {
         public TemporaryViewTopComponent(final DataElement element) {
             setName(Bundle.Temporary_Data_Viewer_Title(element.getName()));
             setLayout(new BorderLayout());
+            setBackground(Color.white);
             EventQueueUtilities.runOffEDT(new Runnable() {
 
                 @Override
@@ -217,6 +219,7 @@ public final class DataViewerTopComponent extends TopComponent {
     private void initComponents() {
         contentPanel = new FixedHeightPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.PAGE_AXIS));
+        contentPanel.setBackground(Color.white);
         JScrollPane responseListPane = new JScrollPane(contentPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

@@ -45,7 +45,7 @@ import us.physion.ovation.ui.interfaces.TreeViewProvider;
         preferredID = "ProjectBrowserTopComponent")
 @Messages({
     "CTL_BrowserAction=Projects Navigator",
-    "CTL_BrowserTopComponent=Projects",
+    "CTL_ProjectBrowserTopComponent=Projects",
     "HINT_BrowserTopComponent=Browse Projects in your Ovation database",
     "HINT_ProjectBrowser_NewProject_Button_FirstRun=Click here to add a new Project",
     "HINT_ProjectBrowser_NewProject_Button=Add a new Project"
@@ -96,9 +96,10 @@ public final class ProjectBrowserTopComponent extends TopComponent implements Ex
                 Bundle.HINT_ProjectBrowser_NewProject_Button());
 
         view = treeViewPanel.getTreeView();
+        view.setBackground(Color.white);
         add(treeViewPanel, BorderLayout.CENTER);
 
-        setName(Bundle.CTL_BrowserTopComponent());
+        setName(Bundle.CTL_ProjectBrowserTopComponent());
         setToolTipText(Bundle.HINT_BrowserTopComponent());
 
         lookup = ExplorerUtils.createLookup(explorerManager, getActionMap());
@@ -114,7 +115,7 @@ public final class ProjectBrowserTopComponent extends TopComponent implements Ex
         ActionMap actionMap = this.getActionMap();
         actionMap.put("copy-to-clipboard", (Action) new BrowserCopyAction());
 
-        String html = "<html><font color=\"" + EntityColors.getEntityColorHex(Project.class) + "\">" + Bundle.CTL_BrowserAction() + "</font></html>";
+        String html = "<html><font color=\"" + EntityColors.getEntityColorHex(Project.class) + "\">" + Bundle.CTL_ProjectBrowserTopComponent() + "</font></html>";
         setHtmlDisplayName(html);
 
         ConnectionProvider cp = Lookup.getDefault().lookup(ConnectionProvider.class);
