@@ -5,8 +5,6 @@
 package us.physion.ovation.ui.detailviews;
 
 import java.util.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -18,11 +16,6 @@ import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
-import us.physion.ovation.domain.AnnotatableEntity;
-import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.User;
-import us.physion.ovation.domain.mixin.Owned;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -35,7 +28,7 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 @ConvertAsProperties(dtd = "-//us.physion.ovation.detailviews//PropertiesView//EN",
 autostore = false)
 @TopComponent.Description(preferredID = "PropertiesViewTopComponent",
-//iconBase="SET/PATH/TO/ICON/HERE", 
+//iconBase="SET/PATH/TO/ICON/HERE",
 persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "properties", openAtStartup = true)
 @ActionID(category = "Window", id = "us.physion.ovation.detailviews.PropertiesViewTopComponent")
@@ -67,7 +60,7 @@ public final class PropertiesViewTopComponent extends TopComponent {
         }
 
     };
-    
+
     public void update()
     {
         EventQueueUtilities.runOffEDT(new Runnable() {
@@ -77,22 +70,22 @@ public final class PropertiesViewTopComponent extends TopComponent {
             }
         });
     }
-    
+
     public us.physion.ovation.ui.ScrollableTableTree getTableTree()
     {
         return (us.physion.ovation.ui.ScrollableTableTree)jScrollPane1;
-    }        
-       
+    }
+
     protected void setTableTree(us.physion.ovation.ui.ScrollableTableTree t)
     {
         jScrollPane1 = t;
     }
-    
+
     public void update(final Collection<? extends IEntityWrapper> entities)
     {
         DataContext c = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
         setEntities(entities, c);
-        
+
         if (entities.size() > 1) {
             EventQueueUtilities.runOnEDT(new Runnable() {
 
@@ -113,25 +106,25 @@ public final class PropertiesViewTopComponent extends TopComponent {
             });
         }
     }
-    
+
     protected List<TableTreeKey> setEntities(Collection<? extends IEntityWrapper> entities, DataContext c)
     {
         List<TableTreeKey> properties = PerUserAnnotationSets.createPropertySets(entities, c);
         ((ScrollableTableTree) jScrollPane1).setKeys(properties);
-        
+
         this.entities = entities;
         return properties;
     }
-    
+
     public PropertiesViewTopComponent() {
         initComponents();
         setName(Bundle.CTL_PropertiesViewTopComponent());
         setToolTipText(Bundle.HINT_PropertiesViewTopComponent());
-        
+
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         global.addLookupListener(listener);
     }
-    
+
     public Collection<? extends IEntityWrapper> getEntities()
     {
         return entities;
@@ -151,17 +144,11 @@ public final class PropertiesViewTopComponent extends TopComponent {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 

@@ -4,8 +4,8 @@
  */
 package us.physion.ovation.ui.detailviews;
 
-import com.google.common.collect.Lists;
 
+import java.awt.Color;
 import java.util.*;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JTree;
@@ -18,15 +18,10 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
-import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
+import org.openide.windows.TopComponent;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
-import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.User;
-import us.physion.ovation.domain.mixin.Owned;
-import us.physion.ovation.domain.mixin.Taggable;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -47,7 +42,7 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 preferredID = "TagsViewTopComponent")
 @Messages({
     "CTL_TagsViewAction=Keyword Tags",
-    "CTL_TagsViewTopComponent=Keyword Tags",
+    "CTL_TagsViewTopComponent=Keywords",
     "HINT_TagsViewTopComponent=This is a Keyword Tags window"
 })
 public final class TagsViewTopComponent extends TopComponent {
@@ -96,7 +91,7 @@ public final class TagsViewTopComponent extends TopComponent {
     {
         List<TableTreeKey> tags = PerUserAnnotationSets.createTagSets(entities, c);
         ((ScrollableTableTree) tagTree).setKeys(tags);
-        
+
         this.entities = entities;
         return tags;
     }
@@ -120,12 +115,13 @@ public final class TagsViewTopComponent extends TopComponent {
             ((ScrollableTableTree)tagTree).resizeNode(node);
         }
     }
-    
+
     public TagsViewTopComponent() {
         initComponents();
         //this.add(tagTree);
         setName(Bundle.CTL_TagsViewTopComponent());
         setToolTipText(Bundle.HINT_TagsViewTopComponent());
+        setBackground(Color.white);
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         global.addLookupListener(listener);
     }
@@ -138,11 +134,11 @@ public final class TagsViewTopComponent extends TopComponent {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jSpinner1 = new javax.swing.JSpinner();
         addTagComboBox = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
         tagTree = new us.physion.ovation.ui.ScrollableTableTree();
 
+        addTagComboBox.setBackground(java.awt.Color.white);
         addTagComboBox.setEditable(true);
         addTagComboBox.setModel(tagComboModel);
         addTagComboBox.addActionListener(new java.awt.event.ActionListener() {
@@ -151,7 +147,10 @@ public final class TagsViewTopComponent extends TopComponent {
             }
         });
 
+        jLabel1.setBackground(java.awt.Color.white);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(TagsViewTopComponent.class, "TagsViewTopComponent.jLabel1.text")); // NOI18N
+
+        tagTree.setBorder(null);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -159,13 +158,11 @@ public final class TagsViewTopComponent extends TopComponent {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(addTagComboBox, 0, 485, Short.MAX_VALUE))
-                    .addComponent(tagTree))
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(addTagComboBox, 0, 485, Short.MAX_VALUE)
                 .addContainerGap())
+            .addComponent(tagTree, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -175,8 +172,7 @@ public final class TagsViewTopComponent extends TopComponent {
                     .addComponent(addTagComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tagTree, javax.swing.GroupLayout.DEFAULT_SIZE, 605, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(tagTree, javax.swing.GroupLayout.PREFERRED_SIZE, 611, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -196,7 +192,6 @@ public final class TagsViewTopComponent extends TopComponent {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox addTagComboBox;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JSpinner jSpinner1;
     private javax.swing.JScrollPane tagTree;
     // End of variables declaration//GEN-END:variables
     @Override

@@ -56,8 +56,8 @@ import static java.awt.FileDialog.LOAD;
 @TopComponent.OpenActionRegistration(displayName = "#CTL_ResourceViewAction",
         preferredID = "ResourceViewTopComponent")
 @Messages({
-    "CTL_ResourceViewAction=Resources",
-    "CTL_ResourceViewTopComponent=Resources",
+    "CTL_ResourceViewAction=File Attachments",
+    "CTL_ResourceViewTopComponent=Attachments",
     "HINT_ResourceViewTopComponent=This window displays the Resource objects associated with the selected Ovation entity"
 })
 public final class ResourceViewTopComponent extends TopComponent {
@@ -82,6 +82,7 @@ public final class ResourceViewTopComponent extends TopComponent {
 
     public ResourceViewTopComponent() {
         initComponents();
+        setBackground(Color.white);
         setSavedButtonEnabled(false);
         resourceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         setName(Bundle.CTL_ResourceViewTopComponent());
@@ -91,6 +92,7 @@ public final class ResourceViewTopComponent extends TopComponent {
         global.addLookupListener(listener);
 
         resourceList.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent evt) {
                 JList list = (JList) evt.getSource();
                 int index = -1;
@@ -276,22 +278,19 @@ public final class ResourceViewTopComponent extends TopComponent {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(saveButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(insertResourceButton)
-                        .addGap(4, 4, 4)
-                        .addComponent(removeResourceButton)))
+                .addComponent(saveButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
+                .addComponent(insertResourceButton)
+                .addGap(4, 4, 4)
+                .addComponent(removeResourceButton)
                 .addContainerGap())
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 543, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 564, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(insertResourceButton)
                     .addComponent(removeResourceButton)

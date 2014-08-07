@@ -1,15 +1,16 @@
 package us.physion.ovation.ui.notes;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
-import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
+import org.openide.windows.TopComponent;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 @ConvertAsProperties(
@@ -51,6 +52,7 @@ public final class ModernNotesTopComponent extends TopComponent {
         setToolTipText(Bundle.HINT_ModernNotesTopComponent());
 
         setLayout(new BorderLayout());
+        setBackground(Color.white);
 
         add(notes = new OvationNotes(), BorderLayout.CENTER);
 
