@@ -660,7 +660,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
                     .addGroup(protocolPanelLayout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(protocolComboBox, 0, 171, Short.MAX_VALUE)
+                        .addComponent(protocolComboBox, 0, 161, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(addProtocolButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
