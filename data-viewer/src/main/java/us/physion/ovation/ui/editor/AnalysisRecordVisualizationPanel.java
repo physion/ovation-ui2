@@ -73,9 +73,11 @@ import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.DataElementContainer;
 import us.physion.ovation.domain.mixin.EpochGroupContainer;
+import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
@@ -122,9 +124,21 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                getPropertyChangeSupport().firePropertyChange(PROP_INPUT_NAMES,
+                firePropertyChange(PROP_INPUT_NAMES,
                         null,
                         getInputNames());
+            }
+        });
+
+        editHyperlink.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (getAnalysisRecord().getProtocol() != null) {
+                    new OpenNodeInBrowserAction(BrowserUtilities.PROTOCOL_BROWSER_ID,
+                            Lists.newArrayList(getAnalysisRecord().getProtocol().getURI()))
+                            .actionPerformed(e);
+                }
             }
         });
 
@@ -132,6 +146,17 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         protocolComboBox.setRenderer(new ProtocolCellRenderer());
         final ParameterTableModel paramsModel = new ParameterTableModel(
                 getAnalysisRecord().canWrite(getContext().getAuthenticatedUser()));
+
+        addProtocolButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Protocol current = getAnalysisRecord().getProtocol();
+                getAnalysisRecord().setProtocol(addProtocol());
+                firePropertyChange("analysisRecord.protocol", current, getAnalysisRecord().getProtocol());
+                protocolComboBox.setSelectedItem(getAnalysisRecord().getProtocol());
+            }
+        });
 
         parametersTable.setModel(paramsModel);
 
@@ -208,7 +233,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         removeInputButton.setEnabled(false);
 
         outputsFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.AnalysisRecord_Drop_Files_To_Add_Outputs()) {
-            
+
             @Override
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.AnalysisRecord_Adding_Outputs());
@@ -237,7 +262,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
                 }, ph);
             }
         });
-        
+
 
         if (PlatformUtils.isMac()) {
             addInputButton.putClientProperty("JButton.buttonType", "gradient");
@@ -270,7 +295,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
     public void setSelectedInputs(List<String> elementNames) {
         List<String> current = getSelectedInputs() == null ? null : Lists.newArrayList(getSelectedInputs());
         selectedInputNames = Lists.newArrayList(elementNames);
-        getPropertyChangeSupport().firePropertyChange(PROP_SELECTED_INPUTS,
+        firePropertyChange(PROP_SELECTED_INPUTS,
                 current,
                 getSelectedInputs());
 
@@ -527,6 +552,8 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         protocolComboBox = new javax.swing.JComboBox();
         jScrollPane2 = new javax.swing.JScrollPane();
         parametersTable = new javax.swing.JTable();
+        addProtocolButton = new org.jdesktop.swingx.JXHyperlink();
+        editHyperlink = new org.jdesktop.swingx.JXHyperlink();
         outputsFileWell = new us.physion.ovation.ui.editor.FileWell();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
@@ -619,18 +646,26 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         ));
         jScrollPane2.setViewportView(parametersTable);
 
+        org.openide.awt.Mnemonics.setLocalizedText(addProtocolButton, org.openide.util.NbBundle.getMessage(AnalysisRecordVisualizationPanel.class, "AnalysisRecordVisualizationPanel.addProtocolButton.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(editHyperlink, org.openide.util.NbBundle.getMessage(AnalysisRecordVisualizationPanel.class, "AnalysisRecordVisualizationPanel.editHyperlink.text")); // NOI18N
+
         javax.swing.GroupLayout protocolPanelLayout = new javax.swing.GroupLayout(protocolPanel);
         protocolPanel.setLayout(protocolPanelLayout);
         protocolPanelLayout.setHorizontalGroup(
             protocolPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, protocolPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(protocolPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addGroup(protocolPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(protocolPanelLayout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(protocolComboBox, 0, 203, Short.MAX_VALUE)))
+                        .addComponent(protocolComboBox, 0, 171, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(addProtocolButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(editHyperlink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
         );
         protocolPanelLayout.setVerticalGroup(
@@ -639,9 +674,11 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
                 .addContainerGap()
                 .addGroup(protocolPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(protocolComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(protocolComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(addProtocolButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(editHyperlink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -685,6 +722,8 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addInputButton;
+    private org.jdesktop.swingx.JXHyperlink addProtocolButton;
+    private org.jdesktop.swingx.JXHyperlink editHyperlink;
     private javax.swing.JList inputsList;
     private javax.swing.JPanel inputsPanel;
     private javax.swing.JScrollPane inputsScrollPane;

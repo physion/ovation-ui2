@@ -70,6 +70,10 @@ public class OpenNodeInBrowserAction extends AbstractAction {
     public OpenNodeInBrowserAction(List<URI> entityURI, /* @Nullable */ String nodeDisplayName, boolean addToHistory, List<URI> source, String explorerTopComponentID) {
         super(Bundle.OpenNodeInBrowserAction());
         tc = WindowManager.getDefault().findTopComponent(explorerTopComponentID);
+        if (!tc.isOpened()) {
+            tc.open();
+        }
+
         if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
             throw new IllegalStateException();
         }

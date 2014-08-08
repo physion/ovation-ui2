@@ -51,6 +51,7 @@ import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
+import us.physion.ovation.ui.browser.BrowserUtilities;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
 import us.physion.ovation.ui.importer.ImageImporter;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -86,6 +87,29 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
         setEntityBorder(this);
 
         protocolComboBox.setRenderer(new ProtocolCellRenderer());
+
+        addProtocolHyperlink.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Protocol current = getEpoch().getProtocol();
+                getEpoch().setProtocol(addProtocol());
+                firePropertyChange("epoch.protocol", current, getEpoch().getProtocol());
+                protocolComboBox.setSelectedItem(getEpoch().getProtocol());
+            }
+        });
+
+        editHyperlink.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (getEpoch().getProtocol() != null) {
+                    new OpenNodeInBrowserAction(BrowserUtilities.PROTOCOL_BROWSER_ID,
+                            Lists.newArrayList(getEpoch().getProtocol().getURI()))
+                            .actionPerformed(e);
+                }
+            }
+        });
 
         final ParameterTableModel paramsModel = new ParameterTableModel(
                 getEpoch().canWrite(getContext().getAuthenticatedUser()));
@@ -381,6 +405,8 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
         jScrollPane2 = new javax.swing.JScrollPane();
         protocolParametersTable = new javax.swing.JTable();
         jLabel5 = new javax.swing.JLabel();
+        addProtocolHyperlink = new org.jdesktop.swingx.JXHyperlink();
+        editHyperlink = new org.jdesktop.swingx.JXHyperlink();
         dropPanelContainer = new javax.swing.JPanel();
         measurementFileWell = new us.physion.ovation.ui.editor.FileWell();
         analysisFileWell = new us.physion.ovation.ui.editor.FileWell();
@@ -434,6 +460,10 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(EpochVisualizationPanel.class, "EpochVisualizationPanel.jLabel5.text")); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(addProtocolHyperlink, org.openide.util.NbBundle.getMessage(EpochVisualizationPanel.class, "EpochVisualizationPanel.addProtocolHyperlink.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(editHyperlink, org.openide.util.NbBundle.getMessage(EpochVisualizationPanel.class, "EpochVisualizationPanel.editHyperlink.text")); // NOI18N
+
         javax.swing.GroupLayout protocolPanelLayout = new javax.swing.GroupLayout(protocolPanel);
         protocolPanel.setLayout(protocolPanelLayout);
         protocolPanelLayout.setHorizontalGroup(
@@ -441,14 +471,18 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
             .addGroup(protocolPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(protocolPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 538, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2)
                     .addGroup(protocolPanelLayout.createSequentialGroup()
-                        .addComponent(jLabel5)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(protocolPanelLayout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(protocolComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGroup(protocolPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel5)
+                            .addGroup(protocolPanelLayout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(protocolComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 415, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(addProtocolHyperlink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(editHyperlink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         protocolPanelLayout.setVerticalGroup(
@@ -457,7 +491,9 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
                 .addContainerGap()
                 .addGroup(protocolPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(protocolComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(protocolComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(addProtocolHyperlink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(editHyperlink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -466,7 +502,7 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
         );
 
         dropPanelContainer.setBackground(java.awt.Color.white);
-        dropPanelContainer.setLayout(new java.awt.GridLayout());
+        dropPanelContainer.setLayout(new java.awt.GridLayout(1, 0));
         dropPanelContainer.add(measurementFileWell);
         dropPanelContainer.add(analysisFileWell);
 
@@ -497,7 +533,7 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
                                     .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
-            .addComponent(dropPanelContainer, javax.swing.GroupLayout.DEFAULT_SIZE, 574, Short.MAX_VALUE)
+            .addComponent(dropPanelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -526,8 +562,10 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private org.jdesktop.swingx.JXHyperlink addProtocolHyperlink;
     private us.physion.ovation.ui.editor.FileWell analysisFileWell;
     private javax.swing.JPanel dropPanelContainer;
+    private org.jdesktop.swingx.JXHyperlink editHyperlink;
     private us.physion.ovation.ui.interfaces.DateTimePicker endPicker;
     private javax.swing.JComboBox endZoneComboBox;
     private javax.swing.JLabel jLabel1;
