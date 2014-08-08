@@ -147,7 +147,6 @@ public final class FilteredTreeViewPanel extends javax.swing.JPanel {
         experimentToggle.setToolTipText(org.openide.util.NbBundle.getMessage(FilteredTreeViewPanel.class, "FilteredTreeViewPanel.experimentToggle.toolTipText")); // NOI18N
         experimentToggle.setFocusable(false);
         experimentToggle.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        experimentToggle.setOpaque(false);
         experimentToggle.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(experimentToggle);
 
