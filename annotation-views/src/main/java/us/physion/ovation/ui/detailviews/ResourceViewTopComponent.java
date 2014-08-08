@@ -351,18 +351,19 @@ public final class ResourceViewTopComponent extends TopComponent {
     //TODO: save button should work when the API catches up
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         /*final Object[] rws = resourceList.getSelectedValues();
-         EventQueueUtilities.runOffEDT(new Runnable() {
-         @Override
-         public void run() {
-         for (Object rw : rws) {
-         Resource r = ((IResourceWrapper) rw).getEntity();
-         if (r.canWrite()) {
-         r.sync();
-         }
-         }
-         }
-         });*/
+        EventQueueUtilities.runOffEDT(new Runnable() {
+            @Override
+            public void run() {
+                for (Object rw : rws) {
+                    Resource r = ((IResourceWrapper) rw).getEntity();
+                    if (r.canWrite()) {
+                        r.sync();
+                    }
+                }
+            }
+        });*/
     }//GEN-LAST:event_saveButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton insertResourceButton;
     private javax.swing.JPanel jPanel1;
