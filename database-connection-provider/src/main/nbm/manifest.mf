@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Localizing-Bundle: us/physion/ovation/ui/database/Bundle.properties
 OpenIDE-Module-Install: us/physion/ovation/ui/database/Installer.class
-OpenIDE-Module-Specification-Version: 2.1.19
+OpenIDE-Module-Specification-Version: 2.1.20
