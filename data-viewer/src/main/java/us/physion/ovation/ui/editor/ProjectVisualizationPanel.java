@@ -16,8 +16,6 @@
  */
 package us.physion.ovation.ui.editor;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -30,23 +28,15 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import org.joda.time.DateTime;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import org.openide.explorer.ExplorerManager;
-import org.openide.explorer.view.TreeView;
-import org.openide.nodes.Node;
 import org.openide.util.NbBundle.Messages;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.AnalysisRecord;
-import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.Project;
@@ -55,12 +45,10 @@ import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import static us.physion.ovation.ui.editor.AnalysisRecordVisualizationPanel.getDataElementsFromEntity;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
-import us.physion.ovation.ui.importer.FileMetadata;
-import us.physion.ovation.ui.importer.ImageImporter;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
-import us.physion.ovation.ui.interfaces.TreeViewProvider;
+import us.physion.ovation.ui.reveal.api.RevealNode;
 
 /**
  * Data viewer visualization for Project entities
@@ -115,7 +103,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                addExperiment(e);
+                addExperiment(true);
 
             }
         });
@@ -124,44 +112,29 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
             @Override
             public void filesDropped(final File[] files) {
-                ListenableFuture<Experiment> addExp = addExperiment(new ActionEvent(this, 0, "experiment"));
+                ListenableFuture<Experiment> addExp = EventQueueUtilities.runOffEDT(new Callable<Experiment>() {
+                    @Override
+                    public Experiment call() throws Exception {
+                        return addExperiment(false);
+                    }
+                });
                 Futures.addCallback(addExp, new FutureCallback<Experiment>() {
 
                     @Override
                     public void onSuccess(final Experiment result) {
                         final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
 
-                        TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
-                        if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
-                            throw new IllegalStateException();
-                        }
-
-                        TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
-
-                        view.expandNode((Node) node);
-
-                        Node expNode = null;
-                        for (Node child : ((Node) node).getChildren().getNodes()) {
-                            final Experiment exp = ((IEntityNode) child).getEntity(Experiment.class);
-                            if (exp != null && exp.equals(result)) {
-                                view.expandNode(child);
-                                expNode = child;
-                                break;
-                            }
-                        }
-
-                        final Node foundExpNode = expNode;
                         EventQueueUtilities.runOffEDT(new Runnable() {
 
                             @Override
                             public void run() {
-                                insertMeasurements(result, files);
+                                final List<Measurement> m = EntityUtilities.insertMeasurements(result, files);
                                 EventQueueUtilities.runOnEDT(new Runnable() {
                                     @Override
                                     public void run() {
                                         node.refresh();
-                                        if (foundExpNode != null) {
-                                            ((IEntityNode) foundExpNode).refresh();
+                                        if (!m.isEmpty()) {
+                                            RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, m.get(0));
                                         }
                                     }
                                 });
@@ -189,15 +162,6 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
                 final List<DataElement> inputs = Lists.newArrayList(inputElements);
 
-                final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.AnalysisRecord_Adding_Outputs());
-
-//                final TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
-//                if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
-//                    throw new IllegalStateException();
-//                }
-//
-//                final TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
-
                 ListenableFuture<AnalysisRecord> addRecord = EventQueueUtilities.runOffEDT(new Callable<AnalysisRecord>() {
 
                     @Override
@@ -213,46 +177,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                     public void onSuccess(final AnalysisRecord ar) {
                         
                         node.refresh();
-                        
-                        EventQueueUtilities.runOnEDT(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                new OpenNodeInBrowserAction(OpenNodeInBrowserAction.PROJECT_BROWSER_ID, 
-                                        Lists.newArrayList(ar.getURI()))
-                                        .actionPerformed(null);
-                            }
-                        });
-                        
-                        
-                        
-//                        EventQueueUtilities.runOnEDT(new Runnable() {
-//
-//                            @Override
-//                            public void run() {
-//                                //node.refresh();
-//                                view.expandNode((Node) node);
-//
-//                                for (final Node userNode : ((Node) node).getChildren().getNodes()) {
-//                                    final User user = ((IEntityNode) userNode).getEntity(User.class);
-//                                    if (user != null && user.equals(ar.getDataContext().getAuthenticatedUser())) {
-//                                        view.expandNode(userNode);
-//                                        
-//                                        for(final Node arNode : userNode.getChildren().getNodes()) {
-//                                            AnalysisRecord analysisRecord = ((IEntityNode) arNode).getEntity(AnalysisRecord.class);
-//                                            if(analysisRecord.equals(ar)) {
-//                                                try {
-//                                                    ((ExplorerManager.Provider)tc).getExplorerManager().setSelectedNodes(new Node[] {arNode});
-//                                                } catch (PropertyVetoException ex) {
-//                                                    logger.error("Unable to select inserted AnalysisRecord node");
-//                                                }
-//                                            }
-//                                        }
-//                                    }
-//
-//                                }
-//                            }
-//                        });
+                        RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, ar);
                     }
 
                     @Override
@@ -289,94 +214,16 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         return result;
     }
 
-    private void insertMeasurements(Experiment exp, File[] files) {
-        DateTime start = new DateTime();
-        DateTime end = new DateTime();
 
-        List<File> images = Lists.newLinkedList(Iterables.filter(Lists.newArrayList(files),
-                new Predicate<File>() {
-
-                    @Override
-                    public boolean apply(File input) {
-                        return ImageImporter.canImport(input);
-                    }
-                }));
-
-        for (File f : images) {
-            FileMetadata m = new FileMetadata(f);
-            if (m.getEnd(false).isAfter(end)) {
-                end = m.getEnd(false);
-            }
-
-            if (m.getStart().isBefore(start)) {
-                start = m.getStart();
-            }
-        }
-
-        for (File f : files) {
-            DateTime lastModified = new DateTime(f.lastModified());
-            if (lastModified.isAfter(end)) {
-                end = lastModified;
-            }
-
-            if (start.isBefore(lastModified)) {
-                start = lastModified;
-            }
-
-        }
-
-        Epoch e = exp.insertEpoch(start,
-                end,
-                null,
-                Maps.<String, Object>newHashMap(),
-                Maps.<String, Object>newHashMap());
-
-        List<Measurement> imageMeasurements = ImageImporter.importImageMeasurements(e, images).toList().toBlockingObservable().last();
-
-        Set<File> others = Sets.newHashSet(files);
-        others.removeAll(images);
-        for (File f : others) {
-            try {
-                e.insertMeasurement(f.getName(),
-                        Sets.<String>newHashSet(),
-                        Sets.<String>newHashSet(),
-                        f.toURI().toURL(),
-                        ContentTypes.getContentType(f));
-            } catch (MalformedURLException ex) {
-                Toolkit.getDefaultToolkit().beep();
-            } catch (IOException ex) {
-                Toolkit.getDefaultToolkit().beep();
-            }
-        }
-    }
-
-    private ListenableFuture<Experiment> addExperiment(final ActionEvent e) {
+    private Experiment addExperiment(boolean reveal) {
         final Experiment exp = getProject().insertExperiment(Bundle.Default_Experiment_Purpose(), new DateTime());
 
-        node.refresh();
-
-        TopComponent projectBrowser = WindowManager.getDefault().findTopComponent(BrowserUtilities.PROJECT_BROWSER_ID);
-
-        final TreeView tree = (TreeView) ((TreeViewProvider) projectBrowser).getTreeView();
-
-        try {
-            EventQueueUtilities.runAndWaitOnEDT(new Runnable() {
-                @Override
-                public void run() {
-                    tree.expandNode((Node) node);
-
-                    new OpenNodeInBrowserAction(Lists.newArrayList(exp.getURI()),
-                            null,
-                            false,
-                            Lists.<URI>newArrayList(),
-                            OpenNodeInBrowserAction.PROJECT_BROWSER_ID).actionPerformed(e);
-                }
-            });
-        } catch (InterruptedException ex) {
-            return Futures.immediateFailedFuture(ex);
+        if (reveal) {
+            node.refresh();
+            RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, exp);
         }
 
-        return Futures.immediateFuture(exp);
+        return exp;
     }
 
     private AnalysisRecord addAnalysisRecord(File[] files, Iterable<DataElement> inputs) {

@@ -58,7 +58,7 @@ public final class NewSourceAction extends AbstractNewEntityAction<Source> {
 
             @Override
             public void onSuccess(Void result) {
-                selectNode(s, BrowserUtilities.SOURCE_BROWSER_ID, e);
+                selectNode(s, BrowserUtilities.SOURCE_BROWSER_ID);
             }
 
             @Override

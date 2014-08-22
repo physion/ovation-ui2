@@ -16,11 +16,8 @@
  */
 package us.physion.ovation.ui.editor;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -31,9 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import org.netbeans.api.progress.ProgressHandle;
@@ -53,11 +48,11 @@ import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
-import us.physion.ovation.ui.importer.ImageImporter;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
+import us.physion.ovation.ui.reveal.api.RevealNode;
 
 /**
  *
@@ -104,9 +99,7 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (getEpoch().getProtocol() != null) {
-                    new OpenNodeInBrowserAction(BrowserUtilities.PROTOCOL_BROWSER_ID,
-                            Lists.newArrayList(getEpoch().getProtocol().getURI()))
-                            .actionPerformed(e);
+                    RevealNode.forEntity(BrowserUtilities.PROTOCOL_BROWSER_ID, getEpoch().getProtocol());
                 }
             }
         });
@@ -197,7 +190,7 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
 
-                TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
+                TopComponent tc = WindowManager.getDefault().findTopComponent(BrowserUtilities.PROJECT_BROWSER_ID);
                 if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
                     throw new IllegalStateException();
                 }
@@ -208,7 +201,7 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
 
                     @Override
                     public Iterable<Measurement> call() {
-                        return insertMeasurements(files);
+                        return EntityUtilities.insertMeasurements(getEpoch(), files);
                     }
                 }, ph);
 
@@ -245,7 +238,7 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
 
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.AnalysisRecord_Adding_Outputs());
 
-                TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
+                TopComponent tc = WindowManager.getDefault().findTopComponent(BrowserUtilities.PROJECT_BROWSER_ID);
                 if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
                     throw new IllegalStateException();
                 }
@@ -302,44 +295,6 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
 
     public Epoch getEpoch() {
         return getNode().getEntity(Epoch.class);
-    }
-
-    private Iterable<Measurement> insertMeasurements(File[] files) {
-        List<File> images = Lists.newLinkedList(Iterables.filter(Lists.newArrayList(files),
-                new Predicate<File>() {
-
-                    @Override
-                    public boolean apply(File input) {
-                        return ImageImporter.canImport(input);
-                    }
-                }));
-
-        final Epoch e = getEpoch();
-
-        List<Measurement> result = Lists.newLinkedList(ImageImporter.importImageMeasurements(e, images)
-                .toList()
-                .toBlockingObservable()
-                .lastOrDefault(Lists.<Measurement>newArrayList()));
-
-        Set<File> others = Sets.newHashSet(files);
-        others.removeAll(images);
-        for (File f : others) {
-            try {
-                Measurement m = e.insertMeasurement(f.getName(),
-                        Sets.<String>newHashSet(),
-                        Sets.<String>newHashSet(),
-                        f.toURI().toURL(),
-                        ContentTypes.getContentType(f));
-
-                result.add(m);
-            } catch (MalformedURLException ex) {
-                Toolkit.getDefaultToolkit().beep();
-            } catch (IOException ex) {
-                Toolkit.getDefaultToolkit().beep();
-            }
-        }
-
-        return result;
     }
 
     private AnalysisRecord addAnalysisRecord(File[] files, final Iterable<DataElement> inputs) {

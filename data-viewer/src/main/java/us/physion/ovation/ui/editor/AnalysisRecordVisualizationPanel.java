@@ -83,6 +83,7 @@ import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
+import us.physion.ovation.ui.reveal.api.RevealNode;
 import us.physion.ovation.util.PlatformUtils;
 
 /**
@@ -135,9 +136,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (getAnalysisRecord().getProtocol() != null) {
-                    new OpenNodeInBrowserAction(BrowserUtilities.PROTOCOL_BROWSER_ID,
-                            Lists.newArrayList(getAnalysisRecord().getProtocol().getURI()))
-                            .actionPerformed(e);
+                    RevealNode.forEntity(BrowserUtilities.PROTOCOL_BROWSER_ID, getAnalysisRecord().getProtocol());
                 }
             }
         });
@@ -238,7 +237,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.AnalysisRecord_Adding_Outputs());
 
-                TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
+                TopComponent tc = WindowManager.getDefault().findTopComponent(BrowserUtilities.PROJECT_BROWSER_ID);
                 if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
                     throw new IllegalStateException();
                 }

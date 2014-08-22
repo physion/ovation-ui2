@@ -57,7 +57,7 @@ public final class NewProtocolAction extends AbstractNewEntityAction<Protocol> {
 
             @Override
             public void onSuccess(Void result) {
-                selectNode(p, BrowserUtilities.PROTOCOL_BROWSER_ID, e);
+                selectNode(p, BrowserUtilities.PROTOCOL_BROWSER_ID);
             }
 
             @Override

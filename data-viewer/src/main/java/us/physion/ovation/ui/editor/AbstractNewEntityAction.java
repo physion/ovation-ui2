@@ -17,13 +17,10 @@
 
 package us.physion.ovation.ui.editor;
 
-import com.google.common.collect.Lists;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URI;
 import javax.swing.AbstractAction;
-import javax.swing.SwingUtilities;
 import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.ui.reveal.api.RevealNode;
 
 /**
  *
@@ -32,17 +29,7 @@ import us.physion.ovation.domain.OvationEntity;
 public abstract class AbstractNewEntityAction<T extends OvationEntity> extends AbstractAction implements ActionListener{
     
     protected void selectNode(final T entity, 
-            final String topComponentId, 
-            final ActionEvent e) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new OpenNodeInBrowserAction(Lists.newArrayList(entity.getURI()),
-                        null,
-                        false,
-                        Lists.<URI>newArrayList(),
-                        topComponentId).actionPerformed(e);
-            }
-        });
+            final String topComponentId) {
+        RevealNode.forEntity(topComponentId, entity);
     }
 }

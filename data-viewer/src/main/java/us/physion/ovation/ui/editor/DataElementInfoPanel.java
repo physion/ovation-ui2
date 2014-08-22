@@ -17,7 +17,6 @@
 package us.physion.ovation.ui.editor;
 
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.HashMultimap;
@@ -57,7 +56,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.AbstractBorder;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.StyleConstants;
-import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.Lookup;
@@ -77,6 +75,7 @@ import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EntityColors;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
+import us.physion.ovation.ui.reveal.api.RevealNode;
 
 /**
  *
@@ -366,38 +365,17 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         sourceButton.setBackground(Color.white);
         sourceButton.setForeground(EntityColors.getEntityColor(entity.getClass()));
         sourceButton.setBorder(null);
-        final List<String> uriStrings = Lists.newArrayList();
-        final List<URI> elementUris = Lists.newArrayList();
-        for (OvationEntity e : getElements()) {
-            elementUris.add(e.getURI());
-            uriStrings.add(e.getURI().toString());
-        }
 
         sourceButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                SwingUtilities.invokeLater(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        //TODO find target, then decide where to show it
-                        if (entity instanceof Source) {
-                            new OpenNodeInBrowserAction(Lists.newArrayList(entity.getURI()),
-                                    Joiner.on(",").join(uriStrings),
-                                    false,
-                                    elementUris,
-                                    OpenNodeInBrowserAction.SOURCE_BROWSER_ID).actionPerformed(e);
-                        } else {
-                            new OpenNodeInBrowserAction(Lists.newArrayList(entity.getURI()),
-                                    Joiner.on(",").join(uriStrings),
-                                    false,
-                                    elementUris,
-                                    OpenNodeInBrowserAction.PROJECT_BROWSER_ID).actionPerformed(e);
-                        }
-                    }
-                });
-
+                //TODO find target, then decide where to show it
+                if (entity instanceof Source) {
+                    RevealNode.forEntity(BrowserUtilities.SOURCE_BROWSER_ID, entity);
+                } else {
+                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, entity);
+                }
             }
         });
 
