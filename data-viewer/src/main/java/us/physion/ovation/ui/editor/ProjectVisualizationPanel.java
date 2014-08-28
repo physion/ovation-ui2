@@ -132,7 +132,6 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                                 EventQueueUtilities.runOnEDT(new Runnable() {
                                     @Override
                                     public void run() {
-                                        node.refresh();
                                         if (!m.isEmpty()) {
                                             RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, m.get(0));
                                         }
@@ -166,7 +165,15 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
                     @Override
                     public AnalysisRecord call() throws Exception {
-                        return addAnalysisRecord(files, inputs);
+                        final AnalysisRecord record = addAnalysisRecord(files, inputs);
+                        EventQueueUtilities.runOnEDT(new Runnable() {
+                            @Override
+                            public void run() {
+                                RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, record);
+                            }
+                        });
+
+                        return record;
                     }
 
                 });
@@ -174,11 +181,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                 Futures.addCallback(addRecord, new FutureCallback<AnalysisRecord>() {
 
                     @Override
-                    public void onSuccess(final AnalysisRecord ar) {
-                        
-                        node.refresh();
-                        RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, ar);
-                    }
+                    public void onSuccess(final AnalysisRecord ar) {}
 
                     @Override
                     public void onFailure(Throwable t) {

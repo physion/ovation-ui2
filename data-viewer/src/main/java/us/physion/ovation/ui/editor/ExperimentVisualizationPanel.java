@@ -20,6 +20,7 @@ import com.google.common.collect.Maps;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.List;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import org.joda.time.DateTime;
@@ -33,6 +34,7 @@ import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
+import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
@@ -160,21 +162,19 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
 
-                TopComponent tc = WindowManager.getDefault().findTopComponent(BrowserUtilities.PROJECT_BROWSER_ID);
-                if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
-                    throw new IllegalStateException();
-                }
-
-                TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
-
-                view.expandNode((Node) node);
-
                 EventQueueUtilities.runOffEDT(new Runnable() {
 
                     @Override
                     public void run() {
-                        EntityUtilities.insertMeasurements(getExperiment(), files);
-                        node.refresh();
+                        final List<Measurement> m = EntityUtilities.insertMeasurements(getExperiment(), files);
+                        EventQueueUtilities.runOnEDT(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!m.isEmpty()) {
+                                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, m.get(0));
+                                }
+                            }
+                        });
                     }
                 }, ph);
             }
@@ -187,25 +187,6 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 addEpochGroup();
             }
         });
-        /*
-         AutoCompleteDecorator.decorate(protocolComboBox, new ObjectToStringConverter() {
-
-         @Override
-         public String[] getPossibleStringsForItem(Object o) {
-         if (!(o instanceof Protocol)) {
-         return new String[]{Bundle.No_protocol()};
-         }
-
-         return new String[]{((Protocol) o).getName(), ((Protocol) o).getURI().toString()};
-         }
-
-         @Override
-         public String getPreferredStringForItem(Object item) {
-         return item == null ? null : getPossibleStringsForItem(item)[0];
-         }
-
-         });
-         */
     }
 
     private void addEpochGroup() {

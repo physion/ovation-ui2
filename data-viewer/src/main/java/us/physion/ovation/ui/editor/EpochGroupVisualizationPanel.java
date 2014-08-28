@@ -22,6 +22,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.List;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import org.jdesktop.beansbinding.Binding;
@@ -37,6 +38,7 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.EpochGroup;
+import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -168,24 +170,19 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
 
-                TopComponent tc = WindowManager.getDefault().findTopComponent(BrowserUtilities.PROJECT_BROWSER_ID);
-                if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
-                    throw new IllegalStateException();
-                }
 
-                TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
-
-                view.expandNode((Node) node);
 
                 EventQueueUtilities.runOffEDT(new Runnable() {
 
                     @Override
                     public void run() {
-                        EntityUtilities.insertMeasurements(getEpochGroup(), files);
+                        final List<Measurement> m = EntityUtilities.insertMeasurements(getEpochGroup(), files);
                         EventQueueUtilities.runOnEDT(new Runnable() {
                             @Override
                             public void run() {
-                                node.refresh();
+                                if (!m.isEmpty()) {
+                                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, m.get(0));
+                                }
                             }
                         });
                     }

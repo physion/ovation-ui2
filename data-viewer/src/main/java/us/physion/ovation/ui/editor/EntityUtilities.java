@@ -37,10 +37,10 @@ import us.physion.ovation.ui.importer.FileMetadata;
 import us.physion.ovation.ui.importer.ImageImporter;
 
 public final class EntityUtilities {
-    
+
     public static List<Measurement> insertMeasurements(Experiment experiment, File[] files) {
         List<File> images = getImages(files);
-        
+
         DateTime[] range = getRange(files, images);
         DateTime start = range[0];
         DateTime end = range[1];
@@ -53,15 +53,15 @@ public final class EntityUtilities {
 
         return insertMeasurements(e, files, images);
     }
-    
-    
+
+
     public static List<Measurement> insertMeasurements(Epoch e, File[] files) {
         return insertMeasurements(e, files, getImages(files));
     }
-    
-    public static void insertMeasurements(EpochGroup epochGroup, File[] files) {
+
+    public static List<Measurement> insertMeasurements(EpochGroup epochGroup, File[] files) {
         List<File> images = getImages(files);
-        
+
         DateTime[] range = getRange(files, images);
         DateTime start = range[0];
         DateTime end = range[1];
@@ -71,10 +71,10 @@ public final class EntityUtilities {
                 null,
                 Maps.<String, Object>newHashMap(),
                 Maps.<String, Object>newHashMap());
-        
-        insertMeasurements(e, files, images);
+
+        return insertMeasurements(e, files, images);
     }
-    
+
     private static List<Measurement> insertMeasurements(Epoch e, File[] files, List<File> images) {
         List<Measurement> result = Lists.newLinkedList(ImageImporter.importImageMeasurements(e, images)
                 .toList()
@@ -129,10 +129,10 @@ public final class EntityUtilities {
             }
 
         }
-        
+
         return new DateTime[]{start, end};
     }
-    
+
     private static List<File> getImages(File[] files){
         List<File> images = Lists.newLinkedList(Iterables.filter(Lists.newArrayList(files),
                 new Predicate<File>() {

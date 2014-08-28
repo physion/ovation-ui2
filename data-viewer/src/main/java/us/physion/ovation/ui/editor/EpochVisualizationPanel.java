@@ -190,34 +190,30 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
 
-                TopComponent tc = WindowManager.getDefault().findTopComponent(BrowserUtilities.PROJECT_BROWSER_ID);
-                if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
-                    throw new IllegalStateException();
-                }
 
-                final TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
 
                 ListenableFuture<Iterable<Measurement>> addMeasurements = EventQueueUtilities.runOffEDT(new Callable<Iterable<Measurement>>() {
 
                     @Override
                     public Iterable<Measurement> call() {
-                        return EntityUtilities.insertMeasurements(getEpoch(), files);
+                        final List<Measurement> m = EntityUtilities.insertMeasurements(getEpoch(), files);
+                        EventQueueUtilities.runOnEDT(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!m.isEmpty()) {
+                                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, m.get(0));
+                                }
+                            }
+                        });
+
+                        return m;
                     }
                 }, ph);
 
                 Futures.addCallback(addMeasurements, new FutureCallback<Iterable<Measurement>>() {
 
                     @Override
-                    public void onSuccess(final Iterable<Measurement> result) {
-                        EventQueueUtilities.runOnEDT(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                    node.refresh();
-                                    view.expandNode((Node) node);
-                            }
-                        });
-                    }
+                    public void onSuccess(final Iterable<Measurement> result) {}
 
                     @Override
                     public void onFailure(Throwable t) {
@@ -238,18 +234,19 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
 
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.AnalysisRecord_Adding_Outputs());
 
-                TopComponent tc = WindowManager.getDefault().findTopComponent(BrowserUtilities.PROJECT_BROWSER_ID);
-                if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
-                    throw new IllegalStateException();
-                }
-
-                final TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
-
                 ListenableFuture<AnalysisRecord> addRecord = EventQueueUtilities.runOffEDT(new Callable<AnalysisRecord>() {
 
                     @Override
                     public AnalysisRecord call() throws Exception {
-                        return addAnalysisRecord(files, inputs);
+                        final AnalysisRecord record = addAnalysisRecord(files, inputs);
+                        EventQueueUtilities.runOnEDT(new Runnable() {
+                            @Override
+                            public void run() {
+                                RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, record);
+                            }
+                        });
+
+                        return record;
                     }
 
                 });
@@ -257,24 +254,7 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
                 Futures.addCallback(addRecord, new FutureCallback<AnalysisRecord>() {
 
                     @Override
-                    public void onSuccess(final AnalysisRecord ar) {
-                        EventQueueUtilities.runOnEDT(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                    node.refresh();
-                                    view.expandNode((Node) node);
-
-                                for (final Node userNode : ((Node) node).getChildren().getNodes()) {
-                                    final User user = ((IEntityNode) userNode).getEntity(User.class);
-                                    if (user != null && user.equals(ar.getDataContext().getAuthenticatedUser())) {
-                                        view.expandNode(userNode);
-                                    }
-
-                                }
-                            }
-                        });
-                    }
+                    public void onSuccess(final AnalysisRecord ar) {}
 
                     @Override
                     public void onFailure(Throwable t) {
