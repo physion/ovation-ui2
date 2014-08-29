@@ -79,7 +79,7 @@ public class QuerySet {
 
     public void add(OvationEntity e, Set<ExplorerManager> mgrs)
     {
-        if (e.isTrashed() )
+        if (e == null || e.isTrashed() )
             return;
 
         EntityWrapper ew = new EntityWrapper(e);
