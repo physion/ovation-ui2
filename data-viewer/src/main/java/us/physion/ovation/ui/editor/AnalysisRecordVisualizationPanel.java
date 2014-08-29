@@ -83,6 +83,7 @@ import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
+import us.physion.ovation.ui.reveal.api.RevealNode;
 import us.physion.ovation.util.PlatformUtils;
 
 /**
@@ -111,7 +112,6 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         explorerManager = new ExplorerManager();
         treeLookup = ExplorerUtils.createLookup(explorerManager, getActionMap());
 
-
         initComponents();
         initUI();
     }
@@ -135,13 +135,10 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (getAnalysisRecord().getProtocol() != null) {
-                    new OpenNodeInBrowserAction(BrowserUtilities.PROTOCOL_BROWSER_ID,
-                            Lists.newArrayList(getAnalysisRecord().getProtocol().getURI()))
-                            .actionPerformed(e);
+                    RevealNode.forEntity(BrowserUtilities.PROTOCOL_BROWSER_ID, getAnalysisRecord().getProtocol());
                 }
             }
         });
-
 
         protocolComboBox.setRenderer(new ProtocolCellRenderer());
         final ParameterTableModel paramsModel = new ParameterTableModel(
@@ -238,31 +235,23 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.AnalysisRecord_Adding_Outputs());
 
-                TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
-                if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
-                    throw new IllegalStateException();
-                }
-
-                TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
-
-                view.expandNode((Node) node);
-
                 EventQueueUtilities.runOffEDT(new Runnable() {
 
                     @Override
                     public void run() {
-                        addOutputFiles(files);
+                        final List<DataElement> outputs = addOutputFiles(files);
                         EventQueueUtilities.runOnEDT(new Runnable() {
                             @Override
                             public void run() {
-                                node.refresh();
+                                if (!outputs.isEmpty()) {
+                                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, outputs.get(0));
+                                }
                             }
                         });
                     }
                 }, ph);
             }
         });
-
 
         if (PlatformUtils.isMac()) {
             addInputButton.putClientProperty("JButton.buttonType", "gradient");
@@ -372,7 +361,9 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         return result;
     }
 
-    private void addOutputFiles(File[] files) {
+    private List<DataElement> addOutputFiles(File[] files) {
+        List<DataElement> result = Lists.newLinkedList();
+
         for (File f : files) {
             String name = f.getName();
             int i = 1;
@@ -382,10 +373,10 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
             }
 
             try {
-                getAnalysisRecord().addOutput(
+                result.add(getAnalysisRecord().addOutput(
                         name,
                         f.toURI().toURL(),
-                        ContentTypes.getContentType(f));
+                        ContentTypes.getContentType(f)));
             } catch (MalformedURLException ex) {
                 logger.error("Unable to determine file URL", ex);
                 Toolkit.getDefaultToolkit().beep();
@@ -393,7 +384,10 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
                 logger.error("Unable to determine file content type", ex);
                 Toolkit.getDefaultToolkit().beep();
             }
+
         }
+
+        return result;
     }
 
     private static final double TIP_WIDTH = 20;
@@ -401,7 +395,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
     public static Area makePopOverShape(Rectangle2D targetBounds, int direction) {
 
         double offset;
-        switch(direction) {
+        switch (direction) {
             case SwingUtilities.WEST:
                 offset = -TIP_WIDTH;
                 break;

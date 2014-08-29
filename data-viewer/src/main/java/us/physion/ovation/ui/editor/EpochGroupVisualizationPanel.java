@@ -17,21 +17,12 @@
 
 package us.physion.ovation.ui.editor;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.List;
-import java.util.Set;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import org.jdesktop.beansbinding.Binding;
@@ -46,17 +37,15 @@ import org.openide.nodes.Node;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.ui.browser.BrowserUtilities;
-import us.physion.ovation.ui.importer.FileMetadata;
-import us.physion.ovation.ui.importer.ImageImporter;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
+import us.physion.ovation.ui.reveal.api.RevealNode;
 
 /**
  *
@@ -119,9 +108,7 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (getEpochGroup().getProtocol() != null) {
-                    new OpenNodeInBrowserAction(BrowserUtilities.PROTOCOL_BROWSER_ID,
-                            Lists.newArrayList(getEpochGroup().getProtocol().getURI()))
-                            .actionPerformed(e);
+                    RevealNode.forEntity(BrowserUtilities.PROTOCOL_BROWSER_ID, getEpochGroup().getProtocol());
                 }
             }
         });
@@ -183,24 +170,19 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
 
-                TopComponent tc = WindowManager.getDefault().findTopComponent(OpenNodeInBrowserAction.PROJECT_BROWSER_ID);
-                if (!(tc instanceof ExplorerManager.Provider) || !(tc instanceof TreeViewProvider)) {
-                    throw new IllegalStateException();
-                }
 
-                TreeView view = (TreeView) ((TreeViewProvider) tc).getTreeView();
-
-                view.expandNode((Node) node);
 
                 EventQueueUtilities.runOffEDT(new Runnable() {
 
                     @Override
                     public void run() {
-                        insertMeasurements(files);
+                        final List<Measurement> m = EntityUtilities.insertMeasurements(getEpochGroup(), files);
                         EventQueueUtilities.runOnEDT(new Runnable() {
                             @Override
                             public void run() {
-                                node.refresh();
+                                if (!m.isEmpty()) {
+                                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, m.get(0));
+                                }
                             }
                         });
                     }
@@ -216,68 +198,6 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
     public EpochGroup getEpochGroup() {
         return getNode().getEntity(EpochGroup.class);
     }
-
-    private void insertMeasurements(File[] files) {
-        DateTime start = new DateTime();
-        DateTime end = new DateTime();
-
-        List<File> images = Lists.newLinkedList(Iterables.filter(Lists.newArrayList(files),
-                new Predicate<File>() {
-
-                    @Override
-                    public boolean apply(File input) {
-                        return ImageImporter.canImport(input);
-                    }
-                }));
-
-        for (File f : images) {
-            FileMetadata m = new FileMetadata(f);
-            if (m.getEnd(false).isAfter(end)) {
-                end = m.getEnd(false);
-            }
-
-            if (m.getStart().isBefore(start)) {
-                start = m.getStart();
-            }
-        }
-
-        for (File f : files) {
-            DateTime lastModified = new DateTime(f.lastModified());
-            if (lastModified.isAfter(end)) {
-                end = lastModified;
-            }
-
-            if (start.isBefore(lastModified)) {
-                start = lastModified;
-            }
-
-        }
-
-        Epoch e = getEpochGroup().insertEpoch(start,
-                end,
-                null,
-                Maps.<String, Object>newHashMap(),
-                Maps.<String, Object>newHashMap());
-
-        List<Measurement> imageMeasurements = ImageImporter.importImageMeasurements(e, images).toList().toBlockingObservable().last();
-
-        Set<File> others = Sets.newHashSet(files);
-        others.removeAll(images);
-        for (File f : others) {
-            try {
-                e.insertMeasurement(f.getName(),
-                        Sets.<String>newHashSet(),
-                        Sets.<String>newHashSet(),
-                        f.toURI().toURL(),
-                        ContentTypes.getContentType(f));
-            } catch (MalformedURLException ex) {
-                Toolkit.getDefaultToolkit().beep();
-            } catch (IOException ex) {
-                Toolkit.getDefaultToolkit().beep();
-            }
-        }
-    }
-
 
     /**
      * This method is called from within the constructor to initialize the form.

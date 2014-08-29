@@ -24,6 +24,7 @@ import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.LazyChildren;
 import us.physion.ovation.ui.interfaces.TreeViewProvider;
 import us.physion.ovation.ui.interfaces.URINode;
@@ -31,14 +32,11 @@ import us.physion.ovation.ui.jumpto.api.JumpHistory;
 
 @NbBundle.Messages({
     "OpenNodeInBrowserAction=Select in Project Navigator",
-    "SelectingProgress=Selecting in Project Navigator"
+    "SelectingProgress=Selecting"
 })
 public class OpenNodeInBrowserAction extends AbstractAction {
 
     private final static Logger log = LoggerFactory.getLogger(OpenNodeInBrowserAction.class);
-    public final static String PROJECT_BROWSER_ID = "ProjectBrowserTopComponent"; //NOI18N
-    public final static String SOURCE_BROWSER_ID = "SourceBrowserTopComponent"; //NOI18N
-    public final static String PROTOCOL_BROWSER_ID = "ProtocolBrowserTopComponent"; //NOI18N
     private final Provider em;
     private final TopComponent tc;
     private final List<URI> entityPath;
@@ -47,24 +45,12 @@ public class OpenNodeInBrowserAction extends AbstractAction {
     private final boolean addToHistory;
     private final List<URI> historySource;
 
-    public OpenNodeInBrowserAction(List<URI> entityURI) {
-        this(PROJECT_BROWSER_ID, entityURI);
-    }
-
     public OpenNodeInBrowserAction(String explorerTopComponentID, List<URI> entityURI) {
         this(entityURI, null, false, null, explorerTopComponentID);
     }
 
     public OpenNodeInBrowserAction(List<URI> entityURI, /* @Nullable */ String nodeDisplayName) {
-        this(entityURI, nodeDisplayName, false, null);
-    }
-    /**
-     *
-     * @param entityURI
-     * @param nodeDisplayName The corresponding node display name. It will be added to the history
-     */
-    public OpenNodeInBrowserAction(List<URI> entityURI, /* @Nullable */ String nodeDisplayName, boolean addToHistory, List<URI> source) {
-        this(entityURI, nodeDisplayName, addToHistory, source, PROJECT_BROWSER_ID);
+        this(entityURI, nodeDisplayName, false, null, BrowserUtilities.PROJECT_BROWSER_ID);
     }
 
     public OpenNodeInBrowserAction(List<URI> entityURI, /* @Nullable */ String nodeDisplayName, boolean addToHistory, List<URI> source, String explorerTopComponentID) {

@@ -18,6 +18,7 @@ import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.Identity;
 import us.physion.ovation.ui.actions.SelectInProjectNavigatorActionFactory;
+import us.physion.ovation.ui.browser.BrowserUtilities;
 
 @ServiceProvider(service = SelectInProjectNavigatorActionFactory.class)
 public class SelectInProjectNavigatorActionFactoryImpl implements SelectInProjectNavigatorActionFactory {
@@ -27,6 +28,15 @@ public class SelectInProjectNavigatorActionFactoryImpl implements SelectInProjec
     }
     
     @Override
+    public Action selectInTopComponent(String topComponentId, Identity data) {
+        List<URI> path = new ArrayList<URI>();
+        PathType kind = buildPath(data, path);
+        path.add(null);
+        Collections.reverse(path);
+        return new OpenNodeInBrowserAction(topComponentId, path);
+    }
+
+    @Override
     public Action select(Identity data, String displayName, List<URI> source) {
         List<URI> path = new ArrayList<URI>();
         PathType kind = buildPath(data, path);
@@ -34,7 +44,7 @@ public class SelectInProjectNavigatorActionFactoryImpl implements SelectInProjec
         Collections.reverse(path);
         return new OpenNodeInBrowserAction(path, displayName,
                 kind == PathType.ProjectPath, source,
-                kind == PathType.ProjectPath ? OpenNodeInBrowserAction.PROJECT_BROWSER_ID : OpenNodeInBrowserAction.SOURCE_BROWSER_ID);
+                kind == PathType.ProjectPath ? BrowserUtilities.PROJECT_BROWSER_ID : BrowserUtilities.SOURCE_BROWSER_ID);
     }
 
     //XXX: This should be moved in some Utils class

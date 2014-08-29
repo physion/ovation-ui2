@@ -17,20 +17,13 @@
 
 package us.physion.ovation.ui.editor;
 
-import com.google.common.collect.Lists;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URI;
-import org.openide.explorer.view.TreeView;
-import org.openide.nodes.Node;
 import org.openide.util.NbBundle.Messages;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.browser.BrowserUtilities;
-import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
-import us.physion.ovation.ui.interfaces.TreeViewProvider;
+import us.physion.ovation.ui.reveal.api.RevealNode;
 
 /**
  *
@@ -65,26 +58,7 @@ public class SourceVisualizationPanel extends AbstractContainerVisualizationPane
                 
                 getNode().refresh();
                 
-                TopComponent sourceBrowser = WindowManager.getDefault().findTopComponent(BrowserUtilities.SOURCE_BROWSER_ID);
-
-                final TreeView tree = (TreeView) ((TreeViewProvider) sourceBrowser).getTreeView();
-
-                try {
-                    EventQueueUtilities.runAndWaitOnEDT(new Runnable() {
-                        @Override
-                        public void run() {
-                            tree.expandNode((Node) node);
-
-                            new OpenNodeInBrowserAction(Lists.newArrayList(child.getURI()),
-                                    null,
-                                    false,
-                                    Lists.<URI>newArrayList(),
-                                    OpenNodeInBrowserAction.SOURCE_BROWSER_ID).actionPerformed(e);
-                        }
-                    });
-                } catch (InterruptedException ex) {
-                    //pass
-                }
+                RevealNode.forEntity(BrowserUtilities.SOURCE_BROWSER_ID, child);
             }
         });
     }

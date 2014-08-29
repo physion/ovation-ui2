@@ -62,7 +62,7 @@ public final class NewProjectAction extends AbstractNewEntityAction<Project> {
 
             @Override
             public void onSuccess(Void result) {
-                selectNode(p, BrowserUtilities.PROJECT_BROWSER_ID, e);
+                selectNode(p, BrowserUtilities.PROJECT_BROWSER_ID);
             }
 
             @Override

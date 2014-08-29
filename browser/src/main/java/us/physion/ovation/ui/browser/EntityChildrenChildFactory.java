@@ -32,6 +32,7 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 @Messages({
     "Loading_Interrupted=Loading interrupted"
+    ,"Loading_Interrupted_Description=Use Reload from the parent element's context menu to continue loading"
 })
 public class EntityChildrenChildFactory extends ChildFactory<EntityWrapper> {
     private final EntityWrapper parent;
@@ -52,7 +53,9 @@ public class EntityChildrenChildFactory extends ChildFactory<EntityWrapper> {
         if(key == EntityWrapper.EMPTY) {
             return new AbstractNode(Children.LEAF) {
                 {
+                    setIconBaseWithExtension("us/physion/ovation/ui/browser/interrupted.png");
                     setDisplayName(Bundle.Loading_Interrupted());
+                    setShortDescription(Bundle.Loading_Interrupted_Description());
                 }
             };
         }
