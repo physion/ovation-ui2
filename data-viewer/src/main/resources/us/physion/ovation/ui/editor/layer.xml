@@ -4,6 +4,7 @@
     <folder name="Toolbars">
         <folder name="JumpTo">
             <attr name="displayName" bundlevalue="us.physion.ovation.ui.editor.Bundle#Toolbar/JumpTo"/>
+            <attr name="position" intvalue="500"/>
         </folder>
     </folder>
     <folder name="QuickSearch">
