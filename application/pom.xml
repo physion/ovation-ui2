@@ -416,7 +416,8 @@
                                         <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" file="${basedir}/src/main/osx/${brandingToken}" overwrite="true" />
                                         <chmod file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" perm="ugo+rx" />
 
-                                        <symlink link="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS/${brandingToken}" resource="../Resources/${brandingToken}/bin/${brandingToken}" failonerror="false" />
+                                        <copy tofile="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS/${brandingToken}" file="${basedir}/src/main/osx/${brandingToken}_launcher" overwrite="true" />
+                                        <chmod file="${project.build.directory}/${ovation.appbundle.name}.app/Contents/MacOS/${brandingToken}" perm="ugo+rx" />
 
                                         <echo message="Signing app bundle ${line.separator}" />
                                         <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign">

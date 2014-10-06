@@ -1,0 +1,5 @@
+#!/bin/sh
+
+prog=`type -p $0`
+progdir=`dirname "$prog"`
+$progdir/../Resources/ovation/bin/ovation
