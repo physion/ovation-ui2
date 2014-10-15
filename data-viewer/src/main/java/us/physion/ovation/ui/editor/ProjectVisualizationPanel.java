@@ -58,7 +58,7 @@ import us.physion.ovation.ui.reveal.api.RevealNode;
 @Messages({
     "Default_Experiment_Purpose=New Experiment",
     "Project_New_Analysis_Record_Name=New Analysis",
-    "Project_Drop_Files_To_Add_Experiment_Data=Drop files to add Exerpiment data",
+    "Project_Drop_Files_To_Add_Experiment_Data=Drop files to add Experiment data",
     "Project_Drop_Files_To_Add_Analysis=Drop files to add analyses"
 })
 public class ProjectVisualizationPanel extends AbstractContainerVisualizationPanel {
