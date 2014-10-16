@@ -33,17 +33,11 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import org.openide.explorer.ExplorerManager;
-import org.openide.explorer.view.TreeView;
-import org.openide.nodes.Node;
 import org.openide.util.NbBundle.Messages;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.Protocol;
-import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.browser.BrowserUtilities;
@@ -51,7 +45,6 @@ import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
-import us.physion.ovation.ui.interfaces.TreeViewProvider;
 import us.physion.ovation.ui.reveal.api.RevealNode;
 
 /**
@@ -80,6 +73,9 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
     private void initUI() {
 
         setEntityBorder(this);
+        
+        startPicker.setDisplayTime(true);
+        endPicker.setDisplayTime(true);
 
         protocolComboBox.setRenderer(new ProtocolCellRenderer());
 

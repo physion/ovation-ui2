@@ -4,8 +4,6 @@
  */
 package us.physion.ovation.ui.interfaces;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +24,6 @@ public class DatePickerUtilities {
                 new DateFormat[]{DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM),
                         DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)}
         );
-        startPicker.setTimeFormat(DateFormat.getTimeInstance(DateFormat.MEDIUM));
         return startPicker;
     }
     public static String getID(DateTimePicker p)

@@ -38,7 +38,6 @@ public class DatePickers {
                 new DateFormat[]{DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM),
                     DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)}
         );
-        startPicker.setTimeFormat(DateFormat.getTimeInstance(DateFormat.MEDIUM));
         return startPicker;
     }
 
@@ -69,7 +68,8 @@ public class DatePickers {
     public static DateTime zonedDate(DateTimePicker datePicker, javax.swing.JComboBox zonePicker) {
 
         // datePicker.getDate() is giving us in local zone, so convert back to UTC
-        DateTime pickedDate = new DateTime(datePicker.getDate()).withZone(DateTimeZone.forID("UTC"));
+        DateTime pickedDate = new DateTime(datePicker.getDate()); //.withZone(DateTimeZone.forID("UTC"));
+        
         //User entered date in UTC, but we want it in given zone
         return pickedDate.withZoneRetainFields(
                 DateTimeZone.forID((String) zonePicker.getSelectedItem()));
