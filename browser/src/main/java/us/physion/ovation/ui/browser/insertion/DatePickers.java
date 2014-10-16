@@ -26,7 +26,7 @@ public class DatePickers {
                 new DateFormat[]{DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM),
                         DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)}
         );
-        startPicker.setTimeFormat(DateFormat.getTimeInstance(DateFormat.MEDIUM));
+        
         return startPicker;
     }
 
