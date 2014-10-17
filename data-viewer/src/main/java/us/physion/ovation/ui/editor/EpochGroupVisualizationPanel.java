@@ -17,6 +17,7 @@
 
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Maps;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -31,12 +32,7 @@ import org.jdesktop.beansbinding.Bindings;
 import org.joda.time.DateTime;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import org.openide.explorer.ExplorerManager;
-import org.openide.explorer.view.TreeView;
-import org.openide.nodes.Node;
 import org.openide.util.NbBundle.Messages;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.Protocol;
@@ -44,7 +40,6 @@ import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
-import us.physion.ovation.ui.interfaces.TreeViewProvider;
 import us.physion.ovation.ui.reveal.api.RevealNode;
 
 /**
@@ -189,6 +184,25 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
                 }, ph);
             }
         });
+        
+        addEpochGroupButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addEpochGroup();
+            }
+        });
+    }
+    
+    private void addEpochGroup() {
+        final EpochGroup group = getEpochGroup().insertEpochGroup(Bundle.EpochGroup_Default_Name(),
+                new DateTime(),
+                null,
+                Maps.<String, Object>newHashMap(),
+                Maps.<String, Object>newHashMap());
+
+        node.refresh();
+        RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, group);
     }
 
     protected void startDateTimeChanged() {
@@ -223,6 +237,7 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
         addProtocolHyperlink = new org.jdesktop.swingx.JXHyperlink();
         editHyperlink = new org.jdesktop.swingx.JXHyperlink();
         fileWell = new us.physion.ovation.ui.editor.FileWell();
+        addEpochGroupButton = new javax.swing.JButton();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
 
@@ -310,9 +325,11 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
                 .addGap(18, 18, 18)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE)
                 .addContainerGap())
         );
+
+        org.openide.awt.Mnemonics.setLocalizedText(addEpochGroupButton, org.openide.util.NbBundle.getMessage(EpochGroupVisualizationPanel.class, "EpochGroupVisualizationPanel.addEpochGroupButton.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -325,20 +342,23 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
                         .addGap(6, 6, 6)
                         .addComponent(dateLabel)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(startPicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(fileWell, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(titleLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(labelTextField)))
-                        .addContainerGap())))
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(startPicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(addEpochGroupButton))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(fileWell, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -355,9 +375,11 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
                     .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(addEpochGroupButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(fileWell, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(10, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -365,6 +387,7 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addEpochGroupButton;
     private org.jdesktop.swingx.JXHyperlink addProtocolHyperlink;
     private javax.swing.JLabel dateLabel;
     private org.jdesktop.swingx.JXHyperlink editHyperlink;
