@@ -50,12 +50,18 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.AbstractBorder;
 import javax.swing.text.AbstractDocument;
+import javax.swing.text.JTextComponent;
 import javax.swing.text.StyleConstants;
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
+import org.jdesktop.swingx.autocomplete.ObjectToStringConverter;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.Lookup;
@@ -123,7 +129,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                addSourceFromTextField(ctx);
+                addSourceFromText(ctx, addSourcesTextField.getText());
             }
 
         });
@@ -131,7 +137,39 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         addSourcesTextField.setEnabled(getMeasurements().size() > 0);
         addSourcesTextField.setVisible(getMeasurements().size() > 0);
 
+        List<String> sourceIds = getSourceIds(ctx.getTopLevelSources());
+        List<String> sortedIds = Lists.newArrayList(sourceIds);
+        Collections.sort(sortedIds);
+
+        AutoCompleteDecorator.decorate(addSourcesTextField, sortedIds, false);
+
+
+//        addSourcesComboBox.addActionListener(new ActionListener() {
+//
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                JComboBox c = (JComboBox) e.getSource();
+//                JTextComponent tc = (JTextComponent) c.getEditor().getEditorComponent();
+//                addSourceFromText(ctx, tc.getText());
+//            }
+//        });
+//
+//        addSourcesComboBox.setModel(new DefaultComboBoxModel<>(sortedIds.toArray(new String[sortedIds.size()])));
+//        addSourcesComboBox.setEnabled(getMeasurements().size() > 0);
+//        addSourcesComboBox.setVisible(getMeasurements().size() > 0);
+//        AutoCompleteDecorator.decorate(addSourcesComboBox);
+
         updateInputs();
+    }
+
+    private List<String> getSourceIds(Iterable<Source> roots) {
+        List<String> result = Lists.newLinkedList();
+        for (Source s : roots) {
+            result.add(s.getIdentifier());
+            result.addAll(getSourceIds(s.getChildrenSources()));
+        }
+
+        return result;
     }
 
     public final String getContentType() {
@@ -231,7 +269,6 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         addSourcesTextField.setToolTipText(org.openide.util.NbBundle.getMessage(DataElementInfoPanel.class, "DataElementInfoPanel.addSourcesTextField.toolTipText")); // NOI18N
         addSourcesTextField.setBorder(new javax.swing.border.LineBorder(javax.swing.UIManager.getDefaults().getColor("InternalFrame.background"), 1, true));
 
-        jScrollPane1.setBackground(java.awt.Color.white);
         jScrollPane1.setBorder(null);
 
         inputsTextPane.setBorder(null);
@@ -252,11 +289,11 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(addSourcesTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 535, Short.MAX_VALUE))
+                        .addComponent(addSourcesTextField))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(contentTypeComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(contentTypeComboBox, 0, 560, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -266,11 +303,11 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(contentTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(addSourcesTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(16, 16, 16)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
                 .addContainerGap())
         );
@@ -462,7 +499,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         }
     }
 
-    private void addSourceFromTextField(final DataContext ctx) throws OvationException {
+    private void addSourceFromText(final DataContext ctx, String txt) throws OvationException {
 
         Iterable<String> sourceIds = Splitter.on(",")
                 .omitEmptyStrings()
