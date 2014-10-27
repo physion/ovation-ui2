@@ -9,11 +9,11 @@ import us.physion.ovation.ui.jumpto.api.JumpHistory;
 import us.physion.ovation.ui.jumpto.api.JumpHistory.Item;
 
 @ActionID(
-    category = "JumpTo",
-id = "us.physion.ovation.ui.jumpto.impl.JumpBackAction")
+        category = "JumpTo",
+        id = "us.physion.ovation.ui.jumpto.impl.JumpBackAction")
 @ActionRegistration(
-    iconBase = "org/openide/resources/actions/previousTab.gif",
-displayName = "#CTL_JumpBackAction")
+        iconBase = "us/physion/ovation/ui/jumpto/impl/backward.png",
+        displayName = "#CTL_JumpBackAction")
 @ActionReferences({
     @ActionReference(path = "Toolbars/JumpTo", position = 300),
     @ActionReference(path = "Shortcuts", name = "M-OPEN_BRACKET")
@@ -23,7 +23,7 @@ public final class JumpBackAction extends AbstractJumpAction {
 
     @Override
     protected String getIconResource() {
-        return "org/openide/resources/actions/previousTab.gif"; //NOI18N
+        return "us/physion/ovation/ui/jumpto/impl/backward.png"; //NOI18N
     }
 
     @Override
