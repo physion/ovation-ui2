@@ -31,26 +31,3 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-CREDITS
--------
-
-All of the following icons are licensed under the Creative Commons Attribution 3.0:
-
-- “People” symbol by Videologin.net, from thenounproject.com collection
-- “Magnifying Glass” symbol from thenounproject.com collection
-- “Bar Graph” symbol by Ben King, from thenounproject.com collection
-- “Idea” symbol from thenounproject.com collection
-- "Education" symbol by Thibault Geffroy from thenounproject.com collection
-- “Lightning” symbol by Matthew Hock, from thenounproject.com collection
-- “Splatter” symbol by Connie Shu, from thenounproject.com collection
-- “Refresh” symbol from thenounproject.com collection
-- “Entrance” symbol by Pedro Lalli, from thenounproject.com collection
-
-All of the following icons are licensed under public domain:
-
-- “Microscope” symbol by Jack Biesek, Gladys Brenner, Margaret Faye, Healther Merrifield, Kate Keating, Wendy Olmstead, Todd Pierce, Jamie Cowgill, Jim Bolek, - from thenounproject.com collection
-- “Brain” symbol by Jack Biesek, Gladys Brenner, Margaret Faye, Healther Merrifield, Kate Keating, Wendy Olmstead, Todd Pierce, Jamie Cowgill, Jim Bolek, from thenounproject.com collection
-- “Laboratory” symbol by Jack Biesek, Gladys Brenner, Margaret Faye, Healther Merrifield, Kate Keating, Wendy Olmstead, Todd Pierce, Jamie Cowgill, Jim Bolek, from thenounproject.com collection
-- “Test Tube” symbol by Zach Graham, from thenounproject.com collection
