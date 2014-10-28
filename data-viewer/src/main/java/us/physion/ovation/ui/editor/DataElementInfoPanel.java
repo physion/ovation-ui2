@@ -43,25 +43,19 @@ import java.awt.event.ItemListener;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
-import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.AbstractBorder;
 import javax.swing.text.AbstractDocument;
-import javax.swing.text.JTextComponent;
 import javax.swing.text.StyleConstants;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
-import org.jdesktop.swingx.autocomplete.ObjectToStringConverter;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.Lookup;
@@ -137,11 +131,15 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         addSourcesTextField.setEnabled(getMeasurements().size() > 0);
         addSourcesTextField.setVisible(getMeasurements().size() > 0);
 
-        List<String> sourceIds = getSourceIds(ctx.getTopLevelSources());
-        List<String> sortedIds = Lists.newArrayList(sourceIds);
-        Collections.sort(sortedIds);
+        try {
+            List<String> sourceIds = getSourceIds(ctx.getTopLevelSources());
+            List<String> sortedIds = Lists.newArrayList(sourceIds);
+            Collections.sort(sortedIds);
 
-        AutoCompleteDecorator.decorate(addSourcesTextField, sortedIds, false);
+            AutoCompleteDecorator.decorate(addSourcesTextField, sortedIds, false);
+        } catch (Throwable ex) {
+            logger.error("Unable to retrieve Sources. Autocomplete for Source IDs disabled.");
+        }
 
 
 //        addSourcesComboBox.addActionListener(new ActionListener() {
