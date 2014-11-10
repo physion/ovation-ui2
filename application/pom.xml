@@ -19,7 +19,7 @@
         <ovation.release.repository.url>s3://maven.ovation.io/release</ovation.release.repository.url>
         <physion.codesign.identity>Developer ID Application: Physion Consulting LLC</physion.codesign.identity>
         <ovation.updates.site.sourcedir>${project.build.directory}/netbeans_site</ovation.updates.site.sourcedir>
-        <ovation.updates.repository.path>current</ovation.updates.repository.path>
+        <ovation.updates.repository.path>v3</ovation.updates.repository.path>
         <ovation.updates.repository.url>s3://updates-ovation-io/</ovation.updates.repository.url>
         <ovation.updates.repository.id>s3-ovation-updates-repository</ovation.updates.repository.id>
         <ovation.appbundle.name>Ovation</ovation.appbundle.name>
@@ -52,7 +52,6 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-nbjunit</artifactId>
             <scope>test</scope>
-            <version>RELEASE80</version>
             <type>jar</type>
         </dependency>
 

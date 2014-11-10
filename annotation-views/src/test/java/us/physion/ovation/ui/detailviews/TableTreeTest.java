@@ -19,6 +19,7 @@ import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.*;
+import us.physion.ovation.domain.mixin.PropertyAnnotatable;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.detailviews.MockResizableTree;
 import us.physion.ovation.ui.interfaces.*;
@@ -48,6 +49,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
     }
     
     @Before
+    @Override
     public void setUp() {
         super.setUp();
         mockTree = new MockResizableTree();
@@ -89,7 +91,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         int i=0;
         for (String uri : uris)
         {
-            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
+            PropertyAnnotatable eb = (PropertyAnnotatable)ctx.getObjectWithURI(uri);
             if (i++%2 == 0)
                 eb.addProperty(key1, val1);//only half of the uris have the property
         }
@@ -110,7 +112,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
     
         for (String uri : uris)
         {
-            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
+            PropertyAnnotatable eb = (PropertyAnnotatable)ctx.getObjectWithURI(uri);
             assertEquals(eb.getUserProperty(getUser(), key1), newVal1);
         }
     }
@@ -131,7 +133,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         int i=0;
         for (String uri : uris)
         {
-            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
+            PropertyAnnotatable eb = (PropertyAnnotatable)ctx.getObjectWithURI(uri);
             eb.addProperty(newKey1, newVal1);
             
             if (i++%2 == 0)
@@ -158,7 +160,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
 
         for (String uri : uris)
         {
-            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
+            PropertyAnnotatable eb = (PropertyAnnotatable)ctx.getObjectWithURI(uri);
             assertFalse(eb.getProperties().containsKey(newKey1));
             assertFalse(eb.getProperties().containsKey(newKey2));
         }
@@ -174,7 +176,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         
         for (String uri : uris)
         {
-            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
+            PropertyAnnotatable eb = (PropertyAnnotatable)ctx.getObjectWithURI(uri);
             eb.addProperty(key1, val1);
         }
         
@@ -198,7 +200,7 @@ public class TableTreeTest extends OvationTestCase implements Lookup.Provider, C
         
         for (String uri : uris)
         {
-            AnnotatableEntity eb = (AnnotatableEntity)ctx.getObjectWithURI(uri);
+            PropertyAnnotatable eb = (PropertyAnnotatable)ctx.getObjectWithURI(uri);
             assertEquals(eb.getUserProperty(ctx.getAuthenticatedUser(), key).getClass(), clazz);
         }
     }
