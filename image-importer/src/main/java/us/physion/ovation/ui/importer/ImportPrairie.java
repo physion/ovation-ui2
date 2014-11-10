@@ -4,8 +4,8 @@
  */
 package us.physion.ovation.ui.importer;
 
+import com.google.common.collect.Lists;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
@@ -29,6 +29,8 @@ public class ImportPrairie extends ImportImage {
     public int getPosition() {
         return 105;
     }
+    
+    @Override
     public void setFiles()
     {
         JFileChooser chooser = new JFileChooser();
@@ -36,7 +38,7 @@ public class ImportPrairie extends ImportImage {
         chooser.setFileFilter(filter);
         int returnVal = chooser.showOpenDialog(new JPanel());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            files = new ArrayList<FileMetadata>();
+            files = Lists.newArrayList();
             File file = chooser.getSelectedFile();
             if (file != null)
             {
@@ -51,7 +53,7 @@ public class ImportPrairie extends ImportImage {
 
     @Override
     public List<WizardDescriptor.Panel<WizardDescriptor>> getPanels(IEntityWrapper iew) {
-        List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
+        List<WizardDescriptor.Panel<WizardDescriptor>> panels = Lists.newArrayList();
 
         GetImageFilesController c = new GetImageFilesController(files);
         files = null;
