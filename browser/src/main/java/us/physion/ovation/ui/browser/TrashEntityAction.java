@@ -9,6 +9,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -96,10 +97,10 @@ public class TrashEntityAction extends SystemAction {
 
             final Node node = nodes[i];
 
-            ListenableFuture<Iterable<UUID>> future = call(c, entity);
-            Futures.addCallback(future, new FutureCallback<Iterable<UUID>>() {
+            ListenableFuture<Iterable<URI>> future = call(c, entity);
+            Futures.addCallback(future, new FutureCallback<Iterable<URI>>() {
                 @Override
-                public void onSuccess(Iterable<UUID> v) {
+                public void onSuccess(Iterable<URI> v) {
                     if (v.iterator().hasNext()) {
                         ph.progress(getProgressSuccessText(v.iterator().next()));
                     }
@@ -143,7 +144,7 @@ public class TrashEntityAction extends SystemAction {
         return Bundle.Deleted(file);  
     }
     
-    protected ListenableFuture<Iterable<UUID>> call(DataContext c, OvationEntity entity){
+    protected ListenableFuture<Iterable<URI>> call(DataContext c, OvationEntity entity){
         return c.trash(entity);
     }
     

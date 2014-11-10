@@ -148,7 +148,7 @@ public class QuerySet {
         Set<OvationEntity> parents = new HashSet();
         Class type = entity.getClass();
         if (Source.class.isAssignableFrom(type)) {
-            parents.addAll(Sets.newHashSet(((Source) entity).getParentSources()));
+            parents.addAll(Sets.newHashSet(((Source) entity).getChildren()));
         } else if (Experiment.class.isAssignableFrom(type)) {
             for (Project p : ((Experiment) entity).getProjects()) {
                 parents.add(p);
@@ -162,7 +162,9 @@ public class QuerySet {
             parents.add(epoch);
 
             for (String source : ((Measurement) entity).getSourceNames()) {
-                parents.add(epoch.getInputSources().get(source));
+                for(Source s : epoch.getInputSources().get(source)) {
+                    parents.add(s);
+                }
             }
         } else if (AnalysisRecord.class.isAssignableFrom(type)) {
             parents.add(((AnalysisRecord) entity).getParent());

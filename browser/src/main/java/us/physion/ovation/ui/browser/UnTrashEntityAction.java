@@ -16,13 +16,18 @@
  */
 package us.physion.ovation.ui.browser;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.UUID;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.OvationEntity;
+import java.net.URI;
+import java.util.UUID;
+import us.physion.ovation.domain.URIs;
 
 @ActionID(
     category = "Edit",
@@ -53,8 +58,19 @@ public class UnTrashEntityAction extends TrashEntityAction {
     }
 
     @Override
-    protected ListenableFuture<Iterable<UUID>> call(DataContext c, OvationEntity entity) {
-        return c.restoreFromTrash(entity);
+    protected ListenableFuture<Iterable<URI>> call(DataContext c, OvationEntity entity) {
+        return Futures.transform(c.restoreFromTrash(entity), new Function<Iterable<UUID>, Iterable<URI>>() {
+            @Override
+            public Iterable<URI> apply(Iterable<UUID> input) {
+                return input == null ? null : Iterables.transform(input, new Function<UUID, URI>() {
+
+                    @Override
+                    public URI apply(UUID input) {
+                        return input == null ? null : URIs.create(input);
+                    }
+                });
+            }
+        });
     }
 
     @Override

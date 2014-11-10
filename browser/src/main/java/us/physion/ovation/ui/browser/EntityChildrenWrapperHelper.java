@@ -254,7 +254,7 @@ public class EntityChildrenWrapperHelper {
             }
         });
         for (User user : users) {
-            List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
+            List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getUserAnalysisRecords(user).values(),
                     new Function<AnalysisRecord, EntityWrapper>() {
                         @Override
                         public EntityWrapper apply(AnalysisRecord f) {
@@ -280,7 +280,7 @@ public class EntityChildrenWrapperHelper {
             }
         });
         for (User user : users) {
-            List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
+            List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getUserAnalysisRecords(user).values(),
                     new Function<AnalysisRecord, EntityWrapper>() {
                         @Override
                         public EntityWrapper apply(AnalysisRecord f) {
@@ -378,7 +378,7 @@ public class EntityChildrenWrapperHelper {
     }
 
     private void addChildrenSources(List<EntityWrapper> list, Source entity, ProgressHandle ph) {
-        for (Source e : entity.getChildrenSources()) {
+        for (Source e : entity.getChildren()) {
             list.add(new EntityWrapper(e));
         }
     }

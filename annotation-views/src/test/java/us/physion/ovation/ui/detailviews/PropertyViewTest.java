@@ -12,7 +12,6 @@ import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
-import us.physion.ovation.domain.AnnotatableEntity;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.PropertyAnnotatable;

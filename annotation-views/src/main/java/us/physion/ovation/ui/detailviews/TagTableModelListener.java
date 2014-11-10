@@ -10,7 +10,7 @@ import javax.swing.table.DefaultTableModel;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.mixin.Taggable;
+import us.physion.ovation.domain.mixin.KeywordAnnotatable;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
@@ -70,10 +70,10 @@ class TagTableModelListener implements EditableTableModelListener {
                     {
                         for (String uri : uris) {
                             OvationEntity eb = c.getObjectWithURI(uri);
-                            if (eb instanceof Taggable)
+                            if (eb instanceof KeywordAnnotatable)
                             {
                                 if (tag != null && !tag.isEmpty()) {
-                                    ((Taggable) eb).removeTag(tag.trim());
+                                    ((KeywordAnnotatable) eb).removeTag(tag.trim());
                                 }
                             }
                         }
@@ -82,9 +82,9 @@ class TagTableModelListener implements EditableTableModelListener {
                     {
                         for (String uri : uris) {
                             OvationEntity eb = c.getObjectWithURI(uri);
-                            if (eb instanceof Taggable) {
+                            if (eb instanceof KeywordAnnotatable) {
                                 if (tag != null && !tag.isEmpty()) {
-                                    ((Taggable) eb).addTag(tag.trim());
+                                    ((KeywordAnnotatable) eb).addTag(tag.trim());
                                 }
                             }
                         }
@@ -123,15 +123,15 @@ class TagTableModelListener implements EditableTableModelListener {
                 }
                 for (String uri : uris) {
                     OvationEntity eb = c.getObjectWithURI(uri);
-                    if (eb instanceof Taggable) {
+                    if (eb instanceof KeywordAnnotatable) {
                         for (String tag : newTags) {
                             if (tag != null && !tag.isEmpty()) {
-                                ((Taggable) eb).addTag(tag.trim());
+                                ((KeywordAnnotatable) eb).addTag(tag.trim());
                             }
                         }
                         for (String tag : toRemove) {
                             if (tag != null && !tag.isEmpty()) {
-                                ((Taggable) eb).removeTag(tag.trim());
+                                ((KeywordAnnotatable) eb).removeTag(tag.trim());
                             }
                         }
                     }
@@ -160,9 +160,9 @@ class TagTableModelListener implements EditableTableModelListener {
                 for (String tag : toRemove) {
                     for (String uri : uris) {
                         OvationEntity eb = c.getObjectWithURI(uri);
-                        if (eb instanceof Taggable)
+                        if (eb instanceof KeywordAnnotatable)
                         {
-                            ((Taggable)eb).removeTag(tag);
+                            ((KeywordAnnotatable)eb).removeTag(tag);
                         }
                     }
                 }
