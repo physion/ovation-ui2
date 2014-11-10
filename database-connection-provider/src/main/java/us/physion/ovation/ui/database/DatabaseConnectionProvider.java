@@ -87,7 +87,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider, EventBusP
                             final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Sync_Task());
                             ph.start();
 
-                            ListenableFuture<Boolean> sync = m.getDSC().fullSync(null);
+                            ListenableFuture<Boolean> sync = m.getDSC().sync(null);
 
                             Futures.addCallback(sync, new FutureCallback<Boolean>() {
 

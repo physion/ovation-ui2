@@ -32,6 +32,7 @@ import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.RefreshableNode;
+import us.physion.ovation.util.UriUtils;
 
 @ActionID(
     category = "Edit",
@@ -102,7 +103,7 @@ public class TrashEntityAction extends SystemAction {
                 @Override
                 public void onSuccess(Iterable<URI> v) {
                     if (v.iterator().hasNext()) {
-                        ph.progress(getProgressSuccessText(v.iterator().next()));
+                        ph.progress(getProgressSuccessText(UriUtils.objectId(v.iterator().next())));
                     }
                     finish();
                     Node n = node.getParentNode();

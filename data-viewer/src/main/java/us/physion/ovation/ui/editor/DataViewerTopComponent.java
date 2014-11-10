@@ -345,7 +345,7 @@ public final class DataViewerTopComponent extends TopComponent {
                 }
             }
             if (!added) {
-                Resource r = (Resource) rw.getDataResource().refresh();
+                Resource r = (Resource) rw.getDataResource();
                 dataVisualizations.add(ResponseWrapperFactory.create(rw).createVisualization(rw));
             }
         }

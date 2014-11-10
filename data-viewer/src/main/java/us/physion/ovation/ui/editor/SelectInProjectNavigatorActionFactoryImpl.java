@@ -90,7 +90,7 @@ public class SelectInProjectNavigatorActionFactoryImpl implements SelectInProjec
                 //XXX: 1:N mapping
                 Source s = (Source) id;
                 
-                Iterator<Source> parents = s.getParentSources().iterator();
+                Iterator<Source> parents = s.getParents().iterator();
                 
                 if (parents.hasNext()) {
                     id = parents.next();

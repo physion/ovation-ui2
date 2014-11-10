@@ -164,7 +164,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         List<String> result = Lists.newLinkedList();
         for (Source s : roots) {
             result.add(s.getIdentifier());
-            result.addAll(getSourceIds(s.getChildrenSources()));
+            result.addAll(getSourceIds(s.getChildren()));
         }
 
         return result;
@@ -349,7 +349,8 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
         for (Measurement m : getMeasurements()) {
             for (String s : m.getSourceNames()) {
-                sources.put(s, m.getEpoch().getInputSources().get(s));
+                int i = 0;
+                sources.putAll(s, m.getEpoch().getInputSources().get(s));
             }
         }
 
