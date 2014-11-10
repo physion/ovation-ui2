@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.domain.AnnotatableEntity;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.User;
+import us.physion.ovation.domain.mixin.KeywordAnnotatable;
 import us.physion.ovation.domain.mixin.Owned;
-import us.physion.ovation.domain.mixin.Taggable;
+import us.physion.ovation.domain.mixin.PropertyAnnotatable;
 import us.physion.ovation.ui.TableTreeKey;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -105,8 +105,8 @@ public class PerUserAnnotationSets {
         {
             Map<String, Object> userProps = new HashMap();
             for (OvationEntity e : entitybases) {
-                if (e instanceof AnnotatableEntity)
-                    userProps.putAll(((AnnotatableEntity)e).getUserProperties(u));
+                if (e instanceof PropertyAnnotatable)
+                    userProps.putAll(((PropertyAnnotatable)e).getUserProperties(u));
             }
             return userProps;
         }
@@ -114,8 +114,8 @@ public class PerUserAnnotationSets {
         {
             List<String> tags = new LinkedList();
             for (OvationEntity e : entitybases) {
-                if (e instanceof Taggable)
-                    tags.addAll(Lists.newLinkedList(((Taggable)e).getUserTags(u)));
+                if (e instanceof KeywordAnnotatable)
+                    tags.addAll(Lists.newLinkedList(((KeywordAnnotatable)e).getUserTags(u)));
             }
             Collections.sort(tags);
             return tags;

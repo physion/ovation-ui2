@@ -52,6 +52,8 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-nbjunit</artifactId>
             <scope>test</scope>
+            <version>RELEASE80</version>
+            <type>jar</type>
         </dependency>
 
         <dependency>

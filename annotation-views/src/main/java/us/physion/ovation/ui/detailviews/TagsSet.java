@@ -4,19 +4,14 @@
  */
 package us.physion.ovation.ui.detailviews;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import java.util.*;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import org.openide.util.Lookup;
-import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.User;
-import us.physion.ovation.domain.mixin.Owned;
-import us.physion.ovation.domain.mixin.Taggable;
+import us.physion.ovation.domain.mixin.KeywordAnnotatable;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
@@ -45,7 +40,7 @@ public class TagsSet extends PerUserAnnotationSet{//TODO make a baseclass that t
         this.tags = new ArrayList<String>();
         for (OvationEntity eb: entities)
         {
-            tags.addAll(Sets.newHashSet(((Taggable)eb).getUserTags(u)));
+            tags.addAll(Sets.newHashSet(((KeywordAnnotatable)eb).getUserTags(u)));
         }
         Collections.sort(tags);
     }

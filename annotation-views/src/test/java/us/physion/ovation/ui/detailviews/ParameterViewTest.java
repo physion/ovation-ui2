@@ -26,6 +26,7 @@ import java.util.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import us.physion.ovation.DataContext;
+import us.physion.ovation.domain.mixin.PropertyAnnotatable;
 
 @ServiceProvider(service = Lookup.Provider.class)
 /**
@@ -213,7 +214,7 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
 
         Set<Tuple> databaseProps = new HashSet<Tuple>();
         for (IEntityWrapper ew : entities) {
-            Map<String, Object> props = ((AnnotatableEntity)ew.getEntity()).getUserProperties(u);
+            Map<String, Object> props = ((PropertyAnnotatable)ew.getEntity()).getUserProperties(u);
             for (String key : props.keySet())
             {
                 databaseProps.add(new Tuple(key, props.get(key)));
