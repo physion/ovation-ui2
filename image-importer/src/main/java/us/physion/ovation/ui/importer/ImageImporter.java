@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.io.FilenameUtils;
-import org.openide.util.Exceptions;
 import rx.Observable;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochContainer;

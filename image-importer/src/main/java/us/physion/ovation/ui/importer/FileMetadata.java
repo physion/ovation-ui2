@@ -11,8 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import loci.common.services.DependencyException;
 import loci.common.services.ServiceException;
 import loci.common.services.ServiceFactory;
@@ -27,6 +25,7 @@ import loci.formats.services.OMEXMLService;
 import ome.xml.model.primitives.PositiveInteger;
 import org.joda.time.DateTime;
 import org.openide.util.Exceptions;
+import org.slf4j.LoggerFactory;
 import us.physion.ovation.exceptions.OvationException;
 
 /**
@@ -47,9 +46,11 @@ public class FileMetadata {
 
     boolean isPrairie;
 
-    public FileMetadata(File f)    {
+    public FileMetadata(File f) {
         this(f, false);
     }
+
+    org.slf4j.Logger logger = LoggerFactory.getLogger(FileMetadata.class);
 
     public FileMetadata(File f, boolean isPrairie) {
         file = f;
@@ -64,11 +65,11 @@ public class FileMetadata {
             try {
                 meta = service.createOMEXMLMetadata();
             } catch (ServiceException ex) {
-                Logger.getLogger(ImportImage.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("Unable to get metadata service", ex);
                 throw new OvationException("Unable to create metadata. " + ex.getMessage());
             }
         } catch (DependencyException ex) {
-            Logger.getLogger(ImportImage.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Unable to get metadata service", ex);
             throw new OvationException("Unable to create metadata. " + ex.getMessage());
         }
 
@@ -77,10 +78,11 @@ public class FileMetadata {
             r = new PrairieReader();
         } else {
             r = new ImageReader();
-            if (r instanceof PrairieReader)
+            if (r instanceof PrairieReader) {
                 isPrairie = true;
+            }
         }
-        r.setMetadataStore((MetadataStore)meta);
+        r.setMetadataStore((MetadataStore) meta);
         try {
             r.setId(file.getAbsolutePath());
         } catch (FormatException ex) {
@@ -89,8 +91,7 @@ public class FileMetadata {
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
             throw new OvationException("Unable to read file. " + ex.getMessage());
-        } catch (OutOfMemoryError ex)
-        {
+        } catch (OutOfMemoryError ex) {
             Exceptions.printStackTrace(ex);
             throw new OvationException("Unable to read file. Out of java heap memory");
         }
@@ -100,7 +101,7 @@ public class FileMetadata {
         } catch (ServiceException ex) {
             throw new OvationException("Unable to read original metadata. " + ex.getMessage());
         }
-        retrieve = service.asRetrieve((loci.formats.meta.MetadataStore)r.getMetadataStore());
+        retrieve = service.asRetrieve((loci.formats.meta.MetadataStore) r.getMetadataStore());
 
         parseRetrieve(retrieve, original);
     }
@@ -150,13 +151,13 @@ public class FileMetadata {
             }
         }
         double seconds = 0;
-        try{
-            for (int i =0; i< retrieve.getPlaneCount(count); i++)
-            {
+        try {
+            for (int i = 0; i < retrieve.getPlaneCount(count); i++) {
                 seconds += retrieve.getPlaneDeltaT(count, i);
             }
-        }catch (NullPointerException e){}
-        return new DateTime(max).plusSeconds(((int)(seconds)));
+        } catch (NullPointerException e) {
+        }
+        return new DateTime(max).plusSeconds(((int) (seconds)));
     }
 
     public void setStart(DateTime s) {
@@ -193,21 +194,17 @@ public class FileMetadata {
         int imageCount = checkValidImageCount(retrieve);
 
         deviceParameters = getDeviceParameters(imageCount);
-        for(int imageNumber =0; imageNumber < imageCount; imageNumber++)
-        {
+        for (int imageNumber = 0; imageNumber < imageCount; imageNumber++) {
 
-            if (isPrairie)
-            {
+            if (isPrairie) {
                 createPrairieEpochGroupStructure(imageNumber);
-            }else
-            {
+            } else {
                 measurements.add(createMeasurement(imageNumber));
             }
         }
     }
 
-    private Map<String, Object> createMeasurement(int imageNumber)
-    {
+    private Map<String, Object> createMeasurement(int imageNumber) {
         Map<String, Object> measurement = new HashMap<String, Object>();
         put(IMAGE_NUMBER, imageNumber, measurement, true);
 
@@ -353,7 +350,6 @@ public class FileMetadata {
                 //put("microbeamManipulation" + i+"."+ "lightSourceSettingsAttenuation", retrieve.getMicrobeamManipulationLightSourceSettingsAttenuation(imageNumber, i), parameters);
                 //put("microbeamManipulation" + i+"."+ "lightSourceSettingsID", retrieve.getMicrobeamManipulationLightSourceSettingsID(imageNumber, i), parameters);
                 //put("microbeamManipulation" + i+"."+ "lightSourceSettingnWavelength", retrieve.getMicrobeamManipulationLightSourceSettingsWavelength(imageNumber, i), parameters);
-
             }
 
             int lsCount = 0;
@@ -491,8 +487,7 @@ public class FileMetadata {
         return properties;
     }
 
-    private List<Map<String, Object>> getInstrumentData()
-    {
+    private List<Map<String, Object>> getInstrumentData() {
         List<Map<String, Object>> instrumentStructs = new ArrayList<Map<String, Object>>();
 
         int instrumentCount = 0;
@@ -814,22 +809,21 @@ public class FileMetadata {
 
     private String convertTo5Digit(int number) {
         number++;
-        int digits = number/10;
+        int digits = number / 10;
         String s = "";
-        for (int i=0; i < (4 - digits); i++)
-        {
-            s +="0";
+        for (int i = 0; i < (4 - digits); i++) {
+            s += "0";
         }
         s += String.valueOf(number);
         return s;
     }
+
     private String convertTo6Digit(int number) {
         number++;
-        int digits = number/10;
+        int digits = number / 10;
         String s = "";
-        for (int i=0; i < (5 - digits); i++)
-        {
-            s +="0";
+        for (int i = 0; i < (5 - digits); i++) {
+            s += "0";
         }
         s += String.valueOf(number);
         return s;
@@ -845,19 +839,18 @@ public class FileMetadata {
 
     private int checkValidImageCount(MetadataRetrieve retrieve) {
         int imageNumber = -1;
-        try{
+        try {
             imageNumber = retrieve.getImageCount();
-        } catch (NullPointerException e)
-        {
+        } catch (NullPointerException e) {
             throw new OvationException("No Images located");//?
         }
 
-        if (imageNumber > 1)
-        {
+        if (imageNumber > 1) {
             throw new OvationException("Multi image import not supported yet");
         }
-        if (imageNumber < 1)
+        if (imageNumber < 1) {
             throw new OvationException("Invalid image number: " + imageNumber);
+        }
         return imageNumber;
     }
 
@@ -868,10 +861,10 @@ public class FileMetadata {
         if (ref != null) {
             for (Map<String, Object> device : instruments) {
                 if (device.get("ID").equals(ref)) {
-                    return Sets.newHashSet((String)device.get("name"));
+                    return Sets.newHashSet((String) device.get("name"));
                 }
 
-                allDevices.add((String)device.get("name"));
+                allDevices.add((String) device.get("name"));
             }
         }
 
@@ -884,6 +877,7 @@ public class FileMetadata {
     //*
     /**
      * Prairie measurement is as follows:
+     *
      * @param imageNumber
      */
     private Map<String, Object> createPrairieEpochGroupStructure(int imageNumber) {
@@ -913,21 +907,20 @@ public class FileMetadata {
         return parentEpochGroup;
     }
 
-    private Map<String, Object> generateEpochGroup(int imageNumber, int tNumber)
-    {
-            List<Map<String, Object>> measurements = new LinkedList();
-            Map<String, Object> eg = new HashMap<String, Object>();
-            put("label", "Cycle_" + tNumber, eg, true);
-            int zCount = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeZ", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
+    private Map<String, Object> generateEpochGroup(int imageNumber, int tNumber) {
+        List<Map<String, Object>> measurements = new LinkedList();
+        Map<String, Object> eg = new HashMap<String, Object>();
+        put("label", "Cycle_" + tNumber, eg, true);
+        int zCount = ((PositiveInteger) catchNullPointer(retrieve, "getPixelsSizeZ", new Class[]{Integer.TYPE}, new Object[]{imageNumber})).getValue();
 
-            double deltaTForEpochGroup = 0;
-            for (int j = 0; j < zCount; j++) {//for each measurement
-                deltaTForEpochGroup += retrieve.getPlaneDeltaT(imageNumber, j);
-                measurements.add(createMeasurement(imageNumber, tNumber, j));
-            }
-            put("deltaT", deltaTForEpochGroup, eg, true);
-            put("measurements", measurements, eg, true);
+        double deltaTForEpochGroup = 0;
+        for (int j = 0; j < zCount; j++) {//for each measurement
+            deltaTForEpochGroup += retrieve.getPlaneDeltaT(imageNumber, j);
+            measurements.add(createMeasurement(imageNumber, tNumber, j));
+        }
+        put("deltaT", deltaTForEpochGroup, eg, true);
+        put("measurements", measurements, eg, true);
 
-            return eg;
+        return eg;
     }
 }
