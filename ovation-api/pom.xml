@@ -5,7 +5,7 @@
     <parent>
         <artifactId>ovation-ui-parent</artifactId>
         <groupId>us.physion</groupId>
-        <version>2.1.35-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>ovation-api-module</artifactId>
@@ -19,8 +19,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-api-annotations-common</artifactId>
+            <groupId>javax.annotation</groupId>
+            <artifactId>jsr250-api</artifactId>
+            <version>1.0</version>
         </dependency>
 
         <dependency>
@@ -45,7 +46,6 @@
         <dependency>
             <groupId>org.swinglabs</groupId>
             <artifactId>swingx</artifactId>
-            <version>1.6.1</version>
         </dependency>
 
         <dependency>
@@ -53,6 +53,7 @@
             <artifactId>rxjava-core</artifactId>
             <version>0.18.3</version>
         </dependency>
+        
     </dependencies>
 
     <build>
@@ -112,6 +113,7 @@
                         <publicPackage>rx.schedulers.*</publicPackage>
                         <publicPackage>rx.subjects.*</publicPackage>
                         <publicPackage>rx.subscriptions.*</publicPackage>
+                        
                     </publicPackages>
 
                     <licenseName>GNU General Public License, Version 3</licenseName>

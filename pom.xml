@@ -4,7 +4,7 @@
 
     <groupId>us.physion</groupId>
     <artifactId>ovation-ui-parent</artifactId>
-    <version>2.1.35-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Ovation Desktop</name>
@@ -298,7 +298,7 @@
         </modules>
 
         <properties>
-            <netbeans.version>RELEASE74</netbeans.version>
+            <netbeans.version>RELEASE801</netbeans.version>
             <brandingToken>ovation</brandingToken>
             <keystore.path>../cert/dev.keystore</keystore.path>
             <keystore.type>JKS</keystore.type>
