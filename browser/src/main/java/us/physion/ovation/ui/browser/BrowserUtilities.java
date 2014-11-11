@@ -89,15 +89,24 @@ public class BrowserUtilities {
 
             @Override
             public void run() {
-                ctx.getRepository().clear();
-
-                if (qs == null) {
+                if (ctx == null) {
+                    
                     for (ExplorerManager mgr : registeredViewManagers.keySet()) {
                         TreeFilter filter = registeredViewManagers.get(mgr);
                         mgr.setRootContext(createRootNode(filter));
                     }
+                    
                 } else {
-                    qs.reset();
+                    ctx.getRepository().clear();
+
+                    if (qs == null) {
+                        for (ExplorerManager mgr : registeredViewManagers.keySet()) {
+                            TreeFilter filter = registeredViewManagers.get(mgr);
+                            mgr.setRootContext(createRootNode(filter));
+                        }
+                    } else {
+                        qs.reset();
+                    }
                 }
             }
         }, ph);
@@ -191,7 +200,6 @@ public class BrowserUtilities {
             qs.reset(e, filter);
         }
     }
-
 
     //TODO: uncomment when we have query capabiliites
     /*protected static void setTrees(final ExpressionTree result)

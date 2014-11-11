@@ -54,7 +54,12 @@ public class DatabaseConnectionProvider implements ConnectionProvider, EventBusP
     public synchronized void resetConnection()
     {
         context = null;
+        for (ConnectionListener l : connectionListeners) {
+            l.propertyChange(new PropertyChangeEvent(this, "ovation.connectionChanged", 0, 1));
+        }
+
         login();
+        
         getDefaultContext();
     }
 
@@ -107,7 +112,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider, EventBusP
                         }
 
                         for (ConnectionListener l : listeners) {
-                            l.propertyChange(new PropertyChangeEvent(context, "ovation.connectionChanged", 0, 1));
+                            l.propertyChange(new PropertyChangeEvent(this, "ovation.connectionChanged", 0, 1));
                         }
 
                         getDefaultEventBus().post(new ConnectionProvider.LoginCompleteEvent());
