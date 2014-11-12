@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -17,7 +16,6 @@ import loci.formats.FormatException;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.gui.BufferedImageReader;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,7 +137,7 @@ public class ImageJVisualization extends AbstractDataVisualization {
                 int startX = (int) ((this.getWidth() - width) / 2);
                 int startY = (int) ((this.getHeight() - height) / 2);
 
-                BufferedImage img = r.openImage(imageNumber, 0, 0, (int) width, (int) height);
+                BufferedImage img = r.openImage(imageNumber, 0, 0, Math.min((int) width, r.getSizeX()), Math.min((int) height, r.getSizeY()));
 
                 g.drawImage(img, startX, Math.min(10, startY), (int) width, (int) height, this);
 
