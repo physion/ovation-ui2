@@ -34,7 +34,6 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 })
 public class DatabaseConnectionProvider implements ConnectionProvider, EventBusProvider {
 
-
     static Logger logger = LoggerFactory.getLogger(DatabaseConnectionProvider.class);
 
     @Override
@@ -51,8 +50,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider, EventBusP
     }
 
     @Override
-    public synchronized void resetConnection()
-    {
+    public synchronized void resetConnection() {
         context = null;
         login();
         getDefaultContext();
@@ -67,51 +65,50 @@ public class DatabaseConnectionProvider implements ConnectionProvider, EventBusP
     private static final String FIRST_RUN_SYNC = "first_run_sync_completed";
 
     @Override
-    public synchronized void login()
-    {
+    public synchronized void login() {
         final ConnectionListener[] listeners = connectionListeners.toArray(new ConnectionListener[0]);
 
         final Runnable r = new Runnable() {
 
             @Override
             public void run() {
-                    LoginModel m = new LoginWindow().showLoginDialog();
-                    if (!m.isCancelled()) {
-                        DatabaseConnectionProvider.this.context = m.getDSC().getContext();
+                LoginModel m = new LoginWindow().showLoginDialog();
+                if (!m.isCancelled()) {
+                    DatabaseConnectionProvider.this.context = m.getDSC().getContext();
 
-                        final Preferences prefs = NbPreferences.forModule(LoginWindow.class);
-                        boolean firstRunSync = prefs.getBoolean(FIRST_RUN_SYNC, false);
+                    final Preferences prefs = NbPreferences.forModule(LoginWindow.class);
+                    boolean firstRunSync = prefs.getBoolean(FIRST_RUN_SYNC, false);
 
-                        if (!firstRunSync) {
+                    if (!firstRunSync) {
 
-                            final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Sync_Task());
-                            ph.start();
+                        final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Sync_Task());
+                        ph.start();
 
-                            ListenableFuture<Boolean> sync = m.getDSC().fullSync(null);
+                        ListenableFuture<Boolean> sync = m.getDSC().fullSync(null);
 
-                            Futures.addCallback(sync, new FutureCallback<Boolean>() {
+                        Futures.addCallback(sync, new FutureCallback<Boolean>() {
 
-                                @Override
-                                public void onSuccess(Boolean v) {
-                                    ph.finish();
-                                    prefs.putBoolean(FIRST_RUN_SYNC, true);
-                                }
+                            @Override
+                            public void onSuccess(Boolean v) {
+                                prefs.putBoolean(FIRST_RUN_SYNC, true);
+                                ph.finish();
+                            }
 
-                                @Override
-                                public void onFailure(Throwable thrwbl) {
-                                    ph.finish();
-                                    logger.error("First-run sync failed");
-                                    prefs.putBoolean(FIRST_RUN_SYNC, false);
-                                }
-                            });
-                        }
-
-                        for (ConnectionListener l : listeners) {
-                            l.propertyChange(new PropertyChangeEvent(context, "ovation.connectionChanged", 0, 1));
-                        }
-
-                        getDefaultEventBus().post(new ConnectionProvider.LoginCompleteEvent());
+                            @Override
+                            public void onFailure(Throwable thrwbl) {
+                                logger.error("First-run sync failed");
+                                prefs.putBoolean(FIRST_RUN_SYNC, false);
+                                ph.finish();
+                            }
+                        });
                     }
+
+                    for (ConnectionListener l : listeners) {
+                        l.propertyChange(new PropertyChangeEvent(context, "ovation.connectionChanged", 0, 1));
+                    }
+
+                    getDefaultEventBus().post(new ConnectionProvider.LoginCompleteEvent());
+                }
             }
         };
 
