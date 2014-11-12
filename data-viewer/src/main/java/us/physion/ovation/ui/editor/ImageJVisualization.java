@@ -43,11 +43,17 @@ public class ImageJVisualization extends AbstractDataVisualization {
 
         // open a file with ImageJ
         try {
+            if(imageFile == null) {
+                return;
+            }
+            
             final ImagePlus[] imps = BF.openImagePlus(imageFile.getAbsolutePath());
             if (imps.length > 0) {
                 panel = new JPanel();
                 int n = (int) Math.ceil(Math.sqrt(imps.length));
                 panel.setLayout(new GridLayout(n, n));
+                
+                // TODO if it's really big, scale it
                 
                 for(ImagePlus imp : imps) {
                     JPanel imagePanel = new ImagePanel(imageFile.getName(), new BufferedImagePanel(imp.getBufferedImage()));
