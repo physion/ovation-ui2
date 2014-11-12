@@ -49,6 +49,7 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.reveal.api.RevealNode;
+import us.physion.ovation.util.TransactionUtilities;
 
 /**
  * Data viewer visualization for Project entities
@@ -229,44 +230,42 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         return exp;
     }
 
-    private AnalysisRecord addAnalysisRecord(File[] files, Iterable<DataElement> inputs) {
-        getContext().beginTransaction();
-        try {
-            AnalysisRecord ar = getProject().addAnalysisRecord(Bundle.Project_New_Analysis_Record_Name(),
-                    inputs,
-                    null,
-                    Maps.<String, Object>newHashMap());
+    private AnalysisRecord addAnalysisRecord(final File[] files, final Iterable<DataElement> inputs) {
+        return TransactionUtilities.transactionWrapped(getContext(),
+                new Callable<AnalysisRecord>() {
 
-            for (File f : files) {
-                String name = f.getName();
-                int i = 1;
-                while (ar.getOutputs().keySet().contains(name)) {
-                    name = name + "_" + i;
-                    i++;
-                }
+                    @Override
+                    public AnalysisRecord call() {
+                        AnalysisRecord ar = getProject().addAnalysisRecord(Bundle.Project_New_Analysis_Record_Name(),
+                                inputs,
+                                null,
+                                Maps.<String, Object>newHashMap());
 
-                try {
-                    ar.addOutput(
-                            name,
-                            f.toURI().toURL(),
-                            ContentTypes.getContentType(f));
-                } catch (MalformedURLException ex) {
-                    logger.error("Unable to determine file URL", ex);
-                    Toolkit.getDefaultToolkit().beep();
-                } catch (IOException ex) {
-                    logger.error("Unable to determine file content type", ex);
-                    Toolkit.getDefaultToolkit().beep();
-                }
-            }
+                        for (File f : files) {
+                            String name = f.getName();
+                            int i = 1;
+                            while (ar.getOutputs().keySet().contains(name)) {
+                                name = name + "_" + i;
+                                i++;
+                            }
 
-            getContext().markModified(getProject());
-            getContext().commitTransaction();
+                            try {
+                                ar.addOutput(
+                                        name,
+                                        f.toURI().toURL(),
+                                        ContentTypes.getContentType(f));
+                            } catch (MalformedURLException ex) {
+                                logger.error("Unable to determine file URL", ex);
+                                Toolkit.getDefaultToolkit().beep();
+                            } catch (IOException ex) {
+                                logger.error("Unable to determine file content type", ex);
+                                Toolkit.getDefaultToolkit().beep();
+                            }
+                        }
 
-            return ar;
-        } catch (Throwable t) {
-            getContext().abortTransaction();
-            throw new OvationException(t);
-        }
+                        return ar;
+                    }
+                });
     }
 
     protected void startDateTimeChanged() {
