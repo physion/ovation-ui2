@@ -93,11 +93,13 @@ public class DatabaseConnectionProvider implements ConnectionProvider, EventBusP
 
                                 @Override
                                 public void onSuccess(Boolean v) {
+                                    ph.finish();
                                     prefs.putBoolean(FIRST_RUN_SYNC, true);
                                 }
 
                                 @Override
                                 public void onFailure(Throwable thrwbl) {
+                                    ph.finish();
                                     logger.error("First-run sync failed");
                                     prefs.putBoolean(FIRST_RUN_SYNC, false);
                                 }
