@@ -2,15 +2,19 @@ package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Sets;
 import ij.ImagePlus;
-import loci.plugins.BF;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.concurrent.ExecutionException;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import loci.formats.IFormatReader;
+import loci.formats.ImageReader;
+import loci.formats.gui.BufferedImageReader;
+import loci.plugins.BF;
 import org.openide.util.NbBundle.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,15 +50,22 @@ public class ImageJVisualization extends AbstractDataVisualization {
             if(imageFile == null) {
                 return;
             }
-            
+
+            IFormatReader r = new ImageReader();
+            r.setId(imageFile.getCanonicalPath());
+            try (BufferedImageReader reader = BufferedImageReader.makeBufferedImageReader(r)) {
+                String fmt = reader.getFormat();
+                BufferedImage img = reader.openImage(0);
+            }
+
             final ImagePlus[] imps = BF.openImagePlus(imageFile.getAbsolutePath());
             if (imps.length > 0) {
                 panel = new JPanel();
                 int n = (int) Math.ceil(Math.sqrt(imps.length));
                 panel.setLayout(new GridLayout(n, n));
-                
+
                 // TODO if it's really big, scale it
-                
+
                 for(ImagePlus imp : imps) {
                     JPanel imagePanel = new ImagePanel(imageFile.getName(), new BufferedImagePanel(imp.getBufferedImage()));
                     panel.add(imagePanel);
