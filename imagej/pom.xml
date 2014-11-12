@@ -91,6 +91,7 @@
                         <publicPackage>org.xml.sax.*</publicPackage>
                         <publicPackage>org.xml.sax.helpers.*</publicPackage>
                         <publicPackage>ome.xml.model.primitives.*</publicPackage>
+                        <publicPackage>com.sun.media.imageioimpl.plugins.tiff.*</publicPackage>
 
                     </publicPackages>
 
