@@ -1,69 +1,50 @@
 package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import org.openide.util.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.DataElement;
-
+import us.physion.ovation.exceptions.OvationException;
 
 /**
  *
  * @author huecotanks
  */
 public class DefaultImageWrapper extends AbstractDataVisualization {
+
     private final static Logger log = LoggerFactory.getLogger(DefaultImageWrapper.class);
 
-    String name;
-    BufferedImage img;
+    final String name;
+
     final DataElement entity;
-    DefaultImageWrapper(DataElement r)
-    {
+
+    DefaultImageWrapper(DataElement r) {
         entity = r;
-        InputStream in = null;
-        try {
-            in = new FileInputStream(r.getData().get());
-            img = ImageIO.read(in);
-            this.name = r.getName();
-        } catch (InterruptedException ex) {
-            log.info("", ex);
-            throw new RuntimeException(ex.getLocalizedMessage(), ex);
-        } catch (ExecutionException ex) {
-            log.info("", ex);
-            throw new RuntimeException(ex.getLocalizedMessage(), ex);
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-            throw new RuntimeException(ex.getLocalizedMessage(), ex);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ex) {
-                    log.warn("", ex);
-                    throw new RuntimeException(ex.getLocalizedMessage(), ex);
-                }
-            }
-        }
+        this.name = r.getName();
     }
 
     @Override
     public JComponent generatePanel() {
-        BufferedImagePanel pan = new BufferedImagePanel(img);
+        ScaledImagePanel pan = new ScaledImagePanel(entity.getData());
+
         pan.setAlignmentX(Component.CENTER_ALIGNMENT);
         return new ImagePanel(name, pan);
     }
-
 
     @Override
     public boolean shouldAdd(DataElement r) {
@@ -81,34 +62,120 @@ public class DefaultImageWrapper extends AbstractDataVisualization {
     }
 
 }
+
+class ScaledImagePanel extends JPanel {
+
+    final ListenableFuture<File> imgFile;
+
+    ScaledImagePanel(ListenableFuture<File> imgFile) {
+        this.imgFile = imgFile;
+    }
+
+    Logger logger = LoggerFactory.getLogger(ScaledImagePanel.class);
+    
+    @Override
+    public void paint(Graphics g) {
+        try {
+            BufferedImage scaledImg = createImage(imgFile.get(),
+                    getHeight(), getWidth());
+
+            double height = scaledImg.getHeight();
+            double width = scaledImg.getWidth();
+            if (this.getHeight() < height) {
+                height = this.getHeight();
+                width = height / scaledImg.getHeight() * scaledImg.getWidth();
+            }
+            if (this.getWidth() < width) {
+                width = this.getWidth();
+                height = width / scaledImg.getWidth() * scaledImg.getHeight();
+            }
+            int startX = (int) ((this.getWidth() - width) / 2);
+            int startY = (int) ((this.getHeight() - height) / 2);
+            g.drawImage(scaledImg, startX, Math.min(10, startY), (int) width, (int) height, this);
+        } catch (OvationException ex) {
+            logger.error("Unable to load image", ex);
+        } catch (IOException ex) {
+            logger.error("Unable to load image", ex);
+        } catch (InterruptedException ex) {
+            logger.error("Image download interrupted", ex);
+        } catch (ExecutionException ex) {
+            logger.error("Error getting image file", ex);
+        }
+    }
+
+    BufferedImage img = null;
+
+    BufferedImage createImage(File f, int h, int w) throws IOException {
+        if (img != null
+                && img.getWidth() == getWidth()
+                && img.getHeight() == getHeight()) {
+
+            return img;
+        }
+
+        ImageInputStream iis = null;
+
+        try {
+            iis = ImageIO.createImageInputStream(f);
+            Iterator iter = ImageIO.getImageReaders(iis);
+            if (!iter.hasNext()) {
+                throw new OvationException("Unable to load image. No ImageIO readers available.");
+            }
+
+            ImageReader reader = (ImageReader) iter.next();
+
+            reader.setInput(iis);
+            
+            float scaleW = reader.getWidth(0) / ((float) w);
+            float scaleH = reader.getHeight(0) / ((float) h);
+
+            ImageReadParam params = reader.getDefaultReadParam();
+
+            if (scaleW > 1 || scaleH > 1) {
+                params.setSourceSubsampling(scaleW > 1 ? Math.round(scaleW) : 1,
+                        scaleH > 1 ? Math.round(scaleH) : 1,
+                        0, 0);
+            }
+
+            img = reader.read(0, params);
+
+            return img;
+
+        } catch (IOException ex) {
+            throw new OvationException("Unable to load image", ex);
+        } finally {
+            if (iis != null) {
+                iis.close();
+            }
+        }
+    }
+}
+
 /**
  * <b>Note</b>: This component is not opaque. Use with an opaque container.
  */
-class BufferedImagePanel extends JPanel
-{
+class BufferedImagePanel extends JPanel {
+
     BufferedImage img;
-    BufferedImagePanel(BufferedImage buf)
-    {
+
+    BufferedImagePanel(BufferedImage buf) {
         img = buf;
     }
 
     @Override
-    public void paint(Graphics g)
-    {
+    public void paint(Graphics g) {
         double height = img.getHeight();
         double width = img.getWidth();
-        if (this.getHeight() < height)
-        {
+        if (this.getHeight() < height) {
             height = this.getHeight();
-            width = height/img.getHeight()*img.getWidth();
+            width = height / img.getHeight() * img.getWidth();
         }
-        if (this.getWidth() < width)
-        {
+        if (this.getWidth() < width) {
             width = this.getWidth();
-            height = width/img.getWidth()*img.getHeight();
+            height = width / img.getWidth() * img.getHeight();
         }
-        int startX = (int)((this.getWidth() - width)/2);
-        int startY = (int)((this.getHeight() - height)/2);
-        g.drawImage(img, startX, Math.min(10, startY), (int)width, (int)height, this);
+        int startX = (int) ((this.getWidth() - width) / 2);
+        int startY = (int) ((this.getHeight() - height) / 2);
+        g.drawImage(img, startX, Math.min(10, startY), (int) width, (int) height, this);
     }
 }
