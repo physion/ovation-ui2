@@ -121,6 +121,13 @@ public class QuerySet {
         return found;
     }
 
+    public static Set<List<IEntityWrapper>> getPathsToEntity(OvationEntity e) {
+        EntityWrapper ew = new EntityWrapper(e);
+        List<IEntityWrapper> p = Lists.<IEntityWrapper>newArrayList(ew);
+
+        return getPathsToEntity(e, p);
+    }
+
     protected static Set<List<IEntityWrapper>> getPathsToEntity(OvationEntity e, List<IEntityWrapper> path) {
         Set<List<IEntityWrapper>> paths = new HashSet<List<IEntityWrapper>>();
 

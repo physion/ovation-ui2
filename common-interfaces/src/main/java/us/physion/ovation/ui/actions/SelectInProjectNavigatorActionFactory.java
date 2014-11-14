@@ -10,5 +10,7 @@ public interface SelectInProjectNavigatorActionFactory {
     Action select(Identity date, String displayName, List<URI> source);
     
     Action selectInTopComponent(String topComponentId, Identity data);
+
+    Action select(String topComponentId, List<URI> uriPath);
     
 }
