@@ -38,7 +38,7 @@ public class QuerySet {
         nodeCache = new HashMap();
         for(ExplorerManager em : BrowserUtilities.registeredViewManagers.keySet())
         {
-            em.setRootContext(new EntityNode(new QueryChildren(BrowserUtilities.registeredViewManagers.get(em)), null));
+            em.setRootContext(new EntityNode(new QueryChildren(BrowserUtilities.registeredViewManagers.get(em))));
         }
     }
 
@@ -50,7 +50,7 @@ public class QuerySet {
         nodeCache = Maps.newHashMap();
         for(ExplorerManager em : BrowserUtilities.registeredViewManagers.keySet())
         {
-            em.setRootContext(new EntityNode(new QueryChildren(BrowserUtilities.registeredViewManagers.get(em)), null));
+            em.setRootContext(new EntityNode(new QueryChildren(BrowserUtilities.registeredViewManagers.get(em))));
         }
         for (IEntityWrapper entity: oldResults)
         {
@@ -63,7 +63,7 @@ public class QuerySet {
         Set<IEntityWrapper> oldResults = results;
         results = new HashSet();
 
-        em.setRootContext(new EntityNode(new QueryChildren(filter), null));
+        em.setRootContext(new EntityNode(new QueryChildren(filter)));
         Set<ExplorerManager> mgrs = Sets.newHashSet(em);
         for (IEntityWrapper entity: oldResults)
         {

@@ -154,10 +154,13 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
         return getDisplayName();
     }
 
-    public EntityNode(Children c, IEntityWrapper parent) {
-        super(c);
-        this.entityWrapper = parent;
-        loadURI();
+    public EntityNode(Children c, Lookup lookup) {
+        super(c, lookup);
+        this.entityWrapper = null;
+    }
+
+    public EntityNode(Children c) {
+        this(c, (Lookup) null);
     }
 
     private void loadURI() {
