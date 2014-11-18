@@ -106,6 +106,19 @@ public abstract class SelectInTreeViewRunnable<Path> implements Runnable {
         boolean lazy = areChildrenLazy(root);
         boolean loaded = areChildrenLoaded(root);
         if (lazy && !loaded) {
+            //look ahead: are any of the existing children what we are looking for? if so, there is no need to wait anymore
+            Node[] children = c.getNodes(); //not calling getNodes(true) since it could block!
+            if (children.length > 0) {
+                boolean success = expandNodeByFilterablePath(children, path, pathIndex + rootSubPath.size(), view);
+                if (success) {
+                    return true;
+                }
+                if (asyncPosted) {
+                    return false;
+                }
+                //if we didn't return so far, continue and expand the node to load all the children
+            }
+
             if (rootIsLoading && this.root == root) {
                 log.info(id + " root didn't finish loading, busy waiting...");
             }

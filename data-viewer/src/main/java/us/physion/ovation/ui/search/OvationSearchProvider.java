@@ -3,6 +3,7 @@ package us.physion.ovation.ui.search;
 import java.awt.Toolkit;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.netbeans.spi.quicksearch.SearchProvider;
 import org.netbeans.spi.quicksearch.SearchRequest;
@@ -14,15 +15,19 @@ import org.slf4j.LoggerFactory;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.exceptions.OvationException;
-import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.browser.QueryProvider;
 import us.physion.ovation.ui.browser.QuerySet;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
+import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.reveal.api.RevealNode;
 
 @Messages({
     "# {0} - entity url",
     "Search_Open_Entity=Select {0}",
+    "# {0} - entity",
+    "# {1} - entity parent",
+    "Search_Open_Entity_In=Select {0} in {1}",
+    "# {0} - search text",
     "Search_Run_Query=Run query {0}"
 })
 public class OvationSearchProvider implements SearchProvider {
@@ -55,14 +60,7 @@ public class OvationSearchProvider implements SearchProvider {
                 final OvationEntity ent = ctx.getObjectWithURI(uriString);
 
                 if (ent != null) {
-                    response.addResult(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            //TODO: Get display name from the OvationEntity ent
-                            RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, ent);
-                        }
-                    }, Bundle.Search_Open_Entity(ent.getURI()));
+                    addAllPaths(ent, response);
                 }
             }
         }
@@ -89,5 +87,35 @@ public class OvationSearchProvider implements SearchProvider {
                 }
             }
         }, Bundle.Search_Run_Query(query));
+    }
+
+    private void addAllPaths(/* @NotNull */OvationEntity ent, /* @NotNull */ SearchResponse response) {
+        for (List<IEntityWrapper> path : QuerySet.getPathsToEntity(ent)) {
+            //path starts with ent and ends with a top-level parent (Project/Source/Protocol)
+
+            final List<IEntityWrapper> revealPath = path;
+            if (!response.addResult(new Runnable() {
+
+                @Override
+                public void run() {
+                    RevealNode.forPath(revealPath);
+                }
+            }, getDisplayName(path))) {
+                //search stopped, exit
+                return;
+            }
+        }
+    }
+
+    private String getDisplayName(List<IEntityWrapper> path) {
+        assert path.size() > 0;
+        IEntityWrapper entity = path.get(0);
+        if (path.size() > 1) {
+            IEntityWrapper topLevelParent = path.get(path.size() - 1);
+
+            return Bundle.Search_Open_Entity_In(entity.getDisplayName(), topLevelParent.getDisplayName());
+        } else {
+            return Bundle.Search_Open_Entity(entity.getDisplayName());
+        }
     }
 }
