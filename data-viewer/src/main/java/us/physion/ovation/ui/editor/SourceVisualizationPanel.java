@@ -17,8 +17,18 @@
 
 package us.physion.ovation.ui.editor;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.List;
+import javax.swing.Action;
 import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.browser.BrowserUtilities;
@@ -49,16 +59,61 @@ public class SourceVisualizationPanel extends AbstractContainerVisualizationPane
         initComponents();
 
         setEntityBorder(this);
-        
+
         addChildButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
                 final Source child = getSource().insertSource(Bundle.Source_Default_Label(), Bundle.Source_Default_Identifier());
-                
+
                 getNode().refresh();
-                
+
                 RevealNode.forEntity(BrowserUtilities.SOURCE_BROWSER_ID, child);
+            }
+        });
+
+        labelTextField.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                labelTextField.transferFocus();
+            }
+        });
+
+        labelTextField.addFocusListener(new FocusListener() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                //pass
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (getSource().getIdentifier() == null || getSource().getIdentifier().equals("")) {
+                    List<Source> parents = Lists.newArrayList(getSource().getParentSources());
+                    if (!parents.isEmpty()) {
+                        List<String> parentIds = Lists.transform(parents, new Function<Source, String>() {
+
+                            @Override
+                            public String apply(Source input) {
+                                return input == null ? null : input.getIdentifier();
+                            }
+                        });
+
+                        String parentIdPrefix = Joiner.on("-").join(parentIds);
+
+                        getSource().setIdentifier(parentIdPrefix + "-" + getSource().getLabel());
+                    }
+                }
+            }
+        });
+
+        node.getEntityWrapper().addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                identifierTextField.setText(getSource().getIdentifier());
+                labelTextField.setText(getSource().getLabel());
             }
         });
     }
