@@ -14,42 +14,24 @@ import us.physion.ovation.exceptions.OvationException;
 
 public class TabularDataWrapper extends AbstractDataVisualization {
 
-    String[] columnNames;
-    String[][] tabularData;
     static Logger logger = LoggerFactory.getLogger(TabularDataWrapper.class);
 
-    List<String[]> myEntries;
-    int nextChunkPosition;
-    final int CHUNK_SIZE = 100;
-    File file;
-
     private final DataElement entity;
+    private final TabularData data;
 
     TabularDataWrapper(DataElement r)
     {
         entity = r;
 
         try {
-            file = r.getData().get();
+            File file = r.getData().get();
 
             CSVReader reader = new CSVReader(new FileReader(r.getData().get()));
-            myEntries = reader.readAll();
-            columnNames = myEntries.remove(0);
+            List<String[]> entries = reader.readAll();
+            String[] columnNames = entries.remove(0);
+            
+            data = new TabularData(entries, columnNames, file);
 
-            nextChunkPosition = 0;
-            next();
-
-            int size = Math.min(myEntries.size(), CHUNK_SIZE);
-            tabularData = new String[size][columnNames.length];
-            for (int lineCount = 0; lineCount<size; lineCount++)
-            {
-                String[] elements = myEntries.get(lineCount);
-                int entryCount = 0;
-                for (String entry : elements)
-                {
-                    tabularData[lineCount][entryCount++] = entry;
-                }
-            }
         } catch (Exception ex) {
             String rId = "";
             if (r != null)
@@ -61,50 +43,9 @@ public class TabularDataWrapper extends AbstractDataVisualization {
         }
     }
 
-    public void next()
-    {
-        int size = Math.min(myEntries.size() - nextChunkPosition, CHUNK_SIZE);
-        tabularData = new String[size][columnNames.length];
-        for (int lineCount = 0; lineCount < size; lineCount++) {
-            String[] elements = myEntries.get(nextChunkPosition + lineCount);
-            int entryCount = 0;
-            for (String entry : elements) {
-                tabularData[lineCount][entryCount++] = entry;
-            }
-        }
-        nextChunkPosition = nextChunkPosition + size;
-    }
-
-    public void previous()
-    {
-        nextChunkPosition = nextChunkPosition - tabularData.length;
-        int size = CHUNK_SIZE;
-
-        int previousChunkPosition = nextChunkPosition  - size;
-
-        tabularData = new String[size][columnNames.length];
-        for (int lineCount = 0; lineCount < size; lineCount++) {
-            String[] elements = myEntries.get(previousChunkPosition + lineCount);
-            int entryCount = 0;
-            for (String entry : elements) {
-                tabularData[lineCount][entryCount++] = entry;
-            }
-        }
-    }
-
-    public boolean hasNext()
-    {
-        return (nextChunkPosition < myEntries.size());
-    }
-
-    public boolean hasPrevious()
-    {
-        return (nextChunkPosition > CHUNK_SIZE);
-    }
-
     @Override
     public JComponent generatePanel() {
-        return new TabularPanel(this);
+        return new TabularPanel(data);
     }
 
     @Override

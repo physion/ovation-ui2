@@ -216,12 +216,12 @@ public class PDFVisualizationFactory implements VisualizationFactory {
         return PDF_MIMETYPE.equals(r.getDataContentType()) ? 100 : -1;
     }
 
-    abstract static class LoadingHelper {
+    public abstract static class LoadingHelper {
 
         private final DataElement r;
         protected final JPanel content;
 
-        LoadingHelper(DataElement r) {
+        public LoadingHelper(DataElement r) {
             this.r = r;
             content = new JPanel(new BorderLayout());
             content.add(new JLabel(Bundle.LBL_PDFLoading()), BorderLayout.CENTER);
