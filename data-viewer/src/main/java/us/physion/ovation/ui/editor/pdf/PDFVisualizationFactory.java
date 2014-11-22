@@ -20,6 +20,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.io.File;
@@ -224,6 +225,7 @@ public class PDFVisualizationFactory implements VisualizationFactory {
         public LoadingHelper(DataElement r) {
             this.r = r;
             content = new JPanel(new BorderLayout());
+            content.setBackground(Color.WHITE);
             content.add(new JLabel(Bundle.LBL_PDFLoading()), BorderLayout.CENTER);
         }
 

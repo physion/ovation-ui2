@@ -17,6 +17,7 @@
 package us.physion.ovation.ui.editor.xls;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.io.File;
 import java.util.Collections;
 import javax.swing.JComponent;
@@ -84,10 +85,13 @@ public class XLSVisualizationFactory implements VisualizationFactory {
 
     private JComponent loadXLSX(File f) {
         final JTabbedPane tab = new JTabbedPane(JTabbedPane.BOTTOM);
+        //This is generally redundant. Adding in case some LnF actually respects it.
+        tab.setBackground(Color.WHITE);
         new XLSXReader() {
             @Override
             protected void addSheet(String sheetName, JComponent c) {
                 tab.addTab(sheetName, c);
+                tab.setBackgroundAt(tab.getTabCount() - 1, Color.WHITE);
             }
         }.readAll(f);
         return tab;
