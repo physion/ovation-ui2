@@ -20,6 +20,7 @@ package us.physion.ovation.ui.browser;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -206,9 +207,10 @@ public class EntityChildrenWrapperHelper {
         return sortEpochList(epochs);
     }
 
-    private List<? extends EntityWrapper> getTopLevelProcedureElements(TreeFilter filter, Iterable<? extends ProcedureElement> epochs) {
-        HashMap<String, PreloadedEntityWrapper> visibleProcedureElements = new HashMap<String, PreloadedEntityWrapper>();
-        for (ProcedureElement e : epochs) {
+    private List<? extends EntityWrapper> getTopLevelProcedureElements(TreeFilter filter, Iterable<? extends ProcedureElement> procedures) {
+        HashMap<String, EntityWrapper> visibleProcedureElements = Maps.newHashMap();
+        List<EntityWrapper> experiments = Lists.newLinkedList();
+        for (ProcedureElement e : procedures) {
             ProcedureElement localParent;
             if (e instanceof EpochGroup) { //TODO getParent() should be a ProcedureElement method
                 localParent = ((EpochGroup) e).getParent();
@@ -227,18 +229,22 @@ public class EntityChildrenWrapperHelper {
                 }
                 PreloadedEntityWrapper p;
                 if (visibleProcedureElements.containsKey(localParent.getURI().toString())) {
-                    p = visibleProcedureElements.get(localParent.getURI().toString());
+                    p = (PreloadedEntityWrapper) visibleProcedureElements.get(localParent.getURI().toString());
                 } else {
                     p = new PreloadedEntityWrapper(localParent);
                 }
                 p.addChildren(filter, epochGroupChain, e);
                 visibleProcedureElements.put(p.getURI(), p);
+            } else { //Experiment
+                EntityWrapper p = new EntityWrapper(e);
+                experiments.add(p);
             }
         }
 
         //sort values, and add the
-        List<PreloadedEntityWrapper> children = new ArrayList(visibleProcedureElements.values());
-        Collections.sort(children, new EntityComparator<PreloadedEntityWrapper>());
+        List<EntityWrapper> children = Lists.newArrayList(visibleProcedureElements.values());
+        children.addAll(experiments);
+        Collections.sort(children, new EntityComparator<EntityWrapper>());
         return children;
     }
 
