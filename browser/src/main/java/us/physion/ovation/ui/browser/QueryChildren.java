@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.browser;
 
+import com.google.common.collect.Sets;
 import java.util.*;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -16,11 +17,11 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  *
  * @author huecotanks
  */
-public class QueryChildren extends Children.Keys<IEntityWrapper> {
+public final class QueryChildren extends Children.Keys<IEntityWrapper> {
 
-    Set<IEntityWrapper> keys = new HashSet<IEntityWrapper>();
+    Set<IEntityWrapper> keys = new HashSet<>();
     private TreeFilter filter;
-    private HashMap<String, Set<List<IEntityWrapper>>> pathMap = new HashMap<String, Set<List<IEntityWrapper>>>();
+    private HashMap<String, Set<List<IEntityWrapper>>> pathMap = new HashMap<>();
 
     protected QueryChildren(TreeFilter filter) {
         this.filter = filter;
@@ -89,6 +90,7 @@ public class QueryChildren extends Children.Keys<IEntityWrapper> {
 
     }
 
+    @SuppressWarnings("null")
     protected void addPath(List<IEntityWrapper> path) {
         if (path == null || path.isEmpty()) {
             return;
@@ -108,7 +110,7 @@ public class QueryChildren extends Children.Keys<IEntityWrapper> {
                 Set<List<IEntityWrapper>> paths = pathMap.get(child.getURI());
                 boolean childIsNew = paths == null;
                 if (childIsNew) {
-                    paths = new HashSet<List<IEntityWrapper>>();
+                    paths = Sets.newHashSet();
                 }
 
                 if (!childPath.isEmpty()) {

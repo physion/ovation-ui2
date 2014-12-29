@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochGroup;
@@ -45,7 +47,7 @@ public class QuerySet {
     public void reset()
     {
         Set<IEntityWrapper> oldResults = results;
-        results = new HashSet();
+        results = Sets.newHashSet();
 
         nodeCache = Maps.newHashMap();
         for(ExplorerManager em : BrowserUtilities.registeredViewManagers.keySet())
@@ -61,7 +63,7 @@ public class QuerySet {
     public void reset(ExplorerManager em, TreeFilter filter)
     {
         Set<IEntityWrapper> oldResults = results;
-        results = new HashSet();
+        results = Sets.newHashSet();
 
         em.setRootContext(new EntityNode(new QueryChildren(filter), null));
         Set<ExplorerManager> mgrs = Sets.newHashSet(em);
@@ -77,6 +79,8 @@ public class QuerySet {
         add(e, BrowserUtilities.registeredViewManagers.keySet());
     }
 
+    Logger logger = LoggerFactory.getLogger(QuerySet.class);
+    
     public void add(OvationEntity e, Set<ExplorerManager> mgrs)
     {
         if (e == null || e.isTrashed() )
@@ -98,11 +102,14 @@ public class QuerySet {
                 Node parent = nodeCache.get(path.get(parentIndex));
                 QueryChildren q = (QueryChildren) (parent.getChildren());
                 q.addPath(path.subList(0, parentIndex + 1));
+                logger.info("Adding path for {}", q.keys);
+
             } else {
                 for (ExplorerManager mgr : BrowserUtilities.registeredViewManagers.keySet()) {
                     Node parent = mgr.getRootContext();
                     QueryChildren q = (QueryChildren) (parent.getChildren());
                     q.addPath(path);
+                    logger.info("Adding path for {}", q.keys);
                 }
             }
         }
@@ -122,7 +129,7 @@ public class QuerySet {
     }
 
     protected static Set<List<IEntityWrapper>> getPathsToEntity(OvationEntity e, List<IEntityWrapper> path) {
-        Set<List<IEntityWrapper>> paths = new HashSet<List<IEntityWrapper>>();
+        Set<List<IEntityWrapper>> paths = Sets.newHashSet();
 
         if (isPerUser(e)) {
             path.add(new PerUserEntityWrapper(((Owned) e).getOwner().getUsername(), ((Owned) e).getOwner().getURI().toString()));
@@ -135,7 +142,7 @@ public class QuerySet {
         }
 
         for (OvationEntity parent : parents) {
-            List newPath = Lists.newLinkedList(path);
+            List<IEntityWrapper> newPath = Lists.newLinkedList(path);
             newPath.add(new EntityWrapper(parent));
             paths.addAll(getPathsToEntity(parent, newPath));
         }
@@ -145,10 +152,10 @@ public class QuerySet {
     }
 
     private static Set<OvationEntity> getParents(OvationEntity entity, List<IEntityWrapper> path) {
-        Set<OvationEntity> parents = new HashSet();
+        Set<OvationEntity> parents = Sets.newHashSet();
         Class type = entity.getClass();
         if (Source.class.isAssignableFrom(type)) {
-            parents.addAll(Sets.newHashSet(((Source) entity).getChildren()));
+            parents.addAll(Sets.newHashSet(((Source) entity).getParents()));
         } else if (Experiment.class.isAssignableFrom(type)) {
             for (Project p : ((Experiment) entity).getProjects()) {
                 parents.add(p);
