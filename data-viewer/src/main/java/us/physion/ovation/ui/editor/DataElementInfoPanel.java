@@ -535,14 +535,9 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                             }
 
                             if (!epoch.getInputSources().containsValue(s)) {
-                                ctx.beginTransaction();
                                 try {
                                     epoch.addInputSource(epochId, s);
-                                    epoch.getDataContext().markModified(s);
-                                    ctx.commitTransaction();
                                 } catch (Throwable t) {
-                                    ctx.abortTransaction();
-
                                     throw new OvationException("Unable to add input source", t);
                                 }
 
