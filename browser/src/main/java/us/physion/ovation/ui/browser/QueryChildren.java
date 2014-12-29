@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.browser;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Sets;
 import java.util.*;
 import org.openide.nodes.Children;
@@ -19,9 +20,9 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  */
 public final class QueryChildren extends Children.Keys<IEntityWrapper> {
 
-    Set<IEntityWrapper> keys = new HashSet<>();
-    private TreeFilter filter;
-    private HashMap<String, Set<List<IEntityWrapper>>> pathMap = new HashMap<>();
+    private final Set<IEntityWrapper> keys = Sets.newHashSet();
+    private final TreeFilter filter;
+    private final HashMultimap<String,List<IEntityWrapper>> pathMap = HashMultimap.create();
 
     protected QueryChildren(TreeFilter filter) {
         this.filter = filter;
@@ -107,21 +108,17 @@ public final class QueryChildren extends Children.Keys<IEntityWrapper> {
                 //of the hidden element in the child key
                 addPath(childPath);
             } else {
-                Set<List<IEntityWrapper>> paths = pathMap.get(child.getURI());
-                boolean childIsNew = paths == null;
-                if (childIsNew) {
-                    paths = Sets.newHashSet();
-                }
-
+                boolean childIsNew = pathMap.containsKey(child.getURI());
+                
                 if (!childPath.isEmpty()) {
-                    paths.add(childPath);
+                    pathMap.put(child.getURI(), childPath);
                 }
-                pathMap.put(child.getURI(), paths);
-                if (childIsNew) {
+                
+//                if(childIsNew) {
                     keys.add(child);
                     addNotify();
                     refresh();//in case the node is already created
-                }
+//                }
             }
         }
     }

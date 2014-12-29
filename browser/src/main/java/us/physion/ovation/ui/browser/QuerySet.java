@@ -83,6 +83,7 @@ public class QuerySet {
     
     public void add(OvationEntity e, Set<ExplorerManager> mgrs)
     {
+        logger.info("Adding {} to query set", e);
         if (e == null || e.isTrashed() )
             return;
 
@@ -96,22 +97,26 @@ public class QuerySet {
         for (List<IEntityWrapper> path : paths) {
             //walk up each path, till we get to a node that already exists
 
-            int parentIndex = findParent(path);
-            if (parentIndex < path.size())//parent exists
-            {
-                Node parent = nodeCache.get(path.get(parentIndex));
+            for (ExplorerManager mgr : BrowserUtilities.registeredViewManagers.keySet()) {
+                Node parent = mgr.getRootContext();
                 QueryChildren q = (QueryChildren) (parent.getChildren());
-                q.addPath(path.subList(0, parentIndex + 1));
-                logger.info("Adding path for {}", q.keys);
-
-            } else {
-                for (ExplorerManager mgr : BrowserUtilities.registeredViewManagers.keySet()) {
-                    Node parent = mgr.getRootContext();
-                    QueryChildren q = (QueryChildren) (parent.getChildren());
-                    q.addPath(path);
-                    logger.info("Adding path for {}", q.keys);
-                }
+                q.addPath(path);
             }
+            
+//            int parentIndex = findParent(path);
+//            if (parentIndex < path.size())//parent exists
+//            {
+//                Node parent = nodeCache.get(path.get(parentIndex));
+//                QueryChildren q = (QueryChildren) (parent.getChildren());
+//                q.addPath(path.subList(0, parentIndex + 1));
+//
+//            } else {
+//                for (ExplorerManager mgr : BrowserUtilities.registeredViewManagers.keySet()) {
+//                    Node parent = mgr.getRootContext();
+//                    QueryChildren q = (QueryChildren) (parent.getChildren());
+//                    q.addPath(path);
+//                }
+//            }
         }
     }
 
