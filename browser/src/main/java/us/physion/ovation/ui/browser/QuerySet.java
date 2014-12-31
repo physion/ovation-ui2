@@ -32,60 +32,53 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  * @author jackie
  */
 public class QuerySet {
+
     Set<IEntityWrapper> results;
     Map<IEntityWrapper, Node> nodeCache;
-    public QuerySet()
-    {
+
+    public QuerySet() {
         results = new HashSet();
         nodeCache = new HashMap();
-        for(ExplorerManager em : BrowserUtilities.registeredViewManagers.keySet())
-        {
+        for (ExplorerManager em : BrowserUtilities.registeredViewManagers.keySet()) {
             em.setRootContext(new EntityNode(new QueryChildren(BrowserUtilities.registeredViewManagers.get(em)), null));
         }
     }
 
-    public void reset()
-    {
+    public void reset() {
         Set<IEntityWrapper> oldResults = results;
         results = Sets.newHashSet();
 
         nodeCache = Maps.newHashMap();
-        for(ExplorerManager em : BrowserUtilities.registeredViewManagers.keySet())
-        {
+        for (ExplorerManager em : BrowserUtilities.registeredViewManagers.keySet()) {
             em.setRootContext(new EntityNode(new QueryChildren(BrowserUtilities.registeredViewManagers.get(em)), null));
         }
-        for (IEntityWrapper entity: oldResults)
-        {
+        for (IEntityWrapper entity : oldResults) {
             add(entity.getEntity());
         }
     }
 
-    public void reset(ExplorerManager em, TreeFilter filter)
-    {
+    public void reset(ExplorerManager em, TreeFilter filter) {
         Set<IEntityWrapper> oldResults = results;
         results = Sets.newHashSet();
 
         em.setRootContext(new EntityNode(new QueryChildren(filter), null));
         Set<ExplorerManager> mgrs = Sets.newHashSet(em);
-        for (IEntityWrapper entity: oldResults)
-        {
+        for (IEntityWrapper entity : oldResults) {
             add(entity.getEntity(), mgrs);
         }
     }
 
-
-    public void add(OvationEntity e)
-    {
+    public void add(OvationEntity e) {
         add(e, BrowserUtilities.registeredViewManagers.keySet());
     }
 
     Logger logger = LoggerFactory.getLogger(QuerySet.class);
-    
-    public void add(OvationEntity e, Set<ExplorerManager> mgrs)
-    {
-        logger.info("Adding {} to query set", e);
-        if (e == null || e.isTrashed() )
+
+    public void add(OvationEntity e, Set<ExplorerManager> mgrs) {
+        logger.info("Adding {} to query set", e); //QUERY: all three Epochs are added
+        if (e == null || e.isTrashed()) {
             return;
+        }
 
         EntityWrapper ew = new EntityWrapper(e);
         results.add(ew);
@@ -93,44 +86,13 @@ public class QuerySet {
         List<IEntityWrapper> p = Lists.<IEntityWrapper>newArrayList(ew);
         Set<List<IEntityWrapper>> paths = getPathsToEntity(e, p);// set of paths from this entity wrapper to a parent that has already been created in the tree
 
+        for (ExplorerManager mgr : mgrs) {
+            Node parent = mgr.getRootContext();
+            QueryChildren q = (QueryChildren) (parent.getChildren());
 
-        for (List<IEntityWrapper> path : paths) {
-            //walk up each path, till we get to a node that already exists
+            q.addPaths(paths);
 
-            for (ExplorerManager mgr : BrowserUtilities.registeredViewManagers.keySet()) {
-                Node parent = mgr.getRootContext();
-                QueryChildren q = (QueryChildren) (parent.getChildren());
-                q.addPath(path);
-            }
-            
-//            int parentIndex = findParent(path);
-//            if (parentIndex < path.size())//parent exists
-//            {
-//                Node parent = nodeCache.get(path.get(parentIndex));
-//                QueryChildren q = (QueryChildren) (parent.getChildren());
-//                q.addPath(path.subList(0, parentIndex + 1));
-//
-//            } else {
-//                for (ExplorerManager mgr : BrowserUtilities.registeredViewManagers.keySet()) {
-//                    Node parent = mgr.getRootContext();
-//                    QueryChildren q = (QueryChildren) (parent.getChildren());
-//                    q.addPath(path);
-//                }
-//            }
         }
-    }
-
-    protected int findParent(List<IEntityWrapper> path)
-    {
-        int found = path.size();
-        for (int i=(path.size()-1); i>= 0; i--)
-        {
-            if (!nodeCache.containsKey(path.get(i)))
-                break;
-            else
-                found = i;
-        }
-        return found;
     }
 
     protected static Set<List<IEntityWrapper>> getPathsToEntity(OvationEntity e, List<IEntityWrapper> path) {
@@ -143,7 +105,6 @@ public class QuerySet {
         Set<OvationEntity> parents = getParents(e, path);
         if (parents.isEmpty()) {
             paths.add(path);
-            return paths;
         }
 
         for (OvationEntity parent : parents) {
@@ -171,10 +132,10 @@ public class QuerySet {
             parents.add(((Epoch) entity).getParent());
         } else if (Measurement.class.isAssignableFrom(type)) {
             Epoch epoch = ((Measurement) entity).getEpoch();
-            parents.add(epoch);
+            parents.add(epoch); // QUERY: Does Measurement have an Epoch?
 
             for (String source : ((Measurement) entity).getSourceNames()) {
-                for(Source s : epoch.getInputSources().get(source)) {
+                for (Source s : epoch.getInputSources().get(source)) {
                     parents.add(s);
                 }
             }
