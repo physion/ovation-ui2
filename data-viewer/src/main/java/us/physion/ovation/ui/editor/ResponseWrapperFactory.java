@@ -6,7 +6,7 @@ package us.physion.ovation.ui.editor;
 
 import java.util.Collection;
 import org.openide.util.Lookup;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 
 /**
@@ -18,7 +18,7 @@ public class ResponseWrapperFactory {
     static Collection<? extends VisualizationFactory> dataVizFactories = Lookup.getDefault().lookupAll(VisualizationFactory.class);
     static Collection<? extends ContainerVisualizationFactory> containerVizFactories = Lookup.getDefault().lookupAll(ContainerVisualizationFactory.class);
 
-    public static VisualizationFactory create(DataElement r) {
+    public static VisualizationFactory create(Resource r) {
         int preference = 0;
         VisualizationFactory vis = null;
         for (VisualizationFactory f : dataVizFactories) {

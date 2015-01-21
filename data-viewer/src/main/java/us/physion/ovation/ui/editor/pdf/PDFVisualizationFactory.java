@@ -36,7 +36,7 @@ import org.icepdf.ri.common.SwingViewBuilder;
 import org.icepdf.ri.common.utility.annotation.AnnotationPanel;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.ResourceNotFoundException;
 import us.physion.ovation.ui.editor.AbstractDataVisualization;
 import us.physion.ovation.ui.editor.DataVisualization;
@@ -53,16 +53,16 @@ public class PDFVisualizationFactory implements VisualizationFactory {
     private final static String PDF_MIMETYPE = "application/pdf"; //NOI18N
 
     @Override
-    public DataVisualization createVisualization(final DataElement r) {
+    public DataVisualization createVisualization(final Resource r) {
         return new AbstractDataVisualization(Collections.singleton(r)) {
 
             @Override
-            public boolean shouldAdd(DataElement r) {
+            public boolean shouldAdd(Resource r) {
                 return false;
             }
 
             @Override
-            public void add(DataElement r) {
+            public void add(Resource r) {
                 throw new UnsupportedOperationException();
             }
 
@@ -212,16 +212,16 @@ public class PDFVisualizationFactory implements VisualizationFactory {
     }
 
     @Override
-    public int getPreferenceForDataContainer(DataElement r) {
+    public int getPreferenceForDataContainer(Resource r) {
         return PDF_MIMETYPE.equals(r.getDataContentType()) ? 100 : -1;
     }
 
     abstract static class LoadingHelper {
 
-        private final DataElement r;
+        private final Resource r;
         protected final JPanel content;
 
-        LoadingHelper(DataElement r) {
+        LoadingHelper(Resource r) {
             this.r = r;
             content = new JPanel(new BorderLayout());
             content.add(new JLabel(Bundle.LBL_PDFLoading()), BorderLayout.CENTER);

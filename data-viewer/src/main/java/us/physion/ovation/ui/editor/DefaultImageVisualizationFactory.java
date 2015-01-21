@@ -2,7 +2,7 @@ package us.physion.ovation.ui.editor;
 
 import javax.imageio.ImageIO;
 import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 
 @ServiceProvider(service = VisualizationFactory.class)
 /**
@@ -12,13 +12,13 @@ import us.physion.ovation.domain.mixin.DataElement;
 public class DefaultImageVisualizationFactory implements VisualizationFactory{
 
     @Override
-    public DataVisualization createVisualization(DataElement r) {
+    public DataVisualization createVisualization(Resource r) {
         return new DefaultImageWrapper(r);
     }
 
 
     @Override
-    public int getPreferenceForDataContainer(DataElement r) {
+    public int getPreferenceForDataContainer(Resource r) {
         String lowercaseUTI = r.getDataContentType().toLowerCase();
         for (String name : ImageIO.getReaderFormatNames()) {
             if (lowercaseUTI.contains(name.toLowerCase())) {

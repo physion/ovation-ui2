@@ -26,7 +26,7 @@ import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.domain.Source;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 
 /**
  *
@@ -46,7 +46,7 @@ public class EntityColors {
             return Color.black;
         } else if (Epoch.class.isAssignableFrom(cls)) {
             return Color.black;
-        } else if (DataElement.class.isAssignableFrom(cls)) {
+        } else if (Resource.class.isAssignableFrom(cls)) {
             return new Color(0, 126, 189);
         } else if (AnalysisRecord.class.isAssignableFrom(cls)) {
             return new Color(51, 153, 0);

@@ -18,7 +18,7 @@ import org.openide.util.Lookup;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.events.EntityModifiedEvent;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.EntityNotFoundException;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
@@ -42,7 +42,7 @@ public class EntityWrapper implements IEntityWrapper {
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
     private final DataContext context;
-    
+
     /**
      * Not an actual constructor... this only makes sense for the EMPTY constant which is useful when EntityWrappers are keys in hashmaps etc. that don't accept NULL keys.
      */
@@ -59,14 +59,14 @@ public class EntityWrapper implements IEntityWrapper {
 
         watchUris.add(uri);
         if (e instanceof Measurement) {
-            watchUris.add(((Measurement) e).getDataResource().getURI());
+            watchUris.add(((Measurement) e).getURI());
         }
 
         context = e.getDataContext();
         context.getEventBus().register(this);
 
     }
-    
+
     //used by the PerUserEntityWrapper object
     protected EntityWrapper(String name, Class clazz, String uri) {
         type = clazz;
@@ -86,7 +86,7 @@ public class EntityWrapper implements IEntityWrapper {
             if (e != null) {
                 propertyChangeSupport.firePropertyChange(PROP_ENTITY_UPDATE, null, null);
                 if (Measurement.class.isAssignableFrom(type)) {
-                    watchUris.add(getEntity(Measurement.class).getDataResource().getURI());
+                    watchUris.add(getEntity(Measurement.class).getURI());
                 }
             }
         }
@@ -101,12 +101,12 @@ public class EntityWrapper implements IEntityWrapper {
 
     @Override
     public synchronized OvationEntity getEntity(boolean includeTrash) {
-        
+
         try {
             if(entity == null) {
                 entity = context.getObjectWithURI(getURI(), includeTrash);
             }
-            
+
             return entity;
         } catch (EntityNotFoundException e) {
             Toolkit.getDefaultToolkit().beep();
@@ -117,7 +117,7 @@ public class EntityWrapper implements IEntityWrapper {
             ErrorManager.getDefault().notify(e);
             throw new RuntimeException(e.getLocalizedMessage());
         }
-        
+
         return entity;
     }
 
@@ -175,8 +175,8 @@ public class EntityWrapper implements IEntityWrapper {
             } else {
                 return ((Epoch) e).getStart().toString("MM/dd/yyyy hh:mm:ss");
             }
-        } else if (e instanceof DataElement) {
-            return ((DataElement) e).getName();
+        } else if (e instanceof Resource) {
+            return ((Resource) e).getName();
         } else if (e instanceof AnalysisRecord) {
             return ((AnalysisRecord) e).getName();
         } else if (e instanceof Protocol) {
@@ -297,7 +297,7 @@ public class EntityWrapper implements IEntityWrapper {
         if(obj == EMPTY && this == obj){
             return true;
         }
-        
+
         final EntityWrapper other = (EntityWrapper) obj;
         if (this.uri != other.uri && (this.uri == null || !this.uri.equals(other.uri))) {
             return false;

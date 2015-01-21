@@ -36,13 +36,15 @@ import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochContainer;
 import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
+import us.physion.ovation.domain.Folder;
+import us.physion.ovation.domain.FolderContainer;
 import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Protocol;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.User;
-import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.ProcedureElement;
 
 public class EntityChildrenWrapperHelper {
@@ -53,7 +55,7 @@ public class EntityChildrenWrapperHelper {
         this.filter = filter;
         this.cancel = cancel;
     }
-    
+
     private void absorbFilteredChildren(EntityWrapper pop, boolean isVisible, List<EntityWrapper> list, DataContext c, /* @Nullable*/ ProgressHandle ph, EntityComparator entityComparator) {
         if (!isVisible) {
             List<URI> filteredParents = new ArrayList<URI>();
@@ -90,7 +92,7 @@ public class EntityChildrenWrapperHelper {
     private List<EntityWrapper> createKeysForEntity(DataContext c, EntityWrapper ew, /* @Nullable*/ ProgressHandle ph) {
         return createKeysForEntity(new LinkedList<EntityWrapper>(), c, ew, ph);
     }
-    
+
     public List<EntityWrapper> createKeysForEntity(List<EntityWrapper> list, DataContext c, EntityWrapper ew, /* @Nullable*/ ProgressHandle ph) {
         if (ew instanceof PreloadedEntityWrapper) {
             EntityComparator entityComparator = new EntityComparator();
@@ -108,6 +110,7 @@ public class EntityChildrenWrapperHelper {
             Class entityClass = ew.getType();
             if (Project.class.isAssignableFrom(entityClass)) {
                 Project entity = (Project) ew.getEntity();
+                addFolders(list, entity, ph);
                 addExperiments(list, entity, ph);
                 addAnalysisRecords(list, entity, ph);
             } else if (Source.class.isAssignableFrom(entityClass)) {
@@ -132,6 +135,9 @@ public class EntityChildrenWrapperHelper {
             } else if (Protocol.class.isAssignableFrom(entityClass)) {
                 Protocol entity = ew.getEntity(Protocol.class);
                 addProcedureElements(list, entity, ph);
+            } else if (Folder.class.isAssignableFrom(entityClass)) {
+                Folder f = ew.getEntity(Folder.class);
+                addContents(list, f, ph);
             }
         }
         if (cancel.isCancelled()) {
@@ -301,8 +307,35 @@ public class EntityChildrenWrapperHelper {
     }
 
     private void addOutputs(List<EntityWrapper> list, AnalysisRecord entity, ProgressHandle ph) {
-        for (DataElement d : entity.getOutputs().values()) {
+        for (Resource d : entity.getOutputs().values()) {
             list.add(new EntityWrapper(d));
+        }
+    }
+
+    private void addFolders(List<EntityWrapper> list, Project entity, ProgressHandle ph) {
+        if (cancel.isCancelled()) {
+            return;
+        }
+
+        EntityComparator entityComparator = new EntityComparator();
+        List<Folder> folders = Lists.newArrayList(((FolderContainer) entity).getFolders());
+        folders.sort(entityComparator);
+
+        int progressCounter = 0;
+        if (ph != null) {
+            ph.switchToDeterminate(folders.size());
+        }
+
+        for (Folder f : folders) {
+            if (cancel.isCancelled()) {
+                return;
+            }
+
+            list.add(new EntityWrapper(f));
+
+            if (ph != null) {
+                ph.progress(progressCounter++);
+            }
         }
     }
 
@@ -456,6 +489,37 @@ public class EntityChildrenWrapperHelper {
             return false;
         }
         return true;
+    }
+
+    private void addContents(List<EntityWrapper> list, Folder entity, ProgressHandle ph) {
+        if (cancel.isCancelled()) {
+            return;
+        }
+
+        EntityComparator entityComparator = new EntityComparator();
+        List<Folder> folders = Lists.newArrayList(entity.getFolders());
+        List<Resource> resources = Lists.newArrayList(entity.getResources());
+        List<OvationEntity> contents = Lists.newArrayList();
+        contents.addAll(folders);
+        contents.addAll(resources);
+        contents.sort(entityComparator);
+
+        int progressCounter = 0;
+        if (ph != null) {
+            ph.switchToDeterminate(folders.size());
+        }
+
+        for (OvationEntity e : contents) {
+            if (cancel.isCancelled()) {
+                return;
+            }
+
+            list.add(new EntityWrapper(e));
+
+            if (ph != null) {
+                ph.progress(progressCounter++);
+            }
+        }
     }
 
 }

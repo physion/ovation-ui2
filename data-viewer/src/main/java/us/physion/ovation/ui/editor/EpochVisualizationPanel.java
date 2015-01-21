@@ -38,7 +38,7 @@ import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.Protocol;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
@@ -224,9 +224,9 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
             @Override
             public void filesDropped(final File[] files) {
 
-                Iterable<? extends DataElement> inputElements = getEpoch().getMeasurements();
+                Iterable<? extends Resource> inputElements = getEpoch().getMeasurements();
 
-                final List<DataElement> inputs = Lists.newArrayList(inputElements);
+                final List<Resource> inputs = Lists.newArrayList(inputElements);
 
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.AnalysisRecord_Adding_Outputs());
 
@@ -273,7 +273,7 @@ public class EpochVisualizationPanel extends AbstractContainerVisualizationPanel
         return getNode().getEntity(Epoch.class);
     }
 
-    private AnalysisRecord addAnalysisRecord(File[] files, final Iterable<DataElement> inputs) {
+    private AnalysisRecord addAnalysisRecord(File[] files, final Iterable<Resource> inputs) {
         getContext().beginTransaction();
         try {
             AnalysisRecord ar = getEpoch().addAnalysisRecord(Bundle.Project_New_Analysis_Record_Name(),

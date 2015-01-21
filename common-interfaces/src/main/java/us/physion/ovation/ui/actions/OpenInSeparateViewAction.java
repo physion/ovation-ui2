@@ -6,21 +6,21 @@ import java.util.List;
 import org.netbeans.api.actions.Openable;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
-import us.physion.ovation.domain.mixin.DataElement;
-import us.physion.ovation.ui.actions.spi.DataElementLookupProvider;
+import us.physion.ovation.domain.Resource;
+import us.physion.ovation.ui.actions.spi.ResourceLookupProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
 @Messages({
     "Open_In_Separate_View=Open"
 })
-public class OpenInSeparateViewAction extends AbstractDataElementFileAction {
+public class OpenInSeparateViewAction extends AbstractResourceFileAction {
     private final List<URI> entityURI;
 
-    public OpenInSeparateViewAction(DataElement e) {
+    public OpenInSeparateViewAction(Resource e) {
         this(e, null);
     }
     
-    public OpenInSeparateViewAction(DataElement e, List<URI> entityURI) {
+    public OpenInSeparateViewAction(Resource e, List<URI> entityURI) {
         super(e);
 
         this.entityURI = entityURI;
@@ -30,7 +30,7 @@ public class OpenInSeparateViewAction extends AbstractDataElementFileAction {
 
     @Override
     protected void process(File f) {
-        final Openable o = Lookup.getDefault().lookup(DataElementLookupProvider.class).getLookup(element, entityURI).lookup(Openable.class);
+        final Openable o = Lookup.getDefault().lookup(ResourceLookupProvider.class).getLookup(element, entityURI).lookup(Openable.class);
         if (o != null) {
             EventQueueUtilities.runOnEDT(new Runnable() {
                 @Override

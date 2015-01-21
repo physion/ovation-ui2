@@ -38,12 +38,13 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Experiment;
+import us.physion.ovation.domain.Folder;
 import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.Project;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.browser.BrowserUtilities;
-import static us.physion.ovation.ui.editor.AnalysisRecordVisualizationPanel.getDataElementsFromEntity;
+import static us.physion.ovation.ui.editor.AnalysisRecordVisualizationPanel.getResourcesFromEntity;
 import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
@@ -60,7 +61,8 @@ import us.physion.ovation.util.TransactionUtilities;
     "Default_Experiment_Purpose=New Experiment",
     "Project_New_Analysis_Record_Name=New Analysis",
     "Project_Drop_Files_To_Add_Experiment_Data=Drop files to add Experiment data",
-    "Project_Drop_Files_To_Add_Analysis=Drop files to add analyses"
+    "Project_Drop_Files_To_Add_Analysis=Drop files to add analyses",
+    "Default_Folder_Label=New Folder"
 })
 public class ProjectVisualizationPanel extends AbstractContainerVisualizationPanel {
 
@@ -105,6 +107,15 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
             @Override
             public void actionPerformed(final ActionEvent e) {
                 addExperiment(true);
+
+            }
+        });
+
+        addFolderButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                addFolder(true);
 
             }
         });
@@ -155,12 +166,12 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
             @Override
             public void filesDropped(final File[] files) {
 
-                Iterable<DataElement> inputElements = showInputsDialog();
+                Iterable<Resource> inputElements = showInputsDialog();
                 if (inputElements == null) {
                     inputElements = Lists.newArrayList();
                 }
 
-                final List<DataElement> inputs = Lists.newArrayList(inputElements);
+                final List<Resource> inputs = Lists.newArrayList(inputElements);
 
                 ListenableFuture<AnalysisRecord> addRecord = EventQueueUtilities.runOffEDT(new Callable<AnalysisRecord>() {
 
@@ -193,17 +204,17 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         });
     }
 
-    private Iterable<DataElement> showInputsDialog() {
-        SelectDataElementsDialog addDialog = new SelectDataElementsDialog((JFrame) SwingUtilities.getRoot(this),
+    private Iterable<Resource> showInputsDialog() {
+        SelectResourcesDialog addDialog = new SelectResourcesDialog((JFrame) SwingUtilities.getRoot(this),
                 true,
                 null);
 
         addDialog.setVisible(true);
 
-        List<DataElement> result = Lists.newArrayList();
+        List<Resource> result = Lists.newArrayList();
         if (addDialog.isSuccess()) {
             for (IEntityWrapper entityWrapper : addDialog.getSelectedEntities()) {
-                for (DataElement entity : getDataElementsFromEntity(entityWrapper.getEntity())) {
+                for (Resource entity : getResourcesFromEntity(entityWrapper.getEntity())) {
                     result.add(entity);
                 }
             }
@@ -230,7 +241,17 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         return exp;
     }
 
-    private AnalysisRecord addAnalysisRecord(final File[] files, final Iterable<DataElement> inputs) {
+    private Folder addFolder(boolean reveal) {
+        final Folder folder = getProject().addFolder(Bundle.Default_Folder_Label());
+        if (reveal) {
+            node.refresh();
+            RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, folder);
+        }
+
+        return folder;
+    }
+
+    private AnalysisRecord addAnalysisRecord(final File[] files, final Iterable<Resource> inputs) {
         return TransactionUtilities.transactionWrapped(getContext(),
                 new Callable<AnalysisRecord>() {
 
@@ -295,8 +316,9 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         startPicker = new us.physion.ovation.ui.interfaces.DateTimePicker();
         projectNameField = new javax.swing.JTextField();
         startZoneComboBox = new javax.swing.JComboBox();
-        addExperimentButton = new javax.swing.JButton();
+        addFolderButton = new javax.swing.JButton();
         dropPanelContainer = new javax.swing.JPanel();
+        addExperimentButton = new javax.swing.JButton();
         experimentFileWell = new us.physion.ovation.ui.editor.FileWell();
         analysisFileWell = new us.physion.ovation.ui.editor.FileWell();
 
@@ -305,7 +327,6 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         projectTitleLabel.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(projectTitleLabel, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.projectTitleLabel.text")); // NOI18N
 
-        jScrollPane1.setBackground(java.awt.Color.white);
         jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.jScrollPane1.border.title"))); // NOI18N
 
         purposeTextArea.setColumns(20);
@@ -333,12 +354,12 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         org.jdesktop.swingbinding.JComboBoxBinding jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, eLProperty, startZoneComboBox);
         bindingGroup.addBinding(jComboBoxBinding);
 
-        org.openide.awt.Mnemonics.setLocalizedText(addExperimentButton, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.addExperimentButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(addFolderButton, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.addFolderButton.text")); // NOI18N
 
         dropPanelContainer.setBackground(java.awt.Color.white);
         dropPanelContainer.setLayout(new java.awt.GridLayout(1, 0));
-        dropPanelContainer.add(experimentFileWell);
-        dropPanelContainer.add(analysisFileWell);
+
+        org.openide.awt.Mnemonics.setLocalizedText(addExperimentButton, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.addExperimentButton.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -359,9 +380,16 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                                 .addComponent(startPicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(addExperimentButton))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(addFolderButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(addExperimentButton)))
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(dropPanelContainer, javax.swing.GroupLayout.DEFAULT_SIZE, 605, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(dropPanelContainer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(experimentFileWell, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(analysisFileWell, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -380,10 +408,19 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                     .addComponent(startPicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(addExperimentButton)
-                .addGap(18, 18, 18)
-                .addComponent(dropPanelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(128, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addFolderButton)
+                    .addComponent(addExperimentButton))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(65, 65, 65)
+                        .addComponent(dropPanelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(experimentFileWell, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(analysisFileWell, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(81, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -392,6 +429,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addExperimentButton;
+    private javax.swing.JButton addFolderButton;
     private us.physion.ovation.ui.editor.FileWell analysisFileWell;
     private javax.swing.JLabel dateLabel;
     private javax.swing.JPanel dropPanelContainer;

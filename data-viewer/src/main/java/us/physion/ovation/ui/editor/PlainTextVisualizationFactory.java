@@ -45,7 +45,7 @@ import org.openide.util.lookup.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.ResourceNotFoundException;
 
 @ServiceProvider(service = VisualizationFactory.class)
@@ -62,7 +62,7 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
     private ExecutorService loadFileExecutors = Executors.newSingleThreadExecutor();
 
     @Override
-    public DataVisualization createVisualization(final DataElement r) {
+    public DataVisualization createVisualization(final Resource r) {
         return new AbstractDataVisualization() {
             @Override
             public JComponent generatePanel() {
@@ -168,12 +168,12 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
             }
 
             @Override
-            public boolean shouldAdd(DataElement r) {
+            public boolean shouldAdd(Resource r) {
                 return false;
             }
 
             @Override
-            public void add(DataElement r) {
+            public void add(Resource r) {
                 throw new UnsupportedOperationException();
             }
 
@@ -185,7 +185,7 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
     }
 
     @Override
-    public int getPreferenceForDataContainer(DataElement r) {
+    public int getPreferenceForDataContainer(Resource r) {
         if (PLAIN_TEXT_MIMETYPE.equals(r.getDataContentType())) {
             return 100;
         }

@@ -69,7 +69,7 @@ import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Resource;
 import us.physion.ovation.domain.Source;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
@@ -83,9 +83,9 @@ import us.physion.ovation.ui.reveal.api.RevealNode;
  */
 @Messages({
     "Adding_source=Adding Source {0}",
-    "DataElement_Multiple_Content_Types=<Multiple>"
+    "Resource_Multiple_Content_Types=<Multiple>"
 })
-public class DataElementInfoPanel extends javax.swing.JPanel {
+public class ResourceInfoPanel extends javax.swing.JPanel {
 
     private static final String ELEM = AbstractDocument.ElementNameAttribute;
     private static final String ICON = StyleConstants.IconElementName;
@@ -94,9 +94,9 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
     private final Set<? extends OvationEntity> elements;
 
     /**
-     * Creates new form DataElementInfoPanel
+     * Creates new form ResourceInfoPanel
      */
-    public DataElementInfoPanel(Iterable<? extends OvationEntity> elements) {
+    public ResourceInfoPanel(Iterable<? extends OvationEntity> elements) {
         this.elements = ImmutableSet.copyOf(elements);
 
         initComponents();
@@ -172,23 +172,23 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
     public final String getContentType() {
         List<String> contentTypes = Lists.newLinkedList();
-        for (DataElement e : getEntities(DataElement.class)) {
+        for (Resource e : getEntities(Resource.class)) {
             contentTypes.add(e.getDataContentType());
         }
 
         if (contentTypes.size() == 1) {
             return contentTypes.get(0);
         } else {
-            return Bundle.DataElement_Multiple_Content_Types();
+            return Bundle.Resource_Multiple_Content_Types();
         }
     }
 
     public void setContentType(String contentType) {
-        if (Bundle.DataElement_Multiple_Content_Types().equals(contentType)) {
+        if (Bundle.Resource_Multiple_Content_Types().equals(contentType)) {
             return;
         }
 
-        for (DataElement e : getEntities(DataElement.class)) {
+        for (Resource e : getEntities(Resource.class)) {
             if (!e.getDataContentType().equals(contentType)) {
                 e.setDataContentType(contentType);
             }
@@ -259,12 +259,12 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
 
         jPanel1.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(DataElementInfoPanel.class, "DataElementInfoPanel.jPanel1.border.title"))); // NOI18N
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ResourceInfoPanel.class, "ResourceInfoPanel.jPanel1.border.title"))); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(DataElementInfoPanel.class, "DataElementInfoPanel.jLabel1.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ResourceInfoPanel.class, "ResourceInfoPanel.jLabel1.text")); // NOI18N
 
-        addSourcesTextField.setText(org.openide.util.NbBundle.getMessage(DataElementInfoPanel.class, "DataElementInfoPanel.addSourcesTextField.text")); // NOI18N
-        addSourcesTextField.setToolTipText(org.openide.util.NbBundle.getMessage(DataElementInfoPanel.class, "DataElementInfoPanel.addSourcesTextField.toolTipText")); // NOI18N
+        addSourcesTextField.setText(org.openide.util.NbBundle.getMessage(ResourceInfoPanel.class, "ResourceInfoPanel.addSourcesTextField.text")); // NOI18N
+        addSourcesTextField.setToolTipText(org.openide.util.NbBundle.getMessage(ResourceInfoPanel.class, "ResourceInfoPanel.addSourcesTextField.toolTipText")); // NOI18N
         addSourcesTextField.setBorder(new javax.swing.border.LineBorder(javax.swing.UIManager.getDefaults().getColor("InternalFrame.background"), 1, true));
 
         jScrollPane1.setBorder(null);
@@ -272,7 +272,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
         inputsTextPane.setBorder(null);
         jScrollPane1.setViewportView(inputsTextPane);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(DataElementInfoPanel.class, "DataElementInfoPanel.jLabel2.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(ResourceInfoPanel.class, "ResourceInfoPanel.jLabel2.text")); // NOI18N
 
         contentTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
@@ -339,13 +339,13 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 
-    Logger logger = LoggerFactory.getLogger(DataElementInfoPanel.class);
+    Logger logger = LoggerFactory.getLogger(ResourceInfoPanel.class);
 
     private final Map<JComponent, String> components = Maps.newHashMap();
 
     private void updateInputs() {
         final Multimap<String, Source> sources = HashMultimap.create();
-        final Multimap<String, DataElement> inputResources = HashMultimap.create();
+        final Multimap<String, Resource> inputResources = HashMultimap.create();
 
         for (Measurement m : getMeasurements()) {
             for (String s : m.getSourceNames()) {
@@ -374,7 +374,7 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
 
                 }
 
-                for (Map.Entry<String, DataElement> namedInput : inputResources.entries()) {
+                for (Map.Entry<String, Resource> namedInput : inputResources.entries()) {
                     insertInputsPanel(namedInput.getKey(), namedInput.getValue());
                 }
             }
@@ -435,12 +435,12 @@ public class DataElementInfoPanel extends javax.swing.JPanel {
                     }
                 }
 
-                for (Resource dataElement : getResources()) {
+                for (Resource Resource : getResources()) {
                     if (e instanceof Measurement) {
                         continue;
                     }
 
-                    ((AnalysisRecord) dataElement.getContainingEntity()).removeInput(label);
+                    ((AnalysisRecord) Resource.getContainingEntity()).removeInput(label);
 
                 }
 

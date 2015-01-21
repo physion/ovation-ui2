@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.OvationException;
 
 /**
@@ -31,9 +31,9 @@ public class DefaultImageWrapper extends AbstractDataVisualization {
 
     final String name;
 
-    final DataElement entity;
+    final Resource entity;
 
-    DefaultImageWrapper(DataElement r) {
+    DefaultImageWrapper(Resource r) {
         entity = r;
         this.name = r.getName();
     }
@@ -47,12 +47,12 @@ public class DefaultImageWrapper extends AbstractDataVisualization {
     }
 
     @Override
-    public boolean shouldAdd(DataElement r) {
+    public boolean shouldAdd(Resource r) {
         return false;
     }
 
     @Override
-    public void add(DataElement r) {
+    public void add(Resource r) {
         throw new UnsupportedOperationException("Images are currently implemented one per panel");
     }
 

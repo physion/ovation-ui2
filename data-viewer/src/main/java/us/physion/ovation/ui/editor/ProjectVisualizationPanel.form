@@ -38,11 +38,20 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="startZoneComboBox" min="-2" pref="180" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="addExperimentButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="addFolderButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="addExperimentButton" min="-2" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="dropPanelContainer" alignment="0" pref="605" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="dropPanelContainer" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="experimentFileWell" min="-2" pref="302" max="-2" attributes="0"/>
+                      <Component id="analysisFileWell" min="-2" pref="302" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -66,10 +75,24 @@
                   <Component id="startZoneComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="addExperimentButton" min="-2" max="-2" attributes="0"/>
-              <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="dropPanelContainer" min="-2" pref="127" max="-2" attributes="0"/>
-              <EmptySpace pref="128" max="32767" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="addFolderButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="addExperimentButton" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="-2" pref="65" max="-2" attributes="0"/>
+                      <Component id="dropPanelContainer" min="-2" pref="127" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="experimentFileWell" min="-2" pref="127" max="-2" attributes="0"/>
+                          <Component id="analysisFileWell" min="-2" pref="127" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+              </Group>
+              <EmptySpace pref="81" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -87,9 +110,6 @@
     </Component>
     <Container class="javax.swing.JScrollPane" name="jScrollPane1">
       <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" id="white" palette="1" red="ff" type="palette"/>
-        </Property>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
             <TitledBorder title="Purpose">
@@ -165,10 +185,10 @@
         <BindingProperty name="elements" source="Form" sourcePath="${availableZoneIDs}" target="startZoneComboBox" targetPath="elements" updateStrategy="0" immediately="false"/>
       </BindingProperties>
     </Component>
-    <Component class="javax.swing.JButton" name="addExperimentButton">
+    <Component class="javax.swing.JButton" name="addFolderButton">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="ProjectVisualizationPanel.addExperimentButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="ProjectVisualizationPanel.addFolderButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
@@ -183,12 +203,17 @@
         <Property name="columns" type="int" value="0"/>
         <Property name="rows" type="int" value="1"/>
       </Layout>
-      <SubComponents>
-        <Component class="us.physion.ovation.ui.editor.FileWell" name="experimentFileWell">
-        </Component>
-        <Component class="us.physion.ovation.ui.editor.FileWell" name="analysisFileWell">
-        </Component>
-      </SubComponents>
     </Container>
+    <Component class="javax.swing.JButton" name="addExperimentButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="ProjectVisualizationPanel.addExperimentButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="us.physion.ovation.ui.editor.FileWell" name="experimentFileWell">
+    </Component>
+    <Component class="us.physion.ovation.ui.editor.FileWell" name="analysisFileWell">
+    </Component>
   </SubComponents>
 </Form>

@@ -74,7 +74,7 @@ public class EntityWrapperUtilities {
             n.setIconBaseWithExtension("us/physion/ovation/ui/browser/user.png");
         }
 
-        //else if (DataElement.class.isAssignableFrom(entityClass)) {
+        //else if (Resource.class.isAssignableFrom(entityClass)) {
         //        n.setIconBaseWithExtension("us/physion/ovation/ui/browser/analysis-record.png");
         //    }
     }

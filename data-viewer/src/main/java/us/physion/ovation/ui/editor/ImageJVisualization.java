@@ -19,7 +19,7 @@ import loci.formats.gui.BufferedImageReader;
 import org.openide.util.NbBundle.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.actions.OpenInNativeAppAction;
 
 /**
@@ -37,7 +37,7 @@ public class ImageJVisualization extends AbstractDataVisualization {
     File imageFile = null;
     IFormatReader reader = null;
 
-    ImageJVisualization(DataElement d) {
+    ImageJVisualization(Resource d) {
         super(Sets.newHashSet(d));
 
         try {
@@ -98,12 +98,12 @@ public class ImageJVisualization extends AbstractDataVisualization {
     }
 
     @Override
-    public boolean shouldAdd(DataElement r) {
+    public boolean shouldAdd(Resource r) {
         return false;
     }
 
     @Override
-    public void add(DataElement r) {
+    public void add(Resource r) {
         throw new UnsupportedOperationException("Not supported for this image visualization.");
     }
 

@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.AbstractAction;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.NbBundle.Messages;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
@@ -14,11 +14,11 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
     "# {0} - data element name",
     "Getting_file=Getting file for {0}"
 })
-public abstract class AbstractDataElementFileAction extends AbstractAction {
+public abstract class AbstractResourceFileAction extends AbstractAction {
 
-    protected final DataElement element;
+    protected final Resource element;
 
-    public AbstractDataElementFileAction(DataElement element) {
+    public AbstractResourceFileAction(Resource element) {
         this.element = element;
     }
 

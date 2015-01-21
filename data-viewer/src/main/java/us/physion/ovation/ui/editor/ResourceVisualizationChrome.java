@@ -37,13 +37,13 @@ import us.physion.ovation.domain.OvationEntity;
     "Measurement_Inputs_Label=Sources",
     "AnalsysArtifact_Inputs_Label=Inputs"
 })
-public class DataElementVisualizationChrome<T extends OvationEntity> extends javax.swing.JPanel {
+public class ResourceVisualizationChrome<T extends OvationEntity> extends javax.swing.JPanel {
 
 
     /**
-     * Creates new form AbstractDataElementVisualizationChrome
+     * Creates new form AbstractResourceVisualizationChrome
      */
-    public DataElementVisualizationChrome(JComponent content, JComponent info) {
+    public ResourceVisualizationChrome(JComponent content, JComponent info) {
 
 
         initComponents();
@@ -135,7 +135,7 @@ public class DataElementVisualizationChrome<T extends OvationEntity> extends jav
         infoPanelRoot.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
         infoPanelRoot.setBorder(new javax.swing.border.LineBorder(javax.swing.UIManager.getDefaults().getColor("InternalFrame.background"), 1, true));
 
-        org.openide.awt.Mnemonics.setLocalizedText(infoButton, org.openide.util.NbBundle.getMessage(DataElementVisualizationChrome.class, "DataElementVisualizationChrome.infoButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(infoButton, org.openide.util.NbBundle.getMessage(ResourceVisualizationChrome.class, "ResourceVisualizationChrome.infoButton.text")); // NOI18N
 
         infoPanel.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
         infoPanel.setLayout(new java.awt.BorderLayout());

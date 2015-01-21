@@ -17,7 +17,7 @@ import org.jfree.ui.RectangleInsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.NumericDataElements;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.values.NumericData;
 
@@ -33,8 +33,8 @@ class ChartGroupWrapper extends AbstractDataVisualization {
     String _title;
     Map<String, Integer> dsCardinality;
 
-    ChartGroupWrapper(DefaultXYDataset ds, NumericData data, DataElement dataElement) {
-        super(Sets.newHashSet(dataElement));
+    ChartGroupWrapper(DefaultXYDataset ds, NumericData data, Resource Resource) {
+        super(Sets.newHashSet(Resource));
 
         NumericData.Data d = data.getData().values().iterator().next();
 
@@ -158,7 +158,7 @@ class ChartGroupWrapper extends AbstractDataVisualization {
     }
 
     @Override
-    public boolean shouldAdd(DataElement r) {
+    public boolean shouldAdd(Resource r) {
         if (!NumericDataElements.isNumeric(r)) {
             return false;
         }
@@ -183,7 +183,7 @@ class ChartGroupWrapper extends AbstractDataVisualization {
 
 
     @Override
-    public void add(DataElement r) {
+    public void add(Resource r) {
         String preface = "Aggregate responses: ";
         NumericData data;
         try{

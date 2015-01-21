@@ -14,7 +14,7 @@ import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 import us.physion.ovation.domain.*;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.actions.OpenInSeparateViewAction;
 import us.physion.ovation.ui.actions.RevealElementAction;
 import static us.physion.ovation.ui.browser.ActionUtils.appendToArray;
@@ -215,11 +215,11 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
 
     @Override
     public Action getPreferredAction() {
-        if (!DataElement.class.isAssignableFrom(entityWrapper.getType())) {
+        if (!Resource.class.isAssignableFrom(entityWrapper.getType())) {
             return super.getPreferredAction();
         }
 
-        DataElement data = (DataElement) entityWrapper.getEntity();
+        Resource data = (Resource) entityWrapper.getEntity();
         return new OpenInSeparateViewAction(data, buildURITreePath());
     }
 
@@ -244,8 +244,8 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
                     actionList = l.toArray(new EntityInsertable[l.size()]);
                 }
 
-                if (DataElement.class.isAssignableFrom(entityClass)) {
-                    actionList = appendToArray(actionList, new RevealElementAction((DataElement) entityWrapper.getEntity()));
+                if (Resource.class.isAssignableFrom(entityClass)) {
+                    actionList = appendToArray(actionList, new RevealElementAction((Resource) entityWrapper.getEntity()));
                 }
 
                 if (AnalysisRecord.class.isAssignableFrom(entityClass)) {

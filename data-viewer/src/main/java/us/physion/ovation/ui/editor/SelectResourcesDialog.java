@@ -55,7 +55,7 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
  *
  * @author barry
  */
-public class SelectDataElementsDialog extends javax.swing.JDialog implements ExplorerManager.Provider, Lookup.Provider {
+public class SelectResourcesDialog extends javax.swing.JDialog implements ExplorerManager.Provider, Lookup.Provider {
 
     private final ExplorerManager explorerManager;
     private final Lookup lookup;
@@ -64,9 +64,9 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
     private final BeanTreeView entitiesTree;
 
     /**
-     * Creates new form SelectDataElementsDialog
+     * Creates new form SelectResourcesDialog
      */
-    public SelectDataElementsDialog(java.awt.Frame parent,
+    public SelectResourcesDialog(java.awt.Frame parent,
             boolean modal,
             final Area border) {
 
@@ -214,7 +214,7 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(SelectDataElementsDialog.class, "SelectDataElementsDialog.jLabel1.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(SelectResourcesDialog.class, "SelectResourcesDialog.jLabel1.text")); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -238,15 +238,15 @@ public class SelectDataElementsDialog extends javax.swing.JDialog implements Exp
                 .addComponent(contentScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 460, Short.MAX_VALUE))
         );
 
-        org.openide.awt.Mnemonics.setLocalizedText(addButton, org.openide.util.NbBundle.getMessage(SelectDataElementsDialog.class, "SelectDataElementsDialog.addButton.text")); // NOI18N
-        addButton.setToolTipText(org.openide.util.NbBundle.getMessage(SelectDataElementsDialog.class, "SelectDataElementsDialog.addButton.toolTipText")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(addButton, org.openide.util.NbBundle.getMessage(SelectResourcesDialog.class, "SelectResourcesDialog.addButton.text")); // NOI18N
+        addButton.setToolTipText(org.openide.util.NbBundle.getMessage(SelectResourcesDialog.class, "SelectResourcesDialog.addButton.toolTipText")); // NOI18N
         addButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addButtonActionPerformed(evt);
             }
         });
 
-        org.openide.awt.Mnemonics.setLocalizedText(cancelButton, org.openide.util.NbBundle.getMessage(SelectDataElementsDialog.class, "SelectDataElementsDialog.cancelButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(cancelButton, org.openide.util.NbBundle.getMessage(SelectResourcesDialog.class, "SelectResourcesDialog.cancelButton.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

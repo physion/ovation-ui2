@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.OvationException;
 
 public class TabularDataWrapper extends AbstractDataVisualization {
@@ -23,9 +23,9 @@ public class TabularDataWrapper extends AbstractDataVisualization {
     final int CHUNK_SIZE = 100;
     File file;
 
-    private final DataElement entity;
+    private final Resource entity;
 
-    TabularDataWrapper(DataElement r)
+    TabularDataWrapper(Resource r)
     {
         entity = r;
 
@@ -108,12 +108,12 @@ public class TabularDataWrapper extends AbstractDataVisualization {
     }
 
     @Override
-    public boolean shouldAdd(DataElement r) {
+    public boolean shouldAdd(Resource r) {
         return false;
     }
 
     @Override
-    public void add(DataElement r) {
+    public void add(Resource r) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

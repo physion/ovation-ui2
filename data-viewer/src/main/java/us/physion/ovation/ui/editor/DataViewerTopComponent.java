@@ -30,12 +30,11 @@ import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Resource;
-import us.physion.ovation.domain.mixin.DataElement;
-import us.physion.ovation.domain.mixin.DataElementContainer;
-import us.physion.ovation.ui.actions.spi.DataElementLookupProvider;
+import us.physion.ovation.ui.actions.spi.ResourceLookupProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
+import us.physion.ovation.domain.mixin.ResourcesContainer;
 
 /**
  * Top component which displays something.
@@ -67,7 +66,7 @@ public final class DataViewerTopComponent extends TopComponent {
 
         private final List<AbstractAction> tabActions = Lists.newArrayList();
 
-        public TemporaryViewTopComponent(final DataElement element) {
+        public TemporaryViewTopComponent(final Resource element) {
             setName(Bundle.Temporary_Data_Viewer_Title(element.getName()));
             setLayout(new BorderLayout());
             setBackground(Color.white);
@@ -115,16 +114,16 @@ public final class DataViewerTopComponent extends TopComponent {
 
     }
 
-    @ServiceProvider(service = DataElementLookupProvider.class)
-    public final static class DataElementViewer implements DataElementLookupProvider {
+    @ServiceProvider(service = ResourceLookupProvider.class)
+    public final static class ResourceViewer implements ResourceLookupProvider {
 
         @Override
-        public Lookup getLookup(final DataElement element) {
+        public Lookup getLookup(final Resource element) {
             return getLookup(element, null);
         }
 
         @Override
-        public Lookup getLookup(final DataElement element, final List<URI> entityURI) {
+        public Lookup getLookup(final Resource element, final List<URI> entityURI) {
             return Lookups.singleton(new Openable() {
                 @Override
                 public void open() {
@@ -294,35 +293,35 @@ public final class DataViewerTopComponent extends TopComponent {
         }
         int progressWorkUnit = 0;
 
-        List<DataElement> dataElements = Lists.newLinkedList();
+        List<Resource> Resources = Lists.newLinkedList();
         List<IEntityNode> containers = Lists.newLinkedList();
 
         for (IEntityNode n : entityNodes) {
 
             IEntityWrapper ew = n.getEntityWrapper();
-            if (DataElementContainer.class.isAssignableFrom(ew.getType())) {
-                DataElementContainer container = (DataElementContainer) (ew.getEntity());//getEntity gets the context for the given thread
+            if (ResourcesContainer.class.isAssignableFrom(ew.getType())) {
+                ResourcesContainer container = (ResourcesContainer) (ew.getEntity());//getEntity gets the context for the given thread
 
                 if (container instanceof Epoch) {
                     /*
                      List<AnalysisRecord> analysisRecords                            = Lists.newArrayList(((Epoch) container).getAnalysisRecords());
                     if (analysisRecords.size() > 0) {
                         for (AnalysisRecord a : analysisRecords) {
-                            dataElements.addAll(Sets.newHashSet(a.getOutputs().values()));
+                            Resources.addAll(Sets.newHashSet(a.getOutputs().values()));
                         }
                     } else {
-                        dataElements.addAll(Sets.newHashSet(container.getDataElements().values()));
+                        Resources.addAll(Sets.newHashSet(container.getResources().values()));
                     }
                      */
                     containers.add(n);
                 } else if (container instanceof AnalysisRecord) {
                     containers.add(n);
-                    //dataElements.addAll(Sets.newHashSet(container.getDataElements().values()));
+                    //Resources.addAll(Sets.newHashSet(container.getResources().values()));
                 } else {
-                    dataElements.addAll(Sets.newHashSet(container.getDataElements().values()));
+                    Resources.addAll(Sets.newHashSet(container.getResourcesMap().values()));
                 }
-            } else if (DataElement.class.isAssignableFrom(ew.getType())) {
-                dataElements.add((DataElement) ew.getEntity());
+            } else if (Resource.class.isAssignableFrom(ew.getType())) {
+                Resources.add((Resource) ew.getEntity());
             } else {
                 containers.add(n);
             }
@@ -335,7 +334,7 @@ public final class DataViewerTopComponent extends TopComponent {
         List<DataVisualization> dataVisualizations = Lists.newLinkedList();
         List<ContainerVisualization> containerVisualizations = Lists.newLinkedList();
 
-        for (DataElement rw : dataElements) {
+        for (Resource rw : Resources) {
             boolean added = false;
             for (DataVisualization group : dataVisualizations) {
                 if (group.shouldAdd(rw)) {
@@ -345,7 +344,7 @@ public final class DataViewerTopComponent extends TopComponent {
                 }
             }
             if (!added) {
-                Resource r = (Resource) rw.getDataResource();
+                Resource r = (Resource) rw;
                 dataVisualizations.add(ResponseWrapperFactory.create(rw).createVisualization(rw));
             }
         }
@@ -362,7 +361,7 @@ public final class DataViewerTopComponent extends TopComponent {
         List<Component> visualizationComponents = Lists.newLinkedList();
         for (DataVisualization v : dataVisualizations) {
             JComponent visualizationChrome
-                    = new DataElementVisualizationChrome(v.generatePanel(),
+                    = new ResourceVisualizationChrome(v.generatePanel(),
                             v.generateInfoPanel());
 
             visualizationComponents.add(visualizationChrome);

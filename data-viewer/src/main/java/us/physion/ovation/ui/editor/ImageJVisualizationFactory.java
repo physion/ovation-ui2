@@ -7,7 +7,7 @@ package us.physion.ovation.ui.editor;
 //import net.imglib2.io.ImgIOException;
 //import net.imglib2.io.ImgOpener;
 import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 
 @ServiceProvider(service = VisualizationFactory.class)
 /**
@@ -17,13 +17,13 @@ import us.physion.ovation.domain.mixin.DataElement;
 public class ImageJVisualizationFactory implements VisualizationFactory {
 
     @Override
-    public DataVisualization createVisualization(DataElement r) {
+    public DataVisualization createVisualization(Resource r) {
 
         return new ImageJVisualization(r);
     }
 
     @Override
-    public int getPreferenceForDataContainer(DataElement r) {
+    public int getPreferenceForDataContainer(Resource r) {
         if (r.getDataContentType().toLowerCase().contains("tif")) {
             return 110;
         }

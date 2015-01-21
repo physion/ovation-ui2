@@ -60,12 +60,8 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
-import org.openide.explorer.view.TreeView;
-import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochContainer;
@@ -74,15 +70,14 @@ import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Protocol;
-import us.physion.ovation.domain.mixin.DataElement;
-import us.physion.ovation.domain.mixin.DataElementContainer;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.domain.mixin.EpochGroupContainer;
+import us.physion.ovation.domain.mixin.ResourcesContainer;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
-import us.physion.ovation.ui.interfaces.TreeViewProvider;
 import us.physion.ovation.ui.reveal.api.RevealNode;
 import us.physion.ovation.util.PlatformUtils;
 
@@ -218,7 +213,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                Map<String, DataElement> inputs = getAnalysisRecord().getInputs();
+                Map<String, Resource> inputs = getAnalysisRecord().getInputs();
 
                 for (String name : getSelectedInputs()) {
                     getAnalysisRecord().removeInput(name);
@@ -239,7 +234,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
                     @Override
                     public void run() {
-                        final List<DataElement> outputs = addOutputFiles(files);
+                        final List<Resource> outputs = addOutputFiles(files);
                         EventQueueUtilities.runOnEDT(new Runnable() {
                             @Override
                             public void run() {
@@ -264,8 +259,8 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
     }
 
     private void addInputsFromDialog() {
-        for (DataElement dataElement : showAddInputsDialog()) {
-            getAnalysisRecord().addInput(dataElement.getName(), dataElement);
+        for (Resource Resource : showAddInputsDialog()) {
+            getAnalysisRecord().addInput(Resource.getName(), Resource);
         }
     }
 
@@ -295,7 +290,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         return selectedInputNames;
     }
 
-    private Iterable<DataElement> showAddInputsDialog() {
+    private Iterable<Resource> showAddInputsDialog() {
         Rectangle targetBounds = SwingUtilities.convertRectangle(inputsPanel,
                 inputsScrollPane.getBounds(),
                 AnalysisRecordVisualizationPanel.this);
@@ -308,16 +303,16 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
         Area targetShape = makePopOverShape(targetBounds, SwingUtilities.EAST);
 
-        SelectDataElementsDialog addDialog = new SelectDataElementsDialog((JFrame) SwingUtilities.getRoot(AnalysisRecordVisualizationPanel.this),
+        SelectResourcesDialog addDialog = new SelectResourcesDialog((JFrame) SwingUtilities.getRoot(AnalysisRecordVisualizationPanel.this),
                 true,
                 targetShape);
 
         addDialog.setVisible(true);
 
-        List<DataElement> result = Lists.newArrayList();
+        List<Resource> result = Lists.newArrayList();
         if (addDialog.isSuccess()) {
             for (IEntityWrapper entityWrapper : addDialog.getSelectedEntities()) {
-                for (DataElement entity : getDataElementsFromEntity(entityWrapper.getEntity())) {
+                for (Resource entity : getResourcesFromEntity(entityWrapper.getEntity())) {
                     result.add(entity);
                 }
             }
@@ -330,39 +325,39 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
         return result;
     }
 
-    public static List<DataElement> getDataElementsFromEntity(OvationEntity e) {
+    public static List<Resource> getResourcesFromEntity(OvationEntity e) {
 
-        List<DataElement> result = Lists.newLinkedList();
+        List<Resource> result = Lists.newLinkedList();
 
         if (e instanceof Project) {
             for (Experiment child : ((Project) e).getExperiments()) {
-                result.addAll(getDataElementsFromEntity(child));
+                result.addAll(getResourcesFromEntity(child));
             }
         }
         if (e instanceof EpochGroupContainer) {
             for (EpochGroup child : ((EpochGroupContainer) e).getEpochGroups()) {
-                result.addAll(getDataElementsFromEntity(child));
+                result.addAll(getResourcesFromEntity(child));
             }
         }
         if (e instanceof EpochContainer) {
             for (Epoch child : ((EpochContainer) e).getEpochs()) {
-                result.addAll(getDataElementsFromEntity(child));
+                result.addAll(getResourcesFromEntity(child));
             }
         }
-        if (e instanceof DataElementContainer) {
-            for (DataElement child : ((DataElementContainer) e).getDataElements().values()) {
-                result.addAll(getDataElementsFromEntity(child));
+        if (e instanceof ResourcesContainer) {
+            for (Resource child : ((ResourcesContainer) e).getResourcesMap().values()) {
+                result.addAll(getResourcesFromEntity(child));
             }
         }
-        if (e instanceof DataElement) {
-            result.add((DataElement) e);
+        if (e instanceof Resource) {
+            result.add((Resource) e);
         }
 
         return result;
     }
 
-    private List<DataElement> addOutputFiles(File[] files) {
-        List<DataElement> result = Lists.newLinkedList();
+    private List<Resource> addOutputFiles(File[] files) {
+        List<Resource> result = Lists.newLinkedList();
 
         for (File f : files) {
             String name = f.getName();

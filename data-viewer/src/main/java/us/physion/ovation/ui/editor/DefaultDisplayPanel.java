@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import org.openide.util.Exceptions;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
@@ -19,11 +19,11 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
  */
 public class DefaultDisplayPanel extends javax.swing.JPanel {
 
-    DataElement d;
+    Resource d;
     /**
      * Creates new form DefaultDisplayPanel
      */
-    public DefaultDisplayPanel(DataElement data) {
+    public DefaultDisplayPanel(Resource data) {
         initComponents();
         d = data;
         elementName.setText(data.getName());
