@@ -319,7 +319,6 @@ public class EntityChildrenWrapperHelper {
 
         EntityComparator entityComparator = new EntityComparator();
         List<Folder> folders = Lists.newArrayList(((FolderContainer) entity).getFolders());
-        folders.sort(entityComparator);
 
         int progressCounter = 0;
         if (ph != null) {
@@ -337,6 +336,8 @@ public class EntityChildrenWrapperHelper {
                 ph.progress(progressCounter++);
             }
         }
+
+        list.sort(entityComparator);
     }
 
     private void addExperiments(List<EntityWrapper> list, Project entity, ProgressHandle ph) {
@@ -502,7 +503,6 @@ public class EntityChildrenWrapperHelper {
         List<OvationEntity> contents = Lists.newArrayList();
         contents.addAll(folders);
         contents.addAll(resources);
-        contents.sort(entityComparator);
 
         int progressCounter = 0;
         if (ph != null) {
@@ -520,6 +520,8 @@ public class EntityChildrenWrapperHelper {
                 ph.progress(progressCounter++);
             }
         }
+
+        list.sort(entityComparator);
     }
 
 }

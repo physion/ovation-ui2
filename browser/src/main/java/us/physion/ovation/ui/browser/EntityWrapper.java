@@ -185,6 +185,8 @@ public class EntityWrapper implements IEntityWrapper {
         } else if (e instanceof User) {
             User u = (User) e;
             return u.getUsername() == null ? u.getEmail() : u.getUsername();
+        } else if (e instanceof Folder) {
+            return ((Folder) e).getLabel();
         }
 
         return "";
@@ -199,6 +201,8 @@ public class EntityWrapper implements IEntityWrapper {
         } else if (Experiment.class.isAssignableFrom(type)) {
             return true;
         } else if (EpochGroup.class.isAssignableFrom(type)) {
+            return true;
+        } else if (Folder.class.isAssignableFrom(type)) {
             return true;
         } else {
             return false;
@@ -218,6 +222,8 @@ public class EntityWrapper implements IEntityWrapper {
             ((Experiment) e).setPurpose(s);
         } else if (EpochGroup.class.isAssignableFrom(type)) {
             ((EpochGroup) e).setLabel(s);
+        } else if (Folder.class.isAssignableFrom(type)) {
+            ((Folder) e).setLabel(s);
         }
 
         propertyChangeSupport.firePropertyChange(PROP_NAME, currentName, s);

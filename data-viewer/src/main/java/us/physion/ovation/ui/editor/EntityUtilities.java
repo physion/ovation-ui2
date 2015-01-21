@@ -32,7 +32,9 @@ import org.joda.time.DateTime;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
+import us.physion.ovation.domain.Folder;
 import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.importer.FileMetadata;
 import us.physion.ovation.ui.importer.ImageImporter;
 
@@ -52,6 +54,16 @@ public final class EntityUtilities {
                 Maps.<String, Object>newHashMap());
 
         return insertMeasurements(e, files, images);
+    }
+
+    public static List<Resource> insertResources(Folder folder, File[] files) {
+        List<Resource> result = Lists.newLinkedList();
+
+        for (File f : files) {
+            result.add(folder.addResource(f.getName(), f.toURI().toURL(), ContentTypes.getContentType(f)));
+        }
+
+        return result;
     }
 
 

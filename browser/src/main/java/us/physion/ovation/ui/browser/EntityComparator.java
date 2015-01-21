@@ -48,6 +48,10 @@ public class EntityComparator<T extends EntityWrapper> implements Comparator<T> 
             return ((Protocol) entity1).getName().toLowerCase().compareTo(((Protocol) entity2).getName().toLowerCase());
         }
 
+        if (entity1 instanceof Folder && entity2 instanceof Folder) {
+            return ((Folder) entity1).getLabel().compareTo(((Folder) entity2).getLabel());
+        }
+
         if (entity1 instanceof TimelineElement && entity2 instanceof TimelineElement) {
             TimelineElement t1 = (TimelineElement) entity1;
             TimelineElement t2 = (TimelineElement) entity2;
@@ -71,10 +75,6 @@ public class EntityComparator<T extends EntityWrapper> implements Comparator<T> 
             }
 
             return ((Measurement) entity1).getEpoch().getStart().compareTo(((Measurement) entity2).getEpoch().getStart());
-        }
-
-        if (entity1 instanceof Folder && entity2 instanceof Folder) {
-            return ((Folder) entity1).getLabel().compareTo(((Folder) entity2).getLabel());
         }
 
         return entity1.getURI().compareTo(entity2.getURI());

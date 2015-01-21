@@ -44,14 +44,9 @@
                               <Component id="addExperimentButton" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="248" max="32767" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="dropPanelContainer" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="experimentFileWell" min="-2" pref="302" max="-2" attributes="0"/>
-                      <Component id="analysisFileWell" min="-2" pref="302" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="dropPanelContainer" alignment="0" pref="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -79,20 +74,9 @@
                   <Component id="addFolderButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="addExperimentButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <EmptySpace min="-2" pref="65" max="-2" attributes="0"/>
-                      <Component id="dropPanelContainer" min="-2" pref="127" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="experimentFileWell" min="-2" pref="127" max="-2" attributes="0"/>
-                          <Component id="analysisFileWell" min="-2" pref="127" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-              </Group>
-              <EmptySpace pref="81" max="32767" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Component id="dropPanelContainer" min="-2" pref="127" max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -203,6 +187,12 @@
         <Property name="columns" type="int" value="0"/>
         <Property name="rows" type="int" value="1"/>
       </Layout>
+      <SubComponents>
+        <Component class="us.physion.ovation.ui.editor.FileWell" name="experimentFileWell">
+        </Component>
+        <Component class="us.physion.ovation.ui.editor.FileWell" name="analysisFileWell">
+        </Component>
+      </SubComponents>
     </Container>
     <Component class="javax.swing.JButton" name="addExperimentButton">
       <Properties>
@@ -210,10 +200,6 @@
           <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="ProjectVisualizationPanel.addExperimentButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
-    </Component>
-    <Component class="us.physion.ovation.ui.editor.FileWell" name="experimentFileWell">
-    </Component>
-    <Component class="us.physion.ovation.ui.editor.FileWell" name="analysisFileWell">
     </Component>
   </SubComponents>
 </Form>

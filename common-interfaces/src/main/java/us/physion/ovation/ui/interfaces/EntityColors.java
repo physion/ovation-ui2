@@ -22,6 +22,7 @@ import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
+import us.physion.ovation.domain.Folder;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Protocol;
@@ -52,6 +53,8 @@ public class EntityColors {
             return new Color(51, 153, 0);
         } else if (Protocol.class.isAssignableFrom(cls)) {
             return new Color(255, 158, 27);
+        } else if (Folder.class.isAssignableFrom(cls)) {
+            return Color.darkGray;
         }
 
         return Color.BLACK;
