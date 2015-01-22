@@ -32,12 +32,10 @@ public abstract class AbstractResourceFileAction extends AbstractAction {
                 try {
                     final File f = element.getData().get();
                     process(f);
-                } catch (InterruptedException ex) {
-                    throw new OvationException(ex);
-                } catch (ExecutionException ex) {
+                } catch (InterruptedException | ExecutionException ex) {
                     throw new OvationException(ex);
                 }
             }
-        }, ProgressHandleFactory.createHandle(Bundle.Getting_file(element.getName())));
+        }, ProgressHandleFactory.createHandle(Bundle.Getting_file(element.getLabel())));
     }
 }

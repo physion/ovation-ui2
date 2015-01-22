@@ -34,12 +34,12 @@ public class FileWell extends javax.swing.JPanel {
         static final String PROP_PROMPT = "prompt";
 
         private String prompt;
-        
-        
+
+
         public AbstractDelegate(String prompt) {
             this.prompt = prompt;
         }
-        
+
         public abstract void filesDropped(File[] files);
 
         public String getPrompt() {
@@ -77,7 +77,7 @@ public class FileWell extends javax.swing.JPanel {
         initComponents();
         initUi();
     }
-    
+
     private void initUi() {
         dropPanel.setBorder(BorderFactory.createDashedBorder(new Color(195, 195, 195), 3, 5, 3, true));
 
@@ -89,8 +89,8 @@ public class FileWell extends javax.swing.JPanel {
             }
         });
     }
-    
-    
+
+
     /**
      * Get the value of delegate
      *
@@ -99,13 +99,13 @@ public class FileWell extends javax.swing.JPanel {
     public AbstractDelegate getDelegate() {
         return delegate;
     }
-    
+
     public static final String PROP_DELEGATE = "delegate";
-    
+
     public void setDelegate(AbstractDelegate newDelegate) {
         AbstractDelegate current = this.delegate;
         this.delegate = newDelegate;
-        
+
         propertyChangeSupport.firePropertyChange("delegate", current, newDelegate);
     }
 
@@ -114,12 +114,13 @@ public class FileWell extends javax.swing.JPanel {
      *
      * @param listener
      */
+    @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         if(propertyChangeSupport == null) {
             super.addPropertyChangeListener(listener);
             return;
         }
-        
+
         propertyChangeSupport.addPropertyChangeListener(listener);
     }
 
@@ -128,6 +129,7 @@ public class FileWell extends javax.swing.JPanel {
      *
      * @param listener
      */
+    @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         propertyChangeSupport.removePropertyChangeListener(listener);
     }
@@ -153,6 +155,7 @@ public class FileWell extends javax.swing.JPanel {
         dropPanelContainer.setMinimumSize(new java.awt.Dimension(100, 100));
 
         dropPanel.setBackground(new java.awt.Color(242, 242, 242));
+        dropPanel.setMaximumSize(new java.awt.Dimension(32767, 32767));
         dropPanel.setLayout(new java.awt.BorderLayout());
 
         jLabel3.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N

@@ -73,7 +73,7 @@ public class EntityWrapperUtilities {
         } else if (User.class.isAssignableFrom(entityClass)) {
             n.setIconBaseWithExtension("us/physion/ovation/ui/browser/user.png");
         } else if (Folder.class.isAssignableFrom(entityClass)) {
-            n.setIconBaseWithExtension("us/physion/ovation/ui/browser/epochGroup.png");
+            n.setIconBaseWithExtension("us/physion/ovation/ui/browser/folder.png");
         }
     }
 

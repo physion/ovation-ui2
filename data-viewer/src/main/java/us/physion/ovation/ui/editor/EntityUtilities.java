@@ -62,7 +62,8 @@ public final class EntityUtilities {
 
         for (File f : files) {
             try {
-                result.add(folder.addResource(f.getName(), f.toURI().toURL(), ContentTypes.getContentType(f)));
+                Resource r = folder.addResource(f.getName(), f.toURI().toURL(), ContentTypes.getContentType(f));
+                result.add(r);
             } catch (IOException ex) {
                 throw new OvationException("Unable to add Resource(s)", ex);
             }

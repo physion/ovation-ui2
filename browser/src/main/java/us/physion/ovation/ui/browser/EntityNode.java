@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.browser;
 
+import com.google.common.collect.Maps;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
@@ -15,6 +16,7 @@ import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.Resource;
+import us.physion.ovation.ui.actions.AddFolderAction;
 import us.physion.ovation.ui.actions.OpenInSeparateViewAction;
 import us.physion.ovation.ui.actions.RevealElementAction;
 import static us.physion.ovation.ui.browser.ActionUtils.appendToArray;
@@ -45,7 +47,7 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
         loadURI();
 
         setDisplayName(entityWrapper.getDisplayName());
-        
+
         entityWrapper.addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
@@ -66,12 +68,12 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
     public EntityNode(EntityChildrenChildFactory cf, IEntityWrapper key) {
         this(cf, new InstanceContent(), key);
     }
-    
+
     private EntityNode(final EntityChildrenChildFactory cf, InstanceContent ic, IEntityWrapper key) {
         this(key.isLeaf() ? Children.LEAF : Children.create(cf, true), new AbstractLookup(ic), key);
 
         ic.add(key);
-        
+
         if (!key.isLeaf()) {
             ic.add(new LazyChildren() {
 
@@ -81,7 +83,7 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
                 }
             });
         }
-        
+
         this.childFactory = cf;
     }
 
@@ -204,7 +206,7 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
             childFactory.refresh();
         }
     }
-    
+
     private boolean isRefreshable() {
         return childFactory != null;
     }
@@ -260,6 +262,10 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
                     actionList = appendToArray(actionList, SystemAction.get(MeasurementInputSourcesAction.class));
                 }
 
+                if (FolderContainer.class.isAssignableFrom(entityClass)) {
+                    actionList = appendToArray(actionList, new AddFolderAction((FolderContainer) entityWrapper.getEntity()));
+                }
+
                 //XXX: right now canRename will never change for a given node so it's safe to use it during initialization
 //                if (canRename()) {
 //                    actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
@@ -281,7 +287,7 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
     }
 
     private static Map<String, Class> createMap() {
-        Map<String, Class> insertables = new HashMap<String, Class>();
+        Map<String, Class> insertables = Maps.newHashMap();
         insertables.put(Project.class.getSimpleName(), ProjectInsertable.class);
         insertables.put(Source.class.getSimpleName(), SourceInsertable.class);
         insertables.put(Experiment.class.getSimpleName(), ExperimentInsertable.class);

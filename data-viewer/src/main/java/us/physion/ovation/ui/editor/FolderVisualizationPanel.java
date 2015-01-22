@@ -73,17 +73,17 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
 
                     @Override
                     public Iterable<Resource> call() {
-                        final List<Resource> m = EntityUtilities.insertResources(getFolder(), files);
+                        final List<Resource> resources = EntityUtilities.insertResources(getFolder(), files);
                         EventQueueUtilities.runOnEDT(new Runnable() {
                             @Override
                             public void run() {
-                                if (!m.isEmpty()) {
-                                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, m.get(0));
+                                if (!resources.isEmpty()) {
+                                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, resources.get(0));
                                 }
                             }
                         });
 
-                        return m;
+                        return resources;
                     }
                 }, ph);
 
@@ -128,8 +128,9 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
 
         jLabel1 = new javax.swing.JLabel();
         folderLabel = new javax.swing.JTextField();
-        fileWell = new us.physion.ovation.ui.editor.FileWell();
         addFolderButton = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        fileWell = new us.physion.ovation.ui.editor.FileWell();
 
         setBackground(java.awt.Color.white);
 
@@ -138,10 +139,16 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
 
         folderLabel.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
 
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${folder.label}"), folderLabel, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${folder.label}"), folderLabel, org.jdesktop.beansbinding.BeanProperty.create("text_ON_ACTION_OR_FOCUS_LOST"));
         bindingGroup.addBinding(binding);
 
         org.openide.awt.Mnemonics.setLocalizedText(addFolderButton, org.openide.util.NbBundle.getMessage(FolderVisualizationPanel.class, "FolderVisualizationPanel.addFolderButton.text")); // NOI18N
+
+        jPanel1.setBackground(javax.swing.UIManager.getDefaults().getColor("Button.select"));
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
+        fileWell.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
+        jPanel1.add(fileWell, java.awt.BorderLayout.CENTER);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -150,11 +157,11 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 542, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(folderLabel))
-                    .addComponent(fileWell, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(addFolderButton)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -168,9 +175,9 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
                     .addComponent(jLabel1)
                     .addComponent(folderLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(fileWell, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(addFolderButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -183,6 +190,7 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
     private us.physion.ovation.ui.editor.FileWell fileWell;
     private javax.swing.JTextField folderLabel;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

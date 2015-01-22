@@ -52,9 +52,18 @@ public class EntityComparator<T extends EntityWrapper> implements Comparator<T> 
             return ((Folder) entity1).getLabel().compareTo(((Folder) entity2).getLabel());
         }
 
+        if (entity1 instanceof Folder && !(entity2 instanceof Folder)) {
+            return -1; //Folders compare before structural entities
+        }
+
+        if (entity2 instanceof Folder && !(entity1 instanceof Folder)) {
+            return 1; //Folders compare before structural entities
+        }
+
         if (entity1 instanceof TimelineElement && entity2 instanceof TimelineElement) {
             TimelineElement t1 = (TimelineElement) entity1;
             TimelineElement t2 = (TimelineElement) entity2;
+
             return t1.getStart().compareTo(t2.getStart());
         }
 
