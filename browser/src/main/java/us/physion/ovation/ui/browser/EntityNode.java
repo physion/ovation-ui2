@@ -1,8 +1,12 @@
 package us.physion.ovation.ui.browser;
 
 import com.google.common.collect.Maps;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -10,16 +14,21 @@ import javax.swing.Action;
 import org.openide.nodes.*;
 import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.datatransfer.PasteType;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.*;
 import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.actions.AddFolderAction;
 import us.physion.ovation.ui.actions.OpenInSeparateViewAction;
 import us.physion.ovation.ui.actions.RevealElementAction;
 import static us.physion.ovation.ui.browser.ActionUtils.appendToArray;
+import us.physion.ovation.ui.browser.dnd.FolderFlavor;
+import us.physion.ovation.ui.browser.dnd.ResourceFlavor;
 import us.physion.ovation.ui.interfaces.*;
 
 /**
@@ -270,7 +279,6 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
 //                if (canRename()) {
 //                    actionList = appendToArray(actionList, SystemAction.get(RenameAction.class));
 //                }
-
                 if (isRefreshable()) {
                     actionList = appendToArray(actionList, null, new ResettableAction(this));
                 }
@@ -286,15 +294,125 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
         return actionList;
     }
 
+    Logger logger = LoggerFactory.getLogger(EntityNode.class);
+
+    @Override
+    public PasteType getDropType(final Transferable t, final int action, int index) {
+        final Folder folder = getEntity(Folder.class);
+
+        if (folder != null) {
+            final Node dropNode = NodeTransfer.node(t,
+                    DnDConstants.ACTION_COPY_OR_MOVE + NodeTransfer.CLIPBOARD_CUT);
+
+            if (null != dropNode && dropNode instanceof EntityNode) {
+
+                final Resource r = (Resource) ((EntityNode) dropNode).getEntity(Resource.class);
+                if (r != null) {
+                    return new PasteType() {
+                        @Override
+                        public Transferable paste() throws IOException {
+                            if ((action & DnDConstants.ACTION_MOVE) != 0) {
+                                for (Folder f : r.getFolders()) {
+                                    if (!f.equals(folder)) {
+                                        f.removeResource(r);
+                                    }
+                                }
+                            }
+
+                            folder.addResource(r);
+
+                            refresh();
+
+                            return null;
+                        }
+                    };
+                }
+            }
+        }
+
+        return null;
+
+//        Class entityClass = getEntity().getClass();
+//        if (FolderContainer.class.isAssignableFrom(entityClass) && t.isDataFlavorSupported(FolderFlavor.FOLDER_FLAVOR)) {
+//            return new PasteType() {
+//
+//                @Override
+//                public Transferable paste() throws IOException {
+//                    try {
+//                        FolderContainer container = ((FolderContainer) getEntity());
+//                        Folder folder = (Folder) t.getTransferData(FolderFlavor.FOLDER_FLAVOR);
+//                        final Node node = NodeTransfer.node(t, NodeTransfer.DND_MOVE + NodeTransfer.CLIPBOARD_CUT);
+//                        if (node != null) {
+//                            for (FolderContainer c : folder.getParents()) {
+//                                if (!c.equals(container)) {
+//                                    c.removeFolder(folder);
+//                                }
+//                            }
+//                        }
+//                        container.addFolder(folder);
+//
+//
+//                    } catch (UnsupportedFlavorException ex) {
+//                        logger.error("Unable to paste Folder node", ex);
+//                    }
+//
+//                    return null;
+//
+//                }
+//
+//            };
+//        } else if (Folder.class.isAssignableFrom(entityClass) && t.isDataFlavorSupported(ResourceFlavor.RESOURCE_FLAVOR)) {
+//            return new PasteType() {
+//
+//                @Override
+//                public Transferable paste() throws IOException {
+//                    try {
+//                        Folder folder = getEntity(Folder.class);
+//                        Resource r = (Resource) t.getTransferData(ResourceFlavor.RESOURCE_FLAVOR);
+//                        final Node node = NodeTransfer.node(t, NodeTransfer.DND_MOVE + NodeTransfer.CLIPBOARD_CUT);
+//                        if (node != null) {
+//                            for (Folder f : r.getFolders()) {
+//                                if (!f.equals(folder)) {
+//                                    f.removeResource(r);
+//                                }
+//                            }
+//                        }
+//                        folder.addResource(r);
+//                    } catch (UnsupportedFlavorException ex) {
+//                        logger.error("Unable to paste Resource node", ex);
+//                    }
+//                    return null;
+//                }
+//            };
+//        } else {
+//            return null;
+//        }
+    }
+
     private static Map<String, Class> createMap() {
         Map<String, Class> insertables = Maps.newHashMap();
-        insertables.put(Project.class.getSimpleName(), ProjectInsertable.class);
-        insertables.put(Source.class.getSimpleName(), SourceInsertable.class);
-        insertables.put(Experiment.class.getSimpleName(), ExperimentInsertable.class);
-        insertables.put(EpochGroup.class.getSimpleName(), EpochGroupInsertable.class);
-        insertables.put(Epoch.class.getSimpleName(), EpochInsertable.class);
-        insertables.put(Measurement.class.getSimpleName(), ResponseInsertable.class);
-        insertables.put(AnalysisRecord.class.getSimpleName(), AnalysisRecordInsertable.class);
+        insertables
+                .put(Project.class
+                        .getSimpleName(), ProjectInsertable.class
+                );
+        insertables.put(Source.class
+                .getSimpleName(), SourceInsertable.class
+        );
+        insertables.put(Experiment.class
+                .getSimpleName(), ExperimentInsertable.class
+        );
+        insertables.put(EpochGroup.class
+                .getSimpleName(), EpochGroupInsertable.class
+        );
+        insertables.put(Epoch.class
+                .getSimpleName(), EpochInsertable.class
+        );
+        insertables.put(Measurement.class
+                .getSimpleName(), ResponseInsertable.class
+        );
+        insertables.put(AnalysisRecord.class
+                .getSimpleName(), AnalysisRecordInsertable.class
+        );
         return insertables;
     }
 }
