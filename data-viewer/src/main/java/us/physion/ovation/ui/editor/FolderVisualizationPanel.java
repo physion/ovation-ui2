@@ -28,7 +28,6 @@ import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.domain.Folder;
-import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -41,7 +40,8 @@ import us.physion.ovation.ui.reveal.api.RevealNode;
  * @author barry
  */
 @Messages({
-    "Folder_Drop_Files_To_Add_Resources=Drop files"
+    "Folder_Drop_Files_To_Add_Resources=Drop files",
+    "Adding_resources=Adding files..."
 })
 public class FolderVisualizationPanel extends AbstractContainerVisualizationPanel {
 
@@ -67,7 +67,7 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
 
             @Override
             public void filesDropped(final File[] files) {
-                final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
+                final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_resources());
 
                 ListenableFuture<Iterable<Resource>> addResources = EventQueueUtilities.runOffEDT(new Callable<Iterable<Resource>>() {
 
@@ -126,7 +126,6 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
     private void initComponents() {
         bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
-        experimentFileWell = new us.physion.ovation.ui.editor.FileWell();
         jLabel1 = new javax.swing.JLabel();
         folderLabel = new javax.swing.JTextField();
         fileWell = new us.physion.ovation.ui.editor.FileWell();
@@ -139,7 +138,7 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
 
         folderLabel.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
 
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${folder}"), folderLabel, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${folder.label}"), folderLabel, org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
         org.openide.awt.Mnemonics.setLocalizedText(addFolderButton, org.openide.util.NbBundle.getMessage(FolderVisualizationPanel.class, "FolderVisualizationPanel.addFolderButton.text")); // NOI18N
@@ -181,7 +180,6 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addFolderButton;
-    private us.physion.ovation.ui.editor.FileWell experimentFileWell;
     private us.physion.ovation.ui.editor.FileWell fileWell;
     private javax.swing.JTextField folderLabel;
     private javax.swing.JLabel jLabel1;

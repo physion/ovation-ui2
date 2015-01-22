@@ -74,27 +74,7 @@ public class ReflectionContainerVisualizationFactory implements ContainerVisuali
 
 
                 return (JComponent) cls.getConstructor(IEntityNode.class).newInstance(entity);
-            } catch (ClassNotFoundException ex) {
-                return new DefaultContainerVisualizationFactory()
-                        .createVisualization(entity)
-                        .generatePanel();
-            } catch (NoSuchMethodException ex) {
-                return new DefaultContainerVisualizationFactory()
-                        .createVisualization(entity)
-                        .generatePanel();
-            } catch (SecurityException ex) {
-                return new DefaultContainerVisualizationFactory()
-                        .createVisualization(entity)
-                        .generatePanel();
-            } catch (InstantiationException ex) {
-                return new DefaultContainerVisualizationFactory()
-                        .createVisualization(entity)
-                        .generatePanel();
-            } catch (IllegalAccessException ex) {
-                return new DefaultContainerVisualizationFactory()
-                        .createVisualization(entity)
-                        .generatePanel();
-            } catch (IllegalArgumentException ex) {
+            } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException ex) {
                 return new DefaultContainerVisualizationFactory()
                         .createVisualization(entity)
                         .generatePanel();

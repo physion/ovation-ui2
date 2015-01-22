@@ -29,6 +29,7 @@ import org.openide.windows.WindowManager;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
+import us.physion.ovation.domain.Folder;
 import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.actions.spi.ResourceLookupProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -293,7 +294,7 @@ public final class DataViewerTopComponent extends TopComponent {
         }
         int progressWorkUnit = 0;
 
-        List<Resource> Resources = Lists.newLinkedList();
+        List<Resource> resources = Lists.newLinkedList();
         List<IEntityNode> containers = Lists.newLinkedList();
 
         for (IEntityNode n : entityNodes) {
@@ -317,11 +318,13 @@ public final class DataViewerTopComponent extends TopComponent {
                 } else if (container instanceof AnalysisRecord) {
                     containers.add(n);
                     //Resources.addAll(Sets.newHashSet(container.getResources().values()));
+                } else if (container instanceof Folder) {
+                    containers.add(n);
                 } else {
-                    Resources.addAll(Sets.newHashSet(container.getResourcesMap().values()));
+                    resources.addAll(Sets.newHashSet(container.getResourcesMap().values()));
                 }
             } else if (Resource.class.isAssignableFrom(ew.getType())) {
-                Resources.add((Resource) ew.getEntity());
+                resources.add((Resource) ew.getEntity());
             } else {
                 containers.add(n);
             }
@@ -334,7 +337,7 @@ public final class DataViewerTopComponent extends TopComponent {
         List<DataVisualization> dataVisualizations = Lists.newLinkedList();
         List<ContainerVisualization> containerVisualizations = Lists.newLinkedList();
 
-        for (Resource rw : Resources) {
+        for (Resource rw : resources) {
             boolean added = false;
             for (DataVisualization group : dataVisualizations) {
                 if (group.shouldAdd(rw)) {
@@ -350,6 +353,7 @@ public final class DataViewerTopComponent extends TopComponent {
         }
 
         for (IEntityNode n : containers) {
+
             containerVisualizations.add(ResponseWrapperFactory.create(n).createVisualization(n));
         }
 
