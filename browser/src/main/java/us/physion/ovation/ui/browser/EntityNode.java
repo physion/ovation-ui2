@@ -330,7 +330,6 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
     @Override
     public PasteType getDropType(final Transferable t, final int action, int index) {
         final Folder folder = getEntity(Folder.class);
-
         if (folder != null) {
             final Node dropNode = NodeTransfer.node(t, NodeTransfer.COPY | NodeTransfer.MOVE);
 
@@ -356,8 +355,31 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
                         }
                     };
                 }
+                
+                final Folder f = (Folder) ((EntityNode)dropNode).getEntity(Folder.class);
+                if(f != null) {
+                    return new PasteType() {
+                        @Override
+                        public Transferable paste() throws IOException {
+                            if ((action & NodeTransfer.MOVE) != 0) {
+                                Node parentNode = dropNode.getParentNode();
+                                if (parentNode instanceof EntityNode) {
+                                    FolderContainer container = (FolderContainer) ((EntityNode) parentNode).getEntity();
+                                    if(container != null) {
+                                        container.removeFolder(f);
+                                    }
+                                }
+                            }
+
+                            folder.addFolder(f);
+
+                            return null;
+                        } 
+                    };
+                }
             }
         }
+        
 
         return null;
     }
