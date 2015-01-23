@@ -2,8 +2,6 @@ package us.physion.ovation.ui.browser;
 
 import com.google.common.collect.Maps;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -14,6 +12,7 @@ import javax.swing.Action;
 import org.openide.nodes.*;
 import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.PasteType;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
@@ -27,7 +26,6 @@ import us.physion.ovation.ui.actions.AddFolderAction;
 import us.physion.ovation.ui.actions.OpenInSeparateViewAction;
 import us.physion.ovation.ui.actions.RevealElementAction;
 import static us.physion.ovation.ui.browser.ActionUtils.appendToArray;
-import us.physion.ovation.ui.browser.dnd.FolderFlavor;
 import us.physion.ovation.ui.browser.dnd.ResourceFlavor;
 import us.physion.ovation.ui.interfaces.*;
 
@@ -42,6 +40,8 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
     private static Map<String, Class> insertableMap = createMap();
     private URI uri;
     private EntityChildrenChildFactory childFactory;
+
+    Logger logger = LoggerFactory.getLogger(EntityNode.class);
 
     public EntityNode(Children c, Lookup l, IEntityWrapper entity) {
         this(c, l, new URITreePathProviderImpl(), entity);
@@ -257,6 +257,7 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
 
                 if (Resource.class.isAssignableFrom(entityClass)) {
                     actionList = appendToArray(actionList, new RevealElementAction((Resource) entityWrapper.getEntity()));
+                    //actionList = appendToArray(actionList, CutAction.get(CutAction.class));
                 }
 
                 if (AnalysisRecord.class.isAssignableFrom(entityClass)) {
@@ -294,15 +295,44 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
         return actionList;
     }
 
-    Logger logger = LoggerFactory.getLogger(EntityNode.class);
+    @Override
+    protected void createPasteTypes(Transferable t, List<PasteType> s) {
+        super.createPasteTypes(t, s);
+        PasteType p = getDropType(t, 0, 0);
+        if (p != null) {
+            s.add(p);
+        }
+    }
+
+    @Override
+    public boolean canCut() {
+        return true;
+    }
+
+    @Override
+    public boolean canCopy() {
+        return true;
+    }
+
+    @Override
+    public Transferable clipboardCut() throws IOException {
+        Transferable deflt = super.clipboardCut();
+        ExTransferable added = ExTransferable.create(deflt);
+        added.put(new ExTransferable.Single(ResourceFlavor.RESOURCE_FLAVOR) {
+            @Override
+            protected Resource getData() {
+                return getLookup().lookup(Resource.class);
+            }
+        });
+        return added;
+    }
 
     @Override
     public PasteType getDropType(final Transferable t, final int action, int index) {
         final Folder folder = getEntity(Folder.class);
 
         if (folder != null) {
-            final Node dropNode = NodeTransfer.node(t,
-                    DnDConstants.ACTION_COPY_OR_MOVE + NodeTransfer.CLIPBOARD_CUT);
+            final Node dropNode = NodeTransfer.node(t, NodeTransfer.COPY | NodeTransfer.MOVE);
 
             if (null != dropNode && dropNode instanceof EntityNode) {
 
@@ -311,17 +341,16 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
                     return new PasteType() {
                         @Override
                         public Transferable paste() throws IOException {
-                            if ((action & DnDConstants.ACTION_MOVE) != 0) {
-                                for (Folder f : r.getFolders()) {
-                                    if (!f.equals(folder)) {
-                                        f.removeResource(r);
-                                    }
+                            if ((action & NodeTransfer.MOVE) != 0) {
+                                Node parentNode = dropNode.getParentNode();
+                                if (parentNode instanceof EntityNode) {
+                                    Folder f = ((EntityNode) parentNode).getEntity(Folder.class);
+                                    f.removeResource(r);
                                 }
                             }
 
                             folder.addResource(r);
 
-                            refresh();
 
                             return null;
                         }
@@ -331,62 +360,6 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
         }
 
         return null;
-
-//        Class entityClass = getEntity().getClass();
-//        if (FolderContainer.class.isAssignableFrom(entityClass) && t.isDataFlavorSupported(FolderFlavor.FOLDER_FLAVOR)) {
-//            return new PasteType() {
-//
-//                @Override
-//                public Transferable paste() throws IOException {
-//                    try {
-//                        FolderContainer container = ((FolderContainer) getEntity());
-//                        Folder folder = (Folder) t.getTransferData(FolderFlavor.FOLDER_FLAVOR);
-//                        final Node node = NodeTransfer.node(t, NodeTransfer.DND_MOVE + NodeTransfer.CLIPBOARD_CUT);
-//                        if (node != null) {
-//                            for (FolderContainer c : folder.getParents()) {
-//                                if (!c.equals(container)) {
-//                                    c.removeFolder(folder);
-//                                }
-//                            }
-//                        }
-//                        container.addFolder(folder);
-//
-//
-//                    } catch (UnsupportedFlavorException ex) {
-//                        logger.error("Unable to paste Folder node", ex);
-//                    }
-//
-//                    return null;
-//
-//                }
-//
-//            };
-//        } else if (Folder.class.isAssignableFrom(entityClass) && t.isDataFlavorSupported(ResourceFlavor.RESOURCE_FLAVOR)) {
-//            return new PasteType() {
-//
-//                @Override
-//                public Transferable paste() throws IOException {
-//                    try {
-//                        Folder folder = getEntity(Folder.class);
-//                        Resource r = (Resource) t.getTransferData(ResourceFlavor.RESOURCE_FLAVOR);
-//                        final Node node = NodeTransfer.node(t, NodeTransfer.DND_MOVE + NodeTransfer.CLIPBOARD_CUT);
-//                        if (node != null) {
-//                            for (Folder f : r.getFolders()) {
-//                                if (!f.equals(folder)) {
-//                                    f.removeResource(r);
-//                                }
-//                            }
-//                        }
-//                        folder.addResource(r);
-//                    } catch (UnsupportedFlavorException ex) {
-//                        logger.error("Unable to paste Resource node", ex);
-//                    }
-//                    return null;
-//                }
-//            };
-//        } else {
-//            return null;
-//        }
     }
 
     private static Map<String, Class> createMap() {

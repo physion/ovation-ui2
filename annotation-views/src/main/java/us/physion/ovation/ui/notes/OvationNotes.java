@@ -180,7 +180,7 @@ class OvationNotes extends NotesUi {
         
         noteSource = source;
         Multimap<User, NoteAnnotation> nodes = noteSource.getNotes();
-        final List<Map.Entry<User, NoteAnnotation>> list = new ArrayList<Map.Entry<User, NoteAnnotation>>(nodes.entries());
+        final List<Map.Entry<User, NoteAnnotation>> list = new ArrayList<>(nodes.entries());
         Collections.sort(list, new Comparator<Map.Entry<User, NoteAnnotation>>() {
             @Override
             public int compare(Map.Entry<User, NoteAnnotation> a, Map.Entry<User, NoteAnnotation> b) {
