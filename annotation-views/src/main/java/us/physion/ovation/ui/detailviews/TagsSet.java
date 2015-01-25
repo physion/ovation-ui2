@@ -19,7 +19,7 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
  *
  * @author huecotanks
  */
-public class TagsSet extends PerUserAnnotationSet{//TODO make a baseclass that they both inherit from!
+public class TagsSet extends PerUserAnnotationSet{
 
     List<String> tags;
     Map<String, Object> properties;
@@ -36,8 +36,9 @@ public class TagsSet extends PerUserAnnotationSet{//TODO make a baseclass that t
         return tags;
     }
 
+    @Override
     protected void refreshAnnotations(User u, Iterable<OvationEntity> entities) {
-        this.tags = new ArrayList<String>();
+        this.tags = new ArrayList<>();
         for (OvationEntity eb: entities)
         {
             tags.addAll(Sets.newHashSet(((KeywordAnnotatable)eb).getUserTags(u)));
@@ -45,6 +46,7 @@ public class TagsSet extends PerUserAnnotationSet{//TODO make a baseclass that t
         Collections.sort(tags);
     }
 
+    @Override
     public String getDisplayName() {
         return getDisplayName("Tags");
     }
@@ -85,6 +87,7 @@ public class TagsSet extends PerUserAnnotationSet{//TODO make a baseclass that t
         m.setColumn(0, getTags());
         return m;
     }
+    @Override
     public Object[][] getData()
     {
         Object[][] data = new Object[tags.size()][1];

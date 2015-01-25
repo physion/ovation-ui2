@@ -108,7 +108,7 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
 
     @Override
     public <T extends OvationEntity> T getEntity(Class<T> clazz) {
-        return getEntityWrapper().getEntity(clazz);
+        return getEntityWrapper() == null ? null : getEntityWrapper().getEntity(clazz);
     }
 
     @Override
@@ -326,6 +326,19 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
         });
         return added;
     }
+    
+    private Project rootProject(Node n) {
+        OvationEntity e = ((EntityNode) n).getEntity();
+        while (!(e instanceof Project)) {
+            n = n.getParentNode();
+            if (n == null || !(n instanceof EntityNode)) {
+                return null;
+            }
+
+            e = ((EntityNode) n).getEntity();
+        }
+        return (Project) e;
+    }
 
     @Override
     public PasteType getDropType(final Transferable t, final int action, int index) {
@@ -334,12 +347,20 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
             final Node dropNode = NodeTransfer.node(t, NodeTransfer.COPY | NodeTransfer.MOVE);
 
             if (null != dropNode && dropNode instanceof EntityNode) {
+                
+                final Project dropRoot = rootProject(dropNode);
+                final Project targetRoot = rootProject(this);
+                
+                if(!dropRoot.equals(targetRoot)) {
+                    return null;
+                }
 
                 final Resource r = (Resource) ((EntityNode) dropNode).getEntity(Resource.class);
                 if (r != null) {
                     return new PasteType() {
                         @Override
                         public Transferable paste() throws IOException {
+                            
                             if ((action & NodeTransfer.MOVE) != 0) {
                                 Node parentNode = dropNode.getParentNode();
                                 if (parentNode instanceof EntityNode) {
@@ -348,6 +369,7 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
                                 }
                             }
 
+                            
                             folder.addResource(r);
 
 

@@ -76,7 +76,7 @@ public final class ParametersTopComponent extends TopComponent {
     {
         this.entities = entities;
 
-        Map<String, Map<String, Object>> tables = new HashMap<String, Map<String, Object>>();
+        Map<String, Map<String, Object>> tables = new HashMap<>();
         for (IEntityWrapper ew : entities)
         {
             OvationEntity eb = ew.getEntity();
@@ -95,7 +95,7 @@ public final class ParametersTopComponent extends TopComponent {
                 addParams(tables, "Analysis Parameters", ((AnalysisRecord) ((Resource) eb).getContainingEntity()).getProtocolParameters());
             }
         }
-        ArrayList<TableTreeKey> tableKeys = new ArrayList<TableTreeKey>();
+        List<TableTreeKey> tableKeys = new ArrayList<>();
         for (String key: tables.keySet())
         {
             tableKeys.add(new ParameterSet(key, tables.get(key)));

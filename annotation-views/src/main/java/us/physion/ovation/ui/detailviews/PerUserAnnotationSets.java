@@ -32,7 +32,7 @@ public class PerUserAnnotationSets {
     static List<TableTreeKey> createPropertySets(Collection<? extends IEntityWrapper> entityWrappers, DataContext c)
     {
         Entities entities = digestEntities(c, entityWrappers);
-        List<TableTreeKey> properties = new ArrayList<TableTreeKey>();
+        List<TableTreeKey> properties = new ArrayList<>();
         
         for (User u : c.getUsers()) {
             UserPropertySet propertySet = entities.getUserPropertySet(u);
@@ -53,12 +53,11 @@ public class PerUserAnnotationSets {
     static List<TableTreeKey> createTagSets(Collection<? extends IEntityWrapper> entityWrappers, DataContext c)
     {
         Entities entities = digestEntities(c, entityWrappers);
-        List<TableTreeKey> tags = new ArrayList<TableTreeKey>();
+        List<TableTreeKey> tags = new ArrayList<>();
         
-        for (User u : c.getUsers()) {
+        for (User u : c.getUsers()) { //TODO this is dumb; get the users from entities
             TagsSet tagSet = entities.getUserTagsSet(u);
-            if (!tagSet.getTags().isEmpty())
-            {
+            if (!tagSet.getTags().isEmpty()) {
                 tags.add(tagSet);
             }
         }
@@ -72,13 +71,11 @@ public class PerUserAnnotationSets {
         return tags;
     }
     
-    private static boolean isUserAuthenticated(User u, DataContext c) {
-        return c.getAuthenticatedUser().getUuid().equals(u.getUuid());
-    }
     static Entities digestEntities(DataContext c, Collection<? extends IEntityWrapper> entities)
     {
         return new Entities(c, entities);
     }
+    
     static class Entities{
         Set<String> uris;
         Set<OvationEntity> entitybases;
@@ -110,6 +107,8 @@ public class PerUserAnnotationSets {
             }
             return userProps;
         }
+        
+        
         private List<String> getTags(User u)
         {
             List<String> tags = new LinkedList();
