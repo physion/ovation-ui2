@@ -25,6 +25,7 @@ import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.actions.AddFolderAction;
 import us.physion.ovation.ui.actions.OpenInSeparateViewAction;
 import us.physion.ovation.ui.actions.RevealElementAction;
+import us.physion.ovation.ui.actions.UpdateResourceAction;
 import static us.physion.ovation.ui.browser.ActionUtils.appendToArray;
 import us.physion.ovation.ui.browser.dnd.ResourceFlavor;
 import us.physion.ovation.ui.interfaces.*;
@@ -257,6 +258,7 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
 
                 if (Resource.class.isAssignableFrom(entityClass)) {
                     actionList = appendToArray(actionList, new RevealElementAction((Resource) entityWrapper.getEntity()));
+                    actionList = appendToArray(actionList, new UpdateResourceAction((Resource)entityWrapper.getEntity()));
                     //actionList = appendToArray(actionList, CutAction.get(CutAction.class));
                 }
 
