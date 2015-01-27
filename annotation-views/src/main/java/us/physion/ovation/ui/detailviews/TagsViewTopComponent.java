@@ -1,9 +1,8 @@
 /**
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * To change this template, choose Tools | Templates and open the template in
+ * the editor.
  */
 package us.physion.ovation.ui.detailviews;
-
 
 import java.awt.Color;
 import java.util.*;
@@ -27,19 +26,18 @@ import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
-
 @ConvertAsProperties(dtd = "-//us.physion.ovation.detailviews//TagsView//EN",
-autostore = false)
+        autostore = false)
 @TopComponent.Description(preferredID = "TagsViewTopComponent",
-//iconBase="SET/PATH/TO/ICON/HERE",
-persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+        //iconBase="SET/PATH/TO/ICON/HERE",
+        persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "properties", openAtStartup = true)
 @ActionID(category = "Window", id = "us.physion.ovation.detailviews.TagsViewTopComponent")
 @ActionReference(path = "Menu/Window" /*
  * , position = 333
  */)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_TagsViewAction",
-preferredID = "TagsViewTopComponent")
+        preferredID = "TagsViewTopComponent")
 @Messages({
     "CTL_TagsViewAction=Keyword Tags",
     "CTL_TagsViewTopComponent=Keywords",
@@ -47,7 +45,7 @@ preferredID = "TagsViewTopComponent")
 })
 public final class TagsViewTopComponent extends TopComponent {
 
-    private DefaultComboBoxModel tagComboModel = new DefaultComboBoxModel(new String[] {});
+    private DefaultComboBoxModel tagComboModel = new DefaultComboBoxModel(new String[]{});
     Lookup.Result global;
     private Collection<? extends IEntityWrapper> entities;
     private LookupListener listener = new LookupListener() {
@@ -57,8 +55,7 @@ public final class TagsViewTopComponent extends TopComponent {
 
             //TODO: we should have some other Interface for things that can update the tags view
             //then we could get rid of the Library dependancy on the Explorer API
-            if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider)
-            {
+            if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider) {
                 update();
             }
         }
@@ -74,21 +71,17 @@ public final class TagsViewTopComponent extends TopComponent {
         });
     }
 
-    protected void update()
-    {
+    protected void update() {
         entities = global.allInstances();
-        EventQueueUtilities.runOffEDT(new Runnable()
-        {
+        EventQueueUtilities.runOffEDT(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 update(entities, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
             }
         });
     }
 
-    protected List<TableTreeKey> update(Collection<? extends IEntityWrapper> entities, DataContext c)
-    {
+    protected List<TableTreeKey> update(Collection<? extends IEntityWrapper> entities, DataContext c) {
         List<TableTreeKey> tags = PerUserAnnotationSets.createTagSets(entities, c);
         ((ScrollableTableTree) tagTree).setKeys(tags);
 
@@ -97,22 +90,19 @@ public final class TagsViewTopComponent extends TopComponent {
     }
 
     //TODO: refactor
-    protected void updateTagList(String[] newTags)
-    {
+    protected void updateTagList(String[] newTags) {
         JTree tree = ((ScrollableTableTree) tagTree).getTree();
-        DefaultMutableTreeNode n = (DefaultMutableTreeNode)((DefaultTreeModel)tree.getModel()).getRoot();
+        DefaultMutableTreeNode n = (DefaultMutableTreeNode) ((DefaultTreeModel) tree.getModel()).getRoot();
 
-        DefaultMutableTreeNode currentUserNode = (DefaultMutableTreeNode)n.getChildAt(0);
-        final DefaultMutableTreeNode tagTableNode = (DefaultMutableTreeNode)currentUserNode.getChildAt(0);
-        if (tagTableNode instanceof TableNode)
-        {
-            final TableNode node = (TableNode)tagTableNode;
-            EditableTableModel m = ((EditableTableModel)node.getPanel().getTable().getModel());
-            for (String tag : newTags)
-            {
-                m.setValueAt(tag, m.getRowCount() -1, 0);
+        DefaultMutableTreeNode currentUserNode = (DefaultMutableTreeNode) n.getChildAt(0);
+        final DefaultMutableTreeNode tagTableNode = (DefaultMutableTreeNode) currentUserNode.getChildAt(0);
+        if (tagTableNode instanceof TableNode) {
+            final TableNode node = (TableNode) tagTableNode;
+            EditableTableModel m = ((EditableTableModel) node.getPanel().getTable().getModel());
+            for (String tag : newTags) {
+                m.setValueAt(tag, m.getRowCount() - 1, 0);
             }
-            ((ScrollableTableTree)tagTree).resizeNode(node);
+            ((ScrollableTableTree) tagTree).resizeNode(node);
         }
     }
 
@@ -196,14 +186,15 @@ public final class TagsViewTopComponent extends TopComponent {
 
     private void addTagComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTagComboBoxActionPerformed
 
-        if (evt.getActionCommand().equals("comboBoxEdited"))
-        {
+        if (evt.getActionCommand().equals("comboBoxChanged")) {
             //add tag
             String tags = addTagComboBox.getSelectedItem().toString();
-            addTags(entities, tags);
-            tagComboModel.removeAllElements();
-            addTagComboBox.setSelectedItem("");
-            addTagComboBox.setSelectedItem(null);
+            if (!tags.isEmpty()) {
+                addTags(entities, tags);
+                tagComboModel.removeAllElements();
+                addTagComboBox.setSelectedItem("");
+                addTagComboBox.setSelectedItem(null);
+            }
         }
     }//GEN-LAST:event_addTagComboBoxActionPerformed
 
