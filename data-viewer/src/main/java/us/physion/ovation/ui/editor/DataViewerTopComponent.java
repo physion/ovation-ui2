@@ -277,7 +277,7 @@ public final class DataViewerTopComponent extends TopComponent {
 
     protected List<DataVisualization> updateEntitySelection(Collection<? extends IEntityNode> nodes, ProgressHandle progress) {
 
-        Set<IEntityNode> entityNodes = new TreeSet<IEntityNode>(new Comparator<IEntityNode>() {
+        Set<IEntityNode> entityNodes = new TreeSet<>(new Comparator<IEntityNode>() {
 
             @Override
             public int compare(IEntityNode o1, IEntityNode o2) {
@@ -304,20 +304,9 @@ public final class DataViewerTopComponent extends TopComponent {
                 ResourcesContainer container = (ResourcesContainer) (ew.getEntity());//getEntity gets the context for the given thread
 
                 if (container instanceof Epoch) {
-                    /*
-                     List<AnalysisRecord> analysisRecords                            = Lists.newArrayList(((Epoch) container).getAnalysisRecords());
-                    if (analysisRecords.size() > 0) {
-                        for (AnalysisRecord a : analysisRecords) {
-                            Resources.addAll(Sets.newHashSet(a.getOutputs().values()));
-                        }
-                    } else {
-                        Resources.addAll(Sets.newHashSet(container.getResources().values()));
-                    }
-                     */
                     containers.add(n);
                 } else if (container instanceof AnalysisRecord) {
                     containers.add(n);
-                    //Resources.addAll(Sets.newHashSet(container.getResources().values()));
                 } else if (container instanceof Folder) {
                     containers.add(n);
                 } else {
@@ -348,7 +337,7 @@ public final class DataViewerTopComponent extends TopComponent {
             }
             if (!added) {
                 Resource r = (Resource) rw;
-                dataVisualizations.add(ResponseWrapperFactory.create(rw).createVisualization(rw));
+                dataVisualizations.add(ResponseWrapperFactory.create(r).createVisualization(r));
             }
         }
 
@@ -364,8 +353,9 @@ public final class DataViewerTopComponent extends TopComponent {
 
         List<Component> visualizationComponents = Lists.newLinkedList();
         for (DataVisualization v : dataVisualizations) {
+            final JComponent vizPanel = v.generatePanel();
             JComponent visualizationChrome
-                    = new ResourceVisualizationChrome(v.generatePanel(),
+                    = new ResourceVisualizationChrome(vizPanel,
                             v.generateInfoPanel());
 
             visualizationComponents.add(visualizationChrome);

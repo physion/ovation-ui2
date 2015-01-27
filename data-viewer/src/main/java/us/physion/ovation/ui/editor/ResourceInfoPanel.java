@@ -43,6 +43,10 @@ import java.awt.event.ItemListener;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +71,6 @@ import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.Resource;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.OvationException;
@@ -83,7 +86,8 @@ import us.physion.ovation.ui.reveal.api.RevealNode;
  */
 @Messages({
     "Adding_source=Adding Source {0}",
-    "Resource_Multiple_Content_Types=<Multiple>"
+    "Resource_Multiple_Content_Types=<Multiple>",
+    "ResourceInfoPanel_Drop_Files_For_New_Revision=Drop files to create new revision"
 })
 public class ResourceInfoPanel extends javax.swing.JPanel {
 
@@ -101,6 +105,10 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
 
         initComponents();
 
+        initUi();
+    }
+
+    private void initUi() {
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(getAvailableContentTypes().toArray(new String[0]));
         contentTypeComboBox.setModel(model);
         contentTypeComboBox.setSelectedItem(getContentType());
@@ -115,7 +123,6 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
                 }
             }
         });
-
 
         final DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
 
@@ -141,21 +148,45 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
             logger.error("Unable to retrieve Sources. Autocomplete for Source IDs disabled.");
         }
 
+        revisionFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.ResourceInfoPanel_Drop_Files_For_New_Revision()) {
 
-//        addSourcesComboBox.addActionListener(new ActionListener() {
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                JComboBox c = (JComboBox) e.getSource();
-//                JTextComponent tc = (JTextComponent) c.getEditor().getEditorComponent();
-//                addSourceFromText(ctx, tc.getText());
-//            }
-//        });
-//
-//        addSourcesComboBox.setModel(new DefaultComboBoxModel<>(sortedIds.toArray(new String[sortedIds.size()])));
-//        addSourcesComboBox.setEnabled(getMeasurements().size() > 0);
-//        addSourcesComboBox.setVisible(getMeasurements().size() > 0);
-//        AutoCompleteDecorator.decorate(addSourcesComboBox);
+            @Override
+            public void filesDropped(File[] files) {
+                if (files.length == 0 || getResources().size() > 1) {
+                    return;
+                }
+
+                for (Resource r : getResources()) {
+                    try {
+                        File main = null;
+                        List<URL> supporting = Lists.newLinkedList();
+                        for (File f : files) {
+                            if (f.getName().equals(r.getFilename())) {
+                                main = f;
+                            } else {
+                                supporting.add(f.toURI().toURL());
+                            }
+
+                        }
+
+                        if (main == null) {
+                            main = files[0];
+                            supporting.remove(0);
+                        }
+                        
+                        r.addRevision(main.toURI().toURL(),
+                                ContentTypes.getContentType(main),
+                                main.getName(),
+                                supporting);
+
+                    } catch (MalformedURLException ex) {
+                        throw new OvationException("Unable to create new revision", ex);
+                    } catch (IOException ex) {
+                        throw new OvationException("Unable to create new revision", ex);
+                    }
+                }
+            }
+        });
 
         updateInputs();
     }
@@ -248,22 +279,23 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        metadataPanel = new javax.swing.JPanel();
+        addInputsLabel = new javax.swing.JLabel();
         addSourcesTextField = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         inputsTextPane = new javax.swing.JTextPane();
-        jLabel2 = new javax.swing.JLabel();
+        formatLabel = new javax.swing.JLabel();
         contentTypeComboBox = new javax.swing.JComboBox();
+        revisionFileWell = new us.physion.ovation.ui.editor.FileWell();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
+        setLayout(new java.awt.BorderLayout());
 
-        jPanel1.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ResourceInfoPanel.class, "ResourceInfoPanel.jPanel1.border.title"))); // NOI18N
+        metadataPanel.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
+        metadataPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ResourceInfoPanel.class, "ResourceInfoPanel.metadataPanel.border.title"))); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ResourceInfoPanel.class, "ResourceInfoPanel.jLabel1.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(addInputsLabel, org.openide.util.NbBundle.getMessage(ResourceInfoPanel.class, "ResourceInfoPanel.addInputsLabel.text")); // NOI18N
 
-        addSourcesTextField.setText(org.openide.util.NbBundle.getMessage(ResourceInfoPanel.class, "ResourceInfoPanel.addSourcesTextField.text")); // NOI18N
         addSourcesTextField.setToolTipText(org.openide.util.NbBundle.getMessage(ResourceInfoPanel.class, "ResourceInfoPanel.addSourcesTextField.toolTipText")); // NOI18N
         addSourcesTextField.setBorder(new javax.swing.border.LineBorder(javax.swing.UIManager.getDefaults().getColor("InternalFrame.background"), 1, true));
 
@@ -272,71 +304,60 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
         inputsTextPane.setBorder(null);
         jScrollPane1.setViewportView(inputsTextPane);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(ResourceInfoPanel.class, "ResourceInfoPanel.jLabel2.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(formatLabel, org.openide.util.NbBundle.getMessage(ResourceInfoPanel.class, "ResourceInfoPanel.formatLabel.text")); // NOI18N
 
         contentTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout metadataPanelLayout = new javax.swing.GroupLayout(metadataPanel);
+        metadataPanel.setLayout(metadataPanelLayout);
+        metadataPanelLayout.setHorizontalGroup(
+            metadataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(metadataPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(metadataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
+                    .addGroup(metadataPanelLayout.createSequentialGroup()
+                        .addComponent(addInputsLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(addSourcesTextField))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel2)
+                    .addGroup(metadataPanelLayout.createSequentialGroup()
+                        .addComponent(formatLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(contentTypeComboBox, 0, 560, Short.MAX_VALUE)))
+                        .addComponent(contentTypeComboBox, 0, 759, Short.MAX_VALUE)))
                 .addContainerGap())
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        metadataPanelLayout.setVerticalGroup(
+            metadataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(metadataPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
+                .addGroup(metadataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(formatLabel)
                     .addComponent(contentTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
+                .addGroup(metadataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addInputsLabel)
                     .addComponent(addSourcesTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(16, 16, 16)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 20, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        addInputsLabel.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ResourceInfoPanel.class, "ResourceInfoPanel.addInputsLabel.AccessibleContext.accessibleName")); // NOI18N
+
+        add(metadataPanel, java.awt.BorderLayout.CENTER);
+        add(revisionFileWell, java.awt.BorderLayout.SOUTH);
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel addInputsLabel;
     private javax.swing.JTextField addSourcesTextField;
     private javax.swing.JComboBox contentTypeComboBox;
+    private javax.swing.JLabel formatLabel;
     private javax.swing.JTextPane inputsTextPane;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel metadataPanel;
+    private us.physion.ovation.ui.editor.FileWell revisionFileWell;
     // End of variables declaration//GEN-END:variables
 
     Logger logger = LoggerFactory.getLogger(ResourceInfoPanel.class);
@@ -367,7 +388,7 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
 
             @Override
             public void run() {
-                    inputsTextPane.setText("");
+                inputsTextPane.setText("");
 
                 for (Map.Entry<String, Source> namedSource : sources.entries()) {
                     insertInputsPanel(namedSource.getKey(), namedSource.getValue());
