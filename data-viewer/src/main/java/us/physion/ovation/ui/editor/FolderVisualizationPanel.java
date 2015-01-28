@@ -74,14 +74,14 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
                     @Override
                     public Iterable<Resource> call() {
                         final List<Resource> resources = EntityUtilities.insertResources(getFolder(), files);
-                        EventQueueUtilities.runOnEDT(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!resources.isEmpty()) {
-                                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, resources.get(0));
-                                }
-                            }
-                        });
+//                        EventQueueUtilities.runOnEDT(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                if (!resources.isEmpty()) {
+//                                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, resources.get(0));
+//                                }
+//                            }
+//                        });
 
                         return resources;
                     }
