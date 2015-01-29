@@ -16,7 +16,7 @@ public class TabularDataWrapper extends AbstractDataVisualization {
 
     static Logger logger = LoggerFactory.getLogger(TabularDataWrapper.class);
 
-    private final DataElement entity;
+    private final Resource entity;
     private final TabularData data;
 
     TabularDataWrapper(Resource r)

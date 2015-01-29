@@ -222,7 +222,7 @@ public class PDFVisualizationFactory implements VisualizationFactory {
         private final Resource r;
         protected final JPanel content;
 
-        LoadingHelper(Resource r) {
+        public LoadingHelper(Resource r) {
             this.r = r;
             content = new JPanel(new BorderLayout());
             content.setBackground(Color.WHITE);

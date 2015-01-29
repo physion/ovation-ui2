@@ -95,7 +95,7 @@ public class QuerySet {
         }
     }
 
-    protected static Set<List<IEntityWrapper>> getPathsToEntity(OvationEntity e, List<IEntityWrapper> path) {
+    public static Set<List<IEntityWrapper>> getPathsToEntity(OvationEntity e, List<IEntityWrapper> path) {
         Set<List<IEntityWrapper>> paths = Sets.newHashSet();
 
         if (isPerUser(e)) {

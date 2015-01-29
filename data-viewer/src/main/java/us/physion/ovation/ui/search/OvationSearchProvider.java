@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.search;
 
+import com.google.common.collect.Lists;
 import java.awt.Toolkit;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -90,7 +91,7 @@ public class OvationSearchProvider implements SearchProvider {
     }
 
     private void addAllPaths(/* @NotNull */OvationEntity ent, /* @NotNull */ SearchResponse response) {
-        for (List<IEntityWrapper> path : QuerySet.getPathsToEntity(ent)) {
+        for (List<IEntityWrapper> path : QuerySet.getPathsToEntity(ent, Lists.<IEntityWrapper>newArrayList())) {
             //path starts with ent and ends with a top-level parent (Project/Source/Protocol)
 
             final List<IEntityWrapper> revealPath = path;
