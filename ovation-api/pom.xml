@@ -75,6 +75,7 @@
                         <publicPackage>com.google.common.eventbus.*</publicPackage>
                         <publicPackage>com.google.common.io.*</publicPackage>
                         <publicPackage>com.google.common.cache.*</publicPackage>
+                        <publicPackage>com.google.common.net.*</publicPackage>
                         <publicPackage>com.google.common.annotations.*</publicPackage>
                         <publicPackage>edu.wisc.ssec.mcidas.*</publicPackage>
                         <publicPackage>edu.wisc.ssec.mcidas.adde.*</publicPackage>
@@ -101,6 +102,8 @@
                         <publicPackage>us.physion.ovation.logging.*</publicPackage>
                         <publicPackage>visad.jmet</publicPackage>
                         <publicPackage>javax.inject.*</publicPackage>
+                        <publicPackage>javax.annotation.*</publicPackage>
+                        <publicPackage>javax.annotation.meta.*</publicPackage>
                         <publicPackage>com.mchange.v2.c3p0.*</publicPackage>
 
                         <publicPackage>rx.*</publicPackage>
