@@ -32,6 +32,14 @@ public final class FilteredTreeViewPanel extends javax.swing.JPanel {
                 Actions.forID("Edit", actionId).actionPerformed(e);
             }
         });
+        //see https://developer.apple.com/library/mac/technotes/tn2007/tn2196.html#SEGMENTED_BUTTONS
+        experimentToggle.putClientProperty("JButton.segmentPosition", "first"); //NOI18N
+        epochGroupToggle.putClientProperty("JButton.segmentPosition", "middle"); //NOI18N
+        epochToggle.putClientProperty("JButton.segmentPosition", "last"); //NOI18N
+
+        for (JToggleButton b : new JToggleButton[]{epochGroupToggle, epochToggle, experimentToggle}) {
+            b.putClientProperty("JButton.buttonType", "segmentedTextured"); //NOI18N
+        }
     }
 
     public JToggleButton getEpochGroupToggle() {
@@ -121,7 +129,6 @@ public final class FilteredTreeViewPanel extends javax.swing.JPanel {
         javax.swing.JSplitPane jSplitPane1 = new javax.swing.JSplitPane();
         treeView = new BeanTreeView();
         javax.swing.JToolBar jToolBar1 = new javax.swing.JToolBar();
-        jLabel1 = new javax.swing.JLabel();
         experimentToggle = new javax.swing.JToggleButton();
         epochGroupToggle = new javax.swing.JToggleButton();
         epochToggle = new javax.swing.JToggleButton();
@@ -137,9 +144,6 @@ public final class FilteredTreeViewPanel extends javax.swing.JPanel {
         jToolBar1.setBackground(javax.swing.UIManager.getDefaults().getColor("NbExplorerView.background"));
         jToolBar1.setFloatable(false);
         jToolBar1.setForeground(javax.swing.UIManager.getDefaults().getColor("NbExplorerView.background"));
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(FilteredTreeViewPanel.class, "FilteredTreeViewPanel.jLabel1.text")); // NOI18N
-        jToolBar1.add(jLabel1);
 
         experimentToggle.setIcon(new javax.swing.ImageIcon(getClass().getResource("/us/physion/ovation/ui/browser/experiment.png"))); // NOI18N
         experimentToggle.setSelected(true);
@@ -200,7 +204,6 @@ public final class FilteredTreeViewPanel extends javax.swing.JPanel {
     private javax.swing.JToggleButton epochToggle;
     private javax.swing.JToggleButton experimentToggle;
     private javax.swing.Box.Filler filler1;
-    private javax.swing.JLabel jLabel1;
     private org.jdesktop.swingx.JXHyperlink newRootEntityLink;
     private javax.swing.JScrollPane treeView;
     // End of variables declaration//GEN-END:variables

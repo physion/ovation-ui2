@@ -20,6 +20,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.io.File;
@@ -216,7 +217,7 @@ public class PDFVisualizationFactory implements VisualizationFactory {
         return PDF_MIMETYPE.equals(r.getDataContentType()) ? 100 : -1;
     }
 
-    abstract static class LoadingHelper {
+    public abstract static class LoadingHelper {
 
         private final Resource r;
         protected final JPanel content;
@@ -224,6 +225,7 @@ public class PDFVisualizationFactory implements VisualizationFactory {
         LoadingHelper(Resource r) {
             this.r = r;
             content = new JPanel(new BorderLayout());
+            content.setBackground(Color.WHITE);
             content.add(new JLabel(Bundle.LBL_PDFLoading()), BorderLayout.CENTER);
         }
 

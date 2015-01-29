@@ -362,7 +362,8 @@ public final class DataViewerTopComponent extends TopComponent {
         }
 
         for (ContainerVisualization v : containerVisualizations) {
-            visualizationComponents.add(v.generatePanel());
+            JScrollPane sp = new JScrollPane(v.generatePanel());
+            visualizationComponents.add(sp);
         }
 
         EventQueueUtilities.runOnEDT(updateVisualizationComponents(visualizationComponents));

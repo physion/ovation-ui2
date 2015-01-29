@@ -49,6 +49,11 @@ public class SelectInProjectNavigatorActionFactoryImpl implements SelectInProjec
                 kind == PathType.ProjectPath ? BrowserUtilities.PROJECT_BROWSER_ID : BrowserUtilities.SOURCE_BROWSER_ID);
     }
 
+    @Override
+    public Action select(String explorerTopComponentID, List<URI> path) {
+        return new OpenNodeInBrowserAction(path, null, false, null, explorerTopComponentID);
+    }
+
     //XXX: This should be moved in some Utils class
     //XXX: Also see OvationSearchProvider.getURIPath
     private PathType buildPath(Identity data, List<URI> path) {

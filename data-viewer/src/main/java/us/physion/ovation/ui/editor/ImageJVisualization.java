@@ -1,21 +1,16 @@
 package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Sets;
+import ij.ImagePlus;
+import loci.plugins.BF;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import loci.formats.FormatException;
-import loci.formats.IFormatReader;
-import loci.formats.ImageReader;
-import loci.formats.gui.BufferedImageReader;
 import org.openide.util.NbBundle.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +29,12 @@ public class ImageJVisualization extends AbstractDataVisualization {
 
     Logger logger = LoggerFactory.getLogger(ImageJVisualization.class);
 
-    File imageFile = null;
-    IFormatReader reader = null;
+    JPanel panel;
 
     ImageJVisualization(Resource d) {
         super(Sets.newHashSet(d));
 
+        File imageFile;
         try {
             imageFile = d.getData().get();
         } catch (InterruptedException | ExecutionException ex) {
@@ -47,43 +42,42 @@ public class ImageJVisualization extends AbstractDataVisualization {
         }
 
         // open a file with ImageJ
-        if (imageFile != null) {
-
-            reader = new ImageReader();
-            try {
-                reader.setId(imageFile.getCanonicalPath());
-            } catch (IOException | FormatException ex) {
-                reader = null;
-            }
-        }
-
-    }
-
-    @Override
-    public JComponent generatePanel() {
-        JPanel panel = new JPanel();
-
-        if (reader == null) {
-            panel.setBackground(Color.WHITE);
-            panel.add(new JLabel(Bundle.Unable_to_open_image()));
-        }
-
         try {
-            try (BufferedImageReader r = BufferedImageReader.makeBufferedImageReader(reader);) {
+            if(imageFile == null) {
+                return;
+            }
+            
+            final ImagePlus[] imps = BF.openImagePlus(imageFile.getAbsolutePath());
+            if (imps.length > 0) {
                 panel = new JPanel();
-                int n = (int) Math.ceil(Math.sqrt(r.getImageCount()));
+                int n = (int) Math.ceil(Math.sqrt(imps.length));
                 panel.setLayout(new GridLayout(n, n));
-
-                for (int i = 0; i < n; i++) {
-                    JPanel imagePanel = new ImagePanel(imageFile.getName(), new CroppedImagePanel(imageFile.getCanonicalPath(), i));
+                
+                // TODO if it's really big, scale it
+                
+                for(ImagePlus imp : imps) {
+                    JPanel imagePanel = new ImagePanel(imageFile.getName(), new BufferedImagePanel(imp.getBufferedImage()));
                     panel.add(imagePanel);
                 }
+            } else {
+                panel = new JPanel();
+                panel.setBackground(Color.WHITE);
+                panel.add(new JLabel(Bundle.Unable_to_open_image()));
             }
         } catch (OutOfMemoryError e) {
+            /*try {
+             ImgPlus ip = ImgOpener.open(url);
+             // display the dataset
+             DisplayService displayService = new ImageJ().getService(DisplayService.class);
+             displayService.getActiveDisplay().display(ip);
+             } catch (Exception ex){
+             System.out.println(ex);
+             }*/
+            panel = new JPanel();
             panel.setBackground(Color.WHITE);
             panel.add(new JLabel(Bundle.Out_of_memory()));
 
-        } catch (IOException | FormatException e) {
+        } catch (Throwable e) {
             panel.add(new JLabel(Bundle.Unable_to_open_image()));
 
             if (imageFile != null) {
@@ -93,7 +87,10 @@ public class ImageJVisualization extends AbstractDataVisualization {
                 logger.error(Bundle.Unable_to_open_image(), e);
             }
         }
+    }
 
+    @Override
+    public JComponent generatePanel() {
         return panel;
     }
 
@@ -105,46 +102,5 @@ public class ImageJVisualization extends AbstractDataVisualization {
     @Override
     public void add(Resource r) {
         throw new UnsupportedOperationException("Not supported for this image visualization.");
-    }
-
-    class CroppedImagePanel extends JPanel {
-
-        private final IFormatReader reader;
-        private final int imageNumber;
-
-        CroppedImagePanel(String file, int imageNumber) throws FormatException, IOException {
-            this.reader = new ImageReader();
-            this.reader.setId(file);
-            this.imageNumber = imageNumber;
-        }
-
-        Logger logger = LoggerFactory.getLogger(ScaledImagePanel.class);
-
-        @Override
-        public void paint(Graphics g) {
-            try (BufferedImageReader r = BufferedImageReader.makeBufferedImageReader(reader);) {
-                double height = r.getSizeX();
-                double width = r.getSizeY();
-
-                if (this.getHeight() < height) {
-                    height = this.getHeight();
-                    width = height / r.getSizeY() * r.getSizeX();
-                }
-                if (this.getWidth() < width) {
-                    width = this.getWidth();
-                    height = width / r.getSizeX() * r.getSizeY();
-                }
-                int startX = (int) ((this.getWidth() - width) / 2);
-                int startY = (int) ((this.getHeight() - height) / 2);
-
-                BufferedImage img = r.openImage(imageNumber, 0, 0, Math.min((int) width, r.getSizeX()), Math.min((int) height, r.getSizeY()));
-
-                g.drawImage(img, startX, Math.min(10, startY), (int) width, (int) height, this);
-
-            } catch (IOException | FormatException e) {
-                logger.error(Bundle.Unable_to_open_image(), e);
-            }
-
-        }
     }
 }

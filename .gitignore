@@ -34,3 +34,5 @@ application/src/main/osx/Ovation DMG~.dmgCanvas/Disk Image
 
 *.log
 *.log.gz
+
+*.orig

@@ -37,7 +37,7 @@ public class TabularPanel extends JPanel implements StrictSizePanel {
      * Creates new form TabularDataPanel
      */
     
-    public TabularPanel(TabularDataWrapper w) {
+    public TabularPanel(TabularData w) {
         this.dataWrapper = w;
         initComponents();
         jTable1.setModel(new UnEditableTableModel(dataWrapper.tabularData, dataWrapper.columnNames));
@@ -46,7 +46,7 @@ public class TabularPanel extends JPanel implements StrictSizePanel {
         //jTable1.getCellRenderer(). return text areas instead of labels
     }
     
-    private TabularDataWrapper dataWrapper;
+    private final TabularData dataWrapper;
     private JScrollPane jScrollPane1;
     private JTable jTable1;
     private JButton openInExcelButton;
