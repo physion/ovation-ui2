@@ -5,7 +5,7 @@
     <parent>
         <artifactId>ovation-ui-parent</artifactId>
         <groupId>us.physion</groupId>
-        <version>2.1.40-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>ovation-api-module</artifactId>
@@ -19,33 +19,33 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-api-annotations-common</artifactId>
+            <groupId>javax.annotation</groupId>
+            <artifactId>jsr250-api</artifactId>
+            <version>1.0</version>
         </dependency>
 
         <dependency>
             <groupId>us.physion</groupId>
             <artifactId>ovation-api</artifactId>
-            <version>2.1.29</version>
+            <version>3.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>us.physion</groupId>
             <artifactId>ovation-test-utils</artifactId>
-            <version>2.1.29</version>
+            <version>3.0.0</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>us.physion</groupId>
             <artifactId>ovation-logging</artifactId>
-            <version>2.1.29</version>
+            <version>3.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.swinglabs</groupId>
             <artifactId>swingx</artifactId>
-            <version>1.6.1</version>
         </dependency>
 
         <dependency>
@@ -53,6 +53,7 @@
             <artifactId>rxjava-core</artifactId>
             <version>0.18.3</version>
         </dependency>
+        
     </dependencies>
 
     <build>
@@ -74,6 +75,7 @@
                         <publicPackage>com.google.common.eventbus.*</publicPackage>
                         <publicPackage>com.google.common.io.*</publicPackage>
                         <publicPackage>com.google.common.cache.*</publicPackage>
+                        <publicPackage>com.google.common.net.*</publicPackage>
                         <publicPackage>com.google.common.annotations.*</publicPackage>
                         <publicPackage>edu.wisc.ssec.mcidas.*</publicPackage>
                         <publicPackage>edu.wisc.ssec.mcidas.adde.*</publicPackage>
@@ -100,6 +102,8 @@
                         <publicPackage>us.physion.ovation.logging.*</publicPackage>
                         <publicPackage>visad.jmet</publicPackage>
                         <publicPackage>javax.inject.*</publicPackage>
+                        <publicPackage>javax.annotation.*</publicPackage>
+                        <publicPackage>javax.annotation.meta.*</publicPackage>
                         <publicPackage>com.mchange.v2.c3p0.*</publicPackage>
 
                         <publicPackage>rx.*</publicPackage>
@@ -112,6 +116,7 @@
                         <publicPackage>rx.schedulers.*</publicPackage>
                         <publicPackage>rx.subjects.*</publicPackage>
                         <publicPackage>rx.subscriptions.*</publicPackage>
+                        
                     </publicPackages>
 
                     <licenseName>GNU General Public License, Version 3</licenseName>

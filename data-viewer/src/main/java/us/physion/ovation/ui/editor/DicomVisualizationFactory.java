@@ -1,13 +1,14 @@
 package us.physion.ovation.ui.editor;
 
 import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
+
 
 @ServiceProvider(service = VisualizationFactory.class)
 public class DicomVisualizationFactory implements VisualizationFactory{
 
     @Override
-    public int getPreferenceForDataContainer(DataElement r) {
+    public int getPreferenceForDataContainer(Resource r) {
         if (r.getDataContentType().equals("application/dicom"))
         {
             return 100;
@@ -16,7 +17,7 @@ public class DicomVisualizationFactory implements VisualizationFactory{
     }
 
     @Override
-    public DataVisualization createVisualization(DataElement r) {
+    public DataVisualization createVisualization(Resource r) {
         return new DicomWrapper(r);
     }
 

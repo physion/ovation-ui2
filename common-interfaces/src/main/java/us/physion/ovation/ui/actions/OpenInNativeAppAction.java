@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.AbstractAction;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.NbBundle.Messages;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
@@ -20,18 +20,18 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 })
 public class OpenInNativeAppAction extends AbstractAction {
 
-    private final DataElement fileFuture;
+    private final Resource fileFuture;
     private final File file;
 
     public OpenInNativeAppAction(File file) {
         this(file, null);
     }
 
-    public OpenInNativeAppAction(DataElement fileFuture) {
+    public OpenInNativeAppAction(Resource fileFuture) {
         this(null, fileFuture);
     }
 
-    private OpenInNativeAppAction(File file, DataElement fileFuture) {
+    private OpenInNativeAppAction(File file, Resource fileFuture) {
         super(Bundle.Open_in_native_application_button());
         this.file = file;
         this.fileFuture = fileFuture;

@@ -12,7 +12,7 @@ import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.ListModel;
 import javax.swing.event.ListDataListener;
-import org.joda.time.Instant;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.openide.util.ImageUtilities;
@@ -82,7 +82,7 @@ class OvationNotes extends NotesUi {
             Toolkit.getDefaultToolkit().beep();
             return;
         }
-        noteSource.addNote(new Instant(), message);
+        noteSource.addNote(new DateTime(), message);
         refresh();
     }
 
@@ -180,7 +180,7 @@ class OvationNotes extends NotesUi {
         
         noteSource = source;
         Multimap<User, NoteAnnotation> nodes = noteSource.getNotes();
-        final List<Map.Entry<User, NoteAnnotation>> list = new ArrayList<Map.Entry<User, NoteAnnotation>>(nodes.entries());
+        final List<Map.Entry<User, NoteAnnotation>> list = new ArrayList<>(nodes.entries());
         Collections.sort(list, new Comparator<Map.Entry<User, NoteAnnotation>>() {
             @Override
             public int compare(Map.Entry<User, NoteAnnotation> a, Map.Entry<User, NoteAnnotation> b) {

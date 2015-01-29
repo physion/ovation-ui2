@@ -19,7 +19,7 @@ public class EntityWrapperUtilities {
     public static Node createNode(IEntityWrapper key, EntityChildrenChildFactory cf) {
         return createNewNode(key, cf);
     }
-    
+
     public static Node createNode(IEntityWrapper key, Children c) {
 
         boolean forceCreateNode = false;
@@ -48,7 +48,7 @@ public class EntityWrapperUtilities {
         setIconForType(n, key.getType());
         return n;
     }
-    
+
     public static EntityNode createNewNode(IEntityWrapper key, Children c)
     {
         EntityNode n = new EntityNode(key.isLeaf() ? Children.LEAF : c, Lookups.singleton(key), key);
@@ -72,11 +72,9 @@ public class EntityWrapperUtilities {
             n.setIconBaseWithExtension("us/physion/ovation/ui/browser/analysis-record.png");
         } else if (User.class.isAssignableFrom(entityClass)) {
             n.setIconBaseWithExtension("us/physion/ovation/ui/browser/user.png");
+        } else if (Folder.class.isAssignableFrom(entityClass)) {
+            n.setIconBaseWithExtension("us/physion/ovation/ui/browser/folder.png");
         }
-
-        //else if (DataElement.class.isAssignableFrom(entityClass)) {
-        //        n.setIconBaseWithExtension("us/physion/ovation/ui/browser/analysis-record.png");
-        //    }
     }
 
     public static List<EntityWrapper> wrap(Iterable<? extends OvationEntity> entities)    {

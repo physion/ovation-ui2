@@ -12,7 +12,6 @@ import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.*;
-import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.ui.ScrollableTableTree;
 import us.physion.ovation.ui.TableTreeKey;
 import us.physion.ovation.ui.interfaces.ConnectionListener;
@@ -26,6 +25,7 @@ import java.util.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import us.physion.ovation.DataContext;
+import us.physion.ovation.domain.mixin.PropertyAnnotatable;
 
 @ServiceProvider(service = Lookup.Provider.class)
 /**
@@ -170,12 +170,12 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
 
         Map<String, Object> analysisProtocolParams = new HashMap();
         analysisProtocolParams.put("thing1", "thing2");
-        AnalysisRecord a1 = epoch.addAnalysisRecord("a1", Maps.<String,DataElement>newHashMap(), protocol, analysisProtocolParams);
+        AnalysisRecord a1 = epoch.addAnalysisRecord("a1", Maps.<String, Resource>newHashMap(), protocol, analysisProtocolParams);
         entitySet.add(new TestEntityWrapper(ctx, a1));
 
         analysisProtocolParams.put("thing1", "thing4");
         analysisProtocolParams.put("thing3", "thing4");
-        AnalysisRecord a2 = epoch.addAnalysisRecord("a1", Maps.<String,DataElement>newHashMap(), protocol, analysisProtocolParams);
+        AnalysisRecord a2 = epoch.addAnalysisRecord("a1", Maps.<String, Resource>newHashMap(), protocol, analysisProtocolParams);
         entitySet.add(new TestEntityWrapper(ctx, a2));
 
         List<TableTreeKey> params = t.setEntities(entitySet);
@@ -198,7 +198,7 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
     public Lookup getLookup() {
         return l;
     }
-  
+
     @Override
     public void addConnectionListener(ConnectionListener cl) {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -213,7 +213,7 @@ public class ParameterViewTest extends OvationTestCase implements Lookup.Provide
 
         Set<Tuple> databaseProps = new HashSet<Tuple>();
         for (IEntityWrapper ew : entities) {
-            Map<String, Object> props = ((AnnotatableEntity)ew.getEntity()).getUserProperties(u);
+            Map<String, Object> props = ((PropertyAnnotatable)ew.getEntity()).getUserProperties(u);
             for (String key : props.keySet())
             {
                 databaseProps.add(new Tuple(key, props.get(key)));

@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.domain.AnnotatableEntity;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.User;
+import us.physion.ovation.domain.mixin.KeywordAnnotatable;
 import us.physion.ovation.domain.mixin.Owned;
-import us.physion.ovation.domain.mixin.Taggable;
+import us.physion.ovation.domain.mixin.PropertyAnnotatable;
 import us.physion.ovation.ui.TableTreeKey;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
@@ -32,7 +32,7 @@ public class PerUserAnnotationSets {
     static List<TableTreeKey> createPropertySets(Collection<? extends IEntityWrapper> entityWrappers, DataContext c)
     {
         Entities entities = digestEntities(c, entityWrappers);
-        List<TableTreeKey> properties = new ArrayList<TableTreeKey>();
+        List<TableTreeKey> properties = new ArrayList<>();
         
         for (User u : c.getUsers()) {
             UserPropertySet propertySet = entities.getUserPropertySet(u);
@@ -53,12 +53,11 @@ public class PerUserAnnotationSets {
     static List<TableTreeKey> createTagSets(Collection<? extends IEntityWrapper> entityWrappers, DataContext c)
     {
         Entities entities = digestEntities(c, entityWrappers);
-        List<TableTreeKey> tags = new ArrayList<TableTreeKey>();
+        List<TableTreeKey> tags = new ArrayList<>();
         
-        for (User u : c.getUsers()) {
+        for (User u : c.getUsers()) { //TODO this is dumb; get the users from entities
             TagsSet tagSet = entities.getUserTagsSet(u);
-            if (!tagSet.getTags().isEmpty())
-            {
+            if (!tagSet.getTags().isEmpty()) {
                 tags.add(tagSet);
             }
         }
@@ -72,13 +71,11 @@ public class PerUserAnnotationSets {
         return tags;
     }
     
-    private static boolean isUserAuthenticated(User u, DataContext c) {
-        return c.getAuthenticatedUser().getUuid().equals(u.getUuid());
-    }
     static Entities digestEntities(DataContext c, Collection<? extends IEntityWrapper> entities)
     {
         return new Entities(c, entities);
     }
+    
     static class Entities{
         Set<String> uris;
         Set<OvationEntity> entitybases;
@@ -105,17 +102,19 @@ public class PerUserAnnotationSets {
         {
             Map<String, Object> userProps = new HashMap();
             for (OvationEntity e : entitybases) {
-                if (e instanceof AnnotatableEntity)
-                    userProps.putAll(((AnnotatableEntity)e).getUserProperties(u));
+                if (e instanceof PropertyAnnotatable)
+                    userProps.putAll(((PropertyAnnotatable)e).getUserProperties(u));
             }
             return userProps;
         }
+        
+        
         private List<String> getTags(User u)
         {
             List<String> tags = new LinkedList();
             for (OvationEntity e : entitybases) {
-                if (e instanceof Taggable)
-                    tags.addAll(Lists.newLinkedList(((Taggable)e).getUserTags(u)));
+                if (e instanceof KeywordAnnotatable)
+                    tags.addAll(Lists.newLinkedList(((KeywordAnnotatable)e).getUserTags(u)));
             }
             Collections.sort(tags);
             return tags;

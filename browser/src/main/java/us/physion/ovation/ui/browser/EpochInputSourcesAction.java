@@ -1,5 +1,8 @@
 package us.physion.ovation.ui.browser;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import java.util.Collection;
 import java.util.Map;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionRegistration;
@@ -23,7 +26,22 @@ public final class EpochInputSourcesAction extends AbstractInputsAction<Epoch, S
 
     @Override
     protected Map<String, Source> getInputs(Epoch record) {
-        return record.getInputSources();
+        Map<String, Source> result = Maps.newHashMap();
+        for (Map.Entry<String, Collection<Source>> e : record.getInputSources().asMap().entrySet()) {
+            int i = 0;
+            if (e.getValue().size() == 1) {
+                Source src = Iterables.getFirst(e.getValue(), null);
+                if (src != null) {
+                    result.put(e.getKey(), src);
+                }
+            } else {
+                for (Source s : e.getValue()) {
+                    result.put(e.getKey() + "_" + Integer.toString(i++), s);
+                }
+            }
+        }
+
+        return result;
     }
 
     @Override

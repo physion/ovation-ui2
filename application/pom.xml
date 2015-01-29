@@ -4,7 +4,7 @@
     <parent>
         <groupId>us.physion</groupId>
         <artifactId>ovation-ui-parent</artifactId>
-        <version>2.1.40-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>ovation-ui-app</artifactId>
@@ -52,6 +52,7 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-nbjunit</artifactId>
             <scope>test</scope>
+            <type>jar</type>
         </dependency>
 
         <dependency>
@@ -128,6 +129,8 @@
                 <configuration>
                     <!-- setup ovation.conf for the final product -->
                     <etcConfFile>${basedir}/target/${brandingToken}.conf</etcConfFile>
+                    <!--<additionalArguments>-J-DUSE_DEV_API_ENDPOINT=true</additionalArguments>-->
+
                 </configuration>
             </plugin>
 

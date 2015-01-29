@@ -4,13 +4,10 @@
  */
 package us.physion.ovation.ui.interfaces;
 
-import javax.swing.Action;
-import us.physion.ovation.ui.interfaces.IEntityWrapper;
-
 /**
  *
  * @author huecotanks
  */
 public interface ProjectInsertable extends EntityInsertable{
-    
+
 }

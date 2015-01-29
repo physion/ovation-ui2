@@ -25,7 +25,7 @@ import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.editor.AbstractDataVisualization;
 import us.physion.ovation.ui.editor.DataVisualization;
 import us.physion.ovation.ui.editor.VisualizationFactory;
@@ -44,16 +44,16 @@ public class XLSVisualizationFactory implements VisualizationFactory {
     }
 
     @Override
-    public DataVisualization createVisualization(final DataElement r) {
+    public DataVisualization createVisualization(final Resource r) {
         return new AbstractDataVisualization(Collections.singleton(r)) {
 
             @Override
-            public boolean shouldAdd(DataElement r) {
+            public boolean shouldAdd(Resource r) {
                 return false;
             }
 
             @Override
-            public void add(DataElement r) {
+            public void add(Resource r) {
                 throw new UnsupportedOperationException();
             }
 
@@ -79,7 +79,7 @@ public class XLSVisualizationFactory implements VisualizationFactory {
     }
 
     @Override
-    public int getPreferenceForDataContainer(DataElement r) {
+    public int getPreferenceForDataContainer(Resource r) {
         return XLSX_MIMETYPE.equals(r.getDataContentType()) ? 100 : -1;
     }
 

@@ -8,7 +8,6 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
-import us.physion.ovation.DataContext;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 @ActionID(category = "Edit",
@@ -25,7 +24,6 @@ public final class LogoutAction implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
-        ctx.getCoordinator().logout();
+        Lookup.getDefault().lookup(ConnectionProvider.class).resetConnection();
     }
 }

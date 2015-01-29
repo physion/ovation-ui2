@@ -16,7 +16,7 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.actions.NodeAction;
 import us.physion.ovation.domain.AnalysisRecord;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.actions.SelectInProjectNavigatorActionFactory;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.interfaces.URITreePathProvider;
@@ -51,7 +51,7 @@ public final class AnalysisRecordInputsAction extends NodeAction {
         URITreePathProvider pathProvider = nodes[0].getLookup().lookup(URITreePathProvider.class);
         final List<URI> analysisURI = pathProvider != null ? pathProvider.getTreePath() : null;
         
-        Map<String, DataElement> inputs = record.getInputs();
+        Map<String, Resource> inputs = record.getInputs();
         
         if (inputs.isEmpty()) {
             return null;
@@ -59,8 +59,8 @@ public final class AnalysisRecordInputsAction extends NodeAction {
 
         JMenuItem presenters = new JMenu(Bundle.CTL_AnalysisRecordInputsAction());
 
-        for (Map.Entry<String, DataElement> e : inputs.entrySet()) {
-            final DataElement data = e.getValue();
+        for (Map.Entry<String, Resource> e : inputs.entrySet()) {
+            final Resource data = e.getValue();
             //XXX: input key == data.getName()?
             presenters.add(new JMenuItem(new AbstractAction(e.getKey()) {
                 @Override

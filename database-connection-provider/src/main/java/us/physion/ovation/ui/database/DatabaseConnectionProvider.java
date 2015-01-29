@@ -52,7 +52,12 @@ public class DatabaseConnectionProvider implements ConnectionProvider, EventBusP
     @Override
     public synchronized void resetConnection() {
         context = null;
+        for (ConnectionListener l : connectionListeners) {
+            l.propertyChange(new PropertyChangeEvent(this, "ovation.connectionChanged", 0, 1));
+        }
+
         login();
+        
         getDefaultContext();
     }
 
@@ -84,7 +89,7 @@ public class DatabaseConnectionProvider implements ConnectionProvider, EventBusP
                         final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Sync_Task());
                         ph.start();
 
-                        ListenableFuture<Boolean> sync = m.getDSC().fullSync(null);
+                            ListenableFuture<Boolean> sync = m.getDSC().sync(null);
 
                         Futures.addCallback(sync, new FutureCallback<Boolean>() {
 

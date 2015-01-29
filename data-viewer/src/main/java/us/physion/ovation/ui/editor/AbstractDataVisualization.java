@@ -51,7 +51,7 @@ public abstract class AbstractDataVisualization implements DataVisualization {
 
     @Override
     public JComponent generateInfoPanel() {
-        return new DataElementInfoPanel(getEntities());
+        return new ResourceInfoPanel(getEntities());
     }
 
 }

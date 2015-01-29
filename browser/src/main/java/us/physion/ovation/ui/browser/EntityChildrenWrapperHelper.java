@@ -20,6 +20,7 @@ package us.physion.ovation.ui.browser;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -35,13 +36,15 @@ import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochContainer;
 import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
+import us.physion.ovation.domain.Folder;
+import us.physion.ovation.domain.FolderContainer;
 import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Protocol;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.User;
-import us.physion.ovation.domain.mixin.DataElement;
 import us.physion.ovation.domain.mixin.ProcedureElement;
 
 public class EntityChildrenWrapperHelper {
@@ -52,7 +55,7 @@ public class EntityChildrenWrapperHelper {
         this.filter = filter;
         this.cancel = cancel;
     }
-    
+
     private void absorbFilteredChildren(EntityWrapper pop, boolean isVisible, List<EntityWrapper> list, DataContext c, /* @Nullable*/ ProgressHandle ph, EntityComparator entityComparator) {
         if (!isVisible) {
             List<URI> filteredParents = new ArrayList<URI>();
@@ -89,7 +92,7 @@ public class EntityChildrenWrapperHelper {
     private List<EntityWrapper> createKeysForEntity(DataContext c, EntityWrapper ew, /* @Nullable*/ ProgressHandle ph) {
         return createKeysForEntity(new LinkedList<EntityWrapper>(), c, ew, ph);
     }
-    
+
     public List<EntityWrapper> createKeysForEntity(List<EntityWrapper> list, DataContext c, EntityWrapper ew, /* @Nullable*/ ProgressHandle ph) {
         if (ew instanceof PreloadedEntityWrapper) {
             EntityComparator entityComparator = new EntityComparator();
@@ -107,6 +110,7 @@ public class EntityChildrenWrapperHelper {
             Class entityClass = ew.getType();
             if (Project.class.isAssignableFrom(entityClass)) {
                 Project entity = (Project) ew.getEntity();
+                addFolders(list, entity, ph);
                 addExperiments(list, entity, ph);
                 addAnalysisRecords(list, entity, ph);
             } else if (Source.class.isAssignableFrom(entityClass)) {
@@ -131,6 +135,9 @@ public class EntityChildrenWrapperHelper {
             } else if (Protocol.class.isAssignableFrom(entityClass)) {
                 Protocol entity = ew.getEntity(Protocol.class);
                 addProcedureElements(list, entity, ph);
+            } else if (Folder.class.isAssignableFrom(entityClass)) {
+                Folder f = ew.getEntity(Folder.class);
+                addContents(list, f, ph);
             }
         }
         if (cancel.isCancelled()) {
@@ -206,9 +213,10 @@ public class EntityChildrenWrapperHelper {
         return sortEpochList(epochs);
     }
 
-    private List<? extends EntityWrapper> getTopLevelProcedureElements(TreeFilter filter, Iterable<? extends ProcedureElement> epochs) {
-        HashMap<String, PreloadedEntityWrapper> visibleProcedureElements = new HashMap<String, PreloadedEntityWrapper>();
-        for (ProcedureElement e : epochs) {
+    private List<? extends EntityWrapper> getTopLevelProcedureElements(TreeFilter filter, Iterable<? extends ProcedureElement> procedures) {
+        HashMap<String, EntityWrapper> visibleProcedureElements = Maps.newHashMap();
+        List<EntityWrapper> experiments = Lists.newLinkedList();
+        for (ProcedureElement e : procedures) {
             ProcedureElement localParent;
             if (e instanceof EpochGroup) { //TODO getParent() should be a ProcedureElement method
                 localParent = ((EpochGroup) e).getParent();
@@ -227,18 +235,22 @@ public class EntityChildrenWrapperHelper {
                 }
                 PreloadedEntityWrapper p;
                 if (visibleProcedureElements.containsKey(localParent.getURI().toString())) {
-                    p = visibleProcedureElements.get(localParent.getURI().toString());
+                    p = (PreloadedEntityWrapper) visibleProcedureElements.get(localParent.getURI().toString());
                 } else {
                     p = new PreloadedEntityWrapper(localParent);
                 }
                 p.addChildren(filter, epochGroupChain, e);
                 visibleProcedureElements.put(p.getURI(), p);
+            } else { //Experiment
+                EntityWrapper p = new EntityWrapper(e);
+                experiments.add(p);
             }
         }
 
         //sort values, and add the
-        List<PreloadedEntityWrapper> children = new ArrayList(visibleProcedureElements.values());
-        Collections.sort(children, new EntityComparator<PreloadedEntityWrapper>());
+        List<EntityWrapper> children = Lists.newArrayList(visibleProcedureElements.values());
+        children.addAll(experiments);
+        Collections.sort(children, new EntityComparator<EntityWrapper>());
         return children;
     }
 
@@ -254,7 +266,7 @@ public class EntityChildrenWrapperHelper {
             }
         });
         for (User user : users) {
-            List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
+            List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getUserAnalysisRecords(user).values(),
                     new Function<AnalysisRecord, EntityWrapper>() {
                         @Override
                         public EntityWrapper apply(AnalysisRecord f) {
@@ -280,7 +292,7 @@ public class EntityChildrenWrapperHelper {
             }
         });
         for (User user : users) {
-            List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getAnalysisRecords(user),
+            List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getUserAnalysisRecords(user).values(),
                     new Function<AnalysisRecord, EntityWrapper>() {
                         @Override
                         public EntityWrapper apply(AnalysisRecord f) {
@@ -295,9 +307,37 @@ public class EntityChildrenWrapperHelper {
     }
 
     private void addOutputs(List<EntityWrapper> list, AnalysisRecord entity, ProgressHandle ph) {
-        for (DataElement d : entity.getOutputs().values()) {
+        for (Resource d : entity.getOutputs().values()) {
             list.add(new EntityWrapper(d));
         }
+    }
+
+    private void addFolders(List<EntityWrapper> list, Project entity, ProgressHandle ph) {
+        if (cancel.isCancelled()) {
+            return;
+        }
+
+        EntityComparator entityComparator = new EntityComparator();
+        List<Folder> folders = Lists.newArrayList(((FolderContainer) entity).getFolders());
+
+        int progressCounter = 0;
+        if (ph != null) {
+            ph.switchToDeterminate(folders.size());
+        }
+
+        for (Folder f : folders) {
+            if (cancel.isCancelled()) {
+                return;
+            }
+
+            list.add(new EntityWrapper(f));
+
+            if (ph != null) {
+                ph.progress(progressCounter++);
+            }
+        }
+
+        list.sort(entityComparator);
     }
 
     private void addExperiments(List<EntityWrapper> list, Project entity, ProgressHandle ph) {
@@ -378,7 +418,7 @@ public class EntityChildrenWrapperHelper {
     }
 
     private void addChildrenSources(List<EntityWrapper> list, Source entity, ProgressHandle ph) {
-        for (Source e : entity.getChildrenSources()) {
+        for (Source e : entity.getChildren()) {
             list.add(new EntityWrapper(e));
         }
     }
@@ -450,6 +490,38 @@ public class EntityChildrenWrapperHelper {
             return false;
         }
         return true;
+    }
+
+    private void addContents(List<EntityWrapper> list, Folder entity, ProgressHandle ph) {
+        if (cancel.isCancelled()) {
+            return;
+        }
+
+        EntityComparator entityComparator = new EntityComparator();
+        List<Folder> folders = Lists.newArrayList(entity.getFolders());
+        List<Resource> resources = Lists.newArrayList(entity.getResources());
+        List<OvationEntity> contents = Lists.newArrayList();
+        contents.addAll(folders);
+        contents.addAll(resources);
+
+        int progressCounter = 0;
+        if (ph != null) {
+            ph.switchToDeterminate(folders.size());
+        }
+
+        for (OvationEntity e : contents) {
+            if (cancel.isCancelled()) {
+                return;
+            }
+
+            list.add(new EntityWrapper(e));
+
+            if (ph != null) {
+                ph.progress(progressCounter++);
+            }
+        }
+
+        list.sort(entityComparator);
     }
 
 }

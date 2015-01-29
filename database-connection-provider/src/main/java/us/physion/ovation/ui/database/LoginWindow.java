@@ -89,22 +89,20 @@ public class LoginWindow {
             @Override
             public void run() {
                 //spinner.setVisible(true);
-                DataStoreCoordinator dsc = Ovation.newDataStoreCoordinator();
                 try {
-                    boolean success = dsc.authenticateUser(m.getEmail(), m.getPassword().toCharArray(), m.rememberMe()).get();
-                    if (success) {
-                        m.cancelled = false;
-                        m.setDSC(dsc);
-                        EventQueueUtilities.runOnEDT(new Runnable() {
-                            @Override
-                            public void run() {
-                                ph.start();
-                            }
-                        });
-                        d.dispose();
-                    }else{
-                        displayError(Bundle.Login_Window_Invalid_Password());
-                    }
+                    DataStoreCoordinator dsc = Ovation.connect(m.getEmail(), m.getPassword());
+                    m.cancelled = false;
+                    m.setDSC(dsc);
+                    EventQueueUtilities.runOnEDT(new Runnable() {
+                        @Override
+                        public void run() {
+                            ph.start();
+                        }
+                    });
+                    d.dispose();
+//                    }else{
+//                        displayError(Bundle.Login_Window_Invalid_Password());
+//                    }
                 } catch (Exception ex) {
                     displayError(ex.getLocalizedMessage());
                 } finally{
@@ -124,7 +122,7 @@ public class LoginWindow {
                             ph.finish();
                         }
                     });
-        }else if (f instanceof ListenableFuture){
+        } else if (f instanceof ListenableFuture){
             Futures.addCallback((ListenableFuture)f, new FutureCallback() {
                 @Override
                 public void onSuccess(Object result) {

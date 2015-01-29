@@ -4,32 +4,20 @@
  */
 package us.physion.ovation.ui.detailviews;
 
-import java.awt.Component;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTree;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.openide.util.Lookup;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
-import us.physion.ovation.domain.AnnotatableEntity;
 import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.mixin.PropertyAnnotatable;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -96,16 +84,16 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
                     {
                         for (String uri : uris) {
                             OvationEntity eb = c.getObjectWithURI(uri);
-                            if (eb instanceof AnnotatableEntity)
-                                ((AnnotatableEntity)eb).removeProperty(key);
+                            if (eb instanceof PropertyAnnotatable)
+                                ((PropertyAnnotatable)eb).removeProperty(key);
                         }
                     }
                     for (String key: props.keySet())
                     {
                         for (String uri : uris) {
                             OvationEntity eb = c.getObjectWithURI(uri);
-                            if (eb instanceof AnnotatableEntity)
-                                parseAndAdd((AnnotatableEntity)eb, key, props.get(key));
+                            if (eb instanceof PropertyAnnotatable)
+                                parseAndAdd((PropertyAnnotatable)eb, key, props.get(key));
                         }
                     }
                     node.reset(c);
@@ -128,9 +116,9 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
 
                     for (String uri : uris) {
                         OvationEntity entity = c.getObjectWithURI(uri);
-                        if (entity instanceof AnnotatableEntity)
+                        if (entity instanceof PropertyAnnotatable)
                         {
-                            AnnotatableEntity eb = (AnnotatableEntity) entity;
+                            PropertyAnnotatable eb = (PropertyAnnotatable) entity;
                             Map<String, Object> properties = eb.getUserProperties(c.getAuthenticatedUser());
                             if (properties.containsKey(key) && properties.get(key).equals(value)) {
                                 eb.removeProperty(key);
@@ -156,7 +144,7 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
         });
     }
 
-    void parseAndAdd(AnnotatableEntity eb, String key, Object value)
+    void parseAndAdd(PropertyAnnotatable eb, String key, Object value)
     {
         if (value == null){
             eb.addProperty(key, "");

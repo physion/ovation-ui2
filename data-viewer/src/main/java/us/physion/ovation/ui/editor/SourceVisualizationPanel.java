@@ -19,7 +19,6 @@ package us.physion.ovation.ui.editor;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,7 +27,6 @@ import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
-import javax.swing.Action;
 import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.browser.BrowserUtilities;
@@ -90,7 +88,7 @@ public class SourceVisualizationPanel extends AbstractContainerVisualizationPane
             @Override
             public void focusLost(FocusEvent e) {
                 if (getSource().getIdentifier() == null || getSource().getIdentifier().equals("")) {
-                    List<Source> parents = Lists.newArrayList(getSource().getParentSources());
+                    List<Source> parents = Lists.newArrayList(getSource().getParents());
                     if (!parents.isEmpty()) {
                         List<String> parentIds = Lists.transform(parents, new Function<Source, String>() {
 

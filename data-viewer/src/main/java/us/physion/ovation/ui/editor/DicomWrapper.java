@@ -13,7 +13,7 @@ import org.openide.util.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 
 /**
  *
@@ -24,9 +24,9 @@ public class DicomWrapper extends AbstractDataVisualization {
 
     String name;
     SourceImage src;
-    final DataElement entity;
+    final Resource entity;
 
-    DicomWrapper(DataElement r) {
+    DicomWrapper(Resource r) {
         entity = r;
         DicomInputStream in = null;
         try {
@@ -63,12 +63,12 @@ public class DicomWrapper extends AbstractDataVisualization {
     }
 
     @Override
-    public boolean shouldAdd(DataElement r) {
+    public boolean shouldAdd(Resource r) {
         return false;
     }
 
     @Override
-    public void add(DataElement r) {
+    public void add(Resource r) {
         throw new UnsupportedOperationException("Dicoms are not displayed in groups");
     }
 

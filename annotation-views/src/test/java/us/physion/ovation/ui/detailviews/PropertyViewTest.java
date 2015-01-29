@@ -4,6 +4,7 @@
  */
 package us.physion.ovation.ui.detailviews;
 
+import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,8 +12,6 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import us.physion.ovation.DataContext;
-import us.physion.ovation.DataStoreCoordinator;
-import us.physion.ovation.domain.AnnotatableEntity;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.PropertyAnnotatable;
@@ -49,6 +48,7 @@ public class PropertyViewTest extends OvationTestCase {
     }
 
     @Before
+    @Override
     public void setUp() {
         super.setUp();
 
@@ -62,16 +62,7 @@ public class PropertyViewTest extends OvationTestCase {
         userURIs.add(user1.getURI().toString());
         userURIs.add(user2.getURI().toString());
 
-        DataStoreCoordinator dsc2 = getInjector().getInstance(DataStoreCoordinator.class);
-        try {
-            assertTrue(dsc2.authenticateUser(otherEmail, otherPassword.toCharArray()).get());
-        } catch (InterruptedException ex) {
-            throw new OvationException(ex);
-        } catch (ExecutionException ex) {
-            throw new OvationException(ex);
-        }
-        assertTrue(dsc2.isAuthenticated());
-        otherUserCtx = dsc2.getContext();
+        otherUserCtx = dsc.getContext();
 
         ic.add(this);
 
@@ -131,8 +122,6 @@ public class PropertyViewTest extends OvationTestCase {
         UUID s1 = source1.getUuid();
         UUID s2 = source2.getUuid();
 
-        source1.refresh();
-        source2.refresh();
 
         //add properties for user 1
         addProperty(s1, user1, "key", "value");
@@ -145,10 +134,6 @@ public class PropertyViewTest extends OvationTestCase {
 
         assertTrue(ctx.getCoordinator().sync().get());
 
-        user1.refresh();
-        user2.refresh();
-        source1.refresh();
-        source2.refresh();
 
         entitySet.add(new TestEntityWrapper(ctx, source1));
         entitySet.add(new TestEntityWrapper(ctx, source2));
@@ -189,7 +174,6 @@ public class PropertyViewTest extends OvationTestCase {
         addProperty(s1, user2, "key", "value");
 
         ctx.getCoordinator().sync().get();
-        source1.refresh();
 
         Thread.sleep(1000);
 
@@ -224,9 +208,9 @@ public class PropertyViewTest extends OvationTestCase {
 
     static Set<Tuple> getAggregateUserProperties(User u, Set<IEntityWrapper> entities) {
 
-        Set<Tuple> databaseProps = new HashSet<Tuple>();
+        Set<Tuple> databaseProps = Sets.newHashSet();
         for (IEntityWrapper ew : entities) {
-            Map<String, Object> props = ((AnnotatableEntity)ew.getEntity()).getUserProperties(u);
+            Map<String, Object> props = ((PropertyAnnotatable)ew.getEntity()).getUserProperties(u);
             for (String key : props.keySet())
             {
                 databaseProps.add(new Tuple(key, props.get(key)));

@@ -8,7 +8,7 @@ import java.awt.Insets;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 
 /**
  *
@@ -16,11 +16,11 @@ import us.physion.ovation.domain.mixin.DataElement;
  */
 public class DefaultDataPanel extends JPanel{
 
-    DataElement d;
+    Resource d;
     JLabel elementName;
     JLabel messageLabel;
 
-    public DefaultDataPanel(DataElement data) {
+    public DefaultDataPanel(Resource data) {
         d = data;
         this.setLayout(new GridBagLayout());
         this.setBackground(Color.white);

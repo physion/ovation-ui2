@@ -3,7 +3,7 @@ package us.physion.ovation.ui.editor;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.NumericDataElements;
-import us.physion.ovation.domain.mixin.DataElement;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.values.NumericData;
 
@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 public class ChartVisualizationFactory implements VisualizationFactory {
 
     @Override
-    public DataVisualization createVisualization(DataElement r) {
+    public DataVisualization createVisualization(Resource r) {
 
         if (!NumericDataElements.isNumeric(r)) {
             throw new OvationException("Can only plot Numeric data with the ChartVisualization plugin");
@@ -41,7 +41,7 @@ public class ChartVisualizationFactory implements VisualizationFactory {
     }
 
     @Override
-    public int getPreferenceForDataContainer(DataElement r) {
+    public int getPreferenceForDataContainer(Resource r) {
         if (NumericDataElements.isNumeric(r)) {
             try {
                 if (NumericDataElements.getNumericData(r).get().getData().size() == 1) {

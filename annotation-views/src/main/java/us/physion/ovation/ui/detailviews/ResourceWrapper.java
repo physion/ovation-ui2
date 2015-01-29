@@ -4,11 +4,9 @@
  */
 package us.physion.ovation.ui.detailviews;
 
-import java.net.URI;
 import org.openide.util.Lookup;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Resource;
-import us.physion.ovation.domain.mixin.ResourceContainer;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 
 public class ResourceWrapper implements IResourceWrapper {
@@ -18,7 +16,7 @@ public class ResourceWrapper implements IResourceWrapper {
     String name;
 
     public ResourceWrapper(String name, Resource r) {
-        uri = r.getDataUri().toString();
+        uri = r.getDataUrl().toString();
         this.name = name;
         this.entityUri = r.getURI().toString();
     }

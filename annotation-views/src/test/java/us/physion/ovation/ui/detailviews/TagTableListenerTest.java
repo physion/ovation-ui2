@@ -12,7 +12,7 @@ import org.joda.time.DateTime;
 import org.junit.*;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.Project;
-import us.physion.ovation.domain.mixin.Taggable;
+import us.physion.ovation.domain.mixin.KeywordAnnotatable;
 import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.test.OvationTestCase;
 
@@ -64,7 +64,7 @@ public class TagTableListenerTest extends OvationTestCase{
         EditableTableModel m = createTableModel(key, uris);
         for (String uri : uris)
         {
-            Taggable eb = (Taggable)ctx.getObjectWithURI(uri);
+            KeywordAnnotatable eb = (KeywordAnnotatable)ctx.getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, false);
             assertContainsTag(newTag2, eb, false);
         }
@@ -74,7 +74,7 @@ public class TagTableListenerTest extends OvationTestCase{
 
         for (String uri : uris)
         {
-            Taggable eb = (Taggable)dsc.getContext().getObjectWithURI(uri);
+            KeywordAnnotatable eb = (KeywordAnnotatable)dsc.getContext().getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, true);
             assertContainsTag(newTag2, eb, true);
         }
@@ -110,7 +110,7 @@ public class TagTableListenerTest extends OvationTestCase{
 
         for (String uri : uris)
         {
-            Taggable eb = (Taggable)ctx.getObjectWithURI(uri);
+            KeywordAnnotatable eb = (KeywordAnnotatable)ctx.getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, false);
             assertContainsTag(oldTag1, eb, true);
             assertContainsTag(newTag2, eb, false);
@@ -122,7 +122,7 @@ public class TagTableListenerTest extends OvationTestCase{
 
         for (String uri : uris)
         {
-            Taggable eb = (Taggable)ctx.getObjectWithURI(uri);
+            KeywordAnnotatable eb = (KeywordAnnotatable)ctx.getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, true);
             assertContainsTag(oldTag1, eb, false);
             assertContainsTag(newTag2, eb, true);
@@ -158,7 +158,7 @@ public class TagTableListenerTest extends OvationTestCase{
 
         for (String uri : uris)
         {
-            Taggable eb = (Taggable)ctx.getObjectWithURI(uri);
+            KeywordAnnotatable eb = (KeywordAnnotatable)ctx.getObjectWithURI(uri);
             assertContainsTag(newTag, eb, true);
         }
         TestCase.assertEquals(m.getValueAt(0, 0), newTag);
@@ -192,7 +192,7 @@ public class TagTableListenerTest extends OvationTestCase{
         int i=0;
         for (String uri : uris)
         {
-            Taggable eb = (Taggable)ctx.getObjectWithURI(uri);
+            KeywordAnnotatable eb = (KeywordAnnotatable)ctx.getObjectWithURI(uri);
             eb.addTag(newTag1);
             assertContainsTag(newTag1, eb, true);
 
@@ -220,7 +220,7 @@ public class TagTableListenerTest extends OvationTestCase{
 
         for (String uri : uris)
         {
-            Taggable eb = (Taggable)ctx.getObjectWithURI(uri);
+            KeywordAnnotatable eb = (KeywordAnnotatable)ctx.getObjectWithURI(uri);
             assertContainsTag(newTag1, eb, false);
             assertContainsTag(newTag2, eb, false);
             assertContainsTag(newTag3, eb, true);
@@ -229,7 +229,7 @@ public class TagTableListenerTest extends OvationTestCase{
         }
     }
 
-    private void assertContainsTag(String t, Taggable eb, boolean b) {
+    private void assertContainsTag(String t, KeywordAnnotatable eb, boolean b) {
         boolean contains = false;
         for (String tag : eb.getUserTags(ctx.getAuthenticatedUser()))
         {

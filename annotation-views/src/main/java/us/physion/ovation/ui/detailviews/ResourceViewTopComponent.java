@@ -17,7 +17,6 @@ import org.openide.windows.WindowManager;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Resource;
-import us.physion.ovation.domain.mixin.ResourceContainer;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -39,6 +38,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static java.awt.FileDialog.LOAD;
+import us.physion.ovation.domain.mixin.AttachmentContainer;
 
 /**
  * Top component which displays something.
@@ -198,8 +198,8 @@ public final class ResourceViewTopComponent extends TopComponent {
     protected void updateResources(Collection<? extends IEntityWrapper> entities) {
         List<IResourceWrapper> resources = new LinkedList();
         for (IEntityWrapper e : entities) {
-            if (ResourceContainer.class.isAssignableFrom(e.getType())) {
-                ResourceContainer entity = (ResourceContainer) e.getEntity();
+            if (AttachmentContainer.class.isAssignableFrom(e.getType())) {
+                AttachmentContainer entity = (AttachmentContainer) e.getEntity();
                 for (String name : entity.getResourceNames()) {
                     resources.add(new ResourceWrapper(name, entity.getResource(name)));
                 }
@@ -403,8 +403,8 @@ public final class ResourceViewTopComponent extends TopComponent {
             if (o instanceof IResourceWrapper) {
                 String rName = ((IResourceWrapper) o).getName();
                 for (IEntityWrapper e : entities) {
-                    if (ResourceContainer.class.isAssignableFrom(e.getType())) {
-                        ResourceContainer eb = (ResourceContainer) e.getEntity();
+                    if (AttachmentContainer.class.isAssignableFrom(e.getType())) {
+                        AttachmentContainer eb = (AttachmentContainer) e.getEntity();
                         if (((OvationEntity) eb).canWrite(((OvationEntity) eb).getDataContext().getAuthenticatedUser())) {
                             eb.removeResource(rName);
                         }
@@ -439,7 +439,7 @@ public final class ResourceViewTopComponent extends TopComponent {
 
 
         for (IEntityWrapper e : entities) {
-            ResourceContainer entity = (ResourceContainer) e.getEntity();
+            AttachmentContainer entity = (AttachmentContainer) e.getEntity();
             Resource r;
             try {
                 String contentType;

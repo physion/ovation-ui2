@@ -1,8 +1,12 @@
 package us.physion.ovation.ui.browser;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.*;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
@@ -11,16 +15,15 @@ import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
-
 /**
  *
  * @author huecotanks
  */
-public class QueryChildren extends Children.Keys<IEntityWrapper> {
+public final class QueryChildren extends Children.Keys<IEntityWrapper> {
 
-    Set<IEntityWrapper> keys = new HashSet<IEntityWrapper>();
-    private TreeFilter filter;
-    private HashMap<String, Set<List<IEntityWrapper>>> pathMap = new HashMap<String, Set<List<IEntityWrapper>>>();
+    private final Set<IEntityWrapper> keys = Sets.newHashSet();
+    private final TreeFilter filter;
+    private final java.util.Map<String,QueryChildren> children = Maps.newHashMap();
 
     protected QueryChildren(TreeFilter filter) {
         this.filter = filter;
@@ -32,24 +35,27 @@ public class QueryChildren extends Children.Keys<IEntityWrapper> {
         if (paths == null) {
             return;
         }
-        for (List<IEntityWrapper> path : paths) {
-            addPath(path);
-        }
+        
+        addPaths(paths);
     }
 
+    Logger logger = LoggerFactory.getLogger(QueryChildren.class);
     @Override
-    protected Node[] createNodes(IEntityWrapper child) {
-        Children children;
-        Set<List<IEntityWrapper>> childPaths = pathMap.get(child.getURI());
-        if (childPaths == null || childPaths.isEmpty())
-        {
+    protected Node[] createNodes(IEntityWrapper key) {
+        
+        if(children.containsKey(key.getURI())) {
+            QueryChildren nodeChildren = children.get(key.getURI());
+            
+            logger.debug("Creating children node for " + key.getEntity().getClass().getSimpleName() + "(" + key.getURI() + ")");
+
+            return new Node[]{EntityWrapperUtilities.createNode(key, nodeChildren)};
+        } else {
+            logger.debug("Creating leaf node for " + key.getEntity().getClass().getSimpleName() + "(" + key.getURI() + ")");
+
             return new Node[]{
-                EntityWrapperUtilities.createNewNode(child, new EntityChildrenChildFactory((EntityWrapper) child, filter))
+                EntityWrapperUtilities.createNewNode(key, new EntityChildrenChildFactory((EntityWrapper) key, filter))
             };
-        }else{
-            children = new QueryChildren(childPaths, filter);
-        }
-        return new Node[]{EntityWrapperUtilities.createNode(child, children)};
+        }        
     }
 
     @Override
@@ -89,37 +95,43 @@ public class QueryChildren extends Children.Keys<IEntityWrapper> {
 
     }
 
-    protected void addPath(List<IEntityWrapper> path) {
+    protected void addPaths(Collection<List<IEntityWrapper>> paths) {
+        for (List<IEntityWrapper> path : paths) {
+            addPath(path);
+        }
+        
+        addNotify();
+        refresh();//in case the node is already created
+    }
+    
+    @SuppressWarnings("null")
+    private void addPath(List<IEntityWrapper> path) {
         if (path == null || path.isEmpty()) {
             return;
         }
-        IEntityWrapper child = path.get(path.size()-1);
+        IEntityWrapper root = path.get(path.size() - 1);
 
-        if (shouldAdd(child)) {// projects don't belong in source view, and vice versa
+        if (shouldAdd(root)) {// projects don't belong in source view, and vice versa
 
-            List<IEntityWrapper> childPath = path.subList(0, path.size()-1);
-            if (hide(child))
-            {
+            List<IEntityWrapper> childPath = path.subList(0, path.size() - 1);
+            if (hide(root)) {
                 //TODO: instead of just adding the hidden entity's children to the children set,
                 //we should be creating some sort of intermediate hidden node, or some representation
                 //of the hidden element in the child key
                 addPath(childPath);
             } else {
-                Set<List<IEntityWrapper>> paths = pathMap.get(child.getURI());
-                boolean childIsNew = paths == null;
-                if (childIsNew) {
-                    paths = new HashSet<List<IEntityWrapper>>();
+                
+                if (!childPath.isEmpty()) {
+                    if(!children.containsKey(root.getURI())) {
+                        children.put(root.getURI(), new QueryChildren(filter));
+                    }
+                    
+                    Collection<List<IEntityWrapper>> childPaths = Sets.newHashSet();
+                    childPaths.add(childPath);
+                    children.get(root.getURI()).addPaths(childPaths);
                 }
 
-                if (!childPath.isEmpty()) {
-                    paths.add(childPath);
-                }
-                pathMap.put(child.getURI(), paths);
-                if (childIsNew) {
-                    keys.add(child);
-                    addNotify();
-                    refresh();//in case the node is already created
-                }
+                keys.add(root);
             }
         }
     }
