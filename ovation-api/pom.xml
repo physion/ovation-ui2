@@ -27,20 +27,20 @@
         <dependency>
             <groupId>us.physion</groupId>
             <artifactId>ovation-api</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.1</version>
         </dependency>
 
         <dependency>
             <groupId>us.physion</groupId>
             <artifactId>ovation-test-utils</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.1</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>us.physion</groupId>
             <artifactId>ovation-logging</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.1</version>
         </dependency>
 
         <dependency>
