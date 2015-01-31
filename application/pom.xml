@@ -357,7 +357,7 @@
                                     <target>
                                         <echo message="Signing Windows installer${line.separator}" />
                                         <copy file="${project.build.directory}/${project.artifactId}-${project.version}-windows.exe" tofile="${project.build.directory}/Install Ovation ${project.version}.exe" overwrite="true" />
-                                        <exec dir="${project.build.directory}" osfamily="winnt" executable="C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin\signtool.exe">
+                                        <exec dir="${project.build.directory}" osfamily="winnt" executable="C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe">
                                             <arg value="sign" />
                                             <arg value="/t" />
                                             <arg value="http://timestamp.digicert.com" />
