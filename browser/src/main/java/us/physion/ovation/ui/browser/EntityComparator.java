@@ -79,11 +79,12 @@ public class EntityComparator<T extends EntityWrapper> implements Comparator<T> 
             Measurement m1 = (Measurement) entity1;
             Measurement m2 = (Measurement) entity2;
 
-            if (m1.getEpoch().equals(m2.getEpoch())) {
-                return m1.getName().toLowerCase().compareTo(m2.getName().toLowerCase());
-            }
-
-            return ((Measurement) entity1).getEpoch().getStart().compareTo(((Measurement) entity2).getEpoch().getStart());
+            return m1.getLabel().toLowerCase().compareTo(m2.getLabel().toLowerCase());
+//            if (m1.getEpoch().equals(m2.getEpoch())) {
+//                return m1.getName().toLowerCase().compareTo(m2.getName().toLowerCase());
+//            }
+//
+//            return ((Measurement) entity1).getEpoch().getStart().compareTo(((Measurement) entity2).getEpoch().getStart());
         }
 
         return entity1.getURI().compareTo(entity2.getURI());

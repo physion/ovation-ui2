@@ -26,6 +26,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -39,7 +41,6 @@ import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
@@ -113,40 +114,41 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
         contentTypeComboBox.setModel(model);
         contentTypeComboBox.setSelectedItem(getContentType());
 
-        contentTypeComboBox.addItemListener(new ItemListener() {
-
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    String selection = (String) e.getItem();
-                    setContentType(selection);
-                }
+        contentTypeComboBox.addItemListener((ItemEvent e) -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                String selection = (String) e.getItem();
+                setContentType(selection);
             }
         });
 
         final DataContext ctx = Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext();
 
-        addSourcesTextField.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addSourceFromText(ctx, addSourcesTextField.getText());
-            }
-
+        addSourcesTextField.addActionListener((ActionEvent e) -> {
+            addSourceFromText(ctx, addSourcesTextField.getText());
         });
 
         addSourcesTextField.setEnabled(getMeasurements().size() > 0);
         addSourcesTextField.setVisible(getMeasurements().size() > 0);
 
-        try {
-            List<String> sourceIds = getSourceIds(ctx.getTopLevelSources());
-            List<String> sortedIds = Lists.newArrayList(sourceIds);
-            Collections.sort(sortedIds);
-
-            AutoCompleteDecorator.decorate(addSourcesTextField, sortedIds, false);
-        } catch (Throwable ex) {
-            logger.error("Unable to retrieve Sources. Autocomplete for Source IDs disabled.");
+        
+        OvationEntity e = Iterables.getFirst(getEntities(OvationEntity.class), null);
+        if(e != null) {
+            ListeningExecutorService svc = e.getDataContext().getCoordinator().getExecutorService();
+            ListenableFuture<List<String>> sourceIds = svc.submit(() -> {
+                try {
+                    //TODO make this async
+                    List<String> sourceIds1 = getSourceIds(ctx.getTopLevelSources());
+                    List<String> sortedIds = Lists.newArrayList(sourceIds1);
+                    Collections.sort(sortedIds);
+                    AutoCompleteDecorator.decorate(addSourcesTextField, sortedIds, false);
+                    return sortedIds;
+                }catch (Throwable ex) {
+                    logger.error("Unable to retrieve Sources. Autocomplete for Source IDs disabled.");
+                    return Lists.newArrayList();
+                }
+            });
         }
+        
 
         revisionFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.ResourceInfoPanel_Drop_Files_For_New_Revision()) {
 
