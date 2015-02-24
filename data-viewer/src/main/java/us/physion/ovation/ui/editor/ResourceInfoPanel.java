@@ -16,8 +16,6 @@
  */
 package us.physion.ovation.ui.editor;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -246,22 +244,13 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
     }
 
     <T extends OvationEntity> Iterable<T> getEntities(final Class<T> cls) {
-        return Iterables.transform(Iterables.filter(getElements(), new Predicate<OvationEntity>() {
-            @Override
-            public boolean apply(OvationEntity t) {
-                if (t == null) {
-                    return false;
-                }
-
-                return cls.isAssignableFrom(t.getClass());
+        return Iterables.transform(Iterables.filter(getElements(), (OvationEntity t) -> {
+            if (t == null) {
+                return false;
             }
-        }), new Function<OvationEntity, T>() {
-
-            @Override
-            public T apply(OvationEntity f) {
-                return (T) f;
-            }
-        });
+            
+            return cls.isAssignableFrom(t.getClass());
+        }), (OvationEntity f) -> (T) f);
     }
 
     final Set<Measurement> getMeasurements() {

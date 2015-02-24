@@ -16,18 +16,19 @@ import us.physion.ovation.domain.Resource;
  */
 public class DefaultDataPanel extends JPanel{
 
-    Resource d;
+    Resource resource;
     JLabel elementName;
     JLabel messageLabel;
 
     public DefaultDataPanel(Resource data) {
-        d = data;
+        resource = data;
         this.setLayout(new GridBagLayout());
         this.setBackground(Color.white);
         GridBagConstraints c = new GridBagConstraints();
-        elementName = new JLabel(data.getName());
-        messageLabel = new JLabel("Cannot display data of type '" + data.getDataContentType() + "'");
-        JButton openButton = new JButton(new OpenInNativeAppAction(d));
+        elementName = new JLabel(data.getLabel());
+        
+        messageLabel = new JLabel("Unknown data type '" + data.getDataContentType() + "'");
+        JButton openButton = new JButton(new OpenInNativeAppAction(resource));
 
         c.insets = new Insets(10, 10, 10, 10);
         c.anchor = GridBagConstraints.NORTH;
@@ -39,5 +40,13 @@ public class DefaultDataPanel extends JPanel{
         c.gridy = 2;
         c.weighty = 1.0;
         add(openButton, c);
+    }
+
+    public Resource getResource() {
+        return resource;
+    }
+
+    public void setResource(Resource resource) {
+        this.resource = resource;
     }
 }

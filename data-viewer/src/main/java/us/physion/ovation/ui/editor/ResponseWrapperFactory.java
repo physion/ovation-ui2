@@ -4,8 +4,14 @@
  */
 package us.physion.ovation.ui.editor;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 import org.openide.util.Lookup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 
@@ -18,19 +24,42 @@ public class ResponseWrapperFactory {
     static Collection<? extends VisualizationFactory> dataVizFactories = Lookup.getDefault().lookupAll(VisualizationFactory.class);
     static Collection<? extends ContainerVisualizationFactory> containerVizFactories = Lookup.getDefault().lookupAll(ContainerVisualizationFactory.class);
 
+    static Logger logger = LoggerFactory.getLogger(ResponseWrapperFactory.class);
+
+    static LoadingCache<String, VisualizationFactory> cache = CacheBuilder.newBuilder()
+            .maximumSize(100)
+            .build(new CacheLoader<String, VisualizationFactory>() {
+                @Override
+                public VisualizationFactory load(String key) {
+                    int preference = 0;
+                    VisualizationFactory vis = null;
+
+                    for (VisualizationFactory f : dataVizFactories) {
+                        int factoryPref = f.getPreferenceForDataContentType(key);
+                        if (factoryPref > preference) {
+                            preference = factoryPref;
+                            vis = f;
+                        }
+                    }
+                    if (preference == 0) {
+                        return new DefaultVisualizationFactory();
+                    }
+                    
+                    return vis;
+                }
+            });
+    
     public static VisualizationFactory create(Resource r) {
-        int preference = 0;
-        VisualizationFactory vis = null;
-        for (VisualizationFactory f : dataVizFactories) {
-            int factoryPref = f.getPreferenceForDataContainer(r);
-            if (factoryPref > preference) {
-                preference = factoryPref;
-                vis = f;
-            }
+        String contentType = r.getDataContentType();
+        VisualizationFactory vis;
+
+
+        try {
+            vis = cache.get(contentType);
+        } catch (ExecutionException ex) {
+            vis = new DefaultVisualizationFactory();
         }
-        if (preference == 0) {
-            return new DefaultVisualizationFactory();
-        }
+
         return vis;
     }
 

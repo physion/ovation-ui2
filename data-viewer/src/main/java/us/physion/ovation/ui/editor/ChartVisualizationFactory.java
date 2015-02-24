@@ -41,17 +41,8 @@ public class ChartVisualizationFactory implements VisualizationFactory {
     }
 
     @Override
-    public int getPreferenceForDataContainer(Resource r) {
-        if (NumericDataElements.isNumeric(r)) {
-            try {
-                if (NumericDataElements.getNumericData(r).get().getData().size() == 1) {
-                    //TODO maybe there's a better way to show single value data?
-                }
-            } catch (InterruptedException ex) {
-                return -1;
-            } catch (ExecutionException ex) {
-                return -1;
-            }
+    public int getPreferenceForDataContentType(String contentType) {
+        if (contentType.equals(NumericDataElements.NUMERIC_MEASUREMENT_CONTENT_TYPE)) {
             return 100;
         }
         return -1;

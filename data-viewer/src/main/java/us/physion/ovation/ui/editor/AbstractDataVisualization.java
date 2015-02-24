@@ -47,6 +47,7 @@ public abstract class AbstractDataVisualization implements DataVisualization {
     protected void addEntity(OvationEntity e) {
         entities.add(e);
     }
+    
 
 
     @Override

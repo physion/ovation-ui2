@@ -29,8 +29,8 @@ public class TabularDataVisualizationFactory implements VisualizationFactory {
     }
 
     @Override
-    public int getPreferenceForDataContainer(Resource r) {
-        if (mimeTypes.contains(r.getDataContentType()))
+    public int getPreferenceForDataContentType(String contentType) {
+        if (mimeTypes.contains(contentType))
         {
             return 100;
         }

@@ -213,8 +213,8 @@ public class PDFVisualizationFactory implements VisualizationFactory {
     }
 
     @Override
-    public int getPreferenceForDataContainer(Resource r) {
-        return PDF_MIMETYPE.equals(r.getDataContentType()) ? 100 : -1;
+    public int getPreferenceForDataContentType(String contentType) {
+        return PDF_MIMETYPE.equals(contentType) ? 100 : -1;
     }
 
     public abstract static class LoadingHelper {

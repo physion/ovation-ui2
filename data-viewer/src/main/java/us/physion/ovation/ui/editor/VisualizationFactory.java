@@ -9,5 +9,5 @@ import us.physion.ovation.domain.Resource;
 public interface VisualizationFactory {
     public DataVisualization createVisualization(Resource r);
 
-    public int getPreferenceForDataContainer(Resource r);
+    public int getPreferenceForDataContentType(String contentType);
 }

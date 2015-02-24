@@ -18,8 +18,8 @@ public class DefaultImageVisualizationFactory implements VisualizationFactory{
 
 
     @Override
-    public int getPreferenceForDataContainer(Resource r) {
-        String lowercaseUTI = r.getDataContentType().toLowerCase();
+    public int getPreferenceForDataContentType(String contentType) {
+        String lowercaseUTI = contentType.toLowerCase();
         for (String name : ImageIO.getReaderFormatNames()) {
             if (lowercaseUTI.contains(name.toLowerCase())) {
                 return 100;

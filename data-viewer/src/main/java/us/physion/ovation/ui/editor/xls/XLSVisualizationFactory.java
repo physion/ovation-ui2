@@ -79,8 +79,8 @@ public class XLSVisualizationFactory implements VisualizationFactory {
     }
 
     @Override
-    public int getPreferenceForDataContainer(Resource r) {
-        return XLSX_MIMETYPE.equals(r.getDataContentType()) ? 100 : -1;
+    public int getPreferenceForDataContentType(String contentType) {
+        return XLSX_MIMETYPE.equals(contentType) ? 100 : -1;
     }
 
     private JComponent loadXLSX(File f) {
