@@ -8,8 +8,8 @@ import us.physion.ovation.domain.Resource;
 public class DicomVisualizationFactory implements VisualizationFactory{
 
     @Override
-    public int getPreferenceForDataContainer(Resource r) {
-        if (r.getDataContentType().equals("application/dicom"))
+    public int getPreferenceForDataContentType(String contentType) {
+        if (contentType.equals("application/dicom"))
         {
             return 100;
         }

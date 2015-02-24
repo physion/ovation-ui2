@@ -5,32 +5,42 @@ import javax.swing.JComponent;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Resource;
 
-/**
- *
- * @author huecotanks
- */
-public class DefaultVisualizationFactory implements VisualizationFactory
-{
+public class DefaultVisualizationFactory implements VisualizationFactory {
+
+//    static LoadingCache<Resource, DataVisualization> cache = CacheBuilder.newBuilder()
+//            .maximumSize(100)
+//            .build(new CacheLoader<Resource, DataVisualization>() {
+//                @Override
+//                public DataVisualization load(Resource key) {
+//                    return new DefaultVisualization(key);
+//                }
+//            });
+
     @Override
     public DataVisualization createVisualization(Resource r) {
+        
         return new DefaultVisualization(r);
+
     }
 
     @Override
-    public int getPreferenceForDataContainer(Resource r) {
+    public int getPreferenceForDataContentType(String contentType) {
         return 2;
     }
 
-    class DefaultVisualization extends AbstractDataVisualization    {
+    static class DefaultVisualization extends AbstractDataVisualization {
+
         final Resource data;
-        DefaultVisualization(Resource d)
-        {
+        private final JComponent panel;
+
+        DefaultVisualization(Resource d) {
             data = d;
+            panel = new DefaultDataPanel(data);
         }
 
         @Override
         public JComponent generatePanel() {
-            return new DefaultDataPanel(data);
+            return panel;
         }
 
         @Override

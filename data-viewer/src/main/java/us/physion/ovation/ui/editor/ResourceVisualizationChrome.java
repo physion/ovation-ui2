@@ -14,14 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package us.physion.ovation.ui.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JComponent;
@@ -39,37 +37,32 @@ import us.physion.ovation.domain.OvationEntity;
 })
 public class ResourceVisualizationChrome<T extends OvationEntity> extends javax.swing.JPanel {
 
+    private final DataVisualization visualization;
 
     /**
      * Creates new form AbstractResourceVisualizationChrome
      */
-    public ResourceVisualizationChrome(JComponent content, JComponent info) {
+    public ResourceVisualizationChrome(JComponent content, DataVisualization visualization) {
 
+        this.visualization = visualization;
 
         initComponents();
 
         contentPanel.add(content, BorderLayout.CENTER);
         contentPanel.revalidate();
 
-        if (info != null) {
-            infoPanel.add(info, BorderLayout.CENTER);
-        }
-
         infoPanel.setVisible(false);
         infoPanelRoot.revalidate();
 
-        infoButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (infoButton.isSelected()) {
-                    infoPanel.setVisible(true);
-                } else {
-                    infoPanel.setVisible(false);
-                }
-
-                infoPanelRoot.revalidate();
+        infoButton.addActionListener((ActionEvent e) -> {
+            if (infoButton.isSelected()) {
+                infoPanel.add(visualization.generateInfoPanel(), BorderLayout.CENTER);
+                infoPanel.setVisible(true);
+            } else {
+                infoPanel.setVisible(false);
             }
+
+            infoPanelRoot.revalidate();
         });
 
     }

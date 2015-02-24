@@ -23,8 +23,8 @@ public class ImageJVisualizationFactory implements VisualizationFactory {
     }
 
     @Override
-    public int getPreferenceForDataContainer(Resource r) {
-        if (r.getDataContentType().toLowerCase().contains("tif")) {
+    public int getPreferenceForDataContentType(String contentType) {
+        if (contentType.toLowerCase().contains("tif")) {
             return 110;
         }
         return -1;

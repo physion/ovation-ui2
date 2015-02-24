@@ -1,7 +1,6 @@
 package us.physion.ovation.ui.editor;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -26,16 +25,13 @@ import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import us.physion.ovation.domain.AnalysisRecord;
-import us.physion.ovation.domain.Epoch;
-import us.physion.ovation.domain.Folder;
 import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.actions.spi.ResourceLookupProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
-import us.physion.ovation.domain.mixin.ResourcesContainer;
 
 /**
  * Top component which displays something.
@@ -261,11 +257,8 @@ public final class DataViewerTopComponent extends TopComponent {
 
         final ProgressHandle progress = ProgressHandleFactory.createHandle("Updating view");
         final Collection<? extends IEntityNode> entityNodes = global.allInstances();
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                updateEntitySelection(entityNodes, progress);
-            }
+        Runnable r = () -> {
+            updateEntitySelection(entityNodes, progress);
         };
 
         if (updateEntitySelection != null && !updateEntitySelection.isDone()) {
@@ -275,20 +268,16 @@ public final class DataViewerTopComponent extends TopComponent {
         updateEntitySelection = EventQueueUtilities.runOffEDT(r, progress);
     }
 
+    Logger logger = LoggerFactory.getLogger(DataViewerTopComponent.class);
+    
     protected List<DataVisualization> updateEntitySelection(Collection<? extends IEntityNode> nodes, ProgressHandle progress) {
 
-        Set<IEntityNode> entityNodes = new TreeSet<>(new Comparator<IEntityNode>() {
-
-            @Override
-            public int compare(IEntityNode o1, IEntityNode o2) {
-                return o1.getEntity().getURI().compareTo(o2.getEntity().getURI());
-            }
-        });
+        Set<IEntityNode> entityNodes = new TreeSet<>((IEntityNode o1, IEntityNode o2) -> o1.getEntity().getURI().compareTo(o2.getEntity().getURI()));
 
         for (IEntityNode n : nodes) {
             entityNodes.add(n);
         }
-
+        
         if (progress != null) {
             progress.switchToDeterminate(entityNodes.size());
         }
@@ -300,19 +289,8 @@ public final class DataViewerTopComponent extends TopComponent {
         for (IEntityNode n : entityNodes) {
 
             IEntityWrapper ew = n.getEntityWrapper();
-            if (ResourcesContainer.class.isAssignableFrom(ew.getType())) {
-                ResourcesContainer container = (ResourcesContainer) (ew.getEntity());//getEntity gets the context for the given thread
-
-                if (container instanceof Epoch) {
-                    containers.add(n);
-                } else if (container instanceof AnalysisRecord) {
-                    containers.add(n);
-                } else if (container instanceof Folder) {
-                    containers.add(n);
-                } else {
-                    resources.addAll(Sets.newHashSet(container.getResourcesMap().values()));
-                }
-            } else if (Resource.class.isAssignableFrom(ew.getType())) {
+            
+            if (Resource.class.isAssignableFrom(ew.getType())) {
                 resources.add((Resource) ew.getEntity());
             } else {
                 containers.add(n);
@@ -326,6 +304,7 @@ public final class DataViewerTopComponent extends TopComponent {
         List<DataVisualization> dataVisualizations = Lists.newLinkedList();
         List<ContainerVisualization> containerVisualizations = Lists.newLinkedList();
 
+        
         for (Resource rw : resources) {
             boolean added = false;
             for (DataVisualization group : dataVisualizations) {
@@ -341,6 +320,7 @@ public final class DataViewerTopComponent extends TopComponent {
             }
         }
 
+
         for (IEntityNode n : containers) {
 
             containerVisualizations.add(ResponseWrapperFactory.create(n).createVisualization(n));
@@ -351,12 +331,12 @@ public final class DataViewerTopComponent extends TopComponent {
         }
 
 
+
         List<Component> visualizationComponents = Lists.newLinkedList();
         for (DataVisualization v : dataVisualizations) {
             final JComponent vizPanel = v.generatePanel();
             JComponent visualizationChrome
-                    = new ResourceVisualizationChrome(vizPanel,
-                            v.generateInfoPanel());
+                    = new ResourceVisualizationChrome(vizPanel, v);
 
             visualizationComponents.add(visualizationChrome);
         }

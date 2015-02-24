@@ -185,8 +185,8 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
     }
 
     @Override
-    public int getPreferenceForDataContainer(Resource r) {
-        if (PLAIN_TEXT_MIMETYPE.equals(r.getDataContentType())) {
+    public int getPreferenceForDataContentType(String contentType) {
+        if (PLAIN_TEXT_MIMETYPE.equals(contentType)) {
             return 100;
         }
         return -1;
