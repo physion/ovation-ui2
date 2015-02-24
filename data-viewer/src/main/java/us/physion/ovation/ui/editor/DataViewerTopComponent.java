@@ -28,6 +28,7 @@ import org.openide.windows.WindowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.Content;
 import us.physion.ovation.ui.actions.spi.ResourceLookupProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
@@ -64,23 +65,15 @@ public final class DataViewerTopComponent extends TopComponent {
         private final List<AbstractAction> tabActions = Lists.newArrayList();
 
         public TemporaryViewTopComponent(final Resource element) {
-            setName(Bundle.Temporary_Data_Viewer_Title(element.getName()));
+            setName(Bundle.Temporary_Data_Viewer_Title(element.getLabel()));
             setLayout(new BorderLayout());
             setBackground(Color.white);
-            EventQueueUtilities.runOffEDT(new Runnable() {
-
-                @Override
-                public void run() {
-                    final DataVisualization v = ResponseWrapperFactory.create(element).createVisualization(element);
-
-                    EventQueueUtilities.runOnEDT(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            add(v.generatePanel(), BorderLayout.CENTER);
-                        }
-                    });
-                }
+            EventQueueUtilities.runOffEDT(() -> {
+                final DataVisualization v = ResponseWrapperFactory.create(element).createVisualization(element);
+                
+                EventQueueUtilities.runOnEDT(() -> {
+                    add(v.generatePanel(), BorderLayout.CENTER);
+                });
             }, ProgressHandleFactory.createHandle(Bundle.Temporary_Data_Viewer_Loading()));
         }
 
@@ -180,7 +173,7 @@ public final class DataViewerTopComponent extends TopComponent {
 
     private FixedHeightPanel contentPanel;
     Lookup.Result global;
-    List<FixedHeightPanel> responsePanels = new ArrayList<FixedHeightPanel>();
+    List<FixedHeightPanel> responsePanels = new ArrayList<>();
     Future updateEntitySelection;
     private LookupListener listener = new LookupListener() {
         @Override
@@ -283,15 +276,15 @@ public final class DataViewerTopComponent extends TopComponent {
         }
         int progressWorkUnit = 0;
 
-        List<Resource> resources = Lists.newLinkedList();
+        List<Content> contentElements = Lists.newLinkedList();
         List<IEntityNode> containers = Lists.newLinkedList();
 
         for (IEntityNode n : entityNodes) {
 
             IEntityWrapper ew = n.getEntityWrapper();
             
-            if (Resource.class.isAssignableFrom(ew.getType())) {
-                resources.add((Resource) ew.getEntity());
+            if (Content.class.isAssignableFrom(ew.getType())) {
+                contentElements.add(ew.getEntity(Resource.class));
             } else {
                 containers.add(n);
             }
@@ -305,7 +298,7 @@ public final class DataViewerTopComponent extends TopComponent {
         List<ContainerVisualization> containerVisualizations = Lists.newLinkedList();
 
         
-        for (Resource rw : resources) {
+        for (Content rw : contentElements) {
             boolean added = false;
             for (DataVisualization group : dataVisualizations) {
                 if (group.shouldAdd(rw)) {
@@ -315,8 +308,7 @@ public final class DataViewerTopComponent extends TopComponent {
                 }
             }
             if (!added) {
-                Resource r = (Resource) rw;
-                dataVisualizations.add(ResponseWrapperFactory.create(r).createVisualization(r));
+                dataVisualizations.add(ResponseWrapperFactory.create(rw).createVisualization(rw));
             }
         }
 

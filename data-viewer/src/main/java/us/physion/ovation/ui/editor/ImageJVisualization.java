@@ -1,11 +1,11 @@
 package us.physion.ovation.ui.editor;
 
-import com.google.common.collect.Sets;
 import ij.ImagePlus;
 import loci.plugins.BF;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.io.File;
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -14,7 +14,8 @@ import javax.swing.JPanel;
 import org.openide.util.NbBundle.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.mixin.Content;
 import us.physion.ovation.ui.actions.OpenInNativeAppAction;
 
 /**
@@ -31,8 +32,8 @@ public class ImageJVisualization extends AbstractDataVisualization {
 
     JPanel panel;
 
-    ImageJVisualization(Resource d) {
-        super(Sets.newHashSet(d));
+    ImageJVisualization(Content d) {
+        super(Collections.singleton((OvationEntity)d));
 
         File imageFile;
         try {
@@ -95,12 +96,12 @@ public class ImageJVisualization extends AbstractDataVisualization {
     }
 
     @Override
-    public boolean shouldAdd(Resource r) {
+    public boolean shouldAdd(Content r) {
         return false;
     }
 
     @Override
-    public void add(Resource r) {
+    public void add(Content r) {
         throw new UnsupportedOperationException("Not supported for this image visualization.");
     }
 }

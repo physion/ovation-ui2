@@ -1,13 +1,13 @@
 package us.physion.ovation.ui.editor;
 
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.Content;
 
 /**
  *
  * @author huecotanks
  */
 public interface VisualizationFactory {
-    public DataVisualization createVisualization(Resource r);
+    public DataVisualization createVisualization(Content r);
 
     public int getPreferenceForDataContentType(String contentType);
 }

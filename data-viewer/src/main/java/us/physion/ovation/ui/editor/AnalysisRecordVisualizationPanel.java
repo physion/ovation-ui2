@@ -52,9 +52,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.explorer.ExplorerManager;
@@ -71,6 +69,7 @@ import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.Revision;
 import us.physion.ovation.domain.mixin.EpochGroupContainer;
 import us.physion.ovation.domain.mixin.ResourcesContainer;
 import us.physion.ovation.ui.browser.BrowserUtilities;
@@ -154,72 +153,52 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
         paramsModel.setParams(getAnalysisRecord().getProtocolParameters());
 
-        paramsModel.addTableModelListener(new TableModelListener() {
-
-            @Override
-            public void tableChanged(TableModelEvent e) {
-                switch (e.getType()) {
-                    case TableModelEvent.DELETE:
-                        for (String k : paramsModel.getAndClearRemovedKeys()) {
-                            getAnalysisRecord().removeProtocolParameter(k);
-                        }
-                        break;
-                    case TableModelEvent.INSERT:
-                        for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
-                            String key = (String) paramsModel.getValueAt(r, 0);
+        paramsModel.addTableModelListener((TableModelEvent e) -> {
+            switch (e.getType()) {
+                case TableModelEvent.DELETE:
+                    for (String k : paramsModel.getAndClearRemovedKeys()) {
+                        getAnalysisRecord().removeProtocolParameter(k);
+                    }
+                    break;
+                case TableModelEvent.INSERT:
+                    for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
+                        String key = (String) paramsModel.getValueAt(r, 0);
+                        Object value = paramsModel.getValueAt(r, 1);
+                        getAnalysisRecord().addProtocolParameter(key, value);
+                    }
+                    break;
+                case TableModelEvent.UPDATE:
+                    for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
+                        String key = (String) paramsModel.getValueAt(r, 0);
+                        if (key != null && !key.isEmpty()) {
                             Object value = paramsModel.getValueAt(r, 1);
                             getAnalysisRecord().addProtocolParameter(key, value);
                         }
-                        break;
-                    case TableModelEvent.UPDATE:
-                        for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
-                            String key = (String) paramsModel.getValueAt(r, 0);
-                            if (key != null && !key.isEmpty()) {
-                                Object value = paramsModel.getValueAt(r, 1);
-                                getAnalysisRecord().addProtocolParameter(key, value);
-                            }
-                        }
-                        break;
-                }
-            }
-
-        });
-
-        addInputButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addInputsFromDialog();
-            }
-
-        });
-
-        inputsList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                List<String> selection = Lists.newArrayList();
-                List<String> elements = getInputNames();
-
-                for (int i : inputsList.getSelectedIndices()) {
-                    selection.add(elements.get(i));
-                }
-
-                setSelectedInputs(selection);
+                    }
+                    break;
             }
         });
 
-        removeInputButton.addActionListener(new ActionListener() {
+        addInputButton.addActionListener((ActionEvent e) -> {
+            addInputsFromDialog();
+        });
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Map<String, Resource> inputs = getAnalysisRecord().getInputs();
-
-                for (String name : getSelectedInputs()) {
-                    getAnalysisRecord().removeInput(name);
-                }
+        inputsList.getSelectionModel().addListSelectionListener((ListSelectionEvent e) -> {
+            List<String> selection = Lists.newArrayList();
+            List<String> elements = getInputNames();
+            
+            for (int i : inputsList.getSelectedIndices()) {
+                selection.add(elements.get(i));
             }
+            
+            setSelectedInputs(selection);
+        });
 
+        removeInputButton.addActionListener((ActionEvent e) -> {
+            Map<String, Revision> inputs = getAnalysisRecord().getInputs();
+            for (String name1 : getSelectedInputs()) {
+                getAnalysisRecord().removeInput(name1);
+            }
         });
 
         removeInputButton.setEnabled(false);
@@ -230,20 +209,13 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.AnalysisRecord_Adding_Outputs());
 
-                EventQueueUtilities.runOffEDT(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        final List<Resource> outputs = addOutputFiles(files);
-                        EventQueueUtilities.runOnEDT(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!outputs.isEmpty()) {
-                                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, outputs.get(0));
-                                }
-                            }
-                        });
-                    }
+                EventQueueUtilities.runOffEDT(() -> {
+                    final List<Resource> outputs = addOutputFiles(files);
+                    EventQueueUtilities.runOnEDT(() -> {
+                        if (!outputs.isEmpty()) {
+                            RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, outputs.get(0));
+                        }
+                    });
                 }, ph);
             }
         });

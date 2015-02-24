@@ -2,7 +2,7 @@ package us.physion.ovation.ui.editor;
 
 import javax.imageio.ImageIO;
 import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.Content;
 
 @ServiceProvider(service = VisualizationFactory.class)
 /**
@@ -12,7 +12,7 @@ import us.physion.ovation.domain.Resource;
 public class DefaultImageVisualizationFactory implements VisualizationFactory{
 
     @Override
-    public DataVisualization createVisualization(Resource r) {
+    public DataVisualization createVisualization(Content r) {
         return new DefaultImageWrapper(r);
     }
 

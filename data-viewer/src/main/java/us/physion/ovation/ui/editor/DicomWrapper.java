@@ -13,7 +13,8 @@ import org.openide.util.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.Content;
+import us.physion.ovation.ui.actions.ContentUtils;
 
 /**
  *
@@ -24,25 +25,19 @@ public class DicomWrapper extends AbstractDataVisualization {
 
     String name;
     SourceImage src;
-    final Resource entity;
+    final Content entity;
 
-    DicomWrapper(Resource r) {
+    DicomWrapper(Content r) {
         entity = r;
         DicomInputStream in = null;
         try {
             in = new DicomInputStream(new FileInputStream(r.getData().get()));
             src = new SourceImage(in);
-            this.name = r.getName();
-        } catch (InterruptedException ex) {
+            this.name = ContentUtils.contentLabel(r);
+        } catch (InterruptedException | ExecutionException ex) {
             log.info("", ex);
             throw new RuntimeException(ex.getLocalizedMessage(), ex);
-        } catch (ExecutionException ex) {
-            log.info("", ex);
-            throw new RuntimeException(ex.getLocalizedMessage(), ex);
-        } catch (DicomException ex) {
-            Exceptions.printStackTrace(ex);
-            throw new RuntimeException(ex.getLocalizedMessage(), ex);
-        } catch (IOException ex) {
+        } catch (DicomException | IOException ex) {
             Exceptions.printStackTrace(ex);
             throw new RuntimeException(ex.getLocalizedMessage(), ex);
         } finally {
@@ -63,18 +58,18 @@ public class DicomWrapper extends AbstractDataVisualization {
     }
 
     @Override
-    public boolean shouldAdd(Resource r) {
+    public boolean shouldAdd(Content r) {
         return false;
     }
 
     @Override
-    public void add(Resource r) {
+    public void add(Content r) {
         throw new UnsupportedOperationException("Dicoms are not displayed in groups");
     }
 
     @Override
     public Iterable<? extends OvationEntity> getEntities() {
-        return Sets.newHashSet(entity);
+        return Sets.newHashSet((OvationEntity)entity);
     }
 
 }

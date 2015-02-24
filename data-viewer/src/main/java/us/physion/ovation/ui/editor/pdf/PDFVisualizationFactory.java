@@ -37,8 +37,10 @@ import org.icepdf.ri.common.SwingViewBuilder;
 import org.icepdf.ri.common.utility.annotation.AnnotationPanel;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.mixin.Content;
 import us.physion.ovation.exceptions.ResourceNotFoundException;
+import us.physion.ovation.ui.actions.ContentUtils;
 import us.physion.ovation.ui.editor.AbstractDataVisualization;
 import us.physion.ovation.ui.editor.DataVisualization;
 import us.physion.ovation.ui.editor.VisualizationFactory;
@@ -54,16 +56,16 @@ public class PDFVisualizationFactory implements VisualizationFactory {
     private final static String PDF_MIMETYPE = "application/pdf"; //NOI18N
 
     @Override
-    public DataVisualization createVisualization(final Resource r) {
-        return new AbstractDataVisualization(Collections.singleton(r)) {
+    public DataVisualization createVisualization(final Content r) {
+        return new AbstractDataVisualization(Collections.singleton((OvationEntity)r)) {
 
             @Override
-            public boolean shouldAdd(Resource r) {
+            public boolean shouldAdd(Content r) {
                 return false;
             }
 
             @Override
-            public void add(Resource r) {
+            public void add(Content r) {
                 throw new UnsupportedOperationException();
             }
 
@@ -79,7 +81,7 @@ public class PDFVisualizationFactory implements VisualizationFactory {
                     @Override
                     protected void failed(Throwable t) {
                         //TODO: Log the exception?
-                        content.add(new JLabel(Bundle.LBL_PDFLoadingFailed(r.getName())), BorderLayout.CENTER);
+                        content.add(new JLabel(Bundle.LBL_PDFLoadingFailed(ContentUtils.contentLabel(r))), BorderLayout.CENTER);
                     }
                 };
 
@@ -219,10 +221,10 @@ public class PDFVisualizationFactory implements VisualizationFactory {
 
     public abstract static class LoadingHelper {
 
-        private final Resource r;
+        private final Content r;
         protected final JPanel content;
 
-        public LoadingHelper(Resource r) {
+        public LoadingHelper(Content r) {
             this.r = r;
             content = new JPanel(new BorderLayout());
             content.setBackground(Color.WHITE);

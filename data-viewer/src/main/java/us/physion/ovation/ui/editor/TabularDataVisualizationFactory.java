@@ -3,7 +3,7 @@ package us.physion.ovation.ui.editor;
 import java.util.HashSet;
 import java.util.Set;
 import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.Content;
 
 @ServiceProvider(service = VisualizationFactory.class)
 /**
@@ -24,7 +24,7 @@ public class TabularDataVisualizationFactory implements VisualizationFactory {
     }
     
     @Override
-    public DataVisualization createVisualization(Resource r) {
+    public DataVisualization createVisualization(Content r) {
         return new TabularDataWrapper(r);
     }
 

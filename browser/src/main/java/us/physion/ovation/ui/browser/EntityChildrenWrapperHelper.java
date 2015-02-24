@@ -43,6 +43,7 @@ import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Protocol;
 import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.Revision;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.ProcedureElement;
@@ -307,7 +308,7 @@ public class EntityChildrenWrapperHelper {
     }
 
     private void addOutputs(List<EntityWrapper> list, AnalysisRecord entity, ProgressHandle ph) {
-        for (Resource d : entity.getOutputs().values()) {
+        for (Revision d : entity.getOutputs().values()) {
             list.add(new EntityWrapper(d));
         }
     }

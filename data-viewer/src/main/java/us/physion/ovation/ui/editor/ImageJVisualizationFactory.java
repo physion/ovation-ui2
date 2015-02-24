@@ -7,7 +7,7 @@ package us.physion.ovation.ui.editor;
 //import net.imglib2.io.ImgIOException;
 //import net.imglib2.io.ImgOpener;
 import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.Content;
 
 @ServiceProvider(service = VisualizationFactory.class)
 /**
@@ -17,7 +17,7 @@ import us.physion.ovation.domain.Resource;
 public class ImageJVisualizationFactory implements VisualizationFactory {
 
     @Override
-    public DataVisualization createVisualization(Resource r) {
+    public DataVisualization createVisualization(Content r) {
 
         return new ImageJVisualization(r);
     }

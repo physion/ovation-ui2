@@ -1,7 +1,7 @@
 package us.physion.ovation.ui.editor;
 
 import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.Content;
 
 
 @ServiceProvider(service = VisualizationFactory.class)
@@ -17,7 +17,7 @@ public class DicomVisualizationFactory implements VisualizationFactory{
     }
 
     @Override
-    public DataVisualization createVisualization(Resource r) {
+    public DataVisualization createVisualization(Content r) {
         return new DicomWrapper(r);
     }
 

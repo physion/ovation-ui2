@@ -3,7 +3,7 @@ package us.physion.ovation.ui.editor;
 import com.google.common.collect.Sets;
 import javax.swing.JComponent;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.Content;
 
 public class DefaultVisualizationFactory implements VisualizationFactory {
 
@@ -17,7 +17,7 @@ public class DefaultVisualizationFactory implements VisualizationFactory {
 //            });
 
     @Override
-    public DataVisualization createVisualization(Resource r) {
+    public DataVisualization createVisualization(Content r) {
         
         return new DefaultVisualization(r);
 
@@ -30,10 +30,10 @@ public class DefaultVisualizationFactory implements VisualizationFactory {
 
     static class DefaultVisualization extends AbstractDataVisualization {
 
-        final Resource data;
+        final Content data;
         private final JComponent panel;
 
-        DefaultVisualization(Resource d) {
+        DefaultVisualization(Content d) {
             data = d;
             panel = new DefaultDataPanel(data);
         }
@@ -44,18 +44,18 @@ public class DefaultVisualizationFactory implements VisualizationFactory {
         }
 
         @Override
-        public boolean shouldAdd(Resource r) {
+        public boolean shouldAdd(Content r) {
             return false;
         }
 
         @Override
-        public void add(Resource r) {
+        public void add(Content r) {
             throw new UnsupportedOperationException("Create a new Visualization, rather than adding to an existing one");
         }
 
         @Override
         public Iterable<? extends OvationEntity> getEntities() {
-            return Sets.newHashSet(data);
+            return Sets.newHashSet((OvationEntity)data);
         }
 
     }
