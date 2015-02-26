@@ -70,6 +70,7 @@ public class OvationSearchProvider implements SearchProvider {
         response.addResult(() -> {
             QuerySet querySet = new QuerySet();
             Lookup.getDefault().lookup(QueryProvider.class).setQuerySet(querySet);
+            
             try {
                 for (OvationEntity entity : ctx.query(OvationEntity.class, query).get()) {
                     querySet.add(entity);
@@ -83,12 +84,16 @@ public class OvationSearchProvider implements SearchProvider {
         }, Bundle.Search_Run_Query(query));
     }
 
-    private void addAllPaths(/* @NotNull */OvationEntity ent, /* @NotNull */ SearchResponse response) {
+    private void addAllPaths(/* @NotNull */OvationEntity ent,
+            /* @NotNull */ SearchResponse response) {
+
         for (List<IEntityWrapper> path : QuerySet.getPathsToEntity(ent, Lists.<IEntityWrapper>newArrayList())) {
             //path starts with ent and ends with a top-level parent (Project/Source/Protocol)
 
-            final List<IEntityWrapper> revealPath = path;
-            if (!response.addResult(() -> { RevealNode.forPath(revealPath); }, getDisplayName(path))) {
+            final List<IEntityWrapper> revealPath = Lists.newLinkedList(path);
+            if (!response.addResult(() -> {
+                RevealNode.forPath(revealPath);
+            }, getDisplayName(path))) {
                 //search stopped, exit
                 return;
             }
