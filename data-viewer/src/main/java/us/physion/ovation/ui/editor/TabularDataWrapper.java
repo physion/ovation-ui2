@@ -4,22 +4,24 @@ import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.collect.Sets;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.swing.JComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.Content;
 import us.physion.ovation.exceptions.OvationException;
 
 public class TabularDataWrapper extends AbstractDataVisualization {
 
     static Logger logger = LoggerFactory.getLogger(TabularDataWrapper.class);
 
-    private final Resource entity;
+    private final Content entity;
     private final TabularData data;
 
-    TabularDataWrapper(Resource r)
+    TabularDataWrapper(Content r)
     {
         entity = r;
 
@@ -32,11 +34,11 @@ public class TabularDataWrapper extends AbstractDataVisualization {
             
             data = new TabularData(entries, columnNames, file);
 
-        } catch (Exception ex) {
+        } catch (InterruptedException | ExecutionException | IOException ex) {
             String rId = "";
             if (r != null)
             {
-                rId = "'" + r.getUuid() + "'";
+                rId = "'" + ((OvationEntity)r).getUuid() + "'";
             }
             logger.debug("Error parsing tabular data file " + rId + ":" + ex.getLocalizedMessage());
             throw new OvationException(ex);
@@ -49,17 +51,17 @@ public class TabularDataWrapper extends AbstractDataVisualization {
     }
 
     @Override
-    public boolean shouldAdd(Resource r) {
+    public boolean shouldAdd(Content r) {
         return false;
     }
 
     @Override
-    public void add(Resource r) {
+    public void add(Content r) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public Iterable<? extends OvationEntity> getEntities() {
-        return Sets.newHashSet(entity);
+        return Sets.newHashSet((OvationEntity)entity);
     }
 }

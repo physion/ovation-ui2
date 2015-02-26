@@ -8,9 +8,9 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.AbstractAction;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.NbBundle.Messages;
-import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
+import us.physion.ovation.domain.mixin.Content;
 
 @Messages({
     "Open_in_native_application_button=Open in native application...",
@@ -20,18 +20,18 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 })
 public class OpenInNativeAppAction extends AbstractAction {
 
-    private final Resource fileFuture;
+    private final Content fileFuture;
     private final File file;
 
     public OpenInNativeAppAction(File file) {
         this(file, null);
     }
 
-    public OpenInNativeAppAction(Resource fileFuture) {
+    public OpenInNativeAppAction(Content fileFuture) {
         this(null, fileFuture);
     }
 
-    private OpenInNativeAppAction(File file, Resource fileFuture) {
+    private OpenInNativeAppAction(File file, Content fileFuture) {
         super(Bundle.Open_in_native_application_button());
         this.file = file;
         this.fileFuture = fileFuture;
@@ -47,11 +47,8 @@ public class OpenInNativeAppAction extends AbstractAction {
                 public void run() {
                     try {
                         final File f = fileFuture.getData().get();
-                        EventQueueUtilities.runOnEDT(new Runnable() {
-                            @Override
-                            public void run() {
-                                openFile(f);
-                            }
+                        EventQueueUtilities.runOnEDT(() -> {
+                            openFile(f);
                         });
                     } catch (InterruptedException ex) {
                         throw new OvationException(ex);
@@ -59,7 +56,7 @@ public class OpenInNativeAppAction extends AbstractAction {
                         throw new OvationException(ex);
                     }
                 }
-            }, ProgressHandleFactory.createHandle(Bundle.Getting_and_opening_file(fileFuture.getName())));
+            }, ProgressHandleFactory.createHandle(Bundle.Getting_and_opening_file(ContentUtils.contentLabel(fileFuture))));
         }
     }
 

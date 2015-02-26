@@ -5,16 +5,16 @@
 package us.physion.ovation.ui.editor;
 
 import javax.swing.JComponent;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.Content;
 
 /**
  *
  * @author huecotanks
  */
 public interface DataVisualization extends Visualization {
-    boolean shouldAdd(Resource r);
-
-    void add(Resource r);
+    boolean shouldAdd(Content r);
+    
+    void add(Content r);
 
     /* @Nullable */
     JComponent generateInfoPanel();

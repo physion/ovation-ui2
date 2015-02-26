@@ -42,13 +42,9 @@ public class EventQueueUtilities
             r.run();
 	    return Futures.immediateFuture(null);
 	} else {
-            ListenableFutureTask<Void> task = ListenableFutureTask.create(new Callable<Void>() {
-
-                @Override
-                public Void call() throws Exception {
-                    r.run();
-                    return null;
-                }
+            ListenableFutureTask<Void> task = ListenableFutureTask.create(() -> {
+                r.run();
+                return null;
             });
 
 	    SwingUtilities.invokeLater(r);

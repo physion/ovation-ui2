@@ -96,7 +96,7 @@ public final class EntityUtilities {
     private static List<Measurement> insertMeasurements(Epoch e, File[] files, List<File> images) {
         List<Measurement> result = Lists.newLinkedList(ImageImporter.importImageMeasurements(e, images)
                 .toList()
-                .toBlockingObservable()
+                .toBlocking()
                 .lastOrDefault(Lists.<Measurement>newArrayList()));
 
         Set<File> others = Sets.newHashSet(files);

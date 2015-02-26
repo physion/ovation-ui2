@@ -15,7 +15,6 @@ import org.openide.explorer.ExplorerManager.Provider;
 import org.openide.explorer.view.TreeView;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.util.Cancellable;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -98,7 +97,7 @@ public class OpenNodeInBrowserAction extends AbstractAction {
                 if (n instanceof URINode) {
                     //XXX: Also see EntityNode.buildURITreePath
 
-                    List<URI> paths = new ArrayList<URI>(((URINode) n).getFilteredParentURIs());
+                    List<URI> paths = new ArrayList<>(((URINode) n).getFilteredParentURIs());
                     Collections.reverse(paths);
 
                     paths.add(((URINode) n).getURI());
@@ -135,14 +134,10 @@ public class OpenNodeInBrowserAction extends AbstractAction {
             } else {
                 //some expanding is needed
                 final AtomicBoolean cancelled = new AtomicBoolean(false);
-                ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.SelectingProgress(), new Cancellable() {
-
-                    @Override
-                    public boolean cancel() {
-                        cancelled.set(true);
-
-                        return true;
-                    }
+                ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.SelectingProgress(), () -> {
+                    cancelled.set(true);
+                    
+                    return true;
                 });
                 ph.start();
 

@@ -1,7 +1,7 @@
 package us.physion.ovation.ui.editor;
 
-import com.google.common.collect.Sets;
 import java.awt.Font;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -17,9 +17,10 @@ import org.jfree.ui.RectangleInsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.NumericDataElements;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.values.NumericData;
+import us.physion.ovation.domain.mixin.Content;
 
 /**
  *
@@ -33,8 +34,8 @@ class ChartGroupWrapper extends AbstractDataVisualization {
     String _title;
     Map<String, Integer> dsCardinality;
 
-    ChartGroupWrapper(DefaultXYDataset ds, NumericData data, Resource Resource) {
-        super(Sets.newHashSet(Resource));
+    ChartGroupWrapper(DefaultXYDataset ds, NumericData data, Content content) {
+        super(Collections.singleton((OvationEntity)content));
 
         NumericData.Data d = data.getData().values().iterator().next();
 
@@ -44,7 +45,7 @@ class ChartGroupWrapper extends AbstractDataVisualization {
         _ds = ds;
         _xAxis = xAxis;
         _yAxis = yAxis;
-        dsCardinality = new HashMap<String, Integer>();
+        dsCardinality = new HashMap<>();
     }
     DefaultXYDataset getDataset(){ return _ds;}
     String getXAxis() { return _xAxis;}
@@ -158,7 +159,7 @@ class ChartGroupWrapper extends AbstractDataVisualization {
     }
 
     @Override
-    public boolean shouldAdd(Resource r) {
+    public boolean shouldAdd(Content r) {
         if (!NumericDataElements.isNumeric(r)) {
             return false;
         }
@@ -166,9 +167,7 @@ class ChartGroupWrapper extends AbstractDataVisualization {
         NumericData data;
         try {
             data = NumericDataElements.getNumericData(r).get();
-        } catch (InterruptedException ex) {
-            throw new OvationException(ex);
-        } catch (ExecutionException ex) {
+        } catch (InterruptedException | ExecutionException ex) {
             throw new OvationException(ex);
         }
 
@@ -183,13 +182,12 @@ class ChartGroupWrapper extends AbstractDataVisualization {
 
 
     @Override
-    public void add(Resource r) {
+    public void add(Content r) {
         String preface = "Aggregate responses: ";
         NumericData data;
-        try{
+        try {
             data = NumericDataElements.getNumericData(r).get();
-        } catch (Exception e)
-        {
+        } catch (InterruptedException | ExecutionException e) {
             throw new OvationException(e.getLocalizedMessage());
         }
         for (NumericData.Data d : data.getData().values()) {
@@ -203,8 +201,11 @@ class ChartGroupWrapper extends AbstractDataVisualization {
             setTitle(preface + name + ", " + d.name);
         }
 
-        addEntity(r);
+        addEntity((OvationEntity)r);
     }
+    
+    
+
 
     protected static String convertSamplingRateUnitsToGraphUnits(String samplingRateUnits) {
         if (samplingRateUnits.toLowerCase().contains("hz")) {

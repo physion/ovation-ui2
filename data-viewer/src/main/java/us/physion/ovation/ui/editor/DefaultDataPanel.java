@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.editor;
 
+import us.physion.ovation.ui.actions.ContentUtils;
 import java.awt.Color;
 import us.physion.ovation.ui.actions.OpenInNativeAppAction;
 import java.awt.GridBagConstraints;
@@ -8,7 +9,7 @@ import java.awt.Insets;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.Content;
 
 /**
  *
@@ -16,16 +17,16 @@ import us.physion.ovation.domain.Resource;
  */
 public class DefaultDataPanel extends JPanel{
 
-    Resource resource;
+    Content resource;
     JLabel elementName;
     JLabel messageLabel;
 
-    public DefaultDataPanel(Resource data) {
+    public DefaultDataPanel(Content data) {
         resource = data;
         this.setLayout(new GridBagLayout());
         this.setBackground(Color.white);
         GridBagConstraints c = new GridBagConstraints();
-        elementName = new JLabel(data.getLabel());
+        elementName = new JLabel(ContentUtils.contentLabel(data));
         
         messageLabel = new JLabel("Unknown data type '" + data.getDataContentType() + "'");
         JButton openButton = new JButton(new OpenInNativeAppAction(resource));
@@ -42,11 +43,11 @@ public class DefaultDataPanel extends JPanel{
         add(openButton, c);
     }
 
-    public Resource getResource() {
+    public Content getContent() {
         return resource;
     }
 
-    public void setResource(Resource resource) {
+    public void setContent(Content resource) {
         this.resource = resource;
     }
 }

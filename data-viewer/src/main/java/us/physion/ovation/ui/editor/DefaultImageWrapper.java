@@ -1,5 +1,6 @@
 package us.physion.ovation.ui.editor;
 
+import us.physion.ovation.ui.actions.ContentUtils;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.awt.Component;
@@ -18,7 +19,7 @@ import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.Content;
 import us.physion.ovation.exceptions.OvationException;
 
 /**
@@ -31,11 +32,11 @@ public class DefaultImageWrapper extends AbstractDataVisualization {
 
     final String name;
 
-    final Resource entity;
+    final Content entity;
 
-    DefaultImageWrapper(Resource r) {
+    DefaultImageWrapper(Content r) {
         entity = r;
-        this.name = r.getName();
+        this.name = ContentUtils.contentLabel(r);
     }
 
     @Override
@@ -47,18 +48,18 @@ public class DefaultImageWrapper extends AbstractDataVisualization {
     }
 
     @Override
-    public boolean shouldAdd(Resource r) {
+    public boolean shouldAdd(Content r) {
         return false;
     }
 
     @Override
-    public void add(Resource r) {
+    public void add(Content r) {
         throw new UnsupportedOperationException("Images are currently implemented one per panel");
     }
 
     @Override
     public Iterable<? extends OvationEntity> getEntities() {
-        return Sets.newHashSet(entity);
+        return Sets.newHashSet((OvationEntity)entity);
     }
 
 }
@@ -92,9 +93,7 @@ class ScaledImagePanel extends JPanel {
             int startX = (int) ((this.getWidth() - width) / 2);
             int startY = (int) ((this.getHeight() - height) / 2);
             g.drawImage(scaledImg, startX, Math.min(10, startY), (int) width, (int) height, this);
-        } catch (OvationException ex) {
-            logger.error("Unable to load image", ex);
-        } catch (IOException ex) {
+        } catch (OvationException | IOException ex) {
             logger.error("Unable to load image", ex);
         } catch (InterruptedException ex) {
             logger.error("Image download interrupted", ex);
@@ -113,10 +112,7 @@ class ScaledImagePanel extends JPanel {
             return img;
         }
 
-        ImageInputStream iis = null;
-
-        try {
-            iis = ImageIO.createImageInputStream(f);
+        try (ImageInputStream iis = ImageIO.createImageInputStream(f)) {
             Iterator iter = ImageIO.getImageReaders(iis);
             if (!iter.hasNext()) {
                 throw new OvationException("Unable to load image. No ImageIO readers available.");
@@ -143,10 +139,6 @@ class ScaledImagePanel extends JPanel {
 
         } catch (IOException ex) {
             throw new OvationException("Unable to load image", ex);
-        } finally {
-            if (iis != null) {
-                iis.close();
-            }
         }
     }
 }

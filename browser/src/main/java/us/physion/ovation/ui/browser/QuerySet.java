@@ -20,9 +20,13 @@ import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Epoch;
 import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
+import us.physion.ovation.domain.Folder;
+import us.physion.ovation.domain.FolderContainer;
 import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
+import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.Revision;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.mixin.Owned;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
@@ -141,8 +145,29 @@ public class QuerySet {
             }
         } else if (AnalysisRecord.class.isAssignableFrom(type)) {
             parents.add(((AnalysisRecord) entity).getParent());
+        } else if (Folder.class.isAssignableFrom(type)) {
+            for (FolderContainer c : ((Folder) entity).getParents()) {
+                parents.add(c);
+            }
+        } else if (Resource.class.isAssignableFrom(type)) {
+            Resource r = ((Resource) entity);
+            addResourceParents(r, parents);
+        } else if (Revision.class.isAssignableFrom(type)) {
+            Revision rev = (Revision) entity;
+            parents.addAll(Lists.newLinkedList(rev.getEntities(Revision.RelationshipKeys.UPSTREAM_ANALYSES)));
+            parents.add(rev.getResource());
         }
+        
         return parents;
+    }
+
+    private static void addResourceParents(Resource r, Set<OvationEntity> parents) {
+        OvationEntity e = r.getContainingEntity();
+        if(e != null) {
+            parents.add(e);
+        }
+        
+        parents.addAll(Sets.newHashSet(r.getFolders()));
     }
 
     private static boolean isPerUser(OvationEntity e) {

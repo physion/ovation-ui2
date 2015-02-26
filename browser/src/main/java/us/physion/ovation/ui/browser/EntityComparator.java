@@ -7,6 +7,7 @@ import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Protocol;
+import us.physion.ovation.domain.Revision;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.TimelineElement;
@@ -31,7 +32,6 @@ public class EntityComparator<T extends EntityWrapper> implements Comparator<T> 
         } else if (o2 == EntityWrapper.EMPTY) {
             return -1;
         }
-
 
         final OvationEntity entity1 = o1.getEntity(true);
         final OvationEntity entity2 = o2.getEntity(true);
@@ -67,12 +67,12 @@ public class EntityComparator<T extends EntityWrapper> implements Comparator<T> 
             return t1.getStart().compareTo(t2.getStart());
         }
 
-        if(entity1 instanceof User && !(entity2 instanceof User)) {
+        if (entity1 instanceof User && !(entity2 instanceof User)) {
             return 1; //User entries compare after non-analysis records
         }
 
-        if(entity1 instanceof AnalysisRecord && entity2 instanceof AnalysisRecord) {
-            return ((AnalysisRecord)entity1).getName().compareTo(((AnalysisRecord)entity2).getName());
+        if (entity1 instanceof AnalysisRecord && entity2 instanceof AnalysisRecord) {
+            return ((AnalysisRecord) entity1).getName().compareTo(((AnalysisRecord) entity2).getName());
         }
 
         if (entity1 instanceof Measurement && entity2 instanceof Measurement) {
@@ -85,6 +85,15 @@ public class EntityComparator<T extends EntityWrapper> implements Comparator<T> 
 //            }
 //
 //            return ((Measurement) entity1).getEpoch().getStart().compareTo(((Measurement) entity2).getEpoch().getStart());
+        }
+
+        if (entity1 instanceof Revision && entity2 instanceof Revision) {
+            Revision r1 = (Revision) entity1;
+            Revision r2 = (Revision) entity2;
+
+            if (r1.getVersion() != null && r2.getVersion() != null) {
+                return r1.getVersion().compareTo(r2.getVersion());
+            }
         }
 
         return entity1.getURI().compareTo(entity2.getURI());

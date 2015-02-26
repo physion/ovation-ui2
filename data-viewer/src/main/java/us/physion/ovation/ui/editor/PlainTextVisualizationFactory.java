@@ -45,8 +45,9 @@ import org.openide.util.lookup.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.OvationEntity;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.Content;
 import us.physion.ovation.exceptions.ResourceNotFoundException;
+import us.physion.ovation.ui.actions.ContentUtils;
 
 @ServiceProvider(service = VisualizationFactory.class)
 @Messages({
@@ -59,10 +60,10 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
 
     private final static String PLAIN_TEXT_MIMETYPE = "text/plain"; //NOI18N
     private final static Logger log = LoggerFactory.getLogger(PlainTextVisualizationFactory.class);
-    private ExecutorService loadFileExecutors = Executors.newSingleThreadExecutor();
+    private final ExecutorService loadFileExecutors = Executors.newSingleThreadExecutor();
 
     @Override
-    public DataVisualization createVisualization(final Resource r) {
+    public DataVisualization createVisualization(final Content r) {
         return new AbstractDataVisualization() {
             @Override
             public JComponent generatePanel() {
@@ -83,7 +84,7 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
                     }
 
                     private void failed() {
-                        setText(Bundle.LBL_TextLoadingFailed(r.getName()));
+                        setText(Bundle.LBL_TextLoadingFailed(ContentUtils.contentLabel(r)));
                     }
 
                     @Override
@@ -168,18 +169,18 @@ public class PlainTextVisualizationFactory implements VisualizationFactory {
             }
 
             @Override
-            public boolean shouldAdd(Resource r) {
+            public boolean shouldAdd(Content r) {
                 return false;
             }
 
             @Override
-            public void add(Resource r) {
+            public void add(Content r) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
             public Iterable<? extends OvationEntity> getEntities() {
-                return Sets.newHashSet(r);
+                return Sets.newHashSet((OvationEntity)r);
             }
         };
     }

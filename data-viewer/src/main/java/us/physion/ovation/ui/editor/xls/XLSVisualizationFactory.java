@@ -25,7 +25,9 @@ import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.ServiceProvider;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.mixin.Content;
+import us.physion.ovation.ui.actions.ContentUtils;
 import us.physion.ovation.ui.editor.AbstractDataVisualization;
 import us.physion.ovation.ui.editor.DataVisualization;
 import us.physion.ovation.ui.editor.VisualizationFactory;
@@ -44,16 +46,16 @@ public class XLSVisualizationFactory implements VisualizationFactory {
     }
 
     @Override
-    public DataVisualization createVisualization(final Resource r) {
-        return new AbstractDataVisualization(Collections.singleton(r)) {
+    public DataVisualization createVisualization(final Content r) {
+        return new AbstractDataVisualization(Collections.singleton((OvationEntity)r)) {
 
             @Override
-            public boolean shouldAdd(Resource r) {
+            public boolean shouldAdd(Content r) {
                 return false;
             }
 
             @Override
-            public void add(Resource r) {
+            public void add(Content r) {
                 throw new UnsupportedOperationException();
             }
 
@@ -69,7 +71,7 @@ public class XLSVisualizationFactory implements VisualizationFactory {
                     @Override
                     protected void failed(Throwable t) {
                         //TODO: Log the exception?
-                        content.add(new JLabel(Bundle.LBL_XLSLoadingFailed(r.getName())), BorderLayout.CENTER);
+                        content.add(new JLabel(Bundle.LBL_XLSLoadingFailed(ContentUtils.contentLabel(r))), BorderLayout.CENTER);
                     }
                 };
 

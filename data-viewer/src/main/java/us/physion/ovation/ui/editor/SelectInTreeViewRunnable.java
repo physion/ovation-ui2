@@ -57,15 +57,12 @@ public abstract class SelectInTreeViewRunnable<Path> implements Runnable {
         }
         
         if (found) {
-            EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    TopComponent tc = (TopComponent) SwingUtilities.getAncestorOfClass(TopComponent.class, view);
-                    if (tc != null) {
-                        tc.requestActive();
-                    }
-                    view.requestFocusInWindow();
+            EventQueue.invokeLater(() -> {
+                TopComponent tc = (TopComponent) SwingUtilities.getAncestorOfClass(TopComponent.class, view);
+                if (tc != null) {
+                    tc.requestActive();
                 }
+                view.requestFocusInWindow();
             });
         } else if (!asyncPosted) {
             StatusDisplayer.getDefault().setStatusText(Bundle.LBL_CouldNotFindNode());

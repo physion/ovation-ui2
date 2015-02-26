@@ -72,6 +72,7 @@ import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.Revision;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
@@ -260,6 +261,10 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
     final Set<Resource> getResources() {
         return ImmutableSet.copyOf(getEntities(Resource.class));
     }
+    
+    final Set<Revision>getRevisions() {
+        return ImmutableSet.copyOf(getEntities(Revision.class));
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -357,7 +362,7 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
 
     private void updateInputs() {
         final Multimap<String, Source> sources = HashMultimap.create();
-        final Multimap<String, Resource> inputResources = HashMultimap.create();
+        final Multimap<String, Revision> inputResources = HashMultimap.create();
 
         for (Measurement m : getMeasurements()) {
             for (String s : m.getSourceNames()) {
@@ -366,29 +371,23 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
             }
         }
 
-        for (Resource r : getResources()) {
-            if (r.getContainingEntity() instanceof AnalysisRecord) {
-                AnalysisRecord record = (AnalysisRecord) r.getContainingEntity();
-
-                for (String s : record.getInputs().keySet()) {
-                    inputResources.put(s, ((AnalysisRecord) r.getContainingEntity()).getInputs().get(s));
-                }
+        getResources().stream().filter((r) -> (r.getContainingEntity() instanceof AnalysisRecord)).forEach((r) -> {
+            AnalysisRecord record = (AnalysisRecord) r.getContainingEntity();
+            
+            record.getInputs().keySet().stream().forEach((s) -> {
+                inputResources.put(s, ((AnalysisRecord) r.getContainingEntity()).getInputs().get(s));
+            });
+        });
+        EventQueueUtilities.runOnEDT(() -> {
+            inputsTextPane.setText("");
+            
+            for (Map.Entry<String, Source> namedSource : sources.entries()) {
+                insertInputsPanel(namedSource.getKey(), namedSource.getValue());
+                
             }
-        }
-        EventQueueUtilities.runOnEDT(new Runnable() {
-
-            @Override
-            public void run() {
-                inputsTextPane.setText("");
-
-                for (Map.Entry<String, Source> namedSource : sources.entries()) {
-                    insertInputsPanel(namedSource.getKey(), namedSource.getValue());
-
-                }
-
-                for (Map.Entry<String, Resource> namedInput : inputResources.entries()) {
-                    insertInputsPanel(namedInput.getKey(), namedInput.getValue());
-                }
+            
+            for (Map.Entry<String, Revision> namedInput : inputResources.entries()) {
+                insertInputsPanel(namedInput.getKey(), namedInput.getValue());
             }
         });
 

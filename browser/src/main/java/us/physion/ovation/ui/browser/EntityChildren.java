@@ -35,11 +35,8 @@ public class EntityChildren extends Children.Keys<EntityWrapper> {
     }
 
     protected final ListenableFuture<Void> updateWithKeys(final List<EntityWrapper> list) {
-        return EventQueueUtilities.runOnEDT(new Runnable() {
-            @Override
-            public void run() {
-                setKeys(list);
-            }
+        return EventQueueUtilities.runOnEDT(() -> {
+            setKeys(list);
         });
     }
 }

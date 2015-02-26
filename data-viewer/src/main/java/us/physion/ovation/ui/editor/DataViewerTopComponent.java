@@ -28,6 +28,7 @@ import org.openide.windows.WindowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.Content;
 import us.physion.ovation.ui.actions.spi.ResourceLookupProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
@@ -64,23 +65,15 @@ public final class DataViewerTopComponent extends TopComponent {
         private final List<AbstractAction> tabActions = Lists.newArrayList();
 
         public TemporaryViewTopComponent(final Resource element) {
-            setName(Bundle.Temporary_Data_Viewer_Title(element.getName()));
+            setName(Bundle.Temporary_Data_Viewer_Title(element.getLabel()));
             setLayout(new BorderLayout());
             setBackground(Color.white);
-            EventQueueUtilities.runOffEDT(new Runnable() {
-
-                @Override
-                public void run() {
-                    final DataVisualization v = ResponseWrapperFactory.create(element).createVisualization(element);
-
-                    EventQueueUtilities.runOnEDT(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            add(v.generatePanel(), BorderLayout.CENTER);
-                        }
-                    });
-                }
+            EventQueueUtilities.runOffEDT(() -> {
+                final DataVisualization v = ResponseWrapperFactory.create(element).createVisualization(element);
+                
+                EventQueueUtilities.runOnEDT(() -> {
+                    add(v.generatePanel(), BorderLayout.CENTER);
+                });
             }, ProgressHandleFactory.createHandle(Bundle.Temporary_Data_Viewer_Loading()));
         }
 
@@ -180,7 +173,7 @@ public final class DataViewerTopComponent extends TopComponent {
 
     private FixedHeightPanel contentPanel;
     Lookup.Result global;
-    List<FixedHeightPanel> responsePanels = new ArrayList<FixedHeightPanel>();
+    List<FixedHeightPanel> responsePanels = new ArrayList<>();
     Future updateEntitySelection;
     private LookupListener listener = new LookupListener() {
         @Override
@@ -283,15 +276,15 @@ public final class DataViewerTopComponent extends TopComponent {
         }
         int progressWorkUnit = 0;
 
-        List<Resource> resources = Lists.newLinkedList();
+        List<Content> contentElements = Lists.newLinkedList();
         List<IEntityNode> containers = Lists.newLinkedList();
 
         for (IEntityNode n : entityNodes) {
 
             IEntityWrapper ew = n.getEntityWrapper();
             
-            if (Resource.class.isAssignableFrom(ew.getType())) {
-                resources.add((Resource) ew.getEntity());
+            if (Content.class.isAssignableFrom(ew.getType())) {
+                contentElements.add((Content)ew.getEntity());
             } else {
                 containers.add(n);
             }
@@ -305,7 +298,7 @@ public final class DataViewerTopComponent extends TopComponent {
         List<ContainerVisualization> containerVisualizations = Lists.newLinkedList();
 
         
-        for (Resource rw : resources) {
+        for (Content rw : contentElements) {
             boolean added = false;
             for (DataVisualization group : dataVisualizations) {
                 if (group.shouldAdd(rw)) {
@@ -315,8 +308,7 @@ public final class DataViewerTopComponent extends TopComponent {
                 }
             }
             if (!added) {
-                Resource r = (Resource) rw;
-                dataVisualizations.add(ResponseWrapperFactory.create(r).createVisualization(r));
+                dataVisualizations.add(ResponseWrapperFactory.create(rw).createVisualization(rw));
             }
         }
 
@@ -365,56 +357,53 @@ public final class DataViewerTopComponent extends TopComponent {
 
     private Runnable updateVisualizationComponents(final List<? extends Component> vizComponents) {
         final int height = contentPanel.getParent().getHeight();
-        return new Runnable() {
-            @Override
-            public void run() {
-                while (!responsePanels.isEmpty()) {
-                    Component c = responsePanels.remove(0);
-                    contentPanel.remove(c);
-                }
-
-                if (!vizComponents.isEmpty()) {
-                    //This is for setting each row in the table to a more appropriate height
-                    int[] rowHeights = new int[vizComponents.size()];//highest allowable height for each row
-                    int totalStrictHeight = 0;
-                    int flexiblePanels = 0;
-                    int minHeight = 150;//min height of a chart
-
-                    for (Component p : vizComponents) {
-
-                        int row = responsePanels.size();
-                        if (p instanceof StrictSizePanel) {
-                            int strictHeight = ((StrictSizePanel) p).getStrictSize().height;
-                            rowHeights[row] = strictHeight;
-                            totalStrictHeight += strictHeight;
-                        } else {
-                            rowHeights[row] = Integer.MAX_VALUE;
-                            flexiblePanels++;
-                        }
-
-                        FixedHeightPanel wrap = new FixedHeightPanel();
-                        wrap.setLayout(new BorderLayout());
-                        wrap.add(p, BorderLayout.CENTER);
-
-                        responsePanels.add(wrap);
-                    }
-                    int flexiblePanelHeight = minHeight;
-                    if (flexiblePanels != 0) {
-                        flexiblePanelHeight = Math.max(minHeight, (height - totalStrictHeight) / flexiblePanels);
-                    }
-                    for (int i = 0; i < rowHeights.length; ++i) {
-                        if (rowHeights[i] == Integer.MAX_VALUE) {
-                            rowHeights[i] = flexiblePanelHeight;
-                        }
-                        responsePanels.get(i).setFixedHeight(rowHeights[i]);
-
-                        contentPanel.add(responsePanels.get(i));
-                    }
-                }
-
-                contentPanel.revalidate();
-                contentPanel.repaint();
+        return () -> {
+            while (!responsePanels.isEmpty()) {
+                Component c = responsePanels.remove(0);
+                contentPanel.remove(c);
             }
+            
+            if (!vizComponents.isEmpty()) {
+                //This is for setting each row in the table to a more appropriate height
+                int[] rowHeights = new int[vizComponents.size()];//highest allowable height for each row
+                int totalStrictHeight = 0;
+                int flexiblePanels = 0;
+                int minHeight = 150;//min height of a chart
+                
+                for (Component p : vizComponents) {
+                    
+                    int row = responsePanels.size();
+                    if (p instanceof StrictSizePanel) {
+                        int strictHeight = ((StrictSizePanel) p).getStrictSize().height;
+                        rowHeights[row] = strictHeight;
+                        totalStrictHeight += strictHeight;
+                    } else {
+                        rowHeights[row] = Integer.MAX_VALUE;
+                        flexiblePanels++;
+                    }
+                    
+                    FixedHeightPanel wrap = new FixedHeightPanel();
+                    wrap.setLayout(new BorderLayout());
+                    wrap.add(p, BorderLayout.CENTER);
+                    
+                    responsePanels.add(wrap);
+                }
+                int flexiblePanelHeight = minHeight;
+                if (flexiblePanels != 0) {
+                    flexiblePanelHeight = Math.max(minHeight, (height - totalStrictHeight) / flexiblePanels);
+                }
+                for (int i = 0; i < rowHeights.length; ++i) {
+                    if (rowHeights[i] == Integer.MAX_VALUE) {
+                        rowHeights[i] = flexiblePanelHeight;
+                    }
+                    responsePanels.get(i).setFixedHeight(rowHeights[i]);
+                    
+                    contentPanel.add(responsePanels.get(i));
+                }
+            }
+            
+            contentPanel.revalidate();
+            contentPanel.repaint();
         };
     }
 }

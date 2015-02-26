@@ -195,7 +195,7 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
     }
 
     private List<URI> buildURITreePath() {
-        List<URI> paths = new ArrayList<URI>();
+        List<URI> paths = new ArrayList<>();
 
         Node n = this;
         while (n != null) {

@@ -176,7 +176,9 @@ public class EntityWrapper implements IEntityWrapper {
                 return ((Epoch) e).getStart().toString("MM/dd/yyyy hh:mm:ss");
             }
         } else if (e instanceof Resource) {
-            return ((Resource) e).getName();
+            return ((Resource) e).getLabel();
+        } else if (e instanceof Revision) {
+            return ((Revision)e).getResource().getLabel();
         } else if (e instanceof AnalysisRecord) {
             return ((AnalysisRecord) e).getName();
         } else if (e instanceof Protocol) {
@@ -259,8 +261,7 @@ public class EntityWrapper implements IEntityWrapper {
 
     @Override
     public boolean isLeaf() {
-        return Measurement.class.isAssignableFrom(getType())
-                || Resource.class.isAssignableFrom(getType());
+        return  Revision.class.isAssignableFrom(getType());
 
         //not sure if EquipmentSetup even has a Node...
         //EquipmentSetup.class.isAssignableFrom(getType()) ||

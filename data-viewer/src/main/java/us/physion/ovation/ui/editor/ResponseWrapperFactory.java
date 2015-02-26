@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 import org.openide.util.Lookup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.mixin.Content;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 
 /**
@@ -49,11 +49,15 @@ public class ResponseWrapperFactory {
                 }
             });
     
-    public static VisualizationFactory create(Resource r) {
+    public static VisualizationFactory create(Content r) {
         String contentType = r.getDataContentType();
+        return makeVisualization(contentType);
+    }
+
+    private static VisualizationFactory makeVisualization(String contentType) {
         VisualizationFactory vis;
-
-
+        
+        
         try {
             vis = cache.get(contentType);
         } catch (ExecutionException ex) {
@@ -62,6 +66,7 @@ public class ResponseWrapperFactory {
 
         return vis;
     }
+    
 
     public static ContainerVisualizationFactory create(IEntityNode n) {
         int preference = 0;
