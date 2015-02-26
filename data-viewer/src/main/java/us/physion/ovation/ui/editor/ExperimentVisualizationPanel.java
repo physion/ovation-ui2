@@ -22,16 +22,10 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import org.joda.time.DateTime;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import org.openide.explorer.ExplorerManager;
-import org.openide.explorer.view.TreeView;
-import org.openide.nodes.Node;
 import org.openide.util.NbBundle.Messages;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Measurement;
@@ -41,7 +35,6 @@ import static us.physion.ovation.ui.editor.DatePickers.zonedDate;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.ParameterTableModel;
-import us.physion.ovation.ui.interfaces.TreeViewProvider;
 import us.physion.ovation.ui.reveal.api.RevealNode;
 
 /**
@@ -77,24 +70,14 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
 
         protocolComboBox.setRenderer(new ProtocolCellRenderer());
 
-        addProtocolHyperlink.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Protocol current = getExperiment().getProtocol();
-                getExperiment().setProtocol(addProtocol());
-                firePropertyChange("experiment.protocol", current, getExperiment().getProtocol());
-                protocolComboBox.setSelectedItem(getExperiment().getProtocol());
-            }
+        addProtocolHyperlink.addActionListener((ActionEvent e) -> {
+            Protocol current = getExperiment().getProtocol();
+            getExperiment().setProtocol(addProtocol());
+            firePropertyChange("experiment.protocol", current, getExperiment().getProtocol());
+            protocolComboBox.setSelectedItem(getExperiment().getProtocol());
         });
 
-        editHyperlink.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                RevealNode.forEntity(BrowserUtilities.PROTOCOL_BROWSER_ID, getExperiment().getProtocol());
-            }
-        });
+        editHyperlink.addActionListener(new ActionListenerImpl());
 
         final ParameterTableModel paramsModel = new ParameterTableModel(
                 getExperiment().canWrite(getContext().getAuthenticatedUser()));
@@ -103,55 +86,42 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
 
         paramsModel.setParams(getExperiment().getProtocolParameters());
 
-        paramsModel.addTableModelListener(new TableModelListener() {
-
-            @Override
-            public void tableChanged(TableModelEvent e) {
-                switch (e.getType()) {
-                    case TableModelEvent.DELETE:
-                        for (String k : paramsModel.getAndClearRemovedKeys()) {
-                            getExperiment().removeProtocolParameter(k);
-                        }
-                        break;
-                    case TableModelEvent.INSERT:
-                        for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
-                            String key = (String) paramsModel.getValueAt(r, 0);
+        paramsModel.addTableModelListener((TableModelEvent e) -> {
+            switch (e.getType()) {
+                case TableModelEvent.DELETE:
+                    for (String k : paramsModel.getAndClearRemovedKeys()) {
+                        getExperiment().removeProtocolParameter(k);
+                    }
+                    break;
+                case TableModelEvent.INSERT:
+                    for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
+                        String key = (String) paramsModel.getValueAt(r, 0);
+                        Object value = paramsModel.getValueAt(r, 1);
+                        getExperiment().addProtocolParameter(key, value);
+                    }
+                    break;
+                case TableModelEvent.UPDATE:
+                    for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
+                        String key = (String) paramsModel.getValueAt(r, 0);
+                        if (key != null && !key.isEmpty()) {
                             Object value = paramsModel.getValueAt(r, 1);
                             getExperiment().addProtocolParameter(key, value);
                         }
-                        break;
-                    case TableModelEvent.UPDATE:
-                        for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
-                            String key = (String) paramsModel.getValueAt(r, 0);
-                            if (key != null && !key.isEmpty()) {
-                                Object value = paramsModel.getValueAt(r, 1);
-                                getExperiment().addProtocolParameter(key, value);
-                            }
-                        }
-                        break;
-                }
+                    }
+                    break;
             }
-
         });
 
         startPicker.setDateTime(getExperiment().getStart());
 
         startZoneComboBox.setSelectedItem(getExperiment().getStart().getZone().getID());
 
-        startPicker.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                startDateTimeChanged();
-            }
+        startPicker.addActionListener((ActionEvent e) -> {
+            startDateTimeChanged();
         });
 
-        startZoneComboBox.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                startDateTimeChanged();
-            }
+        startZoneComboBox.addActionListener((ActionEvent e) -> {
+            startDateTimeChanged();
         });
 
         String prompt = Bundle.Experiment_Drop_Files_To_Add_Data();
@@ -162,30 +132,19 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
 
-                EventQueueUtilities.runOffEDT(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        final List<Measurement> m = EntityUtilities.insertMeasurements(getExperiment(), files);
-                        EventQueueUtilities.runOnEDT(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!m.isEmpty()) {
-                                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, m.get(0));
-                                }
-                            }
-                        });
-                    }
+                EventQueueUtilities.runOffEDT(() -> {
+                    final List<Measurement> m = EntityUtilities.insertMeasurements(getExperiment(), files);
+                    EventQueueUtilities.runOnEDT(() -> {
+                        if (!m.isEmpty()) {
+                            RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, m.get(0));
+                        }
+                    });
                 }, ph);
             }
         });
 
-        addEpochGroupButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addEpochGroup();
-            }
+        newEpochGroupHyperlink.addActionListener((ActionEvent e) -> {
+            addEpochGroup();
         });
     }
 
@@ -239,6 +198,7 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
         addProtocolHyperlink = new org.jdesktop.swingx.JXHyperlink();
         fileWell = new us.physion.ovation.ui.editor.FileWell();
         addEpochGroupButton = new javax.swing.JButton();
+        newEpochGroupHyperlink = new org.jdesktop.swingx.JXHyperlink();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -348,6 +308,8 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
 
         org.openide.awt.Mnemonics.setLocalizedText(addEpochGroupButton, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.addEpochGroupButton.text")); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(newEpochGroupHyperlink, org.openide.util.NbBundle.getMessage(ExperimentVisualizationPanel.class, "ExperimentVisualizationPanel.newEpochGroupHyperlink.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -369,6 +331,8 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(addEpochGroupButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(newEpochGroupHyperlink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(titleLabel)
@@ -392,7 +356,9 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(addEpochGroupButton)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addEpochGroupButton)
+                    .addComponent(newEpochGroupHyperlink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(fileWell, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(73, Short.MAX_VALUE))
@@ -414,6 +380,7 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable1;
+    private org.jdesktop.swingx.JXHyperlink newEpochGroupHyperlink;
     private javax.swing.JComboBox protocolComboBox;
     private javax.swing.JTable protocolParametersTable;
     private javax.swing.JTextField puropseField;
@@ -422,4 +389,15 @@ public class ExperimentVisualizationPanel extends AbstractContainerVisualization
     private javax.swing.JLabel titleLabel;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
+
+    private class ActionListenerImpl implements ActionListener {
+
+        public ActionListenerImpl() {
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            RevealNode.forEntity(BrowserUtilities.PROTOCOL_BROWSER_ID, getExperiment().getProtocol());
+        }
+    }
 }

@@ -39,9 +39,9 @@
                               <Component id="startZoneComboBox" min="-2" pref="180" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="addFolderButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="addExperimentButton" min="-2" max="-2" attributes="0"/>
+                              <Component id="newFolderHyperlink" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="newExperimentHyperlink" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace min="0" pref="248" max="32767" attributes="0"/>
@@ -71,8 +71,8 @@
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="addFolderButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="addExperimentButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="newFolderHyperlink" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="newExperimentHyperlink" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="dropPanelContainer" min="-2" pref="127" max="-2" attributes="0"/>
@@ -169,13 +169,6 @@
         <BindingProperty name="elements" source="Form" sourcePath="${availableZoneIDs}" target="startZoneComboBox" targetPath="elements" updateStrategy="0" immediately="false"/>
       </BindingProperties>
     </Component>
-    <Component class="javax.swing.JButton" name="addFolderButton">
-      <Properties>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="ProjectVisualizationPanel.addFolderButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
-    </Component>
     <Container class="javax.swing.JPanel" name="dropPanelContainer">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -194,10 +187,17 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JButton" name="addExperimentButton">
+    <Component class="org.jdesktop.swingx.JXHyperlink" name="newFolderHyperlink">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="ProjectVisualizationPanel.addExperimentButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="ProjectVisualizationPanel.newFolderHyperlink.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="org.jdesktop.swingx.JXHyperlink" name="newExperimentHyperlink">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="ProjectVisualizationPanel.newExperimentHyperlink.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>

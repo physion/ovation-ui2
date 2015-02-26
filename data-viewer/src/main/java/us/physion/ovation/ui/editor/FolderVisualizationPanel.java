@@ -16,22 +16,33 @@
  */
 package us.physion.ovation.ui.editor;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.Set;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.NbBundle.Messages;
+import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Folder;
 import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.browser.BrowserUtilities;
+import static us.physion.ovation.ui.editor.AnalysisRecordVisualizationPanel.getResourcesFromEntity;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
+import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.reveal.api.RevealNode;
 
 /**
@@ -41,7 +52,8 @@ import us.physion.ovation.ui.reveal.api.RevealNode;
  */
 @Messages({
     "Folder_Drop_Files_To_Add_Resources=Drop files",
-    "Adding_resources=Adding files..."
+    "Adding_resources=Adding files...",
+    "Folder_New_Analysis_Record_Name=New Analysis"
 })
 public class FolderVisualizationPanel extends AbstractContainerVisualizationPanel {
 
@@ -55,12 +67,8 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
     }
 
     private void initUI() {
-        addFolderButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addFolder(true);
-            }
+        newFolderLink.addActionListener((ActionEvent e) -> {
+            addFolder(true);
         });
 
         fileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.Folder_Drop_Files_To_Add_Resources()) {
@@ -69,28 +77,20 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_resources());
 
-                ListenableFuture<Iterable<Resource>> addResources = EventQueueUtilities.runOffEDT(new Callable<Iterable<Resource>>() {
+                ListenableFuture<Iterable<Resource>> addResources = EventQueueUtilities.runOffEDT(() -> {
+                    final List<Resource> resources = EntityUtilities.insertResources(getFolder(), files);
 
-                    @Override
-                    public Iterable<Resource> call() {
-                        final List<Resource> resources = EntityUtilities.insertResources(getFolder(), files);
-//                        EventQueueUtilities.runOnEDT(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                if (!resources.isEmpty()) {
-//                                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, resources.get(0));
-//                                }
-//                            }
-//                        });
-
-                        return resources;
-                    }
+                    return resources;
                 }, ph);
 
                 Futures.addCallback(addResources, new FutureCallback<Iterable<Resource>>() {
 
                     @Override
                     public void onSuccess(final Iterable<Resource> result) {
+                        Resource r = Iterables.getFirst(result, null);
+                        if (r != null) {
+                            RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, r);
+                        }
                     }
 
                     @Override
@@ -100,6 +100,91 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
                 });
             }
         });
+
+        analysisFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.Project_Drop_Files_To_Add_Analysis()) {
+
+            @Override
+            public void filesDropped(final File[] files) {
+
+                Iterable<Resource> inputElements = showInputsDialog();
+                if (inputElements == null) {
+                    inputElements = Lists.newArrayList();
+                }
+
+                final List<Resource> inputs = Lists.newArrayList(inputElements);
+
+                ListenableFuture<AnalysisRecord> addRecord = EventQueueUtilities.runOffEDT(() -> {
+                    return addAnalysisRecord(files, inputs);
+                });
+
+                Futures.addCallback(addRecord, new FutureCallback<AnalysisRecord>() {
+
+                    @Override
+                    public void onSuccess(final AnalysisRecord ar) {
+                        RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, ar);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        logger.error("Unable to display AnalysisRecord", t);
+                    }
+                });
+            }
+        });
+    }
+
+    private Iterable<Resource> showInputsDialog() {
+        SelectResourcesDialog addDialog = new SelectResourcesDialog((JFrame) SwingUtilities.getRoot(this),
+                true,
+                null);
+
+        addDialog.setVisible(true);
+
+        List<Resource> result = Lists.newArrayList();
+        if (addDialog.isSuccess()) {
+            for (IEntityWrapper entityWrapper : addDialog.getSelectedEntities()) {
+                for (Resource entity : getResourcesFromEntity(entityWrapper.getEntity())) {
+                    result.add(entity);
+                }
+            }
+
+            System.out.println(Sets.newHashSet(addDialog.getSelectedEntities()));
+        } else {
+            result = null;
+        }
+
+        addDialog.dispose();
+
+        return result;
+    }
+
+    private AnalysisRecord addAnalysisRecord(final File[] files, final Iterable<Resource> inputs) {
+        AnalysisRecord ar = getFolder().addAnalysisRecord(Bundle.Folder_New_Analysis_Record_Name(),
+                inputs,
+                null,
+                Maps.<String, Object>newHashMap());
+
+        final Set<String> outputNames = Sets.newHashSet(ar.getOutputs().keySet());
+
+        for (File f : files) {
+            String name1 = f.getName();
+            int i = 1;
+            while (outputNames.contains(name1)) {
+                name1 = name1 + "_" + i++;
+            }
+            try {
+                ar.addOutput(name1, f.toURI().toURL(), ContentTypes.getContentType(f));
+                outputNames.add(name1);
+            } catch (MalformedURLException ex) {
+                logger.error("Unable to determine file URL", ex);
+                Toolkit.getDefaultToolkit().beep();
+            } catch (IOException ex) {
+                logger.error("Unable to determine file content type", ex);
+                Toolkit.getDefaultToolkit().beep();
+            }
+        }
+        return ar;
+
     }
 
     private Folder addFolder(boolean reveal) {
@@ -128,9 +213,10 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
 
         jLabel1 = new javax.swing.JLabel();
         folderLabel = new javax.swing.JTextField();
-        addFolderButton = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
+        fileWellPanel = new javax.swing.JPanel();
         fileWell = new us.physion.ovation.ui.editor.FileWell();
+        analysisFileWell = new us.physion.ovation.ui.editor.FileWell();
+        newFolderLink = new org.jdesktop.swingx.JXHyperlink();
 
         setBackground(java.awt.Color.white);
 
@@ -142,13 +228,16 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
         org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${folder.label}"), folderLabel, org.jdesktop.beansbinding.BeanProperty.create("text_ON_ACTION_OR_FOCUS_LOST"));
         bindingGroup.addBinding(binding);
 
-        org.openide.awt.Mnemonics.setLocalizedText(addFolderButton, org.openide.util.NbBundle.getMessage(FolderVisualizationPanel.class, "FolderVisualizationPanel.addFolderButton.text")); // NOI18N
-
-        jPanel1.setBackground(javax.swing.UIManager.getDefaults().getColor("Button.select"));
-        jPanel1.setLayout(new java.awt.BorderLayout());
+        fileWellPanel.setBackground(javax.swing.UIManager.getDefaults().getColor("Button.select"));
+        fileWellPanel.setLayout(new java.awt.GridLayout());
 
         fileWell.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
-        jPanel1.add(fileWell, java.awt.BorderLayout.CENTER);
+        fileWellPanel.add(fileWell);
+
+        analysisFileWell.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
+        fileWellPanel.add(analysisFileWell);
+
+        org.openide.awt.Mnemonics.setLocalizedText(newFolderLink, org.openide.util.NbBundle.getMessage(FolderVisualizationPanel.class, "FolderVisualizationPanel.newFolderLink.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -157,13 +246,13 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 542, Short.MAX_VALUE)
+                    .addComponent(fileWellPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 542, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(folderLabel))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(addFolderButton)
+                        .addComponent(newFolderLink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -175,9 +264,9 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
                     .addComponent(jLabel1)
                     .addComponent(folderLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(addFolderButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
+                .addComponent(newFolderLink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(fileWellPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -186,11 +275,12 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addFolderButton;
+    private us.physion.ovation.ui.editor.FileWell analysisFileWell;
     private us.physion.ovation.ui.editor.FileWell fileWell;
+    private javax.swing.JPanel fileWellPanel;
     private javax.swing.JTextField folderLabel;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel1;
+    private org.jdesktop.swingx.JXHyperlink newFolderLink;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }
