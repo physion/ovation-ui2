@@ -45,6 +45,7 @@ import us.physion.ovation.domain.Resource;
 import us.physion.ovation.domain.Revision;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.User;
+import us.physion.ovation.domain.mixin.AnalysisAnnotatable;
 import us.physion.ovation.domain.mixin.ProcedureElement;
 
 public class EntityChildrenWrapperHelper {
@@ -139,6 +140,7 @@ public class EntityChildrenWrapperHelper {
             } else if (Folder.class.isAssignableFrom(entityClass)) {
                 Folder f = ew.getEntity(Folder.class);
                 addContents(list, f, ph);
+                addAnalysisRecords(list, f, ph);
             } else if (Resource.class.isAssignableFrom(entityClass)) {
                 Resource r = (Resource)ew.getEntity();
                 addRevisions(list, r, ph);
@@ -255,11 +257,11 @@ public class EntityChildrenWrapperHelper {
         return children;
     }
 
-    private void addAnalysisRecords(List<EntityWrapper> list, Project entity, ProgressHandle ph) {
+    private void addAnalysisRecords(List<EntityWrapper> list, AnalysisAnnotatable entity, ProgressHandle ph) {
         if (ph != null) {
             ph.switchToIndeterminate();
         }
-        List<User> users = Lists.newArrayList(entity.getDataContext().getUsers());
+        List<User> users = Lists.newArrayList(((OvationEntity)entity).getDataContext().getUsers());
         Collections.sort(users,
                 (User t, User t1) -> t.getUsername().compareTo(t1.getUsername()));
 
