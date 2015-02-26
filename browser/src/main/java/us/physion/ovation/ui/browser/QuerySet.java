@@ -104,6 +104,8 @@ public class QuerySet {
 
         if (isPerUser(e)) {
             path.add(new PerUserEntityWrapper(((Owned) e).getOwner().getUsername(), ((Owned) e).getOwner().getURI().toString()));
+        } else {
+            path.add(new EntityWrapper(e));
         }
 
         Set<OvationEntity> parents = getParents(e, path);
