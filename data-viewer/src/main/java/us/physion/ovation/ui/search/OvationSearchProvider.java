@@ -67,25 +67,18 @@ public class OvationSearchProvider implements SearchProvider {
         }
 
         // Run search query
-        response.addResult(new Runnable() {
-
-            @Override
-            public void run() {
-                QuerySet querySet = new QuerySet();
-                Lookup.getDefault().lookup(QueryProvider.class).setQuerySet(querySet);
-                try {
-                    for (OvationEntity entity : ctx.query(OvationEntity.class, query).get()) {
-                        querySet.add(entity);
-                    }
-                } catch (InterruptedException e1) {
-                    //pass
-                } catch (ExecutionException e1) {
-                    //pass — invalid query
-                    Toolkit.getDefaultToolkit().beep();
-                } catch (OvationException e1) {
-                    //pass — invalid query
-                    Toolkit.getDefaultToolkit().beep();
+        response.addResult(() -> {
+            QuerySet querySet = new QuerySet();
+            Lookup.getDefault().lookup(QueryProvider.class).setQuerySet(querySet);
+            try {
+                for (OvationEntity entity : ctx.query(OvationEntity.class, query).get()) {
+                    querySet.add(entity);
                 }
+            } catch (InterruptedException e1) {
+                //pass
+            } catch (ExecutionException | OvationException e1) {
+                //pass — invalid query
+                Toolkit.getDefaultToolkit().beep();
             }
         }, Bundle.Search_Run_Query(query));
     }
@@ -95,13 +88,7 @@ public class OvationSearchProvider implements SearchProvider {
             //path starts with ent and ends with a top-level parent (Project/Source/Protocol)
 
             final List<IEntityWrapper> revealPath = path;
-            if (!response.addResult(new Runnable() {
-
-                @Override
-                public void run() {
-                    RevealNode.forPath(revealPath);
-                }
-            }, getDisplayName(path))) {
+            if (!response.addResult(() -> { RevealNode.forPath(revealPath); }, getDisplayName(path))) {
                 //search stopped, exit
                 return;
             }

@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package us.physion.ovation.ui.browser;
 
 import com.google.common.base.Function;
@@ -49,6 +48,7 @@ import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.ProcedureElement;
 
 public class EntityChildrenWrapperHelper {
+
     private final TreeFilter filter;
     private final BusyCancellable cancel;
 
@@ -59,7 +59,7 @@ public class EntityChildrenWrapperHelper {
 
     private void absorbFilteredChildren(EntityWrapper pop, boolean isVisible, List<EntityWrapper> list, DataContext c, /* @Nullable*/ ProgressHandle ph, EntityComparator entityComparator) {
         if (!isVisible) {
-            List<URI> filteredParents = new ArrayList<URI>();
+            List<URI> filteredParents = new ArrayList<>();
             filteredParents.addAll(pop.getFilteredParentURIs());
             URI u = null;
             try {
@@ -78,7 +78,7 @@ public class EntityChildrenWrapperHelper {
                 e.addFilteredParentURIs(filteredParents);
             }
             //XXX: This is basically list.addAll(children). It seems list.addAll doesn't refresh the UI (bug in the org.openide.nodes.AsynchChildren LinkedList subclass?) but list.add() does.
-            for(EntityWrapper e : children) {
+            for (EntityWrapper e : children) {
                 list.add(e);
             }
         } else {
@@ -91,7 +91,7 @@ public class EntityChildrenWrapperHelper {
     }
 
     private List<EntityWrapper> createKeysForEntity(DataContext c, EntityWrapper ew, /* @Nullable*/ ProgressHandle ph) {
-        return createKeysForEntity(new LinkedList<EntityWrapper>(), c, ew, ph);
+        return createKeysForEntity(new LinkedList<>(), c, ew, ph);
     }
 
     public List<EntityWrapper> createKeysForEntity(List<EntityWrapper> list, DataContext c, EntityWrapper ew, /* @Nullable*/ ProgressHandle ph) {
@@ -139,6 +139,9 @@ public class EntityChildrenWrapperHelper {
             } else if (Folder.class.isAssignableFrom(entityClass)) {
                 Folder f = ew.getEntity(Folder.class);
                 addContents(list, f, ph);
+            } else if (Resource.class.isAssignableFrom(entityClass)) {
+                Resource r = (Resource)ew.getEntity();
+                addRevisions(list, r, ph);
             }
         }
         if (cancel.isCancelled()) {
@@ -152,16 +155,13 @@ public class EntityChildrenWrapperHelper {
 
     private List<Experiment> sortedExperiments(Project entity) {
         List<Experiment> experiments = Lists.newArrayList(entity.getExperiments());
-        Collections.sort(experiments, new Comparator<Experiment>() {
-            @Override
-            public int compare(Experiment o1, Experiment o2) {
-                if (o1 == null || o2 == null
-                        || o1.getStart() == null || o2.getStart() == null) {
-                    return 0;
-                }
-
-                return o1.getStart().compareTo(o2.getStart());
+        Collections.sort(experiments, (Experiment o1, Experiment o2) -> {
+            if (o1 == null || o2 == null
+                    || o1.getStart() == null || o2.getStart() == null) {
+                return 0;
             }
+
+            return o1.getStart().compareTo(o2.getStart());
         });
         return experiments;
     }
@@ -260,20 +260,13 @@ public class EntityChildrenWrapperHelper {
             ph.switchToIndeterminate();
         }
         List<User> users = Lists.newArrayList(entity.getDataContext().getUsers());
-        Collections.sort(users, new Comparator<User>() {
-            @Override
-            public int compare(User t, User t1) {
-                return t.getUsername().compareTo(t1.getUsername());
-            }
-        });
+        Collections.sort(users,
+                (User t, User t1) -> t.getUsername().compareTo(t1.getUsername()));
+
         for (User user : users) {
-            List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getUserAnalysisRecords(user).values(),
-                    new Function<AnalysisRecord, EntityWrapper>() {
-                        @Override
-                        public EntityWrapper apply(AnalysisRecord f) {
-                            return new EntityWrapper(f);
-                        }
-                    }));
+            List<EntityWrapper> l = Lists.newArrayList(
+                    Iterables.transform(entity.getUserAnalysisRecords(user).values(),
+                            (AnalysisRecord f) -> new EntityWrapper(f)));
             if (l.size() > 0) {
                 list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));
             }
@@ -286,20 +279,12 @@ public class EntityChildrenWrapperHelper {
             ph.switchToIndeterminate();
         }
         List<User> users = Lists.newArrayList(entity.getDataContext().getUsers());
-        Collections.sort(users, new Comparator<User>() {
-            @Override
-            public int compare(User t, User t1) {
-                return t.getUsername().compareTo(t1.getUsername());
-            }
-        });
+        
+        Collections.sort(users, (User t, User t1) -> t.getUsername().compareTo(t1.getUsername()));
+        
         for (User user : users) {
-            List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getUserAnalysisRecords(user).values(),
-                    new Function<AnalysisRecord, EntityWrapper>() {
-                        @Override
-                        public EntityWrapper apply(AnalysisRecord f) {
-                            return new EntityWrapper(f);
-                        }
-                    }));
+            List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getUserAnalysisRecords(user).values(), 
+                    (AnalysisRecord f) -> new EntityWrapper(f)));
             if (l.size() > 0) {
                 list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));
             }
@@ -388,18 +373,15 @@ public class EntityChildrenWrapperHelper {
     }
 
     private void addEpochs(List<EntityWrapper> list, EpochGroup entity, ProgressHandle ph) {
-        DataContext c = entity.getDataContext();
         EntityComparator entityComparator = new EntityComparator();
         if (ph != null) {
             ph.progress(Bundle.Loading_Epochs());
         }
-        c.beginTransaction();//we wrap these in a transaction, because there may be a lot of epochs
         try {
             for (Epoch e : sortedEpochs(entity)) {
-                absorbFilteredChildren(new EntityWrapper(e), filter.isEpochsVisible(), list, c, ph, entityComparator);
+                absorbFilteredChildren(new EntityWrapper(e), filter.isEpochsVisible(), list, entity.getDataContext(), ph, entityComparator);
             }
         } finally {
-            c.commitTransaction();
             if (ph != null) {
                 ph.progress(Bundle.Loading_Epochs_Done());
             }
@@ -407,14 +389,8 @@ public class EntityChildrenWrapperHelper {
     }
 
     private void addMeasurements(List<EntityWrapper> list, Epoch entity, ProgressHandle ph) {
-        DataContext c = entity.getDataContext();
-        c.beginTransaction();
-        try {
-            for (Measurement m : entity.getMeasurements()) {
-                list.add(new EntityWrapper(m));
-            }
-        } finally {
-            c.commitTransaction();
+        for (Measurement m : entity.getMeasurements()) {
+            list.add(new EntityWrapper(m));
         }
     }
 
@@ -523,6 +499,41 @@ public class EntityChildrenWrapperHelper {
         }
 
         list.sort(entityComparator);
+    }
+
+    private void addRevisions(List<EntityWrapper> list, Resource r, ProgressHandle ph) {
+        if (cancel.isCancelled()) {
+            return;
+        }
+
+        EntityComparator entityComparator = new EntityComparator();
+        List<Revision> revs = Lists.newArrayList(r.getRevisions());
+        
+        int progressCounter = 0;
+        if (ph != null) {
+            ph.switchToDeterminate(revs.size());
+        }
+
+        revs.sort((Revision r1, Revision r2) -> {
+            if (r1.getVersion() != null && r2.getVersion() != null) {
+                return r1.getVersion().compareTo(r2.getVersion());
+            }
+            
+            return r1.getURI().compareTo(r2.getURI());
+        });
+        
+        for (OvationEntity e : revs) {
+            if (cancel.isCancelled()) {
+                return;
+            }
+
+            list.add(new EntityWrapper(e));
+
+            if (ph != null) {
+                ph.progress(progressCounter++);
+            }
+        }
+
     }
 
 }

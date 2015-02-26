@@ -284,7 +284,7 @@ public final class DataViewerTopComponent extends TopComponent {
             IEntityWrapper ew = n.getEntityWrapper();
             
             if (Content.class.isAssignableFrom(ew.getType())) {
-                contentElements.add(ew.getEntity(Resource.class));
+                contentElements.add((Content)ew.getEntity());
             } else {
                 containers.add(n);
             }
@@ -357,56 +357,53 @@ public final class DataViewerTopComponent extends TopComponent {
 
     private Runnable updateVisualizationComponents(final List<? extends Component> vizComponents) {
         final int height = contentPanel.getParent().getHeight();
-        return new Runnable() {
-            @Override
-            public void run() {
-                while (!responsePanels.isEmpty()) {
-                    Component c = responsePanels.remove(0);
-                    contentPanel.remove(c);
-                }
-
-                if (!vizComponents.isEmpty()) {
-                    //This is for setting each row in the table to a more appropriate height
-                    int[] rowHeights = new int[vizComponents.size()];//highest allowable height for each row
-                    int totalStrictHeight = 0;
-                    int flexiblePanels = 0;
-                    int minHeight = 150;//min height of a chart
-
-                    for (Component p : vizComponents) {
-
-                        int row = responsePanels.size();
-                        if (p instanceof StrictSizePanel) {
-                            int strictHeight = ((StrictSizePanel) p).getStrictSize().height;
-                            rowHeights[row] = strictHeight;
-                            totalStrictHeight += strictHeight;
-                        } else {
-                            rowHeights[row] = Integer.MAX_VALUE;
-                            flexiblePanels++;
-                        }
-
-                        FixedHeightPanel wrap = new FixedHeightPanel();
-                        wrap.setLayout(new BorderLayout());
-                        wrap.add(p, BorderLayout.CENTER);
-
-                        responsePanels.add(wrap);
-                    }
-                    int flexiblePanelHeight = minHeight;
-                    if (flexiblePanels != 0) {
-                        flexiblePanelHeight = Math.max(minHeight, (height - totalStrictHeight) / flexiblePanels);
-                    }
-                    for (int i = 0; i < rowHeights.length; ++i) {
-                        if (rowHeights[i] == Integer.MAX_VALUE) {
-                            rowHeights[i] = flexiblePanelHeight;
-                        }
-                        responsePanels.get(i).setFixedHeight(rowHeights[i]);
-
-                        contentPanel.add(responsePanels.get(i));
-                    }
-                }
-
-                contentPanel.revalidate();
-                contentPanel.repaint();
+        return () -> {
+            while (!responsePanels.isEmpty()) {
+                Component c = responsePanels.remove(0);
+                contentPanel.remove(c);
             }
+            
+            if (!vizComponents.isEmpty()) {
+                //This is for setting each row in the table to a more appropriate height
+                int[] rowHeights = new int[vizComponents.size()];//highest allowable height for each row
+                int totalStrictHeight = 0;
+                int flexiblePanels = 0;
+                int minHeight = 150;//min height of a chart
+                
+                for (Component p : vizComponents) {
+                    
+                    int row = responsePanels.size();
+                    if (p instanceof StrictSizePanel) {
+                        int strictHeight = ((StrictSizePanel) p).getStrictSize().height;
+                        rowHeights[row] = strictHeight;
+                        totalStrictHeight += strictHeight;
+                    } else {
+                        rowHeights[row] = Integer.MAX_VALUE;
+                        flexiblePanels++;
+                    }
+                    
+                    FixedHeightPanel wrap = new FixedHeightPanel();
+                    wrap.setLayout(new BorderLayout());
+                    wrap.add(p, BorderLayout.CENTER);
+                    
+                    responsePanels.add(wrap);
+                }
+                int flexiblePanelHeight = minHeight;
+                if (flexiblePanels != 0) {
+                    flexiblePanelHeight = Math.max(minHeight, (height - totalStrictHeight) / flexiblePanels);
+                }
+                for (int i = 0; i < rowHeights.length; ++i) {
+                    if (rowHeights[i] == Integer.MAX_VALUE) {
+                        rowHeights[i] = flexiblePanelHeight;
+                    }
+                    responsePanels.get(i).setFixedHeight(rowHeights[i]);
+                    
+                    contentPanel.add(responsePanels.get(i));
+                }
+            }
+            
+            contentPanel.revalidate();
+            contentPanel.repaint();
         };
     }
 }

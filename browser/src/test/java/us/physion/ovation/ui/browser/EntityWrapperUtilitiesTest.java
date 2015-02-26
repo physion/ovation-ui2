@@ -6,19 +6,11 @@ package us.physion.ovation.ui.browser;
 
 import org.junit.*;
 import org.openide.explorer.ExplorerManager;
-import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
-import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.test.OvationTestCase;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.*;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import us.physion.ovation.domain.*;
 
 /**
  *

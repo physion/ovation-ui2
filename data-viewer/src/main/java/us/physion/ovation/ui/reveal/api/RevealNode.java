@@ -48,12 +48,9 @@ public abstract class RevealNode {
             return;
         }
         
-        EventQueueUtilities.runOnEDT(new Runnable() {
-            @Override
-            public void run() {
-                SelectInProjectNavigatorActionFactory factory = Lookup.getDefault().lookup(SelectInProjectNavigatorActionFactory.class);
-                factory.selectInTopComponent(topComponentID, entity).actionPerformed(null);
-            }
+        EventQueueUtilities.runOnEDT(() -> {
+            SelectInProjectNavigatorActionFactory factory = Lookup.getDefault().lookup(SelectInProjectNavigatorActionFactory.class);
+            factory.selectInTopComponent(topComponentID, entity).actionPerformed(null);
         });
     }
 

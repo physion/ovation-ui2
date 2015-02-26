@@ -261,9 +261,7 @@ public class EntityWrapper implements IEntityWrapper {
 
     @Override
     public boolean isLeaf() {
-        return Measurement.class.isAssignableFrom(getType())
-                || Resource.class.isAssignableFrom(getType())
-                || Revision.class.isAssignableFrom(getType());
+        return  Revision.class.isAssignableFrom(getType());
 
         //not sure if EquipmentSetup even has a Node...
         //EquipmentSetup.class.isAssignableFrom(getType()) ||

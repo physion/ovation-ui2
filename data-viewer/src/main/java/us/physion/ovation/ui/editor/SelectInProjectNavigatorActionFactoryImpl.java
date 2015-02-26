@@ -14,8 +14,10 @@ import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Folder;
 import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Resource;
+import us.physion.ovation.domain.Revision;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.User;
 import us.physion.ovation.domain.mixin.Identity;
@@ -26,12 +28,13 @@ import us.physion.ovation.ui.browser.BrowserUtilities;
 public class SelectInProjectNavigatorActionFactoryImpl implements SelectInProjectNavigatorActionFactory {
 
     private enum PathType {
+
         ProjectPath, SourcePath
     }
 
     @Override
     public Action selectInTopComponent(String topComponentId, Identity data) {
-        List<URI> path = new ArrayList<URI>();
+        List<URI> path = new ArrayList<>();
         PathType kind = buildPath(data, path);
         path.add(null);
         Collections.reverse(path);
@@ -40,7 +43,7 @@ public class SelectInProjectNavigatorActionFactoryImpl implements SelectInProjec
 
     @Override
     public Action select(Identity data, String displayName, List<URI> source) {
-        List<URI> path = new ArrayList<URI>();
+        List<URI> path = new ArrayList<>();
         PathType kind = buildPath(data, path);
         path.add(null);
         Collections.reverse(path);
@@ -64,8 +67,17 @@ public class SelectInProjectNavigatorActionFactoryImpl implements SelectInProjec
             if (id instanceof Measurement) {
                 Measurement m = (Measurement) id;
                 id = m.getEpoch();
+
             } else if (id instanceof Resource) {
-                id = ((Resource) id).getContainingEntity();
+                Resource r = (Resource) id;
+                id = resourceParent(r);
+
+            } else if (id instanceof Revision) {
+                Revision rev = (Revision) id;
+                id = Iterables.getFirst(rev.getEntities(Revision.RelationshipKeys.UPSTREAM_ANALYSES), null);
+                if(id == null) {
+                    id = rev.getResource();
+                }
             } else if (id instanceof AnalysisRecord) {
                 AnalysisRecord record = (AnalysisRecord) id;
 
@@ -79,17 +91,15 @@ public class SelectInProjectNavigatorActionFactoryImpl implements SelectInProjec
 
             } else if (id instanceof Epoch) {
                 id = ((Epoch) id).getParent();
+
             } else if (id instanceof EpochGroup) {
                 id = ((EpochGroup) id).getParent();
+
             } else if (id instanceof Experiment) {
                 //XXX: 1:N mapping
                 Experiment e = (Experiment) id;
-                Iterator<Project> it = e.getProjects().iterator();
-                if (it.hasNext()) {
-                    id = it.next();
-                } else {
-                    id = null;
-                }
+                id = Iterables.getFirst(e.getProjects(), null);
+
             } else if (id instanceof Project) {
                 //reached top level
                 return PathType.ProjectPath;
@@ -113,5 +123,18 @@ public class SelectInProjectNavigatorActionFactoryImpl implements SelectInProjec
         }
 
         throw new IllegalStateException("No top-level Project or Source found");
+    }
+
+    private Identity resourceParent(Resource r) {
+        Identity id;
+        OvationEntity containing = r.getContainingEntity();
+
+        if (containing == null) {
+            id = Iterables.getFirst(r.getFolders(), null);
+        } else {
+            id = containing;
+        }
+
+        return id;
     }
 }

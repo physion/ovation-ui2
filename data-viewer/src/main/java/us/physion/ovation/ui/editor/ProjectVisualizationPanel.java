@@ -29,7 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.Set;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import org.joda.time.DateTime;
@@ -49,7 +49,6 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityNode;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 import us.physion.ovation.ui.reveal.api.RevealNode;
-import us.physion.ovation.util.TransactionUtilities;
 
 /**
  * Data viewer visualization for Project entities
@@ -93,62 +92,34 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
             }
         });
 
-        startZoneComboBox.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                startDateTimeChanged();
-            }
+        startZoneComboBox.addActionListener((ActionEvent e) -> {
+            startDateTimeChanged();
         });
 
-        addExperimentButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                addExperiment(true);
-
-            }
+        addExperimentButton.addActionListener((final ActionEvent e) -> {
+            addExperiment(true);
         });
 
-        addFolderButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                addFolder(true);
-
-            }
-        });
+        addFolderButton.addActionListener(new ActionListenerImpl());
 
         experimentFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.Project_Drop_Files_To_Add_Experiment_Data()) {
 
             @Override
             public void filesDropped(final File[] files) {
-                ListenableFuture<Experiment> addExp = EventQueueUtilities.runOffEDT(new Callable<Experiment>() {
-                    @Override
-                    public Experiment call() throws Exception {
-                        return addExperiment(false);
-                    }
-                });
+                ListenableFuture<Experiment> addExp = EventQueueUtilities.runOffEDT(() -> addExperiment(false));
                 Futures.addCallback(addExp, new FutureCallback<Experiment>() {
 
                     @Override
                     public void onSuccess(final Experiment result) {
                         final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
 
-                        EventQueueUtilities.runOffEDT(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                final List<Measurement> m = EntityUtilities.insertMeasurements(result, files);
-                                EventQueueUtilities.runOnEDT(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (!m.isEmpty()) {
-                                            RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, m.get(0));
-                                        }
-                                    }
-                                });
-                            }
+                        EventQueueUtilities.runOffEDT(() -> {
+                            final List<Measurement> m = EntityUtilities.insertMeasurements(result, files);
+                            EventQueueUtilities.runOnEDT(() -> {
+                                if (!m.isEmpty()) {
+                                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, m.get(0));
+                                }
+                            });
                         }, ph);
                     }
 
@@ -171,28 +142,17 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                 }
 
                 final List<Resource> inputs = Lists.newArrayList(inputElements);
-
-                ListenableFuture<AnalysisRecord> addRecord = EventQueueUtilities.runOffEDT(new Callable<AnalysisRecord>() {
-
-                    @Override
-                    public AnalysisRecord call() throws Exception {
-                        final AnalysisRecord record = addAnalysisRecord(files, inputs);
-                        EventQueueUtilities.runOnEDT(new Runnable() {
-                            @Override
-                            public void run() {
-                                RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, record);
-                            }
-                        });
-
-                        return record;
-                    }
-
+                
+                ListenableFuture<AnalysisRecord> addRecord = EventQueueUtilities.runOffEDT(() -> {
+                    return addAnalysisRecord(files, inputs);
                 });
 
                 Futures.addCallback(addRecord, new FutureCallback<AnalysisRecord>() {
 
                     @Override
-                    public void onSuccess(final AnalysisRecord ar) {}
+                    public void onSuccess(final AnalysisRecord ar) {
+                        RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, ar);
+                    }
 
                     @Override
                     public void onFailure(Throwable t) {
@@ -228,7 +188,6 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         return result;
     }
 
-
     private Experiment addExperiment(boolean reveal) {
         final Experiment exp = getProject().insertExperiment(Bundle.Default_Experiment_Purpose(), new DateTime());
 
@@ -251,41 +210,33 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
     }
 
     private AnalysisRecord addAnalysisRecord(final File[] files, final Iterable<Resource> inputs) {
-        return TransactionUtilities.transactionWrapped(getContext(),
-                new Callable<AnalysisRecord>() {
+        AnalysisRecord ar = getProject().addAnalysisRecord(Bundle.Project_New_Analysis_Record_Name(),
+                inputs,
+                null,
+                Maps.<String, Object>newHashMap());
+        
+        final Set<String> outputNames = Sets.newHashSet(ar.getOutputs().keySet());
 
-                    @Override
-                    public AnalysisRecord call() {
-                        AnalysisRecord ar = getProject().addAnalysisRecord(Bundle.Project_New_Analysis_Record_Name(),
-                                inputs,
-                                null,
-                                Maps.<String, Object>newHashMap());
+        
+        for (File f : files) {
+            String name1 = f.getName();
+            int i = 1;
+            while (outputNames.contains(name1)) {
+                name1 = name1 + "_" + i++;
+            }
+            try {
+                ar.addOutput(name1, f.toURI().toURL(), ContentTypes.getContentType(f));
+                outputNames.add(name1);
+            } catch (MalformedURLException ex) {
+                logger.error("Unable to determine file URL", ex);
+                Toolkit.getDefaultToolkit().beep();
+            } catch (IOException ex) {
+                logger.error("Unable to determine file content type", ex);
+                Toolkit.getDefaultToolkit().beep();
+            }
+        }
+        return ar;
 
-                        for (File f : files) {
-                            String name = f.getName();
-                            int i = 1;
-                            while (ar.getOutputs().keySet().contains(name)) {
-                                name = name + "_" + i;
-                                i++;
-                            }
-
-                            try {
-                                ar.addOutput(
-                                        name,
-                                        f.toURI().toURL(),
-                                        ContentTypes.getContentType(f));
-                            } catch (MalformedURLException ex) {
-                                logger.error("Unable to determine file URL", ex);
-                                Toolkit.getDefaultToolkit().beep();
-                            } catch (IOException ex) {
-                                logger.error("Unable to determine file content type", ex);
-                                Toolkit.getDefaultToolkit().beep();
-                            }
-                        }
-
-                        return ar;
-                    }
-                });
     }
 
     protected void startDateTimeChanged() {
@@ -430,4 +381,16 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
     private javax.swing.JComboBox startZoneComboBox;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
+
+    private class ActionListenerImpl implements ActionListener {
+
+        public ActionListenerImpl() {
+        }
+
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            addFolder(true);
+            
+        }
+    }
 }
