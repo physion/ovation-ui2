@@ -77,7 +77,7 @@
               <Component id="addEpochGroupButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="fileWell" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="10" max="32767" attributes="0"/>
+              <EmptySpace pref="23" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -273,7 +273,7 @@
     </Container>
     <Component class="us.physion.ovation.ui.editor.FileWell" name="fileWell">
     </Component>
-    <Component class="javax.swing.JButton" name="addEpochGroupButton">
+    <Component class="org.jdesktop.swingx.JXHyperlink" name="addEpochGroupButton">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="EpochGroupVisualizationPanel.addEpochGroupButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>

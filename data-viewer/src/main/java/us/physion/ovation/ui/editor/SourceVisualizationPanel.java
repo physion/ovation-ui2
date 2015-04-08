@@ -134,7 +134,7 @@ public class SourceVisualizationPanel extends AbstractContainerVisualizationPane
         labelTextField = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         identifierTextField = new javax.swing.JTextField();
-        addChildButton = new javax.swing.JButton();
+        addChildButton = new org.jdesktop.swingx.JXHyperlink();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
 
@@ -168,7 +168,7 @@ public class SourceVisualizationPanel extends AbstractContainerVisualizationPane
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(addChildButton)
+                        .addComponent(addChildButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(identifierTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 285, Short.MAX_VALUE)
                     .addComponent(labelTextField))
@@ -186,8 +186,8 @@ public class SourceVisualizationPanel extends AbstractContainerVisualizationPane
                     .addComponent(jLabel1)
                     .addComponent(identifierTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(addChildButton)
-                .addContainerGap(51, Short.MAX_VALUE))
+                .addComponent(addChildButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(64, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -195,7 +195,7 @@ public class SourceVisualizationPanel extends AbstractContainerVisualizationPane
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addChildButton;
+    private org.jdesktop.swingx.JXHyperlink addChildButton;
     private javax.swing.JTextField identifierTextField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JTextField labelTextField;
