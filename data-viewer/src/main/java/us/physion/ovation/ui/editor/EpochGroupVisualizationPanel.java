@@ -21,11 +21,9 @@ import com.google.common.collect.Maps;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.List;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import org.jdesktop.beansbinding.Binding;
 import org.jdesktop.beansbinding.BindingGroup;
 import org.jdesktop.beansbinding.Bindings;
@@ -79,32 +77,21 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
 
         startZoneComboBox.setSelectedItem(getEpochGroup().getStart().getZone().getID());
 
-        startPicker.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-                if ("date".equals(propertyChangeEvent.getPropertyName())) {
-                    startDateTimeChanged();
-                }
+        startPicker.addPropertyChangeListener((PropertyChangeEvent propertyChangeEvent) -> {
+            if ("date".equals(propertyChangeEvent.getPropertyName())) {
+                startDateTimeChanged();
             }
         });
 
         startPicker.setDateTime(new DateTime(getEpochGroup().getStart()));
 
-        startZoneComboBox.addPropertyChangeListener(new PropertyChangeListener() {
-
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                startDateTimeChanged();
-            }
+        startZoneComboBox.addPropertyChangeListener((PropertyChangeEvent evt) -> {
+            startDateTimeChanged();
         });
 
-        editHyperlink.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (getEpochGroup().getProtocol() != null) {
-                    RevealNode.forEntity(BrowserUtilities.PROTOCOL_BROWSER_ID, getEpochGroup().getProtocol());
-                }
+        editHyperlink.addActionListener((ActionEvent e) -> {
+            if (getEpochGroup().getProtocol() != null) {
+                RevealNode.forEntity(BrowserUtilities.PROTOCOL_BROWSER_ID, getEpochGroup().getProtocol());
             }
         });
 
@@ -117,46 +104,37 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
 
         paramsModel.setParams(getEpochGroup().getProtocolParameters());
 
-        paramsModel.addTableModelListener(new TableModelListener() {
-
-            @Override
-            public void tableChanged(TableModelEvent e) {
-                switch (e.getType()) {
-                    case TableModelEvent.DELETE:
-                        for (String k : paramsModel.getAndClearRemovedKeys()) {
-                            getEpochGroup().removeProtocolParameter(k);
-                        }
-                        break;
-                    case TableModelEvent.INSERT:
-                        for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
-                            String key = (String) paramsModel.getValueAt(r, 0);
+        paramsModel.addTableModelListener((TableModelEvent e) -> {
+            switch (e.getType()) {
+                case TableModelEvent.DELETE:
+                    for (String k : paramsModel.getAndClearRemovedKeys()) {
+                        getEpochGroup().removeProtocolParameter(k);
+                    }
+                    break;
+                case TableModelEvent.INSERT:
+                    for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
+                        String key = (String) paramsModel.getValueAt(r, 0);
+                        Object value = paramsModel.getValueAt(r, 1);
+                        getEpochGroup().addProtocolParameter(key, value);
+                    }
+                    break;
+                case TableModelEvent.UPDATE:
+                    for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
+                        String key = (String) paramsModel.getValueAt(r, 0);
+                        if (key != null && !key.isEmpty()) {
                             Object value = paramsModel.getValueAt(r, 1);
                             getEpochGroup().addProtocolParameter(key, value);
                         }
-                        break;
-                    case TableModelEvent.UPDATE:
-                        for (int r = e.getFirstRow(); r <= e.getLastRow(); r++) {
-                            String key = (String) paramsModel.getValueAt(r, 0);
-                            if (key != null && !key.isEmpty()) {
-                                Object value = paramsModel.getValueAt(r, 1);
-                                getEpochGroup().addProtocolParameter(key, value);
-                            }
-                        }
-                        break;
-                }
+                    }
+                    break;
             }
-
         });
 
-        addProtocolHyperlink.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Protocol current = getEpochGroup().getProtocol();
-                getEpochGroup().setProtocol(addProtocol());
-                firePropertyChange("epochGroup.protocol", current, getEpochGroup().getProtocol());
-                protocolComboBox.setSelectedItem(getEpochGroup().getProtocol());
-            }
+        addProtocolHyperlink.addActionListener((ActionEvent e) -> {
+            Protocol current = getEpochGroup().getProtocol();
+            getEpochGroup().setProtocol(addProtocol());
+            firePropertyChange("epochGroup.protocol", current, getEpochGroup().getProtocol());
+            protocolComboBox.setSelectedItem(getEpochGroup().getProtocol());
         });
 
         fileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.EpochGroup_Drop_Files_To_Add_Data()) {
@@ -237,7 +215,7 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
         addProtocolHyperlink = new org.jdesktop.swingx.JXHyperlink();
         editHyperlink = new org.jdesktop.swingx.JXHyperlink();
         fileWell = new us.physion.ovation.ui.editor.FileWell();
-        addEpochGroupButton = new javax.swing.JButton();
+        addEpochGroupButton = new org.jdesktop.swingx.JXHyperlink();
 
         setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
 
@@ -356,7 +334,7 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
                                 .addComponent(startPicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(startZoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(addEpochGroupButton))
+                            .addComponent(addEpochGroupButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(fileWell, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
@@ -376,10 +354,10 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(addEpochGroupButton)
+                .addComponent(addEpochGroupButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(fileWell, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(10, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -387,7 +365,7 @@ public final class EpochGroupVisualizationPanel extends AbstractContainerVisuali
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addEpochGroupButton;
+    private org.jdesktop.swingx.JXHyperlink addEpochGroupButton;
     private org.jdesktop.swingx.JXHyperlink addProtocolHyperlink;
     private javax.swing.JLabel dateLabel;
     private org.jdesktop.swingx.JXHyperlink editHyperlink;
