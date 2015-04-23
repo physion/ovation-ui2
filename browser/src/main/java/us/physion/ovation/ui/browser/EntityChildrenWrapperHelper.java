@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.netbeans.api.progress.ProgressHandle;
 import us.physion.ovation.DataContext;
 import us.physion.ovation.domain.AnalysisRecord;
@@ -142,7 +143,7 @@ public class EntityChildrenWrapperHelper {
                 addContents(list, f, ph);
                 addAnalysisRecords(list, f, ph);
             } else if (Resource.class.isAssignableFrom(entityClass)) {
-                Resource r = (Resource)ew.getEntity();
+                Resource r = (Resource) ew.getEntity();
                 addRevisions(list, r, ph);
             }
         }
@@ -261,32 +262,13 @@ public class EntityChildrenWrapperHelper {
         if (ph != null) {
             ph.switchToIndeterminate();
         }
-        List<User> users = Lists.newArrayList(((OvationEntity)entity).getDataContext().getUsers());
-        Collections.sort(users,
-                (User t, User t1) -> t.getUsername().compareTo(t1.getUsername()));
+        Map<User, Map<String, AnalysisRecord>> records = entity.getAnalysisRecords();
 
-        for (User user : users) {
+        
+        for (User user : records.keySet()) {
             List<EntityWrapper> l = Lists.newArrayList(
-                    Iterables.transform(entity.getUserAnalysisRecords(user).values(),
+                    Iterables.transform(records.get(user).values(),
                             (AnalysisRecord f) -> new EntityWrapper(f)));
-            if (l.size() > 0) {
-                list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));
-            }
-
-        }
-    }
-
-    private void addAnalysisRecords(List<EntityWrapper> list, Epoch entity, ProgressHandle ph) {
-        if (ph != null) {
-            ph.switchToIndeterminate();
-        }
-        List<User> users = Lists.newArrayList(entity.getDataContext().getUsers());
-        
-        Collections.sort(users, (User t, User t1) -> t.getUsername().compareTo(t1.getUsername()));
-        
-        for (User user : users) {
-            List<EntityWrapper> l = Lists.newArrayList(Iterables.transform(entity.getUserAnalysisRecords(user).values(), 
-                    (AnalysisRecord f) -> new EntityWrapper(f)));
             if (l.size() > 0) {
                 list.add(new PerUserEntityWrapper(user.getUsername(), user.getURI().toString(), l));
             }
@@ -510,7 +492,7 @@ public class EntityChildrenWrapperHelper {
 
         EntityComparator entityComparator = new EntityComparator();
         List<Revision> revs = Lists.newArrayList(r.getRevisions());
-        
+
         int progressCounter = 0;
         if (ph != null) {
             ph.switchToDeterminate(revs.size());
@@ -520,10 +502,10 @@ public class EntityChildrenWrapperHelper {
             if (r1.getVersion() != null && r2.getVersion() != null) {
                 return r1.getVersion().compareTo(r2.getVersion());
             }
-            
+
             return r1.getURI().compareTo(r2.getURI());
         });
-        
+
         for (OvationEntity e : revs) {
             if (cancel.isCancelled()) {
                 return;
