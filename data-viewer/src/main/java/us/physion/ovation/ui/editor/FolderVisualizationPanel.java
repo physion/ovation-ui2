@@ -16,7 +16,6 @@
  */
 package us.physion.ovation.ui.editor;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -37,6 +36,7 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Folder;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.browser.BrowserUtilities;
 import static us.physion.ovation.ui.editor.AnalysisRecordVisualizationPanel.getResourcesFromEntity;
@@ -77,19 +77,19 @@ public class FolderVisualizationPanel extends AbstractContainerVisualizationPane
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_resources());
 
-                ListenableFuture<Iterable<Resource>> addResources = EventQueueUtilities.runOffEDT(() -> {
-                    final List<Resource> resources = EntityUtilities.insertResources(getFolder(), files);
-
-                    return resources;
+                ListenableFuture<OvationEntity> addResources = EventQueueUtilities.runOffEDT(() -> {
+                    return  EntityUtilities.insertResources(getFolder(), 
+                            files,
+                            Lists.newLinkedList(),
+                            Lists.newLinkedList());
                 }, ph);
 
-                Futures.addCallback(addResources, new FutureCallback<Iterable<Resource>>() {
+                Futures.addCallback(addResources, new FutureCallback<OvationEntity>() {
 
                     @Override
-                    public void onSuccess(final Iterable<Resource> result) {
-                        Resource r = Iterables.getFirst(result, null);
-                        if (r != null) {
-                            RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, r);
+                    public void onSuccess(final OvationEntity result) {
+                        if (result != null) {
+                            RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, result);
                         }
                     }
 

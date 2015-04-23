@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package us.physion.ovation.ui.editor;
 
 import com.google.common.base.Predicate;
@@ -24,6 +23,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.awt.Toolkit;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
@@ -34,6 +34,7 @@ import us.physion.ovation.domain.EpochGroup;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Folder;
 import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Resource;
 import us.physion.ovation.exceptions.OvationException;
 import us.physion.ovation.ui.importer.FileMetadata;
@@ -57,6 +58,35 @@ public final class EntityUtilities {
         return insertMeasurements(e, files, images);
     }
 
+    public static OvationEntity insertResources(Folder folder,
+            File[] files,
+            List<Resource> addedResources,
+            List<Folder> addedFolders) {
+        OvationEntity result = null;
+
+        for (File f : files) {
+            if (f.isDirectory()) {
+                Folder subFolder = folder.addFolder(f.getName());
+                addedFolders.add(subFolder);
+
+                FilenameFilter filter = (File dir, String name) -> {
+                    return !name.startsWith("."); // no hidden files
+                };
+
+                insertResources(subFolder, f.listFiles(filter), addedResources, addedFolders);
+            } else {
+                try {
+                    Resource r = folder.addResource(f.getName(), f.toURI().toURL(), ContentTypes.getContentType(f));
+                    addedResources.add(r);
+                } catch (IOException ex) {
+                    throw new OvationException("Unable to add Resource(s)", ex);
+                }
+            }
+        }
+
+        return addedFolders.isEmpty() ? Iterables.getFirst(addedResources, null) : Iterables.getFirst(addedFolders, null);
+    }
+
     public static List<Resource> insertResources(Folder folder, File[] files) {
         List<Resource> result = Lists.newLinkedList();
 
@@ -71,7 +101,6 @@ public final class EntityUtilities {
 
         return result;
     }
-
 
     public static List<Measurement> insertMeasurements(Epoch e, File[] files) {
         return insertMeasurements(e, files, getImages(files));
@@ -124,7 +153,6 @@ public final class EntityUtilities {
         DateTime start = new DateTime();
         DateTime end = new DateTime();
 
-
         for (File f : images) {
             FileMetadata m = new FileMetadata(f);
             if (m.getEnd(false).isAfter(end)) {
@@ -151,7 +179,7 @@ public final class EntityUtilities {
         return new DateTime[]{start, end};
     }
 
-    private static List<File> getImages(File[] files){
+    private static List<File> getImages(File[] files) {
         List<File> images = Lists.newLinkedList(Iterables.filter(Lists.newArrayList(files),
                 new Predicate<File>() {
 
