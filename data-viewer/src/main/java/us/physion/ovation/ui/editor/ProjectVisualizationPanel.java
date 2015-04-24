@@ -106,13 +106,15 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_resources());
 
-                final Folder root = (files.length == 1 && files[0].isDirectory()) ?
+                boolean rootFolder = (files.length == 1 && files[0].isDirectory());
+                final Folder root = rootFolder ?
                     getProject().addFolder(files[0].getName()) :
                     addFolder(false);
                 
+                
                 ListenableFuture<OvationEntity> addResources = EventQueueUtilities.runOffEDT(() -> {
                     return EntityUtilities.insertResources(root,
-                            files,
+                            rootFolder ? files[0].listFiles() : files,
                             Lists.newLinkedList(),
                             Lists.newLinkedList());
                 }, ph);
