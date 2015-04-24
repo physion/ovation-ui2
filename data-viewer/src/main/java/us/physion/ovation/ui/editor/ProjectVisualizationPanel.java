@@ -106,12 +106,11 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
             public void filesDropped(final File[] files) {
                 final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_resources());
 
-                boolean rootFolder = (files.length == 1 && files[0].isDirectory());
-                final Folder root = rootFolder ?
-                    getProject().addFolder(files[0].getName()) :
-                    addFolder(false);
-                
-                
+                final boolean rootFolder = (files.length == 1 && files[0].isDirectory());
+                final Folder root = rootFolder
+                        ? getProject().addFolder(files[0].getName())
+                        : addFolder(false);
+
                 ListenableFuture<OvationEntity> addResources = EventQueueUtilities.runOffEDT(() -> {
                     return EntityUtilities.insertResources(root,
                             rootFolder ? files[0].listFiles() : files,
@@ -124,7 +123,11 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
                     @Override
                     public void onSuccess(final OvationEntity result) {
                         if (result != null) {
-                            RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, result);
+                            if (rootFolder) {
+                                RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, root);
+                            } else {
+                                RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, result);
+                            }
                         }
                     }
 
@@ -192,7 +195,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
         return result;
     }
-    
+
     private AnalysisRecord addAnalysisRecord(final File[] files, final Iterable<Resource> inputs) {
         AnalysisRecord ar = getProject().addAnalysisRecord(Bundle.Project_New_Analysis_Record_Name(),
                 inputs,
