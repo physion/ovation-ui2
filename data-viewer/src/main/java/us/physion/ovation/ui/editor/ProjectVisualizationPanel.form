@@ -181,7 +181,7 @@
         <Property name="rows" type="int" value="1"/>
       </Layout>
       <SubComponents>
-        <Component class="us.physion.ovation.ui.editor.FileWell" name="experimentFileWell">
+        <Component class="us.physion.ovation.ui.editor.FileWell" name="dataFileWell">
         </Component>
         <Component class="us.physion.ovation.ui.editor.FileWell" name="analysisFileWell">
         </Component>

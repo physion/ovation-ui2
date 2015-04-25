@@ -24,7 +24,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -39,7 +38,7 @@ import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.domain.AnalysisRecord;
 import us.physion.ovation.domain.Experiment;
 import us.physion.ovation.domain.Folder;
-import us.physion.ovation.domain.Measurement;
+import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.browser.BrowserUtilities;
@@ -59,6 +58,7 @@ import us.physion.ovation.ui.reveal.api.RevealNode;
     "Default_Experiment_Purpose=New Experiment",
     "Project_New_Analysis_Record_Name=New Analysis",
     "Project_Drop_Files_To_Add_Experiment_Data=Drop files to add Experiment data",
+    "Project_Drop_Files=Drop files to upload",
     "Project_Drop_Files_To_Add_Analysis=Drop files to add analyses",
     "Default_Folder_Label=New Folder"
 })
@@ -84,12 +84,8 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
         startZoneComboBox.setSelectedItem(getProject().getStart().getZone().getID());
 
-        startPicker.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                startDateTimeChanged();
-            }
+        startPicker.addActionListener((ActionEvent e) -> {
+            startDateTimeChanged();
         });
 
         startZoneComboBox.addActionListener((ActionEvent e) -> {
@@ -104,30 +100,40 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
             addFolder(true);
         });
 
-        experimentFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.Project_Drop_Files_To_Add_Experiment_Data()) {
+        dataFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.Project_Drop_Files()) {
 
             @Override
             public void filesDropped(final File[] files) {
-                ListenableFuture<Experiment> addExp = EventQueueUtilities.runOffEDT(() -> addExperiment(false));
-                Futures.addCallback(addExp, new FutureCallback<Experiment>() {
+                final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_resources());
+
+                final boolean rootFolder = (files.length == 1 && files[0].isDirectory());
+                final Folder root = rootFolder
+                        ? getProject().addFolder(files[0].getName())
+                        : addFolder(false);
+
+                ListenableFuture<OvationEntity> addResources = EventQueueUtilities.runOffEDT(() -> {
+                    return EntityUtilities.insertResources(root,
+                            rootFolder ? files[0].listFiles() : files,
+                            Lists.newLinkedList(),
+                            Lists.newLinkedList());
+                }, ph);
+
+                Futures.addCallback(addResources, new FutureCallback<OvationEntity>() {
 
                     @Override
-                    public void onSuccess(final Experiment result) {
-                        final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_measurements());
-
-                        EventQueueUtilities.runOffEDT(() -> {
-                            final List<Measurement> m = EntityUtilities.insertMeasurements(result, files);
-                            EventQueueUtilities.runOnEDT(() -> {
-                                if (!m.isEmpty()) {
-                                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, m.get(0));
-                                }
-                            });
-                        }, ph);
+                    public void onSuccess(final OvationEntity result) {
+                        if (result != null) {
+                            if (rootFolder) {
+                                RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, root);
+                            } else {
+                                RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, result);
+                            }
+                        }
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
-                        logger.error("Unable to add measurements", t);
+                        logger.error("Unable to display added file(s)", t);
                     }
                 });
             }
@@ -189,7 +195,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
         return result;
     }
-    
+
     private AnalysisRecord addAnalysisRecord(final File[] files, final Iterable<Resource> inputs) {
         AnalysisRecord ar = getProject().addAnalysisRecord(Bundle.Project_New_Analysis_Record_Name(),
                 inputs,
@@ -266,7 +272,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
         projectNameField = new javax.swing.JTextField();
         startZoneComboBox = new javax.swing.JComboBox();
         dropPanelContainer = new javax.swing.JPanel();
-        experimentFileWell = new us.physion.ovation.ui.editor.FileWell();
+        dataFileWell = new us.physion.ovation.ui.editor.FileWell();
         analysisFileWell = new us.physion.ovation.ui.editor.FileWell();
         newFolderHyperlink = new org.jdesktop.swingx.JXHyperlink();
         newExperimentHyperlink = new org.jdesktop.swingx.JXHyperlink();
@@ -305,7 +311,7 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
         dropPanelContainer.setBackground(java.awt.Color.white);
         dropPanelContainer.setLayout(new java.awt.GridLayout(1, 0));
-        dropPanelContainer.add(experimentFileWell);
+        dropPanelContainer.add(dataFileWell);
         dropPanelContainer.add(analysisFileWell);
 
         org.openide.awt.Mnemonics.setLocalizedText(newFolderHyperlink, org.openide.util.NbBundle.getMessage(ProjectVisualizationPanel.class, "ProjectVisualizationPanel.newFolderHyperlink.text")); // NOI18N
@@ -369,9 +375,9 @@ public class ProjectVisualizationPanel extends AbstractContainerVisualizationPan
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private us.physion.ovation.ui.editor.FileWell analysisFileWell;
+    private us.physion.ovation.ui.editor.FileWell dataFileWell;
     private javax.swing.JLabel dateLabel;
     private javax.swing.JPanel dropPanelContainer;
-    private us.physion.ovation.ui.editor.FileWell experimentFileWell;
     private javax.swing.JScrollPane jScrollPane1;
     private org.jdesktop.swingx.JXHyperlink newExperimentHyperlink;
     private org.jdesktop.swingx.JXHyperlink newFolderHyperlink;
