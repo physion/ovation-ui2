@@ -292,6 +292,14 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>nbm-maven-plugin</artifactId>
+                        <configuration>
+                            <userSettings>
+                                <!-- A hard-coded jre folder must exist next to the ovation folder and contain the self-installing JREs-->
+                                <ovation.bundled.jvm.folder>${basedir}/../../jre</ovation.bundled.jvm.folder>
+                                <configuration.logic.file>${basedir}/installer/ConfigurationLogic.java</configuration.logic.file>
+                                <nbi.stub.buildfile>${basedir}/installer/build.xml</nbi.stub.buildfile>
+                            </userSettings>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>extra</id>

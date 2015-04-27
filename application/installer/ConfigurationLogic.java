@@ -73,6 +73,8 @@ import org.netbeans.installer.utils.exceptions.NativeException;
 import org.netbeans.installer.wizard.Wizard;
 import org.netbeans.installer.wizard.components.WizardComponent;
 
+import org.netbeans.installer.utils.system.launchers.LauncherResource;
+
 public class ConfigurationLogic extends ProductConfigurationLogic {
 
     private List<WizardComponent> wizardComponents;
@@ -207,6 +209,50 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
                     "... done"); // NOI18N
         }
 
+        File javaHome = new File(System.getProperty("java.home")); //NOI18N
+        File target = new File(installLocation, "jre"); //NOI18N
+        try {
+            FileUtils.copyFile(javaHome, target, true);
+        } catch (IOException e) {
+            throw new InstallationException("Cannot copy JRE", e);
+        }
+
+        //make exe
+        File binDir = new File(target, "bin");
+        for (File file : binDir.listFiles()) {
+            try {
+                file.setExecutable(true);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        //add JRE to conf file
+        File etc = new File(installLocation, "etc"); //NOI18N
+        File[] etcFiles = etc.listFiles();
+
+        if (etcFiles == null) {
+            throw new InstallationException("Cannot find configuration file to add JRE");
+        }
+
+        boolean found = false;
+        for (File conf : etcFiles) {
+            if (!conf.getName().endsWith(".conf")) {
+                continue;
+            }
+            try {
+                FileUtils.appendFile(conf, "\njdkhome=\"jre\"\n");
+                found = true;
+            } catch (IOException e) {
+                throw new InstallationException("Cannot write to configuration file " + conf, e);
+            }
+        }
+        if (!found) {
+            throw new InstallationException("Cannot find configuration file to add JRE");
+        }
+
+        //uninstaller
+        SystemUtils.getNativeUtils().addUninstallerJVM(new LauncherResource(false, target));
     }
 
     @Override
@@ -308,6 +354,17 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
         }
          */
         /////////////////////////////////////////////////////////////////////////////
+        File jre = new File(installLocation, "jre"); //NOI18N
+        if (jre.exists()) {
+            try {
+                for (File file : FileUtils.listFiles(jre).toList()) {
+                    FileUtils.deleteOnExit(file);
+                }
+                FileUtils.deleteOnExit(installLocation);
+            } catch (IOException e) {
+                //ignore
+            }
+        }
         progress.setPercentage(Progress.COMPLETE);
     }
 
@@ -477,3 +534,4 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
     private static final String CURRENT_USER_PROPERTY_VALUE =
             "current.user"; // NOI18N
 }
+

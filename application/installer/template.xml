@@ -81,6 +81,19 @@
            <fileset dir="${nbi.stub.common.location}"/>
         </copy>
 
+	<!-- Copy JRE -->
+        <copy todir="${installer.build.dir}">
+           <fileset dir="${ovation.bundled.jvm.folder}"/>
+        </copy>
+
+	<!-- Copy installer configuration logic -->
+	<copy file="${configuration.logic.file}"  overwrite="true"
+              tofile="${installer.build.dir}/ext/components/products/helloworld/src/org/mycompany/ConfigurationLogic.java"/>
+
+	<!-- Copy installer build script -->
+        <copy file="${nbi.stub.buildfile}"  overwrite="true"
+              tofile="${installer.build.dir}/build.xml"/>
+
         <echo message="Updating Windows launcher icons ${line.separator}"/>
 
         <exec dir="${launchers.dir}" osfamily="winnt" executable="${bin.dir}\ReplaceVistaIcon.exe">
