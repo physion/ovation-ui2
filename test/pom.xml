@@ -4,7 +4,7 @@
     <parent>
         <artifactId>ovation-ui-parent</artifactId>
         <groupId>us.physion</groupId>
-        <version>3.0.7-SNAPSHOT</version>
+        <version>3.0.9-SNAPSHOT</version>
     </parent>
 
     <groupId>us.physion</groupId>
@@ -28,7 +28,7 @@
 	<dependency>
             <groupId>us.physion</groupId>
             <artifactId>ovation-test-utils</artifactId>
-            <version>3.0.6</version>
+            <version>3.0.8</version>
         </dependency>
 
         <dependency>

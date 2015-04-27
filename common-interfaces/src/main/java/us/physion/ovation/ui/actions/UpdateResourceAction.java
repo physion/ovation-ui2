@@ -24,8 +24,8 @@ import us.physion.ovation.domain.Resource;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
 @Messages({
-    "UpdateResourceAction_Name=New Revision",
-    "UpdateResourceAction_Updating=Creating new revision...",
+    "UpdateResourceAction_Name=Save Version",
+    "UpdateResourceAction_Updating=Saving new version...",
 })
 public class UpdateResourceAction extends AbstractAction {
     private final Resource resource;

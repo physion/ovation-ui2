@@ -13,10 +13,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.concurrent.Future;
 import java.util.prefs.PreferenceChangeEvent;
-import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -34,6 +32,8 @@ import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.NbPreferences;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.physion.ovation.DataStoreCoordinator;
 import us.physion.ovation.api.Ovation;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
@@ -49,7 +49,8 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
     "Login_Window_Password=Password: ",
     "Login_Window_Invalid_Password=Invalid password",
     "Login_Window_Login_Button=Login",
-    "Login_Window_Authenticating_Progress=Authenticating..."
+    "Login_Window_Authenticating_Progress=Authenticating...",
+    "Login_Window_Login_Failed=Authentication failed"
 })
 public class LoginWindow {
     private final static Color SPINNER_BACKGROUND = Color.WHITE;
@@ -75,6 +76,8 @@ public class LoginWindow {
         return model;
     }
 
+    Logger logger = LoggerFactory.getLogger(LoginWindow.class);
+    
     private void authenticateInBackgroundThread(final LoginModel m, final Dialog d) {
         //start timer
 
@@ -85,31 +88,23 @@ public class LoginWindow {
 
         final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Login_Window_Authenticating_Progress());
 
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                //spinner.setVisible(true);
-                try {
-                    DataStoreCoordinator dsc = Ovation.connect(m.getEmail(), m.getPassword());
-                    m.cancelled = false;
-                    m.setDSC(dsc);
-                    EventQueueUtilities.runOnEDT(new Runnable() {
-                        @Override
-                        public void run() {
-                            ph.start();
-                        }
-                    });
-                    d.dispose();
-//                    }else{
-//                        displayError(Bundle.Login_Window_Invalid_Password());
-//                    }
-                } catch (Exception ex) {
-                    displayError(ex.getLocalizedMessage());
-                } finally{
-                    loginLayout.first(loginWithSpinnerPanel);
-                    emailTB.setEditable(true);
-                    passwordTB.setEditable(true);
-                }
+        Runnable r = () -> {
+            //spinner.setVisible(true);
+            try {
+                DataStoreCoordinator dsc = Ovation.connect(m.getEmail(), m.getPassword());
+                m.cancelled = false;
+                m.setDSC(dsc);
+                EventQueueUtilities.runOnEDT(() -> {
+                    ph.start();
+                });
+                d.dispose();
+            } catch (Exception ex) {
+                logger.error("Exception during login", ex);
+                displayError(Bundle.Login_Window_Login_Failed()); //ex.getLocalizedMessage());
+            } finally{
+                loginLayout.first(loginWithSpinnerPanel);
+                emailTB.setEditable(true);
+                passwordTB.setEditable(true);
             }
         };
         Future f = EventQueueUtilities.runOffEDT(r);
@@ -151,23 +146,19 @@ public class LoginWindow {
 
     private void displayError(final String error)
     {
-        EventQueueUtilities.runOnEDT(new Runnable() {
-
-            @Override
-            public void run() {
-                boolean visible;
-                if (error == null) {
-                    errorMsg.setText(""); //NOI18N
-                    visible = false;
-                } else {
-                    errorMsg.setText(error);
-                    visible = true;
-                }
-
-                if(errorPanel.isVisible() != visible){
-                    errorPanel.setVisible(visible);
-                    dialog.pack();
-                }
+        EventQueueUtilities.runOnEDT(() -> {
+            boolean visible;
+            if (error == null) {
+                errorMsg.setText(""); //NOI18N
+                visible = false;
+            } else {
+                errorMsg.setText(error);
+                visible = true;
+            }
+            
+            if(errorPanel.isVisible() != visible){
+                errorPanel.setVisible(visible);
+                dialog.pack();
             }
         });
     }
@@ -219,16 +210,11 @@ public class LoginWindow {
 
         login.add(loginWithSpinnerPanel, c);
 
-        okButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                model.setEmail(emailTB.getText());
-                model.setPassword(passwordTB.getText());
-                displayError(null);
-                authenticateInBackgroundThread(model, dialog);
-            }
-
+        okButton.addActionListener((ActionEvent ae) -> {
+            model.setEmail(emailTB.getText());
+            model.setPassword(passwordTB.getText());
+            displayError(null);
+            authenticateInBackgroundThread(model, dialog);
         });
 
         c.gridx = 0;
@@ -237,33 +223,25 @@ public class LoginWindow {
         final Preferences prefs = NbPreferences.forModule(LoginWindow.class);
         boolean save = prefs.getBoolean(SAVE_LOGIN_FOR_OFFLINE, false);
         cb.setSelected(save);
-        cb.addActionListener(new ActionListener() {
+        cb.addActionListener((ActionEvent ae) -> {
+            boolean checked = ((JCheckBox)(ae.getSource())).isSelected();
+            model.setRememberMe(checked);
+            prefs.putBoolean(SAVE_LOGIN_FOR_OFFLINE, checked);
+        });
 
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                boolean checked = ((JCheckBox)(ae.getSource())).isSelected();
-                model.setRememberMe(checked);
-                prefs.putBoolean(SAVE_LOGIN_FOR_OFFLINE, checked);
+        prefs.addPreferenceChangeListener((PreferenceChangeEvent evt) -> {
+            if(evt.getKey().equals(SAVE_LOGIN_FOR_OFFLINE)) {
+                boolean b = Boolean.valueOf(evt.getNewValue());
+                cb.setSelected(b);
+                model.setRememberMe(b);
             }
         });
 
-        prefs.addPreferenceChangeListener(new PreferenceChangeListener() {
-
-            @Override
-            public void preferenceChange(PreferenceChangeEvent evt) {
-                if(evt.getKey().equals(SAVE_LOGIN_FOR_OFFLINE)) {
-                    boolean b = Boolean.valueOf(evt.getNewValue());
-                    cb.setSelected(b);
-                    model.setRememberMe(b);
-                }
-            }
-        });
-
-        login.add(cb, c);
-        c.gridwidth = 1;
-        c.gridx = 1;
-        JLabel rememberMe = new JLabel(Bundle.Login_Window_Remember_Me());
-        login.add(rememberMe, c);
+//        login.add(cb, c);
+//        c.gridwidth = 1;
+//        c.gridx = 1;
+//        JLabel rememberMe = new JLabel(Bundle.Login_Window_Remember_Me());
+//        login.add(rememberMe, c);
 
 
         errorPanel = new JPanel(new BorderLayout()) {

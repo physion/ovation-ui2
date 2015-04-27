@@ -48,7 +48,7 @@ import us.physion.ovation.domain.mixin.AttachmentContainer;
 @TopComponent.Description(preferredID = "ResourceViewTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS)
-@TopComponent.Registration(mode = "properties", openAtStartup = true)
+@TopComponent.Registration(mode = "properties", openAtStartup = false)
 @ActionID(category = "Window", id = "us.physion.ovation.detailviews.ResourceViewTopComponent")
 @ActionReference(path = "Menu/Window" /*
          * , position = 333

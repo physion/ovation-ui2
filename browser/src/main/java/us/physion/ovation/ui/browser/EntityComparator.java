@@ -7,6 +7,7 @@ import us.physion.ovation.domain.Measurement;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.Project;
 import us.physion.ovation.domain.Protocol;
+import us.physion.ovation.domain.Resource;
 import us.physion.ovation.domain.Revision;
 import us.physion.ovation.domain.Source;
 import us.physion.ovation.domain.User;
@@ -79,12 +80,19 @@ public class EntityComparator<T extends EntityWrapper> implements Comparator<T> 
             Measurement m1 = (Measurement) entity1;
             Measurement m2 = (Measurement) entity2;
 
-            return m1.getLabel().toLowerCase().compareTo(m2.getLabel().toLowerCase());
+            return m1.getLabel().compareTo(m2.getLabel());
 //            if (m1.getEpoch().equals(m2.getEpoch())) {
 //                return m1.getName().toLowerCase().compareTo(m2.getName().toLowerCase());
 //            }
 //
 //            return ((Measurement) entity1).getEpoch().getStart().compareTo(((Measurement) entity2).getEpoch().getStart());
+        }
+        
+        if(entity1 instanceof Resource && entity2 instanceof Resource) {
+            Resource r1 = (Resource)entity1;
+            Resource r2 = (Resource)entity2;
+            
+            return r1.getLabel().compareTo(r2.getLabel());
         }
 
         if (entity1 instanceof Revision && entity2 instanceof Revision) {
