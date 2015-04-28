@@ -91,7 +91,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>scrollable-table-tree</artifactId>
             <version>${project.parent.version}</version>
-            <type>jar</type>
         </dependency>
 
         <dependency>

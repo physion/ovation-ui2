@@ -46,39 +46,30 @@ public final class PropertiesViewTopComponent extends TopComponent {
 
     Lookup.Result global;
     private Collection<? extends IEntityWrapper> entities;
-    private LookupListener listener = new LookupListener() {
-
-        @Override
-        public void resultChanged(LookupEvent le) {
-
-            //TODO: we should have some other Interface for things that can update the tags view
-            //then we could get rid of the Library dependancy on the Explorer API
-            if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider)
-            {
-                update();
-            }
+    private final LookupListener listener = (LookupEvent le) -> {
+        //TODO: we should have some other Interface for things that can update the tags view
+        //then we could get rid of the Library dependancy on the Explorer API
+        if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider)
+        {
+            update();
         }
-
     };
 
     public void update()
     {
-        EventQueueUtilities.runOffEDT(new Runnable() {
-
-            public void run() {
-                update(global.allInstances());
-            }
+        EventQueueUtilities.runOffEDT(() -> {
+            update(global.allInstances());
         });
     }
 
     public us.physion.ovation.ui.ScrollableTableTree getTableTree()
     {
-        return (us.physion.ovation.ui.ScrollableTableTree)jScrollPane1;
+        return (us.physion.ovation.ui.ScrollableTableTree)tableTree;
     }
 
     protected void setTableTree(us.physion.ovation.ui.ScrollableTableTree t)
     {
-        jScrollPane1 = t;
+        tableTree = t;
     }
 
     public void update(final Collection<? extends IEntityWrapper> entities)
@@ -87,22 +78,12 @@ public final class PropertiesViewTopComponent extends TopComponent {
         setEntities(entities, c);
 
         if (entities.size() > 1) {
-            EventQueueUtilities.runOnEDT(new Runnable() {
-
-                @Override
-                public void run() {
-
-                    setName(Bundle.CTL_PropertiesViewTopComponent() + " - " + entities.size() + " entities");
-                }
+            EventQueueUtilities.runOnEDT(() -> {
+                setName(Bundle.CTL_PropertiesViewTopComponent() + " - " + entities.size() + " entities");
             });
         } else {
-            EventQueueUtilities.runOnEDT(new Runnable() {
-
-                @Override
-                public void run() {
-
-                    setName(Bundle.CTL_PropertiesViewTopComponent());
-                }
+            EventQueueUtilities.runOnEDT(() -> {
+                setName(Bundle.CTL_PropertiesViewTopComponent());
             });
         }
     }
@@ -110,7 +91,7 @@ public final class PropertiesViewTopComponent extends TopComponent {
     protected List<TableTreeKey> setEntities(Collection<? extends IEntityWrapper> entities, DataContext c)
     {
         List<TableTreeKey> properties = PerUserAnnotationSets.createPropertySets(entities, c);
-        ((ScrollableTableTree) jScrollPane1).setKeys(properties);
+        ((ScrollableTableTree) tableTree).setKeys(properties);
 
         this.entities = entities;
         return properties;
@@ -138,22 +119,22 @@ public final class PropertiesViewTopComponent extends TopComponent {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new us.physion.ovation.ui.ScrollableTableTree();
+        tableTree = new us.physion.ovation.ui.ScrollableTableTree();
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
+            .addComponent(tableTree, javax.swing.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+            .addComponent(tableTree, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane tableTree;
     // End of variables declaration//GEN-END:variables
     @Override
     public void componentOpened() {

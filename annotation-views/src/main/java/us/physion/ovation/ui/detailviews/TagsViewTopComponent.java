@@ -45,39 +45,28 @@ import us.physion.ovation.ui.interfaces.IEntityWrapper;
 })
 public final class TagsViewTopComponent extends TopComponent {
 
-    private DefaultComboBoxModel tagComboModel = new DefaultComboBoxModel(new String[]{});
+    private final DefaultComboBoxModel tagComboModel = new DefaultComboBoxModel(new String[]{});
     Lookup.Result global;
     private Collection<? extends IEntityWrapper> entities;
-    private LookupListener listener = new LookupListener() {
-
-        @Override
-        public void resultChanged(LookupEvent le) {
-
-            //TODO: we should have some other Interface for things that can update the tags view
-            //then we could get rid of the Library dependancy on the Explorer API
-            if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider) {
-                update();
-            }
+    private final LookupListener listener = (LookupEvent le) -> {
+        //TODO: we should have some other Interface for things that can update the tags view
+        //then we could get rid of the Library dependancy on the Explorer API
+        if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider) {
+            update();
         }
     };
 
     protected void addTags(final Collection<? extends IEntityWrapper> entities, String tags) {
         final String[] tagList = tags.split(",");
-        EventQueueUtilities.runOffEDT(new Runnable() {
-            @Override
-            public void run() {
-                updateTagList(tagList);
-            }
+        EventQueueUtilities.runOffEDT(() -> {
+            updateTagList(tagList);
         });
     }
 
     protected void update() {
         entities = global.allInstances();
-        EventQueueUtilities.runOffEDT(new Runnable() {
-            @Override
-            public void run() {
-                update(entities, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
-            }
+        EventQueueUtilities.runOffEDT(() -> {
+            update(entities, Lookup.getDefault().lookup(ConnectionProvider.class).getDefaultContext());
         });
     }
 
@@ -158,16 +147,14 @@ public final class TagsViewTopComponent extends TopComponent {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
                         .addComponent(jLabel2)
-                        .addContainerGap(326, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(addTagComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())))
+                        .addGap(0, 307, Short.MAX_VALUE))
+                    .addComponent(addTagComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

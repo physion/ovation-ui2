@@ -18,8 +18,8 @@ import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
 public class ScrollableTableTree extends JScrollPane {
 
-    private ExpandableJTree tree;
-    private Map<String, DefaultMutableTreeNode> userNodes;
+    private final ExpandableJTree tree;
+    private final Map<String, DefaultMutableTreeNode> userNodes;
 
     public JTree getTree() {
         return tree;
@@ -27,37 +27,32 @@ public class ScrollableTableTree extends JScrollPane {
 
     public synchronized void setKeys(final java.util.List<? extends TableTreeKey> keys) {
         //TODO: test this logic
-        EventQueueUtilities.runOnEDT(new Runnable() {
-
-            @Override
-            public void run() {
-                final DefaultMutableTreeNode root = new DefaultMutableTreeNode("");
-                Set<DefaultMutableTreeNode> nodesToExpand = new HashSet<DefaultMutableTreeNode>();
-
-                for (TableTreeKey tableInfo : keys) {
-                    boolean shouldExpand = shouldExpand(tableInfo);
-                    DefaultMutableTreeNode userNode = new DefaultMutableTreeNode(tableInfo.getDisplayName());
-                    userNodes.put(tableInfo.getID(), userNode);
-
-                    if (shouldExpand) {
-                        nodesToExpand.add(userNode);
-                    }
-                    TableNode n = new TableNode(tableInfo);
-                    userNode.add(n);
-
-                    root.add(userNode);
-                }
-                // clear any selection first -- this prevents a null pointer exception
-                // if you click on a different entity while editing this one.
-                tree.setSelectionPath(null);
-
-                //((DefaultMutableTreeNode)((DefaultTreeModel) tree.getModel()).getRoot()).removeAllChildren();
-                ((DefaultTreeModel) tree.getModel()).setRoot(root);
-                for (DefaultMutableTreeNode node : nodesToExpand) {
-                    tree.expand(node);
-                }
-            }
+        EventQueueUtilities.runOnEDT(() -> {
+            final DefaultMutableTreeNode root = new DefaultMutableTreeNode("");
+            Set<DefaultMutableTreeNode> nodesToExpand = new HashSet<>();
             
+            for (TableTreeKey tableInfo : keys) {
+                boolean shouldExpand = shouldExpand(tableInfo);
+                DefaultMutableTreeNode userNode = new DefaultMutableTreeNode(tableInfo.getDisplayName());
+                userNodes.put(tableInfo.getID(), userNode);
+                
+                if (shouldExpand) {
+                    nodesToExpand.add(userNode);
+                }
+                TableNode n = new TableNode(tableInfo);
+                userNode.add(n);
+                
+                root.add(userNode);
+            }
+            // clear any selection first -- this prevents a null pointer exception
+            // if you click on a different entity while editing this one.
+            tree.setSelectionPath(null);
+            
+            //((DefaultMutableTreeNode)((DefaultTreeModel) tree.getModel()).getRoot()).removeAllChildren();
+            ((DefaultTreeModel) tree.getModel()).setRoot(root);
+            for (DefaultMutableTreeNode node : nodesToExpand) {
+                tree.expand(node);
+            }
         });
     }
 
@@ -101,7 +96,7 @@ public class ScrollableTableTree extends JScrollPane {
         });*/
         this.setViewportView(tree);
 
-        userNodes = new HashMap<String, DefaultMutableTreeNode>();
+        userNodes = new HashMap<>();
     }
 
     private synchronized boolean shouldExpand(TableTreeKey tableInfo) {
@@ -118,7 +113,7 @@ public class ScrollableTableTree extends JScrollPane {
     public static void main(String[] args)
     {
         ScrollableTableTree tree = new ScrollableTableTree();
-        ArrayList<TableTreeKey> keys = new ArrayList<TableTreeKey>();
+        ArrayList<TableTreeKey> keys = new ArrayList<>();
         keys.add(new TestTableTreeKey("Group 1", "0", true));
         keys.add(new TestTableTreeKey("Group 2", "1", false));
         tree.setKeys(keys);
@@ -139,9 +134,10 @@ public class ScrollableTableTree extends JScrollPane {
 
         public TableInTreeCellRenderer() {
             super();
-            tableLookup = new HashMap<String, TablePanel>();
+            tableLookup = new HashMap<>();
         }
 
+        @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value,
                 boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             final Object o = ((DefaultMutableTreeNode) value).getUserObject();
@@ -224,13 +220,9 @@ public class ScrollableTableTree extends JScrollPane {
     {
         if (node.getPanel() instanceof ResizableTable)
         {
-            EventQueueUtilities.runOnEDT(new Runnable(){
-
-                @Override
-                public void run() {
-                    ((ResizableTable) node.getPanel()).resize();
-                    ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(node);
-                }
+            EventQueueUtilities.runOnEDT(() -> {
+                ((ResizableTable) node.getPanel()).resize();
+                ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(node);
             });
         }
     }

@@ -64,11 +64,8 @@ public final class ParametersTopComponent extends TopComponent {
 
     public void update()
     {
-        EventQueueUtilities.runOffEDT(new Runnable() {
-
-            public void run() {
-                setEntities(global.allInstances());
-            }
+        EventQueueUtilities.runOffEDT(() -> {
+            setEntities(global.allInstances());
         });
     }
 
@@ -184,7 +181,7 @@ public final class ParametersTopComponent extends TopComponent {
             params = parametersToAdd;
         } else {
             //create a new map here, because the Ovation jar returns unmodifiable maps
-            params = new HashMap<String, Object>();
+            params = new HashMap<>();
             params.putAll(tables.get(paramName));
             for (String paramKey : parametersToAdd.keySet() ) {
                 if (params.containsKey(paramKey))
