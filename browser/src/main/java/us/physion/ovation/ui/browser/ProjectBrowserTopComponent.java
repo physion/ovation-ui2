@@ -67,26 +67,22 @@ public final class ProjectBrowserTopComponent extends TopComponent implements Ex
         final Preferences prefs = NbPreferences.forModule(ProjectBrowserTopComponent.class);
 
         filter.setExperimentsVisible(prefs.getBoolean("experiments-visible", true));
-        filter.setEpochGroupsVisible(prefs.getBoolean("epoch-groups-visible", false));
-        filter.setEpochsVisible(prefs.getBoolean("epochs-visible", false));
+        filter.setEpochGroupsVisible(prefs.getBoolean("epoch-groups-visible", true));
+        filter.setEpochsVisible(prefs.getBoolean("epochs-visible", true));
 
-        filter.addPropertyChangeListener(new PropertyChangeListener() {
-
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                boolean newValue = (Boolean) evt.getNewValue();
-
-                if (evt.getPropertyName().equals("experimentsVisible")) {
-                    prefs.putBoolean("experiments-visible", newValue);
-                }
-
-                if (evt.getPropertyName().equals("epochGroupsVisible")) {
-                    prefs.putBoolean("epoch-groups-visible", newValue);
-                }
-
-                if(evt.getPropertyName().equals("epochsVisible")) {
-                    prefs.putBoolean("epochs-visible", newValue);
-                }
+        filter.addPropertyChangeListener((PropertyChangeEvent evt) -> {
+            boolean newValue = (Boolean) evt.getNewValue();
+            
+            if (evt.getPropertyName().equals("experimentsVisible")) {
+                prefs.putBoolean("experiments-visible", newValue);
+            }
+            
+            if (evt.getPropertyName().equals("epochGroupsVisible")) {
+                prefs.putBoolean("epoch-groups-visible", newValue);
+            }
+            
+            if(evt.getPropertyName().equals("epochsVisible")) {
+                prefs.putBoolean("epochs-visible", newValue);
             }
         });
 

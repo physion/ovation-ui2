@@ -33,7 +33,7 @@ public class TreeFilter {
         navigatorType = t;
         experimentsVisible = true;
         epochGroupsVisible = true;
-        epochsVisible = false;
+        epochsVisible = true;
     }
 
     public NavigatorType getNavigatorType() {

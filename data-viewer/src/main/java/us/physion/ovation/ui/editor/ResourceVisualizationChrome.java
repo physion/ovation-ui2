@@ -17,6 +17,7 @@
 package us.physion.ovation.ui.editor;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -26,6 +27,7 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import org.openide.util.NbBundle.Messages;
 import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.util.PlatformUtils;
 
 /**
  *
@@ -64,6 +66,11 @@ public class ResourceVisualizationChrome<T extends OvationEntity> extends javax.
 
             infoPanelRoot.revalidate();
         });
+        
+        if(PlatformUtils.isWindows()) {
+            Font font = infoButton.getFont();
+            infoButton.setFont(font.deriveFont(10));
+        }
 
     }
 
@@ -128,7 +135,8 @@ public class ResourceVisualizationChrome<T extends OvationEntity> extends javax.
         infoPanelRoot.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
         infoPanelRoot.setBorder(new javax.swing.border.LineBorder(javax.swing.UIManager.getDefaults().getColor("InternalFrame.background"), 1, true));
 
-        org.openide.awt.Mnemonics.setLocalizedText(infoButton, org.openide.util.NbBundle.getMessage(ResourceVisualizationChrome.class, "ResourceVisualizationChrome.infoButton.text")); // NOI18N
+        infoButton.setFont(new java.awt.Font("Lucida Grande", 0, 12)); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(infoButton, org.openide.util.NbBundle.getMessage(ResourceVisualizationChrome.class, "DataElementVisualizationChrome.infoButton.text")); // NOI18N
 
         infoPanel.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
         infoPanel.setLayout(new java.awt.BorderLayout());
