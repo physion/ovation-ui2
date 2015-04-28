@@ -68,8 +68,7 @@ public class ResourceVisualizationChrome<T extends OvationEntity> extends javax.
         });
         
         if(PlatformUtils.isWindows()) {
-            Font font = infoButton.getFont();
-            infoButton.setFont(font.deriveFont(10));
+            infoButton.setFont(new java.awt.Font(Font.SANS_SERIF, Font.PLAIN, 10));
         }
 
     }
@@ -137,6 +136,10 @@ public class ResourceVisualizationChrome<T extends OvationEntity> extends javax.
 
         infoButton.setFont(new java.awt.Font("Lucida Grande", 0, 12)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(infoButton, org.openide.util.NbBundle.getMessage(ResourceVisualizationChrome.class, "DataElementVisualizationChrome.infoButton.text")); // NOI18N
+        infoButton.setToolTipText(org.openide.util.NbBundle.getMessage(ResourceVisualizationChrome.class, "ResourceVisualizationChrome.infoButton.toolTipText")); // NOI18N
+        infoButton.setMaximumSize(new java.awt.Dimension(35, 35));
+        infoButton.setMinimumSize(new java.awt.Dimension(35, 35));
+        infoButton.setPreferredSize(new java.awt.Dimension(35, 35));
 
         infoPanel.setBackground(javax.swing.UIManager.getDefaults().getColor("EditorPane.background"));
         infoPanel.setLayout(new java.awt.BorderLayout());
@@ -147,9 +150,9 @@ public class ResourceVisualizationChrome<T extends OvationEntity> extends javax.
             infoPanelRootLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(infoPanelRootLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(infoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(infoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(infoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
+                .addComponent(infoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 522, Short.MAX_VALUE)
                 .addContainerGap())
         );
         infoPanelRootLayout.setVerticalGroup(
@@ -157,7 +160,7 @@ public class ResourceVisualizationChrome<T extends OvationEntity> extends javax.
             .addComponent(infoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(infoPanelRootLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(infoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(infoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -176,7 +179,7 @@ public class ResourceVisualizationChrome<T extends OvationEntity> extends javax.
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(contentPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
+                .addComponent(contentPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(infoPanelRoot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
