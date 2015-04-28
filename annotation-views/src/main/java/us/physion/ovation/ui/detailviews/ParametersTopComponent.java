@@ -48,17 +48,12 @@ public final class ParametersTopComponent extends TopComponent {
 
     Lookup.Result global;
     private Collection<? extends IEntityWrapper> entities;
-    private LookupListener listener = new LookupListener() {
-
-        @Override
-        public void resultChanged(LookupEvent le) {
-
-            //TODO: we should have some other Interface for things that can setEntities the tags view
-            //then we could get rid of the Library dependancy on the Explorer API
-            if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider)
-            {
-                update();
-            }
+    private final LookupListener listener = (LookupEvent le) -> {
+        //TODO: we should have some other Interface for things that can setEntities the tags view
+        //then we could get rid of the Library dependancy on the Explorer API
+        if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider)
+        {
+            update();
         }
     };
 

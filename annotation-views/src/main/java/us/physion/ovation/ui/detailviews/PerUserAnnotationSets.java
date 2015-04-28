@@ -34,7 +34,15 @@ public class PerUserAnnotationSets {
         Entities entities = digestEntities(c, entityWrappers);
         List<TableTreeKey> properties = new ArrayList<>();
         
-        for (User u : c.getUsers()) {
+        Set<User> users = new HashSet<>();
+        for (IEntityWrapper e : entityWrappers) {
+            OvationEntity entity = e.getEntity();
+            if (entity instanceof PropertyAnnotatable) {
+                users.addAll(((PropertyAnnotatable) entity).getProperties().keySet());
+            }
+        }
+        
+        for (User u : users) {
             UserPropertySet propertySet = entities.getUserPropertySet(u);
             if (!propertySet.getProperties().isEmpty())
             {
@@ -55,7 +63,15 @@ public class PerUserAnnotationSets {
         Entities entities = digestEntities(c, entityWrappers);
         List<TableTreeKey> tags = new ArrayList<>();
         
-        for (User u : c.getUsers()) { //TODO this is dumb; get the users from entities
+        Set<User> users = new HashSet<>();
+        for(IEntityWrapper e : entityWrappers) {
+            OvationEntity entity = e.getEntity();
+            if(entity instanceof KeywordAnnotatable) {
+                users.addAll(((KeywordAnnotatable)entity).getTags().keySet());
+            }
+        }
+        
+        for (User u : users) { //TODO this is dumb; get the users from entities
             TagsSet tagSet = entities.getUserTagsSet(u);
             if (!tagSet.getTags().isEmpty()) {
                 tags.add(tagSet);
@@ -83,9 +99,9 @@ public class PerUserAnnotationSets {
         User currentUser;
         Entities(DataContext c, Collection<? extends IEntityWrapper> entities)
         {
-            entitybases = new HashSet();
-            owners = new HashSet();
-            uris = new HashSet();
+            entitybases = new HashSet<>();
+            owners = new HashSet<>();
+            uris = new HashSet<>();
             currentUser = c.getAuthenticatedUser();
 
             for (IEntityWrapper w : entities) {
@@ -100,7 +116,7 @@ public class PerUserAnnotationSets {
         
         private Map<String, Object> getProperties(User u)
         {
-            Map<String, Object> userProps = new HashMap();
+            Map<String, Object> userProps = new HashMap<>();
             for (OvationEntity e : entitybases) {
                 if (e instanceof PropertyAnnotatable)
                     userProps.putAll(((PropertyAnnotatable)e).getUserProperties(u));
