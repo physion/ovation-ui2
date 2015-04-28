@@ -25,13 +25,7 @@ public final class FilteredTreeViewPanel extends javax.swing.JPanel {
 
         bindToggleButtons(filter);
 
-        newRootEntityLink.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Actions.forID("Edit", actionId).actionPerformed(e);
-            }
-        });
+        newRootEntityLink.addActionListener(Actions.forID("Edit", actionId)::actionPerformed);
         //see https://developer.apple.com/library/mac/technotes/tn2007/tn2196.html#SEGMENTED_BUTTONS
         experimentToggle.putClientProperty("JButton.segmentPosition", "first"); //NOI18N
         epochGroupToggle.putClientProperty("JButton.segmentPosition", "middle"); //NOI18N
