@@ -115,9 +115,9 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="inputsScrollPane" max="32767" attributes="0"/>
                       <Group type="102" attributes="0">
-                          <Component id="addInputButton" min="-2" pref="30" max="-2" attributes="0"/>
+                          <Component id="addInputButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="removeInputButton" min="-2" pref="30" max="-2" attributes="0"/>
+                          <Component id="removeInputButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="0" pref="129" max="32767" attributes="0"/>
                       </Group>
                   </Group>
@@ -183,9 +183,6 @@
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="AnalysisRecordVisualizationPanel.addInputButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
-            <Property name="size" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[29, 29]"/>
-            </Property>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="removeInputButton">
@@ -195,9 +192,6 @@
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="us/physion/ovation/ui/editor/Bundle.properties" key="AnalysisRecordVisualizationPanel.removeInputButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
-            <Property name="size" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[29, 29]"/>
             </Property>
           </Properties>
         </Component>
@@ -226,7 +220,7 @@
                       <Group type="102" attributes="0">
                           <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="protocolComboBox" pref="161" max="32767" attributes="0"/>
+                          <Component id="protocolComboBox" pref="147" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="addProtocolButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>

@@ -548,11 +548,9 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
 
         addInputButton.setFont(new java.awt.Font("Lucida Grande", 0, 10)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(addInputButton, org.openide.util.NbBundle.getMessage(AnalysisRecordVisualizationPanel.class, "AnalysisRecordVisualizationPanel.addInputButton.text")); // NOI18N
-        addInputButton.setSize(new java.awt.Dimension(29, 29));
 
         removeInputButton.setFont(new java.awt.Font("Lucida Grande", 0, 10)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(removeInputButton, org.openide.util.NbBundle.getMessage(AnalysisRecordVisualizationPanel.class, "AnalysisRecordVisualizationPanel.removeInputButton.text")); // NOI18N
-        removeInputButton.setSize(new java.awt.Dimension(29, 29));
 
         javax.swing.GroupLayout inputsPanelLayout = new javax.swing.GroupLayout(inputsPanel);
         inputsPanel.setLayout(inputsPanelLayout);
@@ -563,9 +561,9 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
                 .addGroup(inputsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(inputsScrollPane)
                     .addGroup(inputsPanelLayout.createSequentialGroup()
-                        .addComponent(addInputButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(addInputButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(removeInputButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(removeInputButton)
                         .addGap(0, 129, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -621,7 +619,7 @@ public class AnalysisRecordVisualizationPanel extends AbstractContainerVisualiza
                     .addGroup(protocolPanelLayout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(protocolComboBox, 0, 161, Short.MAX_VALUE)
+                        .addComponent(protocolComboBox, 0, 147, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(addProtocolButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
