@@ -369,7 +369,7 @@
                                             <arg value="sign" />
                                             <arg value="/t" />
                                             <arg value="http://timestamp.digicert.com" />
-                                            <arg value="/a" />
+                                            <arg value="/n 'Physion LLC'" />
                                             <arg value="${project.build.directory}/Install Ovation ${project.version}.exe" />
                                         </exec>
 
