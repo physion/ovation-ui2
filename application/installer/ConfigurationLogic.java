@@ -94,6 +94,20 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
     public boolean allowModifyMode() {
         return false;
     }
+    
+    @Override
+    public Map<String, Object> getAdditionalSystemIntegrationInfo() {
+        Map<String, Object> info = super.getAdditionalSystemIntegrationInfo();
+        if (SystemUtils.isWindows()) {
+            info.put("DisplayVersion", getString("ovation.version"));
+            info.put("Publisher", "Physion LLC");
+            info.put("URLInfoAbout", "https://ovation.io/");
+            info.put("HelpLink", "http://docs.ovation.io/");
+//            info.put("URLUpdateInfo",  "");
+//            info.put("Readme",  readme absolute path);
+        }
+        return info;
+    }
 
     @Override
     public void install(Progress progress) throws InstallationException {

@@ -228,6 +228,7 @@
                                 <bin.dir>${basedir}\bin</bin.dir>
                                 <app.ico.file>${basedir}\installer\ovation_48x48.ico</app.ico.file>
                                 <launchers.dir>${project.build.directory}\installer\launchers</launchers.dir>
+                                <ovation.version>${project.version}</ovation.version>
                             </userSettings>
 
                             <licenseName>GNU General Public License, Version 3</licenseName>
