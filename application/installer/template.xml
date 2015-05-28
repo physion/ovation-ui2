@@ -164,6 +164,10 @@
             <replacefilter token="{product-install-directory-name-windows}" value="${suite.props.app.name}"/>
             <replacefilter token="{product-install-directory-name-macosx}"  value="${suite.props.app.name}"/>
         </replace>       
+        <concat destfile="${installer.build.dir}/ext/components/products/helloworld/src/org/mycompany/Bundle.properties" encoding="utf-8" append="true">
+ovation.version=${ovation.version}
+        </concat>
+                 
         <property name="dir.dir" value="${installer.build.dir}/tmpdirfornac"/>
         <mkdir dir="${dir.dir}"/>
 
