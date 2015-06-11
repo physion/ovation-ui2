@@ -114,19 +114,16 @@ public final class DataViewerTopComponent extends TopComponent {
 
         @Override
         public Lookup getLookup(final Resource element, final List<URI> entityURI) {
-            return Lookups.singleton(new Openable() {
-                @Override
-                public void open() {
-                    TemporaryViewTopComponent t = new TemporaryViewTopComponent(element);
-
-                    if (entityURI != null) {
-                        t.addTabAction(new OpenNodeInBrowserAction(entityURI, element.getName()));
-                    }
-
-                    WindowManager.getDefault().findMode("editor").dockInto(t); //NOI18N
-                    t.open();
-                    t.requestActive();
+            return Lookups.singleton((Openable) () -> {
+                TemporaryViewTopComponent t = new TemporaryViewTopComponent(element);
+                
+                if (entityURI != null) {
+                    t.addTabAction(new OpenNodeInBrowserAction(entityURI, element.getName()));
                 }
+                
+                WindowManager.getDefault().findMode("editor").dockInto(t); //NOI18N
+                t.open();
+                t.requestActive();
             });
         }
     }
@@ -175,17 +172,13 @@ public final class DataViewerTopComponent extends TopComponent {
     Lookup.Result global;
     List<FixedHeightPanel> responsePanels = new ArrayList<>();
     Future updateEntitySelection;
-    private LookupListener listener = new LookupListener() {
-        @Override
-        public void resultChanged(LookupEvent le) {
-
-            //TODO: we should have some other Interface for things that can update the tags view
-            //then we could get rid of the Library dependancy on the Explorer API
-            if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider) {
-                //resetTableEditor();
-
-                updateEntitySelection();
-            }
+    private final LookupListener listener = (LookupEvent le) -> {
+        //TODO: we should have some other Interface for things that can update the tags view
+        //then we could get rid of the Library dependancy on the Explorer API
+        if (TopComponent.getRegistry().getActivated() instanceof ExplorerManager.Provider) {
+            //resetTableEditor();
+            
+            updateEntitySelection();
         }
     };
 
