@@ -85,28 +85,24 @@ public class BrowserUtilities {
 
         final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Reset_Loading_Data());
 
-        EventQueueUtilities.runOffEDT(new Runnable() {
-
-            @Override
-            public void run() {
-                if (ctx == null) {
-                    
+        EventQueueUtilities.runOffEDT(() -> {
+            if (ctx == null) {
+                
+                for (ExplorerManager mgr : registeredViewManagers.keySet()) {
+                    TreeFilter filter = registeredViewManagers.get(mgr);
+                    mgr.setRootContext(createRootNode(filter));
+                }
+                
+            } else {
+                ctx.getRepository().clear();
+                
+                if (qs == null) {
                     for (ExplorerManager mgr : registeredViewManagers.keySet()) {
                         TreeFilter filter = registeredViewManagers.get(mgr);
                         mgr.setRootContext(createRootNode(filter));
                     }
-                    
                 } else {
-                    ctx.getRepository().clear();
-
-                    if (qs == null) {
-                        for (ExplorerManager mgr : registeredViewManagers.keySet()) {
-                            TreeFilter filter = registeredViewManagers.get(mgr);
-                            mgr.setRootContext(createRootNode(filter));
-                        }
-                    } else {
-                        qs.reset();
-                    }
+                    qs.reset();
                 }
             }
         }, ph);

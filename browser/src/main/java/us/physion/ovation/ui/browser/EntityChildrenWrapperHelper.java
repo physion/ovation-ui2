@@ -24,7 +24,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -120,6 +119,7 @@ public class EntityChildrenWrapperHelper {
                 Source entity = (Source) ew.getEntity();
                 addChildrenSources(list, entity, ph);
                 addProcedureElements(list, entity, ph);
+                addMeasuredRevisions(list, entity, ph);
             } else if (Experiment.class.isAssignableFrom(entityClass)) {
                 Experiment entity = (Experiment) ew.getEntity();
                 addEpochGroups(list, entity, ph);
@@ -171,16 +171,13 @@ public class EntityChildrenWrapperHelper {
 
     private List<EpochGroup> sortedEpochGroups(Experiment entity) {
         List<EpochGroup> epochGroups = Lists.newArrayList(entity.getEpochGroups());
-        Collections.sort(epochGroups, new Comparator<EpochGroup>() {
-            @Override
-            public int compare(EpochGroup o1, EpochGroup o2) {
-                if (o1 == null || o2 == null
-                        || o1.getStart() == null || o2.getStart() == null) {
-                    return 0;
-                }
-
-                return o1.getStart().compareTo(o2.getStart());
+        Collections.sort(epochGroups, (EpochGroup o1, EpochGroup o2) -> {
+            if (o1 == null || o2 == null
+                    || o1.getStart() == null || o2.getStart() == null) {
+                return 0;
             }
+            
+            return o1.getStart().compareTo(o2.getStart());
         });
         return epochGroups;
     }
@@ -193,16 +190,13 @@ public class EntityChildrenWrapperHelper {
     }
 
     private List<Epoch> sortEpochList(List<Epoch> epochs) {
-        Collections.sort(epochs, new Comparator<Epoch>() {
-            @Override
-            public int compare(Epoch o1, Epoch o2) {
-                if (o1 == null || o2 == null
-                        || o1.getStart() == null || o2.getStart() == null) {
-                    return 0;
-                }
-
-                return o1.getStart().compareTo(o2.getStart());
+        Collections.sort(epochs, (Epoch o1, Epoch o2) -> {
+            if (o1 == null || o2 == null
+                    || o1.getStart() == null || o2.getStart() == null) {
+                return 0;
             }
+            
+            return o1.getStart().compareTo(o2.getStart());
         });
         return epochs;
     }
@@ -423,6 +417,20 @@ public class EntityChildrenWrapperHelper {
                 absorbFilteredChildren(new EntityWrapper(e), filter.isEpochsVisible(), list, entity.getDataContext(), ph, entityComparator);
             }
         }
+    }
+    
+    private void addMeasuredRevisions(List<EntityWrapper> list, Source source, ProgressHandle ph) {
+        EntityComparator entityComparator = new EntityComparator();
+        List<EntityWrapper> revWrappers = Lists.newArrayList();
+        for(Revision rev : source.getMeasuredRevisions()) {
+            Resource r = rev.getResource();
+            if(!(r instanceof Measurement)) {
+                revWrappers.add(new EntityWrapper(r));
+            }
+        }
+        
+        revWrappers.sort(entityComparator);
+        list.addAll(revWrappers);
     }
 
     private List<EntityWrapper> filterVisible(List<EntityWrapper> children, ProgressHandle ph) {
