@@ -37,7 +37,6 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
@@ -126,12 +125,10 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
             addSourceFromText(ctx, addSourcesTextField.getText());
         });
 
-        addSourcesTextField.setEnabled(getMeasurements().size() > 0);
-        addSourcesTextField.setVisible(getMeasurements().size() > 0);
-
-        
+//        addSourcesTextField.setEnabled(getMeasurements().size() > 0);
+//        addSourcesTextField.setVisible(getMeasurements().size() > 0);
         OvationEntity e = Iterables.getFirst(getEntities(OvationEntity.class), null);
-        if(e != null) {
+        if (e != null) {
             ListeningExecutorService svc = e.getDataContext().getCoordinator().getExecutorService();
             ListenableFuture<List<String>> sourceIds = svc.submit(() -> {
                 try {
@@ -141,13 +138,12 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
                     Collections.sort(sortedIds);
                     AutoCompleteDecorator.decorate(addSourcesTextField, sortedIds, false);
                     return sortedIds;
-                }catch (Throwable ex) {
+                } catch (Throwable ex) {
                     logger.error("Unable to retrieve Sources. Autocomplete for Source IDs disabled.");
                     return Lists.newArrayList();
                 }
             });
         }
-        
 
         revisionFileWell.setDelegate(new FileWell.AbstractDelegate(Bundle.ResourceInfoPanel_Drop_Files_For_New_Revision()) {
 
@@ -174,7 +170,7 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
                             main = files[0];
                             supporting.remove(0);
                         }
-                        
+
                         r.addRevision(main.toURI().toURL(),
                                 ContentTypes.getContentType(main),
                                 main.getName(),
@@ -249,7 +245,7 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
             if (t == null) {
                 return false;
             }
-            
+
             return cls.isAssignableFrom(t.getClass());
         }), (OvationEntity f) -> (T) f);
     }
@@ -261,8 +257,8 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
     final Set<Resource> getResources() {
         return ImmutableSet.copyOf(getEntities(Resource.class));
     }
-    
-    final Set<Revision>getRevisions() {
+
+    final Set<Revision> getRevisions() {
         return ImmutableSet.copyOf(getEntities(Revision.class));
     }
 
@@ -366,26 +362,42 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
 
         for (Measurement m : getMeasurements()) {
             for (String s : m.getSourceNames()) {
-                int i = 0;
                 sources.putAll(s, m.getEpoch().getInputSources().get(s));
             }
         }
 
-        getResources().stream().filter((r) -> (r.getContainingEntity() instanceof AnalysisRecord)).forEach((r) -> {
-            AnalysisRecord record = (AnalysisRecord) r.getContainingEntity();
-            
-            record.getInputs().keySet().stream().forEach((s) -> {
-                inputResources.put(s, ((AnalysisRecord) r.getContainingEntity()).getInputs().get(s));
+        getResources().stream().forEach((r) -> {
+            if (r.getContainingEntity() instanceof AnalysisRecord) {
+                AnalysisRecord record = (AnalysisRecord) r.getContainingEntity();
+
+                record.getInputs().keySet().stream().forEach((s) -> {
+                    inputResources.put(s, ((AnalysisRecord) r.getContainingEntity()).getInputs().get(s));
+                });
+            }
+
+            Revision rev = r.getHeadRevision();
+            if (rev != null) {
+                rev.getInputSources().forEach((s) -> {
+                    sources.put(s.getLabel(), s);
+                });
+            }
+
+        });
+
+        getRevisions().stream().forEach((rev) -> {
+            rev.getInputSources().forEach((s) -> {
+                sources.put(s.getLabel(), s);
             });
         });
+
         EventQueueUtilities.runOnEDT(() -> {
             inputsTextPane.setText("");
-            
+
             for (Map.Entry<String, Source> namedSource : sources.entries()) {
                 insertInputsPanel(namedSource.getKey(), namedSource.getValue());
-                
+
             }
-            
+
             for (Map.Entry<String, Revision> namedInput : inputResources.entries()) {
                 insertInputsPanel(namedInput.getKey(), namedInput.getValue());
             }
@@ -413,57 +425,42 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
         sourceButton.setForeground(EntityColors.getEntityColor(entity.getClass()));
         sourceButton.setBorder(null);
 
-        sourceButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                //TODO find target, then decide where to show it
-                if (entity instanceof Source) {
-                    RevealNode.forEntity(BrowserUtilities.SOURCE_BROWSER_ID, entity);
-                } else {
-                    RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, entity);
-                }
+        sourceButton.addActionListener((final ActionEvent e) -> {
+            //TODO find target, then decide where to show it
+            if (entity instanceof Source) {
+                RevealNode.forEntity(BrowserUtilities.SOURCE_BROWSER_ID, entity);
+            } else {
+                RevealNode.forEntity(BrowserUtilities.PROJECT_BROWSER_ID, entity);
             }
         });
 
         sourcePanel.add(sourceButton);
         JButton removeButton = new JButton("x");
         removeButton.setPreferredSize(new Dimension(15, 15));
-        removeButton.addActionListener(new ActionListener() {
+        removeButton.addActionListener((ActionEvent e) -> {
+            for (Measurement m : getMeasurements()) {
+                Set<String> sourceNames = Sets.newHashSet(m.getSourceNames());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for (Measurement m : getMeasurements()) {
-                    Set<String> sourceNames = Sets.newHashSet(m.getSourceNames());
+                sourceNames.remove(label);
+                m.setSourceNames(sourceNames);
 
-                    sourceNames.remove(label);
-                    m.setSourceNames(sourceNames);
-
-                    try {
-                        m.getEpoch().removeInputSource(label);
-                    } catch (IllegalArgumentException ex) {
-                        // pass — it's in use by another source
-                    }
+                try {
+                    m.getEpoch().removeInputSource(label);
+                } catch (IllegalArgumentException ex) {
+                    // pass — it's in use by another source
                 }
-
-                for (Resource Resource : getResources()) {
-                    if (e instanceof Measurement) {
-                        continue;
-                    }
-
-                    ((AnalysisRecord) Resource.getContainingEntity()).removeInput(label);
-
-                }
-
-                SwingUtilities.invokeLater(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        updateInputs();
-                    }
-
-                });
             }
+
+            for (Resource Resource : getResources()) {
+                if (e instanceof Measurement) {
+                    continue;
+                }
+
+                ((AnalysisRecord) Resource.getContainingEntity()).removeInput(label);
+
+            }
+
+            SwingUtilities.invokeLater(this::updateInputs);
         });
 
         sourcePanel.add(removeButton);
@@ -520,56 +517,68 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
 
             final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Adding_source(sourceId));
 
-            EventQueueUtilities.runOffEDT(new Runnable() {
+            EventQueueUtilities.runOffEDT(() -> {
+                Set<Source> sources = Sets.newHashSet(ctx.getSourcesWithIdentifier(sourceId));
+                if (sources.isEmpty()) {
+                    sources = Sets.newHashSet(ctx.insertSource(sourceId, sourceId));
+                    SwingUtilities.invokeLater(() -> {
+                        BrowserUtilities.resetView(BrowserUtilities.SOURCE_BROWSER_ID);
+                    });
+                }
 
-                @Override
-                public void run() {
-                    Set<Source> sources = Sets.newHashSet(ctx.getSourcesWithIdentifier(sourceId));
-                    if (sources.isEmpty()) {
-                        sources = Sets.newHashSet(ctx.insertSource(sourceId, sourceId));
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                BrowserUtilities.resetView(BrowserUtilities.SOURCE_BROWSER_ID);
+                for (Measurement m : getMeasurements()) {
+                    Set<String> sourceNames = Sets.newHashSet(m.getSourceNames());
+                    Epoch epoch = m.getEpoch();
+
+                    for (Source s : sources) {
+                        String epochId = s.getLabel() + " (" + s.getIdentifier() + ")"; //s.getURI().toString();
+                        if (!s.equals(epoch.getInputSources().get(epochId))) {
+                            epochId = s.getLabel() + " (" + s.getIdentifier() + "; " + s.getURI().toString() + ")";
+                        }
+
+                        if (!epoch.getInputSources().containsValue(s)) {
+                            try {
+                                epoch.addInputSource(epochId, s);
+                            } catch (Throwable t) {
+                                throw new OvationException("Unable to add input source", t);
                             }
+
+                        }
+
+                        sourceNames.add(epochId);
+                    }
+
+                    m.setSourceNames(sourceNames);
+                }
+
+                for (Resource r : getResources()) {
+                    if((r instanceof Measurement) ||
+                            (r.getContainingEntity() instanceof AnalysisRecord)) {
+                        continue;
+                    }
+                    
+                    Revision rev = r.getHeadRevision();
+                    if (rev != null) {
+                        sources.forEach((s) -> {
+                            rev.addInputSource(s);
                         });
                     }
-
-                    for (Measurement m : getMeasurements()) {
-                        Set<String> sourceNames = Sets.newHashSet(m.getSourceNames());
-                        Epoch epoch = m.getEpoch();
-
-                        for (Source s : sources) {
-                            String epochId = s.getLabel() + " (" + s.getIdentifier() + ")"; //s.getURI().toString();
-                            if (!s.equals(epoch.getInputSources().get(epochId))) {
-                                epochId = s.getLabel() + " (" + s.getIdentifier() + "; " + s.getURI().toString() + ")";
-                            }
-
-                            if (!epoch.getInputSources().containsValue(s)) {
-                                try {
-                                    epoch.addInputSource(epochId, s);
-                                } catch (Throwable t) {
-                                    throw new OvationException("Unable to add input source", t);
-                                }
-
-                            }
-
-                            sourceNames.add(epochId);
-                        }
-
-                        m.setSourceNames(sourceNames);
-                    }
-
-                    EventQueueUtilities.runOnEDT(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            addSourcesTextField.setText("");
-                            updateInputs();
-                        }
-                    });
-
                 }
+                
+                for(Revision rev : getRevisions()) {
+                    if(rev.getResource().getContainingEntity() instanceof AnalysisRecord) {
+                        continue;
+                    }
+                    
+                    sources.forEach((s) -> {
+                        rev.addInputSource(s);
+                    });
+                }
+
+                EventQueueUtilities.runOnEDT(() -> {
+                    addSourcesTextField.setText("");
+                    updateInputs();
+                });
             }, ph);
         }
     }
