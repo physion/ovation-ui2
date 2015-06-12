@@ -18,7 +18,6 @@ package us.physion.ovation.ui.browser;
 
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.prefs.Preferences;
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -101,11 +100,8 @@ public final class SourceBrowserTopComponent extends TopComponent implements Exp
         associateLookup(ExplorerUtils.createLookup(em, getActionMap()));
 
         BrowserUtilities.initBrowser(em, filter);
-        filter.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                BrowserUtilities.resetView(em, filter);
-            }
+        filter.addPropertyChangeListener((PropertyChangeEvent evt) -> {
+            BrowserUtilities.resetView(em, filter);
         });
 
         ActionMap actionMap = this.getActionMap();
