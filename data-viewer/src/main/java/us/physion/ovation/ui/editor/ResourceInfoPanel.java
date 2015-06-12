@@ -125,8 +125,14 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
             addSourceFromText(ctx, addSourcesTextField.getText());
         });
 
-//        addSourcesTextField.setEnabled(getMeasurements().size() > 0);
-//        addSourcesTextField.setVisible(getMeasurements().size() > 0);
+        addSourcesTextField.setEnabled(getMeasurements().size() > 0
+                || getResources().stream().anyMatch((r) -> {
+                    return !(r instanceof Measurement);
+                })
+                || getRevisions().stream().anyMatch((r) -> {
+                    return !(r.getResource() instanceof Measurement);
+                }));
+
         OvationEntity e = Iterables.getFirst(getEntities(OvationEntity.class), null);
         if (e != null) {
             ListeningExecutorService svc = e.getDataContext().getCoordinator().getExecutorService();
@@ -552,11 +558,11 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
                 }
 
                 for (Resource r : getResources()) {
-                    if((r instanceof Measurement) ||
-                            (r.getContainingEntity() instanceof AnalysisRecord)) {
+                    if ((r instanceof Measurement)
+                            || (r.getContainingEntity() instanceof AnalysisRecord)) {
                         continue;
                     }
-                    
+
                     Revision rev = r.getHeadRevision();
                     if (rev != null) {
                         sources.forEach((s) -> {
@@ -564,12 +570,12 @@ public class ResourceInfoPanel extends javax.swing.JPanel {
                         });
                     }
                 }
-                
-                for(Revision rev : getRevisions()) {
-                    if(rev.getResource().getContainingEntity() instanceof AnalysisRecord) {
+
+                for (Revision rev : getRevisions()) {
+                    if (rev.getResource().getContainingEntity() instanceof AnalysisRecord) {
                         continue;
                     }
-                    
+
                     sources.forEach((s) -> {
                         rev.addInputSource(s);
                     });
