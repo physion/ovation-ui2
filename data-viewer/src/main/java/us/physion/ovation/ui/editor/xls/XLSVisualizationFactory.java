@@ -19,6 +19,7 @@ package us.physion.ovation.ui.editor.xls;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -27,9 +28,12 @@ import org.openide.util.NbBundle;
 import org.openide.util.lookup.ServiceProvider;
 import us.physion.ovation.domain.OvationEntity;
 import us.physion.ovation.domain.mixin.Content;
+import us.physion.ovation.loader.TabularService;
 import us.physion.ovation.ui.actions.ContentUtils;
 import us.physion.ovation.ui.editor.AbstractDataVisualization;
+import us.physion.ovation.ui.editor.ContentTypes;
 import us.physion.ovation.ui.editor.DataVisualization;
+import us.physion.ovation.ui.editor.TabularData;
 import us.physion.ovation.ui.editor.VisualizationFactory;
 import us.physion.ovation.ui.editor.pdf.PDFVisualizationFactory;
 
@@ -97,6 +101,41 @@ public class XLSVisualizationFactory implements VisualizationFactory {
             }
         }.readAll(f);
         return tab;
+    }
+    
+    @ServiceProvider(service = TabularService.class)
+    public static class Loader extends TabularService {
+
+        @Override
+        public String[][] read(File f) throws IOException {
+            try {
+                String contentType = ContentTypes.getContentType(f);
+                if (!XLSVisualizationFactory.XLSX_MIMETYPE.equals(contentType)) {
+                    return null;
+                }
+            } catch (IOException ex) {
+                return null;
+            }
+
+            final TabularData[] sheet = new TabularData[1];
+            XLSXReader.load(f, new XLSXReader.LoadHandler() {
+
+                @Override
+                public void handle(String sheetName, TabularData data) {
+                    //save 1st sheet
+                    if (sheet[0] == null) {
+                        sheet[0] = data;
+                    }
+                }
+            });
+
+            if (sheet[0] != null) {
+                return sheet[0].getRawData();
+            } else {
+                return null;
+            }
+        }
+
     }
 
 }

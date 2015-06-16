@@ -37,8 +37,12 @@ public abstract class XLSXReader {
 
     protected abstract void addSheet(String sheetName, JComponent c);
     
-    public void readAll(File f) {
-        try {
+    public interface LoadHandler {
+
+        void handle(String sheetName, TabularData data);
+    }
+    
+    public static void load(File f, LoadHandler handler) throws IOException{
             try (FileInputStream fis = new FileInputStream(f)) {
                 XSSFWorkbook workbook = new XSSFWorkbook(fis); // for xls HSSFWorkbook
 
@@ -72,15 +76,20 @@ public abstract class XLSXReader {
 
                     TabularData data = new TabularData(entries, getColumnNames(columnCount), f);
                     
-                    addSheet(sheet.getSheetName(), new TabularPanel(data));
+                    handler.handle(sheet.getSheetName(), data);
                 }
             }
+    }
+            
+    public void readAll(File f) {
+        try {
+            load(f, (String sheetName, TabularData data) -> addSheet(sheetName, new TabularPanel(data)));
         } catch (IOException e) {
             log.warn("Error loading XLSX file", e);
         }
     }
 
-    private List<String[]> reallocEntries(List<String[]> input, int columnCount) {
+    private static List<String[]> reallocEntries(List<String[]> input, int columnCount) {
         List<String[]> entries = new ArrayList<>();
 
         for (String[] row : input) {
@@ -93,7 +102,7 @@ public abstract class XLSXReader {
         return entries;
     }
 
-    private String[] getColumnNames(int columnCount) {
+    private static String[] getColumnNames(int columnCount) {
         String[] names = new String[columnCount];
 
         for (int i = 0; i < columnCount; i++) {
@@ -104,7 +113,7 @@ public abstract class XLSXReader {
     }
 
     //A-Z, AA-ZZ, etc.
-    private String getStringBase(int n, int base) {
+    private static String getStringBase(int n, int base) {
         if (n == 0) {
             return "A"; //NOI18N
         }
