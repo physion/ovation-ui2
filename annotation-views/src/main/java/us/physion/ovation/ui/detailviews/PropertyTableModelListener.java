@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.detailviews;
 
 import java.sql.Timestamp;
@@ -22,10 +18,6 @@ import us.physion.ovation.ui.*;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 
-/**
- *
- * @author huecotanks
- */
 class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableModelListener{
 
     ResizableTree tree;
@@ -146,46 +138,44 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
 
     void parseAndAdd(PropertyAnnotatable eb, String key, Object value)
     {
+        eb.addProperty(key, parse(value));
+    }
+    
+    public static Object parse(Object value)
+    {
         if (value == null){
-            eb.addProperty(key, "");
-            return;
+            return "";
         }
         if (value instanceof String) {
             String s = (String) value;
             try {
                 int v = Integer.parseInt(s);
-                eb.addProperty(key, v);
-                return;
+                return v;
             } catch (NumberFormatException e) {
             }
             try {
                 long v = Long.parseLong(s);
-                eb.addProperty(key, v);
-                return;
+                return v;
             } catch (NumberFormatException e) {
             }
             try {
                 double v = Double.parseDouble(s);
-                eb.addProperty(key, v);
-                return;
+                return v;
             } catch (NumberFormatException e) {
             }
             if (s.toLowerCase().equals("true"))
             {
-                eb.addProperty(key, true);
-                return;
+                return true;
             }
             if (s.toLowerCase().equals("false"))
             {
-                eb.addProperty(key, false);
-                return;
+                return false;
             }
             
             try{
                 DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
                 DateTime dt = fmt.parseDateTime(s);
-                eb.addProperty(key, new Timestamp(dt.getMillis()));
-                return;
+                return new Timestamp(dt.getMillis());
             } catch (IllegalArgumentException e) {
             }
             ArrayList<String> patterns = new ArrayList();
@@ -208,8 +198,7 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
 
                     DateTimeFormatter fmt = DateTimeFormat.forPattern(pattern);
                     DateTime dt = fmt.parseDateTime(s);
-                    eb.addProperty(key, new Timestamp(dt.getMillis()));
-                    return;
+                    return new Timestamp(dt.getMillis());
                 } catch (IllegalArgumentException e) {}
             }
             
@@ -217,6 +206,6 @@ class PropertyTableModelListener implements us.physion.ovation.ui.EditableTableM
             //NumericData
             //EntityBase
         }
-        eb.addProperty(key, value);//string case
+        return value;//string case
     }
 }

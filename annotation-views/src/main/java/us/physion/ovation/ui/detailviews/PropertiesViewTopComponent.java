@@ -1,10 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package us.physion.ovation.ui.detailviews;
 
+import java.awt.BorderLayout;
+import java.io.File;
 import java.util.*;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -14,17 +14,19 @@ import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
 import us.physion.ovation.DataContext;
+import us.physion.ovation.domain.OvationEntity;
+import us.physion.ovation.domain.mixin.PropertyAnnotatable;
+import us.physion.ovation.loader.TabularService;
 import us.physion.ovation.ui.*;
+import us.physion.ovation.ui.dnd.FileWellService;
 import us.physion.ovation.ui.interfaces.ConnectionProvider;
 import us.physion.ovation.ui.interfaces.EventQueueUtilities;
 import us.physion.ovation.ui.interfaces.IEntityWrapper;
 
 
-/**
- * Top component which displays something.
- */
 @ConvertAsProperties(dtd = "-//us.physion.ovation.detailviews//PropertiesView//EN",
 autostore = false)
 @TopComponent.Description(preferredID = "PropertiesViewTopComponent",
@@ -40,7 +42,10 @@ preferredID = "PropertiesViewTopComponent")
 @Messages({
     "CTL_PropertiesViewAction=Properties",
     "CTL_PropertiesViewTopComponent=Properties",
-    "HINT_PropertiesViewTopComponent=Displays the properties of the selected entites"
+    "HINT_PropertiesViewTopComponent=Displays the properties of the selected entites",
+    "Importing_Properties=Importing properties",
+    "Drop_File=Drop File",
+    "Drop_File_Tooltip=Drop CSV or Excel file with 2 columns to add as properties"
 })
 public final class PropertiesViewTopComponent extends TopComponent {
 
@@ -104,6 +109,64 @@ public final class PropertiesViewTopComponent extends TopComponent {
 
         global = Utilities.actionsGlobalContext().lookupResult(IEntityWrapper.class);
         global.addLookupListener(listener);
+
+        add(FileWellService.getDefault().createFileWell(new FileWellService.FileWellHandler() {
+
+            @Override
+            public void filesDropped(final File[] files) {
+                final ProgressHandle ph = ProgressHandleFactory.createHandle(Bundle.Importing_Properties());
+                ph.start();
+                RequestProcessor.getDefault().post(() -> {
+                    Collection<? extends IEntityWrapper> entities = getEntities();
+                    if (entities == null || entities.isEmpty()) {
+                        ph.finish();
+                        return;
+                    }
+
+                    try {
+                        for (File f : files) {
+                            String[][] tabularData = TabularService.load(f);
+                            if (tabularData != null && tabularData.length > 0 && tabularData[0].length == 2) {
+                                Map<String, Object> keyValue = toMap(tabularData);
+                                
+                                for (IEntityWrapper wrapper : entities) {
+                                    OvationEntity entity = wrapper.getEntity();
+                                    if (entity instanceof PropertyAnnotatable) {
+                                        ((PropertyAnnotatable) entity).addAllProperties(keyValue);
+                                    }
+                                }
+                            }
+                        }
+                        
+                        //invalidate?
+                        update(entities);
+                    } finally {
+                        ph.finish();
+                    }
+                });
+            }
+
+            @Override
+            public String getPrompt() {
+                return Bundle.Drop_File();
+            }
+
+            @Override
+            public String getTooltip() {
+                return Bundle.Drop_File_Tooltip();
+            }
+
+            private Map<String, Object> toMap(String[][] tabularData) {
+                Map<String, Object> keyValue = new HashMap<>();
+                for (String[] prop : tabularData) {
+                    if (prop.length == 2) {
+                        keyValue.put(prop[0], PropertyTableModelListener.parse(prop[1]));
+                    }
+                }
+                return keyValue;
+            }
+
+        }), BorderLayout.SOUTH);
     }
 
     public Collection<? extends IEntityWrapper> getEntities()
@@ -121,16 +184,8 @@ public final class PropertiesViewTopComponent extends TopComponent {
 
         tableTree = new us.physion.ovation.ui.ScrollableTableTree();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tableTree, javax.swing.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tableTree, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
-        );
+        setLayout(new java.awt.BorderLayout());
+        add(tableTree, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
