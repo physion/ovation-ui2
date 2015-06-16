@@ -1,6 +1,8 @@
 package us.physion.ovation.ui.browser;
 
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import java.awt.datatransfer.Transferable;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -62,15 +64,23 @@ public class EntityNode extends AbstractNode implements RefreshableNode, URINode
 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                EventQueueUtilities.runOnEDT(new Runnable() {
+                FutureCallback<String> callback = new FutureCallback<String>() {
 
                     @Override
-                    public void run() {
-                        setDisplayName(entityWrapper.getDisplayName());
-                        fireDisplayNameChange(null, getDisplayName());
-                        EntityNode.this.refresh();
+                    public void onSuccess(String displayName) {
+                        EventQueueUtilities.runOnEDT(() -> {
+                            setDisplayName(displayName);
+                            fireDisplayNameChange(null, displayName);
+                            EntityNode.this.refresh();
+                        });
                     }
-                });
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                    }
+                };
+                //call getDisplayName off the EDT because it is blocking
+                Futures.addCallback(EventQueueUtilities.runOffEDT(() -> entityWrapper.getDisplayName()), callback);
             }
         });
     }
