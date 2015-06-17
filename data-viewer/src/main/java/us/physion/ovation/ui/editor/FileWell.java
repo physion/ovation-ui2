@@ -32,12 +32,19 @@ public class FileWell extends javax.swing.JPanel {
     public static abstract class AbstractDelegate implements PropertyChangeProducer {
 
         static final String PROP_PROMPT = "prompt";
+        static final String PROP_TOOLTIP = "tooltip";
 
         private String prompt;
+        private String tooltip;
 
 
         public AbstractDelegate(String prompt) {
+            this(prompt, null);
+        }
+        
+        public AbstractDelegate(String prompt, String tooltip) {
             this.prompt = prompt;
+            this.tooltip = tooltip;
         }
 
         public abstract void filesDropped(File[] files);
@@ -52,6 +59,16 @@ public class FileWell extends javax.swing.JPanel {
             propertyChangeSupport.firePropertyChange(PROP_PROMPT, current, prompt);
         }
 
+        public String getTooltip() {
+            return tooltip;
+        }
+
+        public void setTooltip(String tooltip) {
+            String current = tooltip;
+            this.tooltip = tooltip;
+            propertyChangeSupport.firePropertyChange(PROP_TOOLTIP, current, tooltip);
+        }
+        
         private transient final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
         @Override
@@ -155,7 +172,6 @@ public class FileWell extends javax.swing.JPanel {
         dropPanelContainer.setMinimumSize(new java.awt.Dimension(100, 100));
 
         dropPanel.setBackground(new java.awt.Color(242, 242, 242));
-        dropPanel.setMaximumSize(new java.awt.Dimension(32767, 32767));
         dropPanel.setLayout(new java.awt.BorderLayout());
 
         jLabel3.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
@@ -164,6 +180,8 @@ public class FileWell extends javax.swing.JPanel {
         jLabel3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${delegate.prompt}"), jLabel3, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        bindingGroup.addBinding(binding);
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${delegate.tooltip}"), jLabel3, org.jdesktop.beansbinding.BeanProperty.create("toolTipText"));
         bindingGroup.addBinding(binding);
 
         dropPanel.add(jLabel3, java.awt.BorderLayout.CENTER);

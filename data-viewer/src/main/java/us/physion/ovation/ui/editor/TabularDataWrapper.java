@@ -20,20 +20,21 @@ public class TabularDataWrapper extends AbstractDataVisualization {
 
     private final Content entity;
     private final TabularData data;
+    
+    public static TabularData load(File file) throws IOException {
+        CSVReader reader = new CSVReader(new FileReader(file));
+        List<String[]> entries = reader.readAll();
+        String[] columnNames = entries.remove(0);
+
+        return new TabularData(entries, columnNames, file);
+    }
 
     TabularDataWrapper(Content r)
     {
         entity = r;
 
         try {
-            File file = r.getData().get();
-
-            CSVReader reader = new CSVReader(new FileReader(r.getData().get()));
-            List<String[]> entries = reader.readAll();
-            String[] columnNames = entries.remove(0);
-            
-            data = new TabularData(entries, columnNames, file);
-
+            data = load(r.getData().get());
         } catch (InterruptedException | ExecutionException | IOException ex) {
             String rId = "";
             if (r != null)

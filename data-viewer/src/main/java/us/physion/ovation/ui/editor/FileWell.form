@@ -81,9 +81,6 @@
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="f2" green="f2" red="f2" type="rgb"/>
             </Property>
-            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[32767, 32767]"/>
-            </Property>
           </Properties>
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
@@ -101,6 +98,7 @@
               </Properties>
               <BindingProperties>
                 <BindingProperty name="text" source="Form" sourcePath="${delegate.prompt}" target="jLabel3" targetPath="text" updateStrategy="0" immediately="false"/>
+                <BindingProperty name="toolTipText" source="Form" sourcePath="${delegate.tooltip}" target="jLabel3" targetPath="toolTipText" updateStrategy="0" immediately="false"/>
               </BindingProperties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">

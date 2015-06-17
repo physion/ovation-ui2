@@ -89,4 +89,8 @@ public class TabularData {
     {
         return (nextChunkPosition > CHUNK_SIZE);
     }
+
+    public String[][] getRawData() {
+        return tabularData;
+    }
 }
