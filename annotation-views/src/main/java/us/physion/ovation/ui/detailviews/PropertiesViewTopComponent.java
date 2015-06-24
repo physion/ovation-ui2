@@ -44,7 +44,7 @@ preferredID = "PropertiesViewTopComponent")
     "CTL_PropertiesViewTopComponent=Properties",
     "HINT_PropertiesViewTopComponent=Displays the properties of the selected entites",
     "Importing_Properties=Importing properties",
-    "Drop_File=Drop File",
+    "Drop_File=Add Properties",
     "Drop_File_Tooltip=Drop CSV or Excel file with 2 columns to add as properties"
 })
 public final class PropertiesViewTopComponent extends TopComponent {

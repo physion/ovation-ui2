@@ -51,7 +51,7 @@ import us.physion.ovation.ui.reveal.api.RevealNode;
  * @author barry
  */
 @Messages({
-    "Folder_Drop_Files_To_Add_Resources=Drop files",
+    "Folder_Drop_Files_To_Add_Resources=Drop files to upload",
     "Adding_resources=Adding files...",
     "Folder_New_Analysis_Record_Name=New Analysis"
 })
